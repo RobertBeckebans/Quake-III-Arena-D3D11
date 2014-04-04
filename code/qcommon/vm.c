@@ -326,7 +326,7 @@ Dlls will call this directly
  
 ============
 */
-int QDECL VM_DllSyscall( int arg, ... ) {
+int QDECL VM_DllSyscall( size_t arg, ... ) {
 #if ((defined __linux__) && (defined __powerpc__))
   // rcg010206 - see commentary above
   int args[16];
@@ -364,7 +364,7 @@ vm_t *VM_Restart( vm_t *vm ) {
 	// DLL's can't be restarted in place
 	if ( vm->dllHandle ) {
 		char	name[MAX_QPATH];
-	    int			(*systemCall)( int *parms );
+	    int			(*systemCall)( size_t *parms );
 		
 		systemCall = vm->systemCall;	
 		Q_strncpyz( name, vm->name, sizeof( name ) );
@@ -434,7 +434,7 @@ it will attempt to load as a system dll
 
 #define	STACK_SIZE	0x20000
 
-vm_t *VM_Create( const char *module, int (*systemCalls)(int *), 
+vm_t *VM_Create( const char *module, int (*systemCalls)(size_t *), 
 				vmInterpret_t interpret ) {
 	vm_t		*vm;
 #if !VM_ONLY_LOAD_DLLS

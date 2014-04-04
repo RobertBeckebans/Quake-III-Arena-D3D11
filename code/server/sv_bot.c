@@ -511,7 +511,7 @@ void SV_BotInitCvars(void) {
 }
 
 // @pjb: I think this might be used in a VM so I'm wrapping it
-int Z_AvailableMemory32()
+int Z_AvailableMemory32(void)
 {
     return (int) Z_AvailableMemory();
 }
