@@ -873,6 +873,9 @@ typedef struct {
 	trRefEntity_t	*currentEntity;
 	qboolean	skyRenderedThisView;	// flag for drawing sun
 
+    // @pjb: moved this out of glState
+    qboolean    finishCalled;
+
 	qboolean	projection2D;	// if qtrue, drawstretchpic doesn't need to change modes
 	byte		color2D[4];
 	qboolean	vertexes2D;		// shader needs to be finished

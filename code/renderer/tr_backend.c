@@ -83,12 +83,12 @@ void RB_BeginDrawingView (void) {
     float clearCol[4] = { 0, 0, 0, 0 };
 
 	// sync with gl if needed
-	if ( r_finish->integer == 1 && !glState.finishCalled ) {
+	if ( r_finish->integer == 1 && !backEnd.finishCalled ) {
 		graphicsDriver.Flush();
-		glState.finishCalled = qtrue;
+		backEnd.finishCalled = qtrue;
 	}
 	if ( r_finish->integer == 0 ) {
-		glState.finishCalled = qtrue;
+		backEnd.finishCalled = qtrue;
 	}
 
 	// we will need to change the projection matrix before drawing
@@ -706,7 +706,7 @@ const void	*RB_SwapBuffers( const void *data ) {
 	}
 
 
-	if ( !glState.finishCalled ) {
+	if ( !backEnd.finishCalled ) {
 		graphicsDriver.Flush();
 	}
 

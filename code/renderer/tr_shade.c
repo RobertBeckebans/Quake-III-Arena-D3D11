@@ -36,10 +36,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ================
 R_ArrayElementDiscrete
 
+@pjb: OpenGL internal
+
 This is just for OpenGL conformance testing, it should never be the fastest
 ================
 */
-static void APIENTRY R_ArrayElementDiscrete( GLint index ) {
+static void APIENTRY GLR_ArrayElementDiscrete( GLint index ) {
 	qglColor4ubv( tess.svars.colors[ index ] );
 	if ( glState.currenttmu ) {
 		qglMultiTexCoord2fARB( 0, tess.svars.texcoords[ 0 ][ index ][0], tess.svars.texcoords[ 0 ][ index ][1] );
@@ -54,11 +56,12 @@ static void APIENTRY R_ArrayElementDiscrete( GLint index ) {
 ===================
 R_DrawStripElements
 
+@pjb: OpenGL internal
 ===================
 */
 static int		c_vertexes;		// for seeing how long our average strips are
 static int		c_begins;
-static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void ( APIENTRY *element )(GLint) ) {
+static void GLR_DrawStripElements( int numIndexes, const glIndex_t *indexes, void ( APIENTRY *element )(GLint) ) {
 	int i;
 	glIndex_t last[3] = { (glIndex_t) -1, (glIndex_t) -1, (glIndex_t) -1 };
 	qboolean even;
@@ -157,12 +160,14 @@ static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void 
 ==================
 R_DrawElements
 
+@pjb: OpenGL internal
+
 Optionally performs our own glDrawElements that looks for strip conditions
 instead of using the single glDrawElements call that may be inefficient
 without compiled vertex arrays.
 ==================
 */
-static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
+static void GLR_DrawElements( int numIndexes, const glIndex_t *indexes ) {
 	int		primitives;
 
 	primitives = r_primitives->integer;
@@ -186,12 +191,12 @@ static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
 	}
 
 	if ( primitives == 1 ) {
-		R_DrawStripElements( numIndexes,  indexes, qglArrayElement );
+		GLR_DrawStripElements( numIndexes,  indexes, qglArrayElement );
 		return;
 	}
 	
 	if ( primitives == 3 ) {
-		R_DrawStripElements( numIndexes,  indexes, R_ArrayElementDiscrete );
+		GLR_DrawStripElements( numIndexes,  indexes, GLR_ArrayElementDiscrete );
 		return;
 	}
 
@@ -247,10 +252,12 @@ static void R_BindAnimatedImage( textureBundle_t *bundle ) {
 ================
 DrawTris
 
+@pjb: OpenGL internal 
+
 Draws triangle outlines for debugging
 ================
 */
-static void DrawTris (shaderCommands_t *input) {
+static void GLR_DebugDrawTris (shaderCommands_t *input) {
 	GL_Bind( tr.whiteImage );
 	qglColor3f (1,1,1);
 
@@ -267,7 +274,7 @@ static void DrawTris (shaderCommands_t *input) {
 		GLimp_LogComment( "glLockArraysEXT\n" );
 	}
 
-	R_DrawElements( input->numIndexes, input->indexes );
+	GLR_DrawElements( input->numIndexes, input->indexes );
 
 	if (qglUnlockArraysEXT) {
 		qglUnlockArraysEXT();
@@ -281,10 +288,12 @@ static void DrawTris (shaderCommands_t *input) {
 ================
 DrawNormals
 
+@pjb: OpenGL internal
+
 Draws vertex normals for debugging
 ================
 */
-static void DrawNormals (shaderCommands_t *input) {
+static void GLR_DebugDrawNormals (shaderCommands_t *input) {
 	int		i;
 	vec3_t	temp;
 
@@ -338,13 +347,15 @@ void RB_BeginSurface( shader_t *shader, int fogNum ) {
 ===================
 DrawMultitextured
 
+@pjb: OpenGL internal
+
 output = t0 * t1 or t0 + t1
 
 t0 = most upstream according to spec
 t1 = most downstream according to spec
 ===================
 */
-static void DrawMultitextured( shaderCommands_t *input, int stage ) {
+static void GLR_DrawMultitextured( shaderCommands_t *input, int stage ) {
 	shaderStage_t	*pStage;
 
 	pStage = tess.xstages[stage];
@@ -381,7 +392,7 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 
 	R_BindAnimatedImage( &pStage->bundle[1] );
 
-	R_DrawElements( input->numIndexes, input->indexes );
+	GLR_DrawElements( input->numIndexes, input->indexes );
 
 	//
 	// disable texturing on TEXTURE1, then select TEXTURE0
@@ -604,7 +615,7 @@ static void ProjectDlightTexture( void ) {
 		else {
 			GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
 		}
-		R_DrawElements( numIndexes, hitIndexes );
+		GLR_DrawElements( numIndexes, hitIndexes );
 		backEnd.pc.c_totalIndexes += numIndexes;
 		backEnd.pc.c_dlightIndexes += numIndexes;
 	}
@@ -644,7 +655,7 @@ static void RB_FogPass( void ) {
 		GL_State( GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
 	}
 
-	R_DrawElements( tess.numIndexes, tess.indexes );
+	GLR_DrawElements( tess.numIndexes, tess.indexes );
 }
 
 /*
@@ -972,7 +983,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 		//
 		if ( pStage->bundle[1].image[0] != 0 )
 		{
-			DrawMultitextured( input, stage );
+			GLR_DrawMultitextured( input, stage );
 		}
 		else
 		{
@@ -996,7 +1007,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 			//
 			// draw
 			//
-			R_DrawElements( input->numIndexes, input->indexes );
+			GLR_DrawElements( input->numIndexes, input->indexes );
 		}
 		// allow skipping out to show just lightmaps during development
 		if ( r_lightmap->integer && ( pStage->bundle[0].isLightmap || pStage->bundle[1].isLightmap || pStage->bundle[0].vertexLightmap ) )
@@ -1174,7 +1185,7 @@ void RB_StageIteratorVertexLitTexture( void )
 	//
 	R_BindAnimatedImage( &tess.xstages[0]->bundle[0] );
 	GL_State( tess.xstages[0]->stateBits );
-	R_DrawElements( input->numIndexes, input->indexes );
+	GLR_DrawElements( input->numIndexes, input->indexes );
 
 	// 
 	// now do any dynamic lighting needed
@@ -1267,7 +1278,7 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 		GLimp_LogComment( "glLockArraysEXT\n" );
 	}
 
-	R_DrawElements( input->numIndexes, input->indexes );
+	GLR_DrawElements( input->numIndexes, input->indexes );
 
 	//
 	// disable texturing on TEXTURE1, then select TEXTURE0
@@ -1350,10 +1361,10 @@ void RB_EndSurface( void ) {
 	// draw debugging stuff
 	//
 	if ( r_showtris->integer ) {
-		DrawTris (input);
+		GLR_DebugDrawTris (input);
 	}
 	if ( r_shownormals->integer ) {
-		DrawNormals (input);
+		GLR_DebugDrawNormals (input);
 	}
 	// clear shader so we can tell we don't have any unclosed surfaces
 	tess.numIndexes = 0;

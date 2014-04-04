@@ -252,7 +252,7 @@ void RB_TestFlare( flare_t *f ) {
 
 	// doing a readpixels is as good as doing a glFinish(), so
 	// don't bother with another sync
-	glState.finishCalled = qfalse;
+	backEnd.finishCalled = qfalse;
 
 	// read back the z buffer contents
 	qglReadPixels( f->windowX, f->windowY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth );

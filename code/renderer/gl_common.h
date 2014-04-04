@@ -40,7 +40,6 @@ typedef struct {
     qboolean        initialized;
 	int			    currenttextures[2];
 	int			    currenttmu;
-	qboolean	    finishCalled;
 	int			    texEnv[2];
 	int			    faceCulling;
 	unsigned long	glStateBits;
