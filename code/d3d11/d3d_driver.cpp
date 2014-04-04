@@ -120,7 +120,7 @@ void D3DDrv_SetViewport( int left, int top, int width, int height )
 {
     D3D11_VIEWPORT viewport;
     viewport.TopLeftX = left;
-    viewport.TopLeftY = top;
+    viewport.TopLeftY = g_BufferState.backBufferDesc.Height - top - height;
     viewport.Width = width;
     viewport.Height = height;
     viewport.MinDepth = 0;
