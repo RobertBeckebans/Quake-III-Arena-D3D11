@@ -259,6 +259,7 @@ typedef struct searchpath_s {
 static	char		fs_gamedir[MAX_OSPATH];	// this will be a single file name with no separators
 static	cvar_t		*fs_debug;
 static	cvar_t		*fs_homepath;
+static	cvar_t		*fs_userpath; // @pjb: for writeable files
 static	cvar_t		*fs_basepath;
 static	cvar_t		*fs_basegame;
 static	cvar_t		*fs_cdpath;
@@ -594,7 +595,9 @@ qboolean FS_FileExists( const char *file )
 	FILE *f;
 	char *testpath;
 
-	testpath = FS_BuildOSPath( fs_homepath->string, fs_gamedir, file );
+    // @pjb: because this function is only for checking if the file exists before we write,
+    // default to the user dir.
+	testpath = FS_BuildOSPath( fs_userpath->string, fs_gamedir, file );
 
 	f = fopen( testpath, "rb" );
 	if (f) {
@@ -616,7 +619,7 @@ qboolean FS_SV_FileExists( const char *file )
 	FILE *f;
 	char *testpath;
 
-	testpath = FS_BuildOSPath( fs_homepath->string, file, "");
+	testpath = FS_BuildOSPath( fs_userpath->string, file, "");
 	testpath[strlen(testpath)-1] = '\0';
 
 	f = fopen( testpath, "rb" );
@@ -642,7 +645,8 @@ fileHandle_t FS_SV_FOpenFileWrite( const char *filename ) {
 		Com_Error( ERR_FATAL, "Filesystem call made without initialization\n" );
 	}
 
-	ospath = FS_BuildOSPath( fs_homepath->string, filename, "" );
+    // @pjb: need to write to user's local storage
+	ospath = FS_BuildOSPath( fs_userpath->string, filename, "" );
 	ospath[strlen(ospath)-1] = '\0';
 
 	f = FS_HandleForFile();
@@ -744,6 +748,25 @@ int FS_SV_FOpenFileRead( const char *filename, fileHandle_t *fp ) {
 	  }
   }
   
+    // @pjb: check in the users' home path too
+	if (!fsh[f].handleFiles.file.o) {
+    // search cd path
+    ospath = FS_BuildOSPath( fs_userpath->string, filename, "" );
+    ospath[strlen(ospath)-1] = '\0';
+
+    if (fs_debug->integer)
+    {
+      Com_Printf( "FS_SV_FOpenFileRead (fs_userpath) : %s\n", ospath );
+    }
+
+	  fsh[f].handleFiles.file.o = fopen( ospath, "rb" );
+	  fsh[f].handleSync = qfalse;
+
+	  if( !fsh[f].handleFiles.file.o ) {
+	    f = 0;
+	  }
+  }
+  
 	*fp = f;
 	if (f) {
 		return FS_filelength(f);
@@ -768,8 +791,9 @@ void FS_SV_Rename( const char *from, const char *to ) {
 	// don't let sound stutter
 	S_ClearSoundBuffer();
 
-	from_ospath = FS_BuildOSPath( fs_homepath->string, from, "" );
-	to_ospath = FS_BuildOSPath( fs_homepath->string, to, "" );
+    // @pjb: can ONLY do this in the user path
+	from_ospath = FS_BuildOSPath( fs_userpath->string, from, "" );
+	to_ospath = FS_BuildOSPath( fs_userpath->string, to, "" );
 	from_ospath[strlen(from_ospath)-1] = '\0';
 	to_ospath[strlen(to_ospath)-1] = '\0';
 
@@ -802,8 +826,9 @@ void FS_Rename( const char *from, const char *to ) {
 	// don't let sound stutter
 	S_ClearSoundBuffer();
 
-	from_ospath = FS_BuildOSPath( fs_homepath->string, fs_gamedir, from );
-	to_ospath = FS_BuildOSPath( fs_homepath->string, fs_gamedir, to );
+    // Can ONLY do this in the user path
+	from_ospath = FS_BuildOSPath( fs_userpath->string, fs_gamedir, from );
+	to_ospath = FS_BuildOSPath( fs_userpath->string, fs_gamedir, to );
 
 	if ( fs_debug->integer ) {
 		Com_Printf( "FS_Rename: %s --> %s\n", from_ospath, to_ospath );
@@ -867,7 +892,8 @@ fileHandle_t FS_FOpenFileWrite( const char *filename ) {
 	f = FS_HandleForFile();
 	fsh[f].zipFile = qfalse;
 
-	ospath = FS_BuildOSPath( fs_homepath->string, fs_gamedir, filename );
+    // @pjb: write to user local storage
+	ospath = FS_BuildOSPath( fs_userpath->string, fs_gamedir, filename );
 
 	if ( fs_debug->integer ) {
 		Com_Printf( "FS_FOpenFileWrite: %s\n", ospath );
@@ -913,7 +939,8 @@ fileHandle_t FS_FOpenFileAppend( const char *filename ) {
 	// don't let sound stutter
 	S_ClearSoundBuffer();
 
-	ospath = FS_BuildOSPath( fs_homepath->string, fs_gamedir, filename );
+    // @pjb: write to user local storage
+	ospath = FS_BuildOSPath( fs_userpath->string, fs_gamedir, filename );
 
 	if ( fs_debug->integer ) {
 		Com_Printf( "FS_FOpenFileAppend: %s\n", ospath );
@@ -2133,6 +2160,7 @@ int	FS_GetModList( char *listbuf, int bufsize ) {
   char **pFiles0 = NULL;
   char **pFiles1 = NULL;
   char **pFiles2 = NULL;
+  char **pFiles3 = NULL;
   qboolean bDrop = qfalse;
 
   *listbuf = 0;
@@ -2141,6 +2169,7 @@ int	FS_GetModList( char *listbuf, int bufsize ) {
   pFiles0 = Sys_ListFiles( fs_homepath->string, NULL, NULL, &dummy, qtrue );
   pFiles1 = Sys_ListFiles( fs_basepath->string, NULL, NULL, &dummy, qtrue );
   pFiles2 = Sys_ListFiles( fs_cdpath->string, NULL, NULL, &dummy, qtrue );
+  pFiles3 = Sys_ListFiles( fs_userpath->string, NULL, NULL, &dummy, qtrue ); // @pjb: search for mods in user local storage
   // we searched for mods in the three paths
   // it is likely that we have duplicate names now, which we will cleanup below
   pFiles = Sys_ConcatenateFileLists( pFiles0, pFiles1, pFiles2 );
@@ -2175,6 +2204,14 @@ int	FS_GetModList( char *listbuf, int bufsize ) {
       nPaks = 0;
       pPaks = Sys_ListFiles(path, ".pk3", NULL, &nPaks, qfalse); 
       Sys_FreeFileList( pPaks ); // we only use Sys_ListFiles to check wether .pk3 files are present
+
+      /* @pjb: Try in user home */
+      if( nPaks <= 0 ) {
+        path = FS_BuildOSPath( fs_userpath->string, name, "" );
+        nPaks = 0;
+        pPaks = Sys_ListFiles( path, ".pk3", NULL, &nPaks, qfalse );
+        Sys_FreeFileList( pPaks );
+      }
 
       /* Try on cd path */
       if( nPaks <= 0 ) {
@@ -2749,6 +2786,7 @@ FS_Startup
 */
 static void FS_Startup( const char *gameName ) {
         const char *homePath;
+        const char *userPath;
 	cvar_t	*fs;
 
 	Com_Printf( "----- FS_Startup -----\n" );
@@ -2763,6 +2801,18 @@ static void FS_Startup( const char *gameName ) {
 		homePath = fs_basepath->string;
 	}
 	fs_homepath = Cvar_Get ("fs_homepath", homePath, CVAR_INIT );
+
+    // @pjb: init the user local storage path
+#ifdef WIN32
+    userPath = Sys_UserDir();
+#else
+  userPath = Sys_DefaultHomePath();
+#endif
+  if (!userPath || !userPath[0]) {
+		userPath = fs_basepath->string;
+	}
+	fs_userpath = Cvar_Get ("fs_userpath", userPath, CVAR_INIT );
+    
 	fs_gamedirvar = Cvar_Get ("fs_game", "", CVAR_INIT|CVAR_SYSTEMINFO );
 	fs_restrict = Cvar_Get ("fs_restrict", "", CVAR_INIT );
 
@@ -2778,6 +2828,15 @@ static void FS_Startup( const char *gameName ) {
 	if (fs_basepath->string[0] && Q_stricmp(fs_homepath->string,fs_basepath->string)) {
 		FS_AddGameDirectory ( fs_homepath->string, gameName );
 	}
+
+    // @pjb: don't add the directory if it's the base directory or the home directory
+#ifdef WIN32
+	if (fs_basepath->string[0] && 
+        Q_stricmp(fs_userpath->string,fs_basepath->string) &&
+        Q_stricmp(fs_userpath->string,fs_homepath->string)) {
+		FS_AddGameDirectory ( fs_userpath->string, gameName );
+	}
+#endif
         
 	// check for additional base game so mods can be based upon other mods
 	if ( fs_basegame->string[0] && !Q_stricmp( gameName, BASEGAME ) && Q_stricmp( fs_basegame->string, gameName ) ) {
@@ -2790,6 +2849,11 @@ static void FS_Startup( const char *gameName ) {
 		if (fs_homepath->string[0] && Q_stricmp(fs_homepath->string,fs_basepath->string)) {
 			FS_AddGameDirectory(fs_homepath->string, fs_basegame->string);
 		}
+#ifdef WIN32
+		if (fs_userpath->string[0]) {
+			FS_AddGameDirectory(fs_userpath->string, fs_basegame->string);
+		}
+#endif
 	}
 
 	// check for additional game folder for mods
@@ -2803,6 +2867,11 @@ static void FS_Startup( const char *gameName ) {
 		if (fs_homepath->string[0] && Q_stricmp(fs_homepath->string,fs_basepath->string)) {
 			FS_AddGameDirectory(fs_homepath->string, fs_gamedirvar->string);
 		}
+#ifdef WIN32
+		if (fs_userpath->string[0]) {
+			FS_AddGameDirectory(fs_userpath->string, fs_gamedirvar->string);
+		}
+#endif
 	}
 
 	Com_ReadCDKey( "baseq3" );
@@ -3257,6 +3326,7 @@ void FS_InitFilesystem( void ) {
 	Com_StartupVariable( "fs_cdpath" );
 	Com_StartupVariable( "fs_basepath" );
 	Com_StartupVariable( "fs_homepath" );
+	Com_StartupVariable( "fs_userpath" ); // @pjb: for writable files
 	Com_StartupVariable( "fs_game" );
 	Com_StartupVariable( "fs_copyfiles" );
 	Com_StartupVariable( "fs_restrict" );

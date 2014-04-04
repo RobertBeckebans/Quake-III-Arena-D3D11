@@ -250,6 +250,23 @@ WIN8_EXPORT char *Sys_Cwd( void ) {
 }
 
 /*
+==============
+Sys_UserDir
+
+Win8: return the writable directory
+==============
+*/
+WIN8_EXPORT char *Sys_UserDir( void ) {
+	static char cwd[MAX_OSPATH];
+
+	auto localFolder = Windows::Storage::ApplicationData::Current->LocalFolder;
+
+    Win8_CopyString( localFolder->Path, cwd, sizeof(cwd) );
+
+	return cwd;
+}
+
+/*
 ================
 Sys_GetClipboardData
 
