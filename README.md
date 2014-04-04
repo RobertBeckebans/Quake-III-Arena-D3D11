@@ -38,10 +38,12 @@ You can find the solution for this in code\Quake3Win32_VS201X.sln. Make sure Qua
 
 You can find the solution for this in code\Quake3Win*8_VS201X.sln. You will need to build and deploy one time to generate the package deployment path, which is in `code\Build\&lt;Platform&gt;\&lt;Configuration&gt;\AppX`. Copy your _baseq3_ folder in there. You should be able to just run after that.
 
-### Enabling or Disabling Features ###
+## Enabling or Disabling Features ##
 
 To toggle between XAudio2 or DirectSound use `set snd_driver xaudio` or `set snd_driver dsound`.
+
 To enable or disable the gamepad, use `set in_gamepad 1/0`.
+
 To toggle between Direct3D 11 or OpenGL you can `set r_driver d3d11` or `set r_driver opengl` respectively.
 
 In the desktop version, you can actually do a side-by-side visual comparison of the two renderers. `set r_driver proxy` will do this. 
