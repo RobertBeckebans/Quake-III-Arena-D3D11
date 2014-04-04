@@ -398,6 +398,41 @@ void GLRB_DrawSkyBox( const skyboxDrawInfo_t* skybox, const float* eye_origin, c
 	qglPopMatrix();
 }
 
+void GLRB_DrawBeam( const image_t* image, const float* color, const vec3_t startPoints[], const vec3_t endPoints[], int segs )
+{
+    int i;
+
+	GL_Bind( image );
+
+	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE );
+
+	qglColor3fv( color );
+
+	qglBegin( GL_TRIANGLE_STRIP );
+	for ( i = 0; i <= segs; i++ ) {
+		qglVertex3fv( startPoints[ i % segs] );
+		qglVertex3fv( endPoints[ i % segs] );
+	}
+	qglEnd();
+}
+
+// Draws from modelview space
+void GLRB_SurfaceAxis( void ) {
+	GL_Bind( tr.whiteImage );
+	qglLineWidth( 3 );
+	qglBegin( GL_LINES );
+	qglColor3f( 1,0,0 );
+	qglVertex3f( 0,0,0 );
+	qglVertex3f( 16,0,0 );
+	qglColor3f( 0,1,0 );
+	qglVertex3f( 0,0,0 );
+	qglVertex3f( 0,16,0 );
+	qglColor3f( 0,0,1 );
+	qglVertex3f( 0,0,0 );
+	qglVertex3f( 0,0,16 );
+	qglEnd();
+	qglLineWidth( 1 );
+}
 
 /*
 @@@@@@@@@@@@@@@@@@@@@
@@ -443,9 +478,11 @@ void GLRB_DriverInit( graphicsApiLayer_t* layer )
     layer->ShadowSilhouette = GLRB_ShadowSilhouette;
     layer->ShadowFinish = GLRB_ShadowFinish;
     layer->DrawSkyBox = GLRB_DrawSkyBox;
+    layer->DrawBeam = GLRB_DrawBeam;
     layer->DrawStageGeneric = GLRB_StageIteratorGeneric;
     layer->DrawStageVertexLitTexture = GLRB_StageIteratorVertexLitTexture;
     layer->DrawStageLightmappedMultitexture = GLRB_StageIteratorLightmappedMultitexture;
+    layer->DebugDrawAxis = GLRB_SurfaceAxis;
     layer->DebugDrawTris = GLRB_DebugDrawTris;
     layer->DebugDrawNormals = GLRB_DebugDrawNormals;
     layer->DebugSetOverdrawMeasureEnabled = GLRB_SetOverdrawMeasureEnabled;

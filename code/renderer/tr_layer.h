@@ -45,11 +45,12 @@ typedef struct graphicsApiLayer_s {
     void            (* ShadowSilhouette)( const float* edges, int edgeCount );
     void            (* ShadowFinish)( void );
     void            (* DrawSkyBox)( const skyboxDrawInfo_t* skybox, const float* eye_origin, const float* colorTint );
-
+    void            (* DrawBeam)( const image_t* image, const float* color, const vec3_t startPoints[], const vec3_t endPoints[], int segs );
     void            (* DrawStageGeneric)( const shaderCommands_t *input );
     void            (* DrawStageVertexLitTexture)( const shaderCommands_t *input );
     void            (* DrawStageLightmappedMultitexture)( const shaderCommands_t *input );
 
+    void            (* DebugDrawAxis)( void );
     void            (* DebugDrawNormals)( shaderCommands_t *input );
     void            (* DebugDrawTris)( shaderCommands_t *input );
     void            (* DebugSetOverdrawMeasureEnabled)( qboolean enabled );

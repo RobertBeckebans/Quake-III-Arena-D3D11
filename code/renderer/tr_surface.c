@@ -22,8 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // tr_surf.c
 #include "tr_local.h"
 #include "tr_state.h"
-
-#include "gl_common.h" // @pjb: todo: remove
+#include "tr_layer.h"
 
 /*
 
@@ -288,11 +287,12 @@ void RB_SurfaceBeam( void )
 {
 #define NUM_BEAM_SEGS 6
 	refEntity_t *e;
-	int	i;
+    int i;
 	vec3_t perpvec;
 	vec3_t direction, normalized_direction;
 	vec3_t	start_points[NUM_BEAM_SEGS], end_points[NUM_BEAM_SEGS];
 	vec3_t oldorigin, origin;
+    const float color[] = { 1, 0, 0 };
 
 	e = &backEnd.currentEntity->e;
 
@@ -322,18 +322,7 @@ void RB_SurfaceBeam( void )
 		VectorAdd( start_points[i], direction, end_points[i] );
 	}
 
-	GL_Bind( tr.whiteImage );
-
-	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE );
-
-	qglColor3f( 1, 0, 0 );
-
-	qglBegin( GL_TRIANGLE_STRIP );
-	for ( i = 0; i <= NUM_BEAM_SEGS; i++ ) {
-		qglVertex3fv( start_points[ i % NUM_BEAM_SEGS] );
-		qglVertex3fv( end_points[ i % NUM_BEAM_SEGS] );
-	}
-	qglEnd();
+    graphicsDriver.DrawBeam( tr.whiteImage, color, start_points, end_points, NUM_BEAM_SEGS );
 }
 
 //================================================================================
@@ -1075,20 +1064,7 @@ Draws x/y/z lines from the origin for orientation debugging
 ===================
 */
 void RB_SurfaceAxis( void ) {
-	GL_Bind( tr.whiteImage );
-	qglLineWidth( 3 );
-	qglBegin( GL_LINES );
-	qglColor3f( 1,0,0 );
-	qglVertex3f( 0,0,0 );
-	qglVertex3f( 16,0,0 );
-	qglColor3f( 0,1,0 );
-	qglVertex3f( 0,0,0 );
-	qglVertex3f( 0,16,0 );
-	qglColor3f( 0,0,1 );
-	qglVertex3f( 0,0,0 );
-	qglVertex3f( 0,0,16 );
-	qglEnd();
-	qglLineWidth( 1 );
+	graphicsDriver.DebugDrawAxis();
 }
 
 //===========================================================================
@@ -1196,7 +1172,8 @@ void RB_SurfaceFlare( srfFlare_t *surf ) {
 void RB_SurfaceDisplayList( srfDisplayList_t *surf ) {
 	// all apropriate state must be set in RB_BeginSurface
 	// this isn't implemented yet...
-	qglCallList( surf->listNum );
+	// @pjb: given this wasn't implemented in the shipping code, I'm not going to try :)
+    // CallList( surf->listNum );
 }
 
 void RB_SurfaceSkip( void *surf ) {
