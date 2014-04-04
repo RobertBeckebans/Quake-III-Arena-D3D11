@@ -195,11 +195,10 @@ void InitDriver( void )
     {
         GLRB_DriverInit( &graphicsDriver );
     }
-    // @pjb: todo
-    // else if ( strcmp( r_driver->string, "d3d11" ) == 0 )
-    //{
-    //  driver = D3D_DriverInit();
-    //}
+    else if ( strcmp( r_driver->string, "d3d11" ) == 0 )
+    {
+        D3DDrv_DriverInit( &graphicsDriver );
+    }
     else     if ( strcmp( r_driver->string, "proxy" ) == 0 )
     {
         PROXY_DriverInit( &graphicsDriver );
