@@ -291,7 +291,7 @@ int toupper( int c ) {
 #endif
 //#ifndef _MSC_VER
 
-
+#ifndef _M_X64
 void *memmove( void *dest, const void *src, size_t count ) {
 	int		i;
 
@@ -306,7 +306,7 @@ void *memmove( void *dest, const void *src, size_t count ) {
 	}
 	return dest;
 }
-
+#endif
 
 #if 0
 
