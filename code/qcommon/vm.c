@@ -471,6 +471,17 @@ vm_t *VM_Create( const char *module, int (*systemCalls)(int *),
 	Q_strncpyz( vm->name, module, sizeof( vm->name ) );
 	vm->systemCall = systemCalls;
 
+// @pjb: Force loading of DLLs until we get an X64 build of the QVM compiler and VM.
+#if 1
+	Com_Printf( "Loading dll file %s.\n", vm->name );
+	vm->dllHandle = Sys_LoadDll( module, vm->fqpath , &vm->entryPoint, VM_DllSyscall );
+	if ( vm->dllHandle ) {
+		return vm;
+	}
+    
+	Com_Printf( "Failed.\n" );
+	return NULL;
+#else
 	// never allow dll loading with a demo
 	if ( interpret == VMI_NATIVE ) {
 		if ( Cvar_VariableValue( "fs_restrict" ) ) {
@@ -562,6 +573,7 @@ vm_t *VM_Create( const char *module, int (*systemCalls)(int *),
 	Com_Printf("%s loaded in %d bytes on the hunk\n", module, remaining - Hunk_MemoryRemaining());
 
 	return vm;
+#endif
 }
 
 /*
