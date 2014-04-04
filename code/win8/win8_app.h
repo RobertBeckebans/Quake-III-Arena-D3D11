@@ -33,7 +33,8 @@ private:
     std::atomic<bool> m_windowClosed;
 	std::atomic<bool> m_windowVisible;
     Windows::Foundation::Size m_logicalSize;
-    Concurrency::task<int> m_gameThread;
+    Concurrency::task<void> m_gameThread;
+    std::atomic<bool> m_gameIsDone;
 
     Windows::Foundation::IAsyncOperation<Windows::UI::Popups::IUICommand^>^ m_currentMsgDlg;
 };

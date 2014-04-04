@@ -1,6 +1,8 @@
 #include <ppl.h>
 #include <ppltasks.h>
 #include <assert.h>
+#include <agile.h>
+
 #include "win8_app.h"
 #include "win8_msgq.h"
 #include "../d3d11/d3d_win8.h"
@@ -113,7 +115,7 @@ namespace Q3Win8
 	    };
     }
 
-    int GameThread( void* )
+    void GameThread()
     {
         try
         {
@@ -147,15 +149,14 @@ namespace Q3Win8
         NET_Shutdown();
 
         D3DWin8_CleanupDeferral();
-
-        return 0;
     }
 }
 
 Quake3Win8App::Quake3Win8App() :
 	m_windowClosed(false),
 	m_windowVisible(true),
-    m_currentMsgDlg(nullptr)
+    m_currentMsgDlg(nullptr),
+    m_gameIsDone(false)
 {
 }
 
@@ -202,9 +203,13 @@ void Quake3Win8App::SetWindow(CoreWindow^ window)
 
 void Quake3Win8App::Load(Platform::String^ entryPoint)
 {
-    m_gameThread = Concurrency::create_task( [] () -> int
+     // @pjb: Todo: on Blue this is way better: poll m_gameThread.is_done()
+    m_gameThread = Concurrency::create_task( [] ()
     {
-        return Q3Win8::GameThread( nullptr );
+        Q3Win8::GameThread();
+    } ).then( [this] () 
+    {
+        m_gameIsDone = true;
     } );
 }
 
@@ -229,7 +234,7 @@ void Quake3Win8App::HandleMessagesFromGame()
 
 void Quake3Win8App::Run()
 {
-	while ( !m_gameThread.is_done() )
+	while ( !m_gameIsDone ) // @pjb: Todo: on Blue this is way better: m_gameThread.is_done()
 	{
 		if (m_windowVisible)
 		{
@@ -251,8 +256,14 @@ void Quake3Win8App::Run()
     // If there's a dialog waiting to be dismissed, poll
     if ( m_currentMsgDlg != nullptr )
     {
-        auto task = Concurrency::create_task( m_currentMsgDlg );
-        while ( !task.is_done() )
+        std::atomic<bool> dlgDismissed = false;
+        Concurrency::create_task( m_currentMsgDlg ).then([&dlgDismissed] ( Windows::UI::Popups::IUICommand^ ) 
+        {
+            dlgDismissed = true;
+        });
+
+        // @pjb: Todo: on Blue this is way better: task.is_done()
+        while ( dlgDismissed )
         {
 			CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessOneAndAllPending);
         }
