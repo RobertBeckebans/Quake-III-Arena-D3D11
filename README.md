@@ -36,7 +36,7 @@ You can find the solution for this in code\Quake3Win32_VS201X.sln. Make sure Qua
 
 ## Building & Running the Windows 8 Edition ##
 
-You can find the solution for this in code\Quake3Win*8_VS201X.sln. You will need to build and deploy one time to generate the package deployment path, which is in `code\Build\&lt;Platform&gt;\&lt;Configuration&gt;\AppX`. Copy your _baseq3_ folder in there. You should be able to just run after that.
+You can find the solution for this in code\Quake3Win8_VS201X.sln. You will need to build and deploy one time to generate the package deployment path, which is in `code\Build\&lt;Platform&gt;\&lt;Configuration&gt;\AppX`. Copy your _baseq3_ folder in there. You should be able to just run after that.
 
 ## Enabling or Disabling Features ##
 
