@@ -2,22 +2,17 @@
 #include "d3d_common.h"
 #include "d3d_driver.h"
 #include "d3d_wnd.h"
-#include "d3d_views.h"
 #include "d3d_state.h"
+#include "d3d_image.h"
 
 // @pjb: this is just here to deliberately fuck the build if driver is used in here
 #define driver #driver_disallowed
 
 //----------------------------------------------------------------------------
-// Imports from d3d_wnd.cpp
-//----------------------------------------------------------------------------
-extern ID3D11Device* g_pDevice;
-extern ID3D11DeviceContext* g_pImmediateContext;
-extern IDXGISwapChain* g_pSwapChain;
-
-//----------------------------------------------------------------------------
 // Local data
 //----------------------------------------------------------------------------
+HRESULT g_hrLastError = S_OK;
+
 D3D11_TEXTURE2D_DESC g_BackBufferDesc;
 ID3D11RenderTargetView* g_pBackBufferView = nullptr;
 ID3D11DepthStencilView* g_pDepthBufferView = nullptr;
@@ -49,12 +44,12 @@ void D3DDrv_Shutdown( void )
 
 void D3DDrv_UnbindResources( void )
 {
-   
+
 }
 
 size_t D3DDrv_LastError( void )
 {
-    return 0;
+    return (size_t) g_hrLastError;
 }
 
 void D3DDrv_ReadPixels( int x, int y, int width, int height, imageFormat_t requestedFmt, void* dest )
@@ -72,29 +67,9 @@ void D3DDrv_ReadStencil( int x, int y, int width, int height, byte* dest )
 
 }
 
-void D3DDrv_CreateImage( const image_t* image, const byte *pic, qboolean isLightmap )
-{
-    
-}
-
-void D3DDrv_DeleteImage( const image_t* image )
-{
-    
-}
-
-void D3DDrv_UpdateCinematic( image_t* image, const byte* pic, int cols, int rows, qboolean dirty )
-{
-
-}
-
 void D3DDrv_DrawImage( const image_t* image, const float* coords, const float* texcoords, const float* color )
 {
 
-}
-
-imageFormat_t D3DDrv_GetImageFormat( const image_t* image )
-{
-    return IMAGEFORMAT_UNKNOWN;
 }
 
 void D3DDrv_SetGamma( unsigned char red[256], unsigned char green[256], unsigned char blue[256] )
@@ -104,11 +79,6 @@ void D3DDrv_SetGamma( unsigned char red[256], unsigned char green[256], unsigned
     {
         ri.Error( ERR_FATAL, "D3D11 hardware gamma ramp not implemented." );
     }
-}
-
-int D3DDrv_SumOfUsedImages( void )
-{
-    return 0;
 }
 
 void D3DDrv_GfxInfo( void )
@@ -138,22 +108,22 @@ void D3DDrv_Clear( unsigned long bits, const float* clearCol, unsigned long sten
 
 void D3DDrv_SetProjection( const float* projMatrix )
 {
-    memcpy( d3dState.projectionMatrix, projMatrix, sizeof(float) * 16 );
+    memcpy( g_State.projectionMatrix, projMatrix, sizeof(float) * 16 );
 }
 
 void D3DDrv_GetProjection( float* projMatrix )
 {
-    memcpy( projMatrix, d3dState.projectionMatrix, sizeof(float) * 16 );
+    memcpy( projMatrix, g_State.projectionMatrix, sizeof(float) * 16 );
 }
 
 void D3DDrv_SetModelView( const float* modelViewMatrix )
 {
-    memcpy( d3dState.modelViewMatrix, modelViewMatrix, sizeof(float) * 16 );
+    memcpy( g_State.modelViewMatrix, modelViewMatrix, sizeof(float) * 16 );
 }
 
 void D3DDrv_GetModelView( float* modelViewMatrix )
 {
-    memcpy( modelViewMatrix, d3dState.modelViewMatrix, sizeof(float) * 16 );
+    memcpy( modelViewMatrix, g_State.modelViewMatrix, sizeof(float) * 16 );
 }
 
 void D3DDrv_SetViewport( int left, int top, int width, int height )
@@ -175,17 +145,25 @@ void D3DDrv_Flush( void )
 
 void D3DDrv_SetState( unsigned long stateMask )
 {
-    
+    g_State.stateMask = stateMask;
 }
 
 void D3DDrv_ResetState2D( void )
 {
+    D3DDrv_SetModelView( s_identityMatrix );
+    D3DDrv_SetState( GLS_DEPTHTEST_DISABLE |
+			  GLS_SRCBLEND_SRC_ALPHA |
+			  GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
 
+    // @pjb: todo: GL_Cull( CT_TWO_SIDED );
+
+    D3DDrv_SetPortalRendering( qfalse, NULL, NULL );
 }
 
 void D3DDrv_ResetState3D( void )
 {
-
+    D3DDrv_SetModelView( s_identityMatrix );
+    D3DDrv_SetState( GLS_DEFAULT );
 }
 
 void D3DDrv_SetPortalRendering( qboolean enabled, const float* flipMatrix, const float* plane )
@@ -210,7 +188,7 @@ void D3DDrv_EndFrame( void )
 
 void D3DDrv_MakeCurrent( qboolean current )
 {
-
+    
 }
 
 void D3DDrv_ShadowSilhouette( const float* edges, int edgeCount )
@@ -282,7 +260,7 @@ void SetupVideoConfig()
 {
     // Set up a bunch of default state
     const char* d3dVersionStr = "Direct3D 11";
-    switch ( d3dState.featureLevel )
+    switch ( g_State.featureLevel )
     {
     case D3D_FEATURE_LEVEL_9_1 : d3dVersionStr = "v9.1 (Compatibility)"; break;
     case D3D_FEATURE_LEVEL_9_2 : d3dVersionStr = "v9.2 (Compatibility)"; break;
@@ -300,8 +278,8 @@ void SetupVideoConfig()
     g_pDepthBufferView->GetDesc( &depthBufferViewDesc );
 
     DWORD colorDepth = 0, depthDepth = 0, stencilDepth = 0;
-    if ( FAILED( QD3D::GetBitDepthForFormat( d3dState.swapChainDesc.BufferDesc.Format, &colorDepth ) ) )
-        ri.Error( ERR_FATAL, "Bad bit depth supplied for color channel (%x)\n", d3dState.swapChainDesc.BufferDesc.Format );
+    if ( FAILED( QD3D::GetBitDepthForFormat( g_State.swapChainDesc.BufferDesc.Format, &colorDepth ) ) )
+        ri.Error( ERR_FATAL, "Bad bit depth supplied for color channel (%x)\n", g_State.swapChainDesc.BufferDesc.Format );
 
     if ( FAILED( QD3D::GetBitDepthForDepthStencilFormat( depthBufferViewDesc.Format, &depthDepth, &stencilDepth ) ) )
         ri.Error( ERR_FATAL, "Bad bit depth supplied for depth-stencil (%x)\n", depthBufferViewDesc.Format );

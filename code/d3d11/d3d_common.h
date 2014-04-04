@@ -17,6 +17,14 @@ extern "C" {
 //#include <d3d11_2.h>
 #include <d3d11_1.h>
 
+#ifndef V_SOFT
+#   define V_SOFT(x)       { HRESULT _hr=(x); if (FAILED(_hr)) g_hrLastError = _hr; }
+#endif
+
+#ifndef V
+#   define V(x)            { HRESULT _hr=(x); if (FAILED(_hr)) Com_Error( ERR_FATAL, "Direct3D Error 0x%08X: %s", _hr, #x); }
+#endif
+
 #ifndef SAFE_RELEASE
 #	define SAFE_RELEASE(x) if(x) { x->Release(); x = nullptr; }
 #endif
@@ -160,6 +168,90 @@ namespace QD3D
         _In_ DXGI_FORMAT fmt,
         _Out_ DWORD* depthBits,
         _Out_ DWORD* stencilBits );
+
+    //----------------------------------------------------------------------------
+    // Helper function for creating 2D textures
+   	//----------------------------------------------------------------------------
+	ID3D11Texture2D* CreateTexture2D(
+        _In_ ID3D11Device* device, 
+        _In_ UINT width,
+        _In_ UINT height, 
+        _In_ DXGI_FORMAT t2d_format, 
+        _In_ LPCVOID pData,
+        _In_opt_ UINT mipLevels = 1,
+        _In_opt_ UINT msaaSamples = 1, 
+        _In_opt_ UINT msaaQuality = 0, 
+        _In_opt_ UINT bindFlags = D3D11_BIND_SHADER_RESOURCE );
+
+    //----------------------------------------------------------------------------
+    // Helper function for creating 3D textures
+   	//----------------------------------------------------------------------------
+	ID3D11Texture3D* CreateTexture3D(
+        _In_ ID3D11Device* device, 
+        _In_ UINT width, 
+        _In_ UINT height, 
+        _In_ UINT depth, 
+        _In_ DXGI_FORMAT t3d_format, 
+        _In_ LPCVOID pData,
+        _In_opt_ UINT bindFlags = D3D11_BIND_SHADER_RESOURCE );
+
+    //----------------------------------------------------------------------------
+    // Helper function for creating a view of the back buffer
+   	//----------------------------------------------------------------------------
+	ID3D11RenderTargetView* CreateBackBufferView(
+        _In_ IDXGISwapChain* swapChain,
+        _In_ ID3D11Device* device, 
+        _Out_opt_ D3D11_TEXTURE2D_DESC* optionalOut_BBDesc = NULL);
+
+    //----------------------------------------------------------------------------
+    // Helper function for creating a view of a depth buffer
+   	//----------------------------------------------------------------------------
+	ID3D11DepthStencilView* CreateDepthBufferView(
+        _In_ ID3D11Device* device, 
+        _In_ UINT width, 
+        _In_ UINT height, 
+        _In_ DXGI_FORMAT t2d_format, 
+        _In_ DXGI_FORMAT dsv_format, 
+        _In_opt_ UINT msaaSamples = 1, 
+        _In_opt_ UINT msaaQuality = 0, 
+        _In_opt_ UINT bindFlags = 0);
+
+    //----------------------------------------------------------------------------
+    // Helper function for creating a view of a render target
+   	//----------------------------------------------------------------------------
+	ID3D11RenderTargetView* CreateRenderTargetView(
+        _In_ ID3D11Device* device, 
+        _In_ UINT width, 
+        _In_ UINT height, 
+        _In_ DXGI_FORMAT t2d_format, 
+        _In_ DXGI_FORMAT rtv_format, 
+        _In_opt_ UINT msaaSamples = 1, 
+        _In_opt_ UINT msaaQuality = 0, 
+        _In_opt_ UINT bindFlags = 0);
+
+    //----------------------------------------------------------------------------
+    // Helper function for creating a view of a 2D render target
+   	//----------------------------------------------------------------------------
+	ID3D11RenderTargetView* CreateTexture2DRenderTargetView(
+        _In_ ID3D11Device* device, 
+        _In_ ID3D11Texture2D* texture, 
+        _In_ DXGI_FORMAT rtv_format);
+
+    //----------------------------------------------------------------------------
+    // Helper function for creating a view of a 2D depth buffer
+   	//----------------------------------------------------------------------------
+	ID3D11DepthStencilView* CreateTexture2DDepthBufferView(
+        _In_ ID3D11Device* device, 
+        _In_ ID3D11Texture2D* texture, 
+        _In_ DXGI_FORMAT dsv_format);
+
+    //----------------------------------------------------------------------------
+    // Helper function for creating a view of a 2D texture
+   	//----------------------------------------------------------------------------
+	ID3D11ShaderResourceView* CreateTexture2DShaderResourceView(
+        _In_ ID3D11Device* device, 
+        _In_ ID3D11Texture2D* texture, 
+        _In_ DXGI_FORMAT srv_format);
 }
 
 #endif

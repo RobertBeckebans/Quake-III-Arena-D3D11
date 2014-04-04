@@ -149,24 +149,24 @@ D3D_PUBLIC void D3DWnd_Init( void )
         return;
     }
 
-	d3dState.featureLevel = D3D_FEATURE_LEVEL_11_0; 
+	g_State.featureLevel = D3D_FEATURE_LEVEL_11_0; 
 	HRESULT hr = QD3D::CreateDefaultDevice(
 		D3D_DRIVER_TYPE_HARDWARE, 
 		&g_pDevice, 
 		&g_pImmediateContext, 
-		&d3dState.featureLevel);
+		&g_State.featureLevel);
     if (FAILED(hr) || !g_pDevice || !g_pImmediateContext)
 	{
         ri.Error( ERR_FATAL, "Failed to create Direct3D 11 device: 0x%08x.\n", hr );
         return;
 	}
 
-    ri.Printf( PRINT_ALL, "... feature level %d\n", d3dState.featureLevel );
+    ri.Printf( PRINT_ALL, "... feature level %d\n", g_State.featureLevel );
 
     // @pjb: todo: do these based on cvars (or if not set, pick the best one)
-    QD3D::GetBestQualitySwapChainDesc(g_hWnd, g_pDevice, &d3dState.swapChainDesc);
+    QD3D::GetBestQualitySwapChainDesc(g_hWnd, g_pDevice, &g_State.swapChainDesc);
 
-    hr = QD3D::CreateSwapChain(g_pDevice, &d3dState.swapChainDesc, &g_pSwapChain);
+    hr = QD3D::CreateSwapChain(g_pDevice, &g_State.swapChainDesc, &g_pSwapChain);
     if (FAILED(hr))
     {
         // @pjb: todo: if swapchain desc is too fancy, fall back
