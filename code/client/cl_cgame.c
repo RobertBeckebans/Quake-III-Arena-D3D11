@@ -413,7 +413,7 @@ The cgame module is making a system call
 ====================
 */
 #define	VMA(x) VM_ArgPtr(args[x])
-#define	VMF(x)	((float *)args)[x]
+#define	VMF(x)	*((float *)(&args[x]))
 int CL_CgameSystemCalls( size_t *args ) {
 	switch( args[0] ) {
 	case CG_PRINT:

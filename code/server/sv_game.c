@@ -312,7 +312,7 @@ The module is making a system call
 #define	VMA(x) VM_ArgPtr(args[x])
 #endif
 
-#define	VMF(x)	((float *)args)[x]
+#define	VMF(x)	*((float *)(&args[x]))
 
 int SV_GameSystemCalls( size_t *args ) {
 	switch( args[0] ) {
