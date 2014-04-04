@@ -86,7 +86,7 @@ RENDER BACKEND
 ====================================================================
 */
 
-graphicsDriver_t* GLRB_DriverInit( void );
+void GLRB_DriverInit( graphicsLayer_t* layer );
 void GLRB_RestoreTextureState( void );
 void GLRB_SetGamma( unsigned char red[256], unsigned char green[256], unsigned char blue[256] );
 void GLRB_GfxInfo_f( void );

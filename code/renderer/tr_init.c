@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 vdconfig_t	vdConfig;
 
-graphicsDriver_t* driver = NULL;
+graphicsLayer_t vdLayer = { 0 };
 
 cvar_t	*r_flareSize;
 cvar_t	*r_flareFade;
@@ -181,17 +181,18 @@ static void AssertCvarRange( cvar_t *cv, float minVal, float maxVal, qboolean sh
 	}
 }
 
-
 /* 
     @pjb: InitDriver
 */
 void InitDriver( void )
 {
+    Com_Memset( &vdLayer, 0, sizeof( vdLayer ) );
+
     // @pjb: based on whichever renderer is requested, return different entry points
 	// the RE_ functions are Renderer Entry points
     if ( strcmp( r_driver->string, "opengl" ) == 0 )
     {
-        driver = GLRB_DriverInit();
+        GLRB_DriverInit( &vdLayer );
     }
     // @pjb: todo
     // else if ( strcmp( r_driver->string, "d3d11" ) == 0 )
@@ -200,13 +201,36 @@ void InitDriver( void )
     //}
     else     if ( strcmp( r_driver->string, "proxy" ) == 0 )
     {
-        driver = PROXY_DriverInit();
+        PROXY_DriverInit( &vdLayer );
     }
     else
     {
         // Invalid driver
 		ri.Error(ERR_FATAL, "Invalid driver: %s\n", r_driver->string );
     }
+
+    // Validate the driver pointers
+    R_ValidateGraphicsLayer( &vdLayer );
+}
+
+/*
+    @pjb: Validates the driver is completely full of pointers
+*/
+void ValidateDriverLayerMemory( size_t* memory, size_t size )
+{
+    size_t i;
+    for ( i = 0; i < size / sizeof(size_t); ++i ) {
+        if ( memory[i] == 0 )
+            Com_Error( ERR_FATAL, "Video API layer not set up correctly: missing binding in slot %d.\n", i );
+    }
+}
+
+/*
+    @pjb: Expose the validation API to other areas of the game
+*/
+void R_ValidateGraphicsLayer( graphicsLayer_t* layer )
+{
+    ValidateDriverLayerMemory( (size_t*) layer, sizeof( graphicsLayer_t ) );
 }
 
 /*
@@ -537,8 +561,8 @@ void R_ScreenShotJPEG_f (void) {
 // @pjb: print info about the driver
 void R_GfxInfo( void )
 {
-    if (driver)
-        driver->GraphicsInfo();
+    if (vdLayer.GraphicsInfo)
+        vdLayer.GraphicsInfo();
     else
         ri.Printf( PRINT_ALL, "R_GfxInfo: Driver not yet initialized.\n" );
 }

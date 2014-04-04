@@ -877,7 +877,8 @@ typedef struct {
     void            (* SetGamma)( unsigned char red[256], unsigned char green[256], unsigned char blue[256] );
     int             (* GetFrameImageMemoryUsage)( void );
     void            (* GraphicsInfo)( void );
-} graphicsDriver_t;
+//    void            (* Clear)( float r, float g, float b, float a );
+} graphicsLayer_t;
 
 /*
 ** trGlobals_t 
@@ -978,7 +979,7 @@ typedef struct {
 extern backEndState_t	    backEnd;
 extern trGlobals_t	        tr;
 extern vdconfig_t	        vdConfig;		// outside of TR since it shouldn't be cleared during ref re-init
-extern graphicsDriver_t*    driver;         // @pjb: which driver are we using?
+extern graphicsLayer_t      vdLayer;        // @pjb: which driver are we using?
 
 //
 // cvars
@@ -1101,6 +1102,9 @@ extern	cvar_t	*r_printShaders;
 extern	cvar_t	*r_saveFontData;
 
 //====================================================================
+
+// @pjb: proxy uses this to validate the proxied drivers
+void R_ValidateGraphicsLayer( graphicsLayer_t* layer );
 
 float R_NoiseGet4f( float x, float y, float z, float t );
 void  R_NoiseInit( void );

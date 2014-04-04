@@ -11,65 +11,66 @@
 // @pjb: this is just here to deliberately fuck the build if driver is used in here
 #define driver #driver_disallowed
 
-static graphicsDriver_t* openglDriver = NULL;
+static graphicsLayer_t openglDriver;
 
 
 
 
 void PROXY_CreateImage( const image_t* image, const byte *pic, qboolean isLightmap )
 {
-    openglDriver->CreateImage( image, pic, isLightmap );
+    openglDriver.CreateImage( image, pic, isLightmap );
 }
 
 void PROXY_DeleteImage( const image_t* image )
 {
-    openglDriver->DeleteImage( image );
+    openglDriver.DeleteImage( image );
 }
 
 imageFormat_t PROXY_GetImageFormat( const image_t* image )
 {
     // todo: CALL the D3D one and discard the results
     // Just do the GL one
-    return openglDriver->GetImageFormat( image );
+    return openglDriver.GetImageFormat( image );
 }
 
 void PROXY_SetGamma( unsigned char red[256], unsigned char green[256], unsigned char blue[256] )
 {
-    openglDriver->SetGamma( red, green, blue );
+    openglDriver.SetGamma( red, green, blue );
     // @pjb: todo
 }
 
 int PROXY_SumOfUsedImages( void )
 {
-    return openglDriver->GetFrameImageMemoryUsage(); 
+    return openglDriver.GetFrameImageMemoryUsage(); 
     // @pjb: todo
 }
 
 void PROXY_GfxInfo( void )
 {
 	ri.Printf( PRINT_ALL, "----- OpenGL -----\n" );
-    openglDriver->GraphicsInfo( );
+    openglDriver.GraphicsInfo( );
     // @pjb: todo
 	ri.Printf( PRINT_ALL, "----- PROXY -----\n" );
     ri.Printf( PRINT_ALL, "Using proxied driver: all commands issued to OpenGL and D3D11.\n" );
 }
 
-graphicsDriver_t* PROXY_DriverInit( void )
+void PROXY_DriverInit( graphicsLayer_t* layer )
 {
-    static graphicsDriver_t proxyDriver = {
-        PROXY_CreateImage,
-        PROXY_DeleteImage,
-        PROXY_GetImageFormat,
-        PROXY_SetGamma,
-        PROXY_SumOfUsedImages,
-        PROXY_GfxInfo
-    };
+    layer->CreateImage = PROXY_CreateImage;
+    layer->DeleteImage = PROXY_DeleteImage;
+    layer->GetImageFormat = PROXY_GetImageFormat;
+    layer->SetGamma = PROXY_SetGamma;
+    layer->GetFrameImageMemoryUsage = PROXY_SumOfUsedImages;
+    layer->GraphicsInfo = PROXY_GfxInfo;
 
     // Proxy OpenGL
-    openglDriver = GLRB_DriverInit();
+    GLRB_DriverInit( &openglDriver );
 
     // todo: proxy D3D11
 
+
+    R_ValidateGraphicsLayer( &openglDriver );
+    // tod: R_ValidateGraphicsLayer( &d3dDriver );
     
     // Copy the resource strings to the vgConfig
     Q_strncpyz( vdConfig.renderer_string, "PROXY DRIVER", sizeof( vdConfig.renderer_string ) );
@@ -78,5 +79,5 @@ graphicsDriver_t* PROXY_DriverInit( void )
     
     // todo: arbitrate conflicting vdConfig settings
 
-    return &proxyDriver;
 }
+

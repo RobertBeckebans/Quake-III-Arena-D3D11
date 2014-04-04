@@ -204,16 +204,14 @@ Returns the opengl graphics driver and sets up global state
 
 @@@@@@@@@@@@@@@@@@@@@
 */
-graphicsDriver_t* GLRB_DriverInit( void )
+void GLRB_DriverInit( graphicsLayer_t* layer )
 {
-    static graphicsDriver_t openglDriver = {
-        GL_CreateImage,
-        GL_DeleteImage,
-        GL_GetImageFormat,
-        GLRB_SetGamma,
-        GL_SumOfUsedImages,
-        GLRB_GfxInfo_f
-    };
+    layer->CreateImage = GL_CreateImage;
+    layer->DeleteImage = GL_DeleteImage;
+    layer->GetImageFormat = GL_GetImageFormat;
+    layer->SetGamma = GLRB_SetGamma;
+    layer->GetFrameImageMemoryUsage = GL_SumOfUsedImages;
+    layer->GraphicsInfo = GLRB_GfxInfo_f;
 
     InitOpenGL();
 
@@ -221,6 +219,4 @@ graphicsDriver_t* GLRB_DriverInit( void )
     Q_strncpyz( vdConfig.renderer_string, glState.renderer_string, sizeof( vdConfig.renderer_string ) );
     Q_strncpyz( vdConfig.vendor_string, glState.vendor_string, sizeof( vdConfig.vendor_string ) );
     Q_strncpyz( vdConfig.version_string, glState.version_string, sizeof( vdConfig.version_string ) );
-
-    return &openglDriver;
 }
