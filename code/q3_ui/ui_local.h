@@ -60,6 +60,9 @@ extern vmCvar_t	ui_spAwards;
 extern vmCvar_t	ui_spVideos;
 extern vmCvar_t	ui_spSkill;
 
+// @pjb: thumbstick sensitivity when navigating
+extern vmCvar_t	ui_thumbstickThreshold;
+
 extern vmCvar_t	ui_spSelection;
 
 extern vmCvar_t	ui_browserMaster;
@@ -534,6 +537,8 @@ typedef struct {
 	int					nativecursory; // @pjb: cursor position at native res
 	int					cursorx; // @pjb: cursor position inside the 640x480 virtual ui space
 	int					cursory; // @pjb: cursor position inside the 640x480 virtual ui space
+    int                 lthumbstickX; // @pjb: current thumbstick horizontal position
+    int                 lthumbstickY; // @pjb: current thumbstick vertical position
 	int					menusp;
 	menuframework_s*	activemenu;
 	menuframework_s*	stack[MAX_MENUDEPTH];
@@ -559,6 +564,7 @@ extern void			UI_Init( void );
 extern void			UI_Shutdown( void );
 extern void			UI_KeyEvent( int key, int down );
 extern void			UI_MouseEvent( int dx, int dy );
+extern void			UI_GamepadEvent( int dx, int dy ); // @pjb: track thumbsticks for UI nav
 extern void			UI_Refresh( int realtime );
 extern qboolean		UI_ConsoleCommand( int realTime );
 extern float		UI_ClampCvar( float min, float max, float value );

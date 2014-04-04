@@ -423,7 +423,14 @@ void CL_GamepadEvent( int axis, int value, int time ) {
 	if ( axis < 0 || axis >= MAX_JOYSTICK_AXIS ) {
 		Com_Error( ERR_DROP, "CL_GamepadEvent: bad axis %i", axis );
 	}
-	cl.gamepadAxis[axis] = value;
+    // @pjb: allow UI to track joystick movement for UI nav
+    if ( cls.keyCatchers & KEYCATCH_UI ) {
+		VM_Call( uivm, UI_GAMEPAD_EVENT, axis, value );
+	//} else if (cls.keyCatchers & KEYCATCH_CGAME) {   // @pjb: game currently cannot hook this
+	//	VM_Call (cgvm, UI_GAMEPAD_EVENT, dx, dy);
+	} else {
+	    cl.gamepadAxis[axis] = value;
+	}
 }
 
 /*

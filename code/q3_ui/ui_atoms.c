@@ -940,6 +940,37 @@ void UI_MouseEvent( int dx, int dy )
 	}
 }
 
+/*
+=================
+@pjbL UI_GamepadEvent
+=================
+*/
+void UI_GamepadEvent( int axis, int value )
+{
+	if (!uis.activemenu)
+		return;
+
+    // @pjb: TODO: only tracking the vertical axis for now
+    if ( axis == 1 )
+    {
+        int threshold = ui_thumbstickThreshold.value;
+
+        if ( value >= threshold && uis.lthumbstickY < threshold )
+            UI_KeyEvent( K_UPARROW, qtrue );
+        if ( value < threshold && uis.lthumbstickY >= threshold )
+            UI_KeyEvent( K_UPARROW, qfalse );
+        if ( value <= -threshold && uis.lthumbstickY > -threshold )
+            UI_KeyEvent( K_DOWNARROW, qtrue );
+        if ( value > -threshold && uis.lthumbstickY <= -threshold )
+            UI_KeyEvent( K_DOWNARROW, qfalse );
+        uis.lthumbstickY = value;
+    }
+    else if ( axis == 0 )
+    {
+        uis.lthumbstickX = value;
+    }
+}
+
 char *UI_Argv( int arg ) {
 	static char	buffer[MAX_STRING_CHARS];
 

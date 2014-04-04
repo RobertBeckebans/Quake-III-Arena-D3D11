@@ -168,6 +168,9 @@ typedef enum {
 	UI_MOUSE_EVENT,
 //	void	UI_MouseEvent( int dx, int dy );
 
+    UI_GAMEPAD_EVENT,
+//  void    UI_GamepadEvent( int dx, int dy );
+
 	UI_REFRESH,
 //	void	UI_Refresh( int time );
 

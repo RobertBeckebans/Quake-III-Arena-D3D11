@@ -186,6 +186,11 @@ int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int a
 		  _UI_MouseEvent( arg0, arg1 );
 		  return 0;
 
+      // @pjb: track gamepad input for UI nav
+	  case UI_GAMEPAD_EVENT:
+		  _UI_GamepadEvent( arg0, arg1 );
+		  return 0;
+
 	  case UI_REFRESH:
 		  _UI_Refresh( arg0 );
 		  return 0;
@@ -5611,6 +5616,9 @@ vmCvar_t	ui_spAwards;
 vmCvar_t	ui_spVideos;
 vmCvar_t	ui_spSkill;
 
+// @pjb: thumbstick sensitivity when navigating
+vmCvar_t	ui_thumbstickThreshold;
+
 vmCvar_t	ui_spSelection;
 
 vmCvar_t	ui_browserMaster;
@@ -5731,6 +5739,9 @@ static cvarTable_t		cvarTable[] = {
 	{ &ui_spAwards, "g_spAwards", "", CVAR_ARCHIVE | CVAR_ROM },
 	{ &ui_spVideos, "g_spVideos", "", CVAR_ARCHIVE | CVAR_ROM },
 	{ &ui_spSkill, "g_spSkill", "2", CVAR_ARCHIVE },
+
+    // @pjb: thumbstick sensitivity when navigating
+    { &ui_thumbstickThreshold, "ui_thumbstickThreshold", "50", CVAR_ARCHIVE },
 
 	{ &ui_spSelection, "ui_spSelection", "", CVAR_ROM },
 
