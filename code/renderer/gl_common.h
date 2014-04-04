@@ -28,7 +28,8 @@ void GL_Finish( void );
 void GL_SetDepthRange( float minRange, float maxRange );
 
 
-#define GL_INDEX_TYPE		GL_UNSIGNED_INT
+// @pjb: switched to shorts for d3d9 compat
+#define GL_INDEX_TYPE		GL_UNSIGNED_SHORT
 
 /*
 ====================================================================

@@ -300,7 +300,8 @@ static shader_t *ShaderForShaderNum( int shaderNum, int lightmapNum ) {
 ParseFace
 ===============
 */
-static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int *indexes  ) {
+// @pjb: glIndex_t for 16-bit indices
+static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, glIndex_t *indexes  ) {
 	int			i, j;
 	srfSurfaceFace_t	*cv;
 	int			numPoints, numIndexes;
@@ -330,7 +331,7 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int 
 	// create the srfSurfaceFace_t
 	sfaceSize = ( int ) &((srfSurfaceFace_t *)0)->points[numPoints];
 	ofsIndexes = sfaceSize;
-	sfaceSize += sizeof( int ) * numIndexes;
+	sfaceSize += sizeof( glIndex_t ) * numIndexes;
 
 	cv = ri.Hunk_Alloc( sfaceSize, h_low );
 	cv->surfaceType = SF_FACE;
@@ -352,7 +353,7 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int 
 
 	indexes += LittleLong( ds->firstIndex );
 	for ( i = 0 ; i < numIndexes ; i++ ) {
-		((int *)((byte *)cv + cv->ofsIndices ))[i] = LittleLong( indexes[ i ] );
+		((glIndex_t *)((byte *)cv + cv->ofsIndices ))[i] = LittleShort( indexes[ i ] );
 	}
 
 	// take the plane information from the lightmap vector
@@ -439,7 +440,8 @@ static void ParseMesh ( dsurface_t *ds, drawVert_t *verts, msurface_t *surf ) {
 ParseTriSurf
 ===============
 */
-static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int *indexes ) {
+// @pjb: glIndex_t for 16-bit indices
+static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, glIndex_t *indexes ) {
 	srfTriangles_t	*tri;
 	int				i, j;
 	int				numVerts, numIndexes;
@@ -462,7 +464,7 @@ static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, i
 	tri->numVerts = numVerts;
 	tri->numIndexes = numIndexes;
 	tri->verts = (drawVert_t *)(tri + 1);
-	tri->indexes = (int *)(tri->verts + tri->numVerts );
+	tri->indexes = (glIndex_t *)(tri->verts + tri->numVerts );
 
 	surf->data = (surfaceType_t *)tri;
 
@@ -486,7 +488,7 @@ static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, i
 	// copy indexes
 	indexes += LittleLong( ds->firstIndex );
 	for ( i = 0 ; i < numIndexes ; i++ ) {
-		tri->indexes[i] = LittleLong( indexes[i] );
+		tri->indexes[i] = LittleShort( indexes[i] );
 		if ( tri->indexes[i] < 0 || tri->indexes[i] >= numVerts ) {
 			ri.Error( ERR_DROP, "Bad index in triangle surface" );
 		}
@@ -498,7 +500,8 @@ static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, i
 ParseFlare
 ===============
 */
-static void ParseFlare( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int *indexes ) {
+// @pjb: glIndex_t for 16-bit indices
+static void ParseFlare( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, glIndex_t *indexes ) {
 	srfFlare_t		*flare;
 	int				i;
 
@@ -1228,7 +1231,8 @@ static	void R_LoadSurfaces( lump_t *surfs, lump_t *verts, lump_t *indexLump ) {
 	dsurface_t	*in;
 	msurface_t	*out;
 	drawVert_t	*dv;
-	int			*indexes;
+	int			*indexes32;
+    glIndex_t   *indexes16;
 	int			count;
 	int			numFaces, numMeshes, numTriSurfs, numFlares;
 	int			i;
@@ -1247,9 +1251,14 @@ static	void R_LoadSurfaces( lump_t *surfs, lump_t *verts, lump_t *indexLump ) {
 	if (verts->filelen % sizeof(*dv))
 		ri.Error (ERR_DROP, "LoadMap: funny lump size in %s",s_worldData.name);
 
-	indexes = (void *)(fileBase + indexLump->fileofs);
-	if ( indexLump->filelen % sizeof(*indexes))
+	indexes32 = (void *)(fileBase + indexLump->fileofs);
+	if ( indexLump->filelen % sizeof(*indexes32))
 		ri.Error (ERR_DROP, "LoadMap: funny lump size in %s",s_worldData.name);
+
+    // @pjb: convert the indices to 16-bit in place
+    indexes16 = (glIndex_t*) indexes32;
+    for ( i = 0; i < indexLump->filelen / sizeof(*indexes32); ++i )
+        indexes16[i] = (glIndex_t) indexes32[i];
 
 	out = ri.Hunk_Alloc ( count * sizeof(*out), h_low );	
 
@@ -1263,15 +1272,15 @@ static	void R_LoadSurfaces( lump_t *surfs, lump_t *verts, lump_t *indexLump ) {
 			numMeshes++;
 			break;
 		case MST_TRIANGLE_SOUP:
-			ParseTriSurf( in, dv, out, indexes );
+			ParseTriSurf( in, dv, out, indexes16 );
 			numTriSurfs++;
 			break;
 		case MST_PLANAR:
-			ParseFace( in, dv, out, indexes );
+			ParseFace( in, dv, out, indexes16 );
 			numFaces++;
 			break;
 		case MST_FLARE:
-			ParseFlare( in, dv, out, indexes );
+			ParseFlare( in, dv, out, indexes16 );
 			numFlares++;
 			break;
 		default:

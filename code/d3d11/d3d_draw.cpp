@@ -424,7 +424,7 @@ static void TessProjectDynamicLights( const shaderCommands_t *input )
         vbufs[0] = buffers->dlights[l].texCoords;
         vbufs[1] = buffers->dlights[l].colors;
 
-        g_pImmediateContext->IASetIndexBuffer( buffers->dlights[l].indexes, DXGI_FORMAT_R32_UINT, 0 );
+        g_pImmediateContext->IASetIndexBuffer( buffers->dlights[l].indexes, DXGI_FORMAT_R16_UINT, 0 );
         g_pImmediateContext->IASetVertexBuffers( 1, 2, vbufs, strides, offsets );
 
         // Select the blend mode
@@ -471,7 +471,7 @@ static void TessDrawFog( const shaderCommands_t* input )
     };
     
     g_pImmediateContext->IASetInputLayout( resources->inputLayoutST );
-    g_pImmediateContext->IASetIndexBuffer( buffers->indexes, DXGI_FORMAT_R32_UINT, 0 );
+    g_pImmediateContext->IASetIndexBuffer( buffers->indexes, DXGI_FORMAT_R16_UINT, 0 );
     g_pImmediateContext->IASetVertexBuffers( 1, 2, vbufs, strides, offsets );
     g_pImmediateContext->VSSetShader( resources->vertexShaderST, nullptr, 0 );
     g_pImmediateContext->PSSetShader( resources->pixelShaderST, nullptr, 0 );
@@ -525,7 +525,7 @@ void D3DDrv_DrawStageGeneric( const shaderCommands_t *input )
     CommitRasterizerState( input->shader->cullType, input->shader->polygonOffset, qfalse );
     
     g_pImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-    g_pImmediateContext->IASetIndexBuffer( g_DrawState.tessBufs.indexes, DXGI_FORMAT_R32_UINT, 0 );
+    g_pImmediateContext->IASetIndexBuffer( g_DrawState.tessBufs.indexes, DXGI_FORMAT_R16_UINT, 0 );
     g_pImmediateContext->VSSetConstantBuffers( 0, 1, &g_DrawState.viewRenderData.vsConstantBuffer );
     SetTessVertexBuffer( &g_DrawState.tessBufs );
 

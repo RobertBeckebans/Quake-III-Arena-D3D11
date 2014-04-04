@@ -394,7 +394,6 @@ static ID3D11Buffer* CreateTessIndexBuffer()
 	D3D11_BUFFER_DESC bd;
 	ZeroMemory(&bd, sizeof(bd));
 
-    // @pjb: todo: glIndex_t is apparently 32 bit :(
 	bd.Usage = D3D11_USAGE_DYNAMIC;
 	bd.ByteWidth = (UINT)sizeof(glIndex_t) * SHADER_MAX_INDEXES;
 	bd.BindFlags = D3D11_BIND_INDEX_BUFFER;

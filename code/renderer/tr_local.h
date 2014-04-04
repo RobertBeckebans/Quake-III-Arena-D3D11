@@ -29,7 +29,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/qcommon.h"
 #include "tr_public.h"
 
-typedef unsigned int        glIndex_t;
+// @pjb: d3d9 compatibility (plus why int anyway?)
+typedef unsigned short        glIndex_t;
 
 // fast float to int conversion
 #if id386 && !( (defined __linux__ || defined __FreeBSD__ ) && (defined __i386__ ) ) // rb010123
@@ -662,7 +663,7 @@ typedef struct {
 
 	// triangle definitions
 	int				numIndexes;
-	int				*indexes;
+	glIndex_t   	*indexes;
 
 	int				numVerts;
 	drawVert_t		*verts;
