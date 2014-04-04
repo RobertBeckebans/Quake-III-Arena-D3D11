@@ -52,6 +52,30 @@ In the desktop version, you can actually do a side-by-side visual comparison of 
 
 The Windows 8 build is always Direct3D 11, XAudio2, XInput enabled. Networking runs on WinRT sockets.
 
+## ".plan" ##
+
+- Add more configuration settings to the Direct3D 11 layer. At the moment this will just select the best possible settings based on your video capabilities. I'll hook these up to Cvars eventually.
+- Optimize the Direct3D 11 layer much more.
+- Implement stencil shadows for Direct3D 11.
+- Port the QVM code.
+- Texture compression (not that it needs it)
+- Offline shader compilation
+- Shadow solution in D3D11
+- New, widescreen menu
+- Better keyboard and gamepad UI navigation
+- Auto-detect `$(ProjectDir)..` on startup
+- Optimize Win8 sockets ('ere be dragons!)
+
+## Known Issues ##
+
+- Win8: Broadcast sockets are not implemented. You'll need to `connect <ip>` from the console to join a game hosted by a Win8 build.
+- `r_smp 1` will cause a deadlock on many systems. This is actually a bug in Q3A but I haven't had time to fix it yet.
+- Direct3D currently leaks on exit. Sorry about that.
+- Cutscene sound is choppy/poppy.
+- Controller input doesn't skip cutscenes.
+- Cinematics and in-game HUD are stretched in widescreen.
+- Dynamic lights clip weirdly in both OpenGL & Direct3D 11. Not sure if this is my fault or not.
+
 ## FAQ ##
 
 **Q** I'm seeing `VM_Create on UI failed`. Help!
@@ -76,22 +100,6 @@ The Windows 8 build is always Direct3D 11, XAudio2, XInput enabled. Networking r
 **Q**: Why?
 **A**: Because I love Quake and I love code.
 
-## ".plan" ##
-
-- Add more configuration settings to the Direct3D 11 layer. At the moment this will just select the best possible settings based on your video capabilities. I'll hook these up to Cvars eventually.
-- Optimize the Direct3D 11 layer much more.
-- Implement stencil shadows for Direct3D 11.
-- Port the QVM code.
-
-## Known Issues ##
-
-- Win8: Broadcast sockets are not implemented. You'll need to `connect <ip>` from the console to join a game hosted by a Win8 build.
-- `r_smp 1` will cause a deadlock on many systems. This is actually a bug in Q3A but I haven't had time to fix it yet.
-- Direct3D currently leaks on exit. Sorry about that.
-- Cutscene sound is choppy/poppy.
-- Controller input doesn't skip cutscenes.
-- Cinematics and in-game HUD are stretched in widescreen.
-- Dynamic lights clip weirdly in both OpenGL & Direct3D 11. Not sure if this is my fault or not.
 
 
   [1]: http://repo.pjblewis.com/q3d3d11/q3a-sbs.png
