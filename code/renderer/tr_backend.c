@@ -524,7 +524,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	qboolean		depthRange, oldDepthRange;
 	int				i;
 	drawSurf_t		*drawSurf;
-	int				oldSort;
+	size_t			oldSort;
 	float			originalTime;
 #ifdef __MACOS__
 	int				macEventTime;
@@ -561,7 +561,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			continue;
 		}
 		oldSort = drawSurf->sort;
-		R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &fogNum, &dlighted );
+		R_DecomposeSort( (unsigned) drawSurf->sort, &entityNum, &shader, &fogNum, &dlighted );
 
 		//
 		// change the tess parameters if needed

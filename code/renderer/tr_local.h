@@ -533,8 +533,9 @@ typedef enum {
 	SF_MAX = 0x7fffffff			// ensures that sizeof( surfaceType_t ) == sizeof( int )
 } surfaceType_t;
 
+// @pjb: changing to two size_ts
 typedef struct drawSurf_s {
-	unsigned			sort;			// bit combination for fast compares
+	size_t  			sort;			// bit combination for fast compares
 	surfaceType_t		*surface;		// any of surface*_t
 } drawSurf_t;
 
