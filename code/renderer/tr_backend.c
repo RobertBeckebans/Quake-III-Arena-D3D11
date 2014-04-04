@@ -141,7 +141,7 @@ void RB_BeginDrawingView (void) {
 	backEnd.skyRenderedThisView = qfalse;
 
 	// clip to the plane of the portal
-	if ( 0 ) {// backEnd.viewParms.isPortal ) {
+	if ( backEnd.viewParms.isPortal ) {
 		float	plane[4];
 		float	plane2[4];
 
