@@ -128,6 +128,70 @@ bool NET_Ipv6ToString( const BYTE* address, char* str, size_t len )
     return true;
 }
 
+bool NET_StringToIpv4( const char* s, BYTE* addressBytes )
+{
+    BYTE address[4];
+    UINT v = 0;
+    UINT i = 0;
+    bool groupValid = false;
+
+    for ( ; *s; ++s )
+    {
+        // Too many characters?
+        if ( i == 4 )
+            return false;
+
+        // Push a new group
+        if ( *s == '.' )
+        {
+            if ( !groupValid )
+                return false;
+            if ( v > 255 )
+                return false;
+            address[i++] = v;
+            v = 0;
+            groupValid = false;
+        }
+        else
+        {
+            byte nibble = 0;
+
+            // Check for a valid character
+            if ( *s >= '0' && *s <= '9' )
+                nibble = *s - '0';
+            else
+                return false;
+
+            v = (v * 10) + nibble;
+            groupValid = true;
+        }
+    }
+
+    // push the last group
+    if ( !groupValid )
+        return false;
+    if ( v > 255 )
+        return false;
+    address[i++] = v;
+
+    memcpy( addressBytes, address, sizeof( address ) );
+    return true;
+}
+
+bool NET_Ipv4ToString( const BYTE* address, char* str, size_t len )
+{
+    if ( len < 3 * 5 )
+        return false;
+
+    const USHORT* addr16 = reinterpret_cast<const USHORT*>( address );
+
+    sprintf_s( str, len, "%d.%d.%d.%d",
+        address[0], address[1],
+        address[2], address[3] );
+
+    return true;
+}
+
 
 WIN8_EXPORT qboolean Sys_StringToAdr( const char *s, netadr_t *a ) {
     
