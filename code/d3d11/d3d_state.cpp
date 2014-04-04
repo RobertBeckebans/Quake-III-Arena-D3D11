@@ -163,6 +163,11 @@ void D3DDrv_SetState( unsigned long stateBits )
             ~0U );
     }
 
+    if ( diff & GLS_ATEST_BITS ) 
+    {
+        ASSERT(0);
+    }
+
     g_RunState.stateMask = stateBits;
 }
 
