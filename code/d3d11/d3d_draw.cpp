@@ -244,6 +244,9 @@ static void DrawSkyBox(
     const float* colorTint )
 {
     D3DDrv_SetState(0);
+
+    CommitRasterizerState( CT_TWO_SIDED, qfalse, qfalse );
+    
     UpdateViewState();
     UpdateMaterialState();
 
@@ -282,7 +285,6 @@ static void DrawSkyBox(
         g_DrawState.skyBoxRenderData.vsConstantBuffer
     };
     ID3D11Buffer* psBuffers[] = {
-        g_DrawState.viewRenderData.psConstantBuffer,
         g_DrawState.skyBoxRenderData.psConstantBuffer
     };
 
@@ -291,18 +293,29 @@ static void DrawSkyBox(
     g_pImmediateContext->IASetInputLayout( sbrd->inputLayout );
     g_pImmediateContext->IASetIndexBuffer( sbrd->indexBuffer, DXGI_FORMAT_R16_UINT, 0 );
     g_pImmediateContext->VSSetShader( sbrd->vertexShader, nullptr, 0 );
-    g_pImmediateContext->VSSetConstantBuffers( 0, 2, vsBuffers );
+    g_pImmediateContext->VSSetConstantBuffers( 0, _countof( vsBuffers ), vsBuffers );
     g_pImmediateContext->PSSetShader( sbrd->pixelShader, nullptr, 0 );
-    g_pImmediateContext->PSSetConstantBuffers( 0, 2, psBuffers );
+    g_pImmediateContext->PSSetConstantBuffers( 0, _countof( psBuffers ), psBuffers );
 
-    for ( int i = 0; i < 6; ++i )
+    cvar_t* sky_offset = Cvar_Get( "sky_offset", "0", CVAR_ARCHIVE );
+    cvar_t* sky_count = Cvar_Get( "sky_count", "6", CVAR_ARCHIVE );
+
+    for ( int u = 0; u < sky_count->integer; ++u ) // 6
     {
+        int i = ( u + sky_offset->integer ) % 6;
+
         const skyboxSideDrawInfo_t* side = &skybox->sides[i];
+        
+        //if ( !side->image )
+        //    continue;
 
-        if ( !side->image )
-            continue;
+        //const d3dImage_t* image = GetImageRenderInfo( side->image );
 
-        const d3dImage_t* image = GetImageRenderInfo( side->image );
+        const d3dImage_t* image = nullptr;
+        //if ( side->image )
+        //    image = GetImageRenderInfo( side->image );
+        //else
+            image = GetImageRenderInfo( tr.whiteImage );
 
         g_pImmediateContext->PSSetShaderResources( 0, 1, &image->pSRV );
         g_pImmediateContext->PSSetSamplers( 0, 1, &image->pSampler );
