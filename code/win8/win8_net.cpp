@@ -77,21 +77,12 @@ WIN8_EXPORT void Sys_ShowIP(void) {
 
 /*
 =====================
-NET_StartListeningOnAddressAndPort
+NET_StartListeningOnPort
 =====================
 */
-qboolean NET_StartListeningOnAddressAndPort( const char* ip, int port )
+qboolean NET_StartListeningOnPort( HostName^ localHost, int port )
 {
-    // @pjb: todo
-}
-
-/*
-=====================
-NET_GetLocalAddress
-=====================
-*/
-void NET_GetLocalAddress( void ) {
-    // @pjb: todo
+    return qfalse;
 }
 
 /*
@@ -104,13 +95,58 @@ void NET_StartListening( void ) {
 	cvar_t* ip = Cvar_Get( "net_ip", "localhost", CVAR_LATCH );
 	int port = Cvar_Get( "net_port", va( "%i", PORT_SERVER ), CVAR_LATCH )->integer;
 
+    HostName^ localHost = nullptr;
+
+    auto hostNames = NetworkInformation::GetHostNames();
+    if ( !hostNames->Size )
+    {
+        Com_Printf( "No adapters.\n" );
+        return;
+    }
+
+    // First, see if there's an adapter that uses this port
+    char hostNameTmp[256];
+    for ( int i = 0; *ip->string && localHost == nullptr && i < hostNames->Size; ++i )
+    {
+        auto localHostInfo = hostNames->GetAt(i);
+        if ( localHostInfo->IPInformation != nullptr )
+        {
+            Win8_CopyString( localHostInfo->DisplayName, hostNameTmp, sizeof( hostNameTmp ) );
+            if ( Q_strncmp( ip->string, hostNameTmp, sizeof(hostNameTmp) ) == 0 )
+            {
+                localHost = localHostInfo;
+            }
+        }
+    }
+
+    // If there was no explicitly specified IP, pick the first adapter
+    for ( int i = 0; localHost == nullptr && i < hostNames->Size; ++i )
+    {
+        auto localHostInfo = hostNames->GetAt(i);
+        if ( localHostInfo->IPInformation != nullptr )
+        {
+            localHost = localHostInfo;
+        }
+    }
+
+    // No adapter with IP information
+    if ( localHost == nullptr )
+    {
+        Com_Printf( "ERROR: Found %d adapters but none have IP info.\n", hostNames->Size );
+        return;
+    }
+
+    Win8_CopyString( localHost->DisplayName, hostNameTmp, sizeof( hostNameTmp ) );
+    Com_Printf( "Found localHost %s.\n", hostNameTmp );
+
+    Cvar_Set( "net_ip", hostNameTmp );
+
 	// automatically scan for a valid port, so multiple
 	// dedicated servers can be started without requiring
 	// a different net_port for each one
 	for( int i = 0 ; i < 10 ; i++ ) {
-		if ( NET_StartListeningOnAddressAndPort( ip->string, port + i ) ) {
+		if ( NET_StartListeningOnPort( localHost, port + i ) ) {
 			Cvar_SetValue( "net_port", port + i );
-			NET_GetLocalAddress();
 			return;
 		}
 	}
@@ -210,16 +246,33 @@ WIN8_EXPORT void NET_Init( void ) {
     // Print the local addresses and adapters
 	Com_Printf( "Init WinRT Sockets\n" );
 
+	Com_Printf( "... [INFO] Set net_adapterId to specify a use a specific adapter.\n" );
+	Com_Printf( "... [INFO] Set net_ip to specify a use a specific local address.\n" );
+	Com_Printf( "... [INFO] Set net_port to specify a port to listen on.\n" );
+
+	cvar_t* adapterId = Cvar_Get( "net_adapterId", "", CVAR_LATCH );
+	cvar_t* ip = Cvar_Get( "net_ip", "localhost", CVAR_LATCH );
+    
     char hostnameTmp[256];
     char adapterIdTmp[256];
-    for each ( HostName^ localHostInfo in NetworkInformation::GetHostNames() )
+    // @pjb: todo: fatal error C1001: An internal error has occurred in the compiler.
+    // for each ( HostName^ localHostInfo in NetworkInformation::GetHostNames() )
+    auto hostNames = NetworkInformation::GetHostNames();
+    for ( int i = 0; i < hostNames->Size; ++i )
     {
+        auto localHostInfo = hostNames->GetAt(i);
         if ( localHostInfo->IPInformation != nullptr )
         {
             Win8_CopyString( localHostInfo->DisplayName, hostnameTmp, sizeof( hostnameTmp ) );
-            Win8_CopyString( localHostInfo->IPInformation->NetworkAdapter->NetworkAdapterId->ToString(), adapterIdTmp, sizeof( adapterIdTmp ) );
+            Win8_CopyString( localHostInfo->IPInformation->NetworkAdapter->NetworkAdapterId.ToString(), adapterIdTmp, sizeof( adapterIdTmp ) );
 
-            Com_Printf( "... Address: %s Adapter: %s\n", hostnameTmp, adapterIdTmp );
+            Com_Printf( "... Address: %s / Adapter: %s\n", hostnameTmp, adapterIdTmp );
+
+            // If net_adapterId is set, compare and set if necessary
+            if ( *adapterId->string && !*ip->string && Q_strncmp( adapterId->string, adapterIdTmp, sizeof(adapterIdTmp) ) == 0 )
+            {
+                Cvar_Set( "net_ip", hostnameTmp );
+            }
         }
     }
 
