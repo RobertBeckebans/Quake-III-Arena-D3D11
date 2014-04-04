@@ -23,8 +23,15 @@ textureMode_t modes[] = {
 
 void GL_Clear( unsigned long bits, const float* clearCol, unsigned long stencil, float depth )
 {
+    static const float defaultClearCol[] = { 0, 0, 0, 0 };
+
     int glBits = 0;
     if (bits & CLEAR_COLOR) {
+
+        // Handle null clear colors
+        if (clearCol == NULL) 
+            clearCol = defaultClearCol;
+
         glBits |= GL_COLOR_BUFFER_BIT ;
 	    qglClearColor( clearCol[0], clearCol[1], clearCol[2], clearCol[3] );
     }

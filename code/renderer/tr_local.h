@@ -115,8 +115,9 @@ typedef enum {
     CLEAR_STENCIL = 4
 } clearBits_t;
 
-#define G_DEFAULT_STENCIL 0
-#define G_DEFAULT_DEPTH 1.0f // @pjb: check me
+#define CLEAR_DEFAULT_COLOR NULL
+#define CLEAR_DEFAULT_STENCIL 0
+#define CLEAR_DEFAULT_DEPTH 1.0f // @pjb: check me
 
 typedef struct image_s {
 	char		    imgName[MAX_QPATH];		// game path, including extension

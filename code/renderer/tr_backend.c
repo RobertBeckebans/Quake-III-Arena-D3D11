@@ -53,7 +53,7 @@ static void RB_Hyperspace( void ) {
 	c = ( backEnd.refdef.time & 255 ) / 255.0f;
     {
         float clearCol[] = { c, c, c, 1.0f };
-        graphicsDriver.Clear( CLEAR_COLOR, clearCol, G_DEFAULT_STENCIL, G_DEFAULT_DEPTH );
+        graphicsDriver.Clear( CLEAR_COLOR, clearCol, CLEAR_DEFAULT_STENCIL, CLEAR_DEFAULT_DEPTH );
     }
 
 	backEnd.isHyperspace = qtrue;
@@ -121,7 +121,7 @@ void RB_BeginDrawingView (void) {
         clearCol[3] = 1.0f;
 #endif
 	}
-	graphicsDriver.Clear( clearBits, clearCol, G_DEFAULT_STENCIL, G_DEFAULT_DEPTH );
+	graphicsDriver.Clear( clearBits, clearCol, CLEAR_DEFAULT_STENCIL, CLEAR_DEFAULT_DEPTH );
 
 	if ( ( backEnd.refdef.rdflags & RDF_HYPERSPACE ) )
 	{
@@ -596,8 +596,8 @@ const void	*RB_DrawBuffer( const void *data ) {
 
 	// clear screen for debugging
 	if ( r_clear->integer ) {
-		qglClearColor( 1, 0, 0.5, 1 );
-		qglClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+        const float clearCol[] = { 1, 0, 0.5f, 1 };
+        graphicsDriver.Clear( CLEAR_COLOR | CLEAR_DEPTH, clearCol, CLEAR_DEFAULT_STENCIL, CLEAR_DEFAULT_DEPTH );
 	}
 
 	return (const void *)(cmd + 1);
@@ -623,8 +623,7 @@ void RB_ShowImages( void ) {
 		RB_SetGL2D();
 	}
 
-	qglClear( GL_COLOR_BUFFER_BIT );
-
+    graphicsDriver.Clear( CLEAR_COLOR, CLEAR_DEFAULT_COLOR, CLEAR_DEFAULT_STENCIL, CLEAR_DEFAULT_DEPTH );
 	graphicsDriver.Flush();
 
 	start = ri.Milliseconds();
