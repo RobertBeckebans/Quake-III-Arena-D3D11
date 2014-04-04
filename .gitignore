@@ -1,5 +1,3 @@
-Debug
-Release
 *.opensdf
 *.sdf
 *.user
@@ -8,7 +6,5 @@ ipch
 *.pdb
 baseq3
 *.res
-Debug_TA
-DebugAxp
-q3_ui___Win32_Debug
 botlib.log
+Build
