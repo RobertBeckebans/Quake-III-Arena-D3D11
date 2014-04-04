@@ -120,6 +120,9 @@ void PROXY_DriverInit( graphicsApiLayer_t* layer )
     layer->Flush = PROXY_Flush;
     layer->SetState = PROXY_SetState;
 
+    // If using the proxy driver we cannot use fullscreen
+    Cvar_Set( "r_fullscreen", "0" );
+
     // Proxy OpenGL
     GLRB_DriverInit( &openglDriver );
 
