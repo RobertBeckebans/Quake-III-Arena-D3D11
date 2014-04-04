@@ -374,6 +374,25 @@ typedef struct {
 	float	depthForOpaque;
 } fogParms_t;
 
+#define SKY_SUBDIVISIONS		8
+#define HALF_SKY_SUBDIVISIONS	(SKY_SUBDIVISIONS/2)
+#define SKY_POINTS_SIDE         (SKY_SUBDIVISIONS+1)
+#define SKY_POINTS_TOTAL        (SKY_POINTS_SIDE*SKY_POINTS_SIDE)
+
+typedef struct {
+    struct image_s* image;
+    int             mins[2];
+    int             maxs[2];
+} skyboxSide_t;
+
+typedef struct {
+    skyboxSide_t    sides[6];
+    float           tint[3];
+    const float*    vdata;
+    const float*    tdata;
+} skybox_t;
+
+
 
 typedef struct shader_s {
 	char		name[MAX_QPATH];		// game path, including extension
