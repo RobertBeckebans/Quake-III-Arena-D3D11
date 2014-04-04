@@ -863,7 +863,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\baseq3\d3d11\view.hlsl">
+    <None Include="..\..\baseq3\d3d11\vscommon.hlsl">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>
@@ -872,6 +872,19 @@
       <FileType>Document</FileType>
     </None>
     <None Include="..\..\baseq3\d3d11\genericmt_vs.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\baseq3\d3d11\genericst_ps.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\baseq3\d3d11\genericst_vs.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\baseq3\d3d11\pscommon.hlsl">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>
