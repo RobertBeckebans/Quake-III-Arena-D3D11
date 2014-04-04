@@ -148,7 +148,7 @@ D3D_PUBLIC void D3DWnd_Init( void )
         return;
     }
 
-	D3D_FEATURE_LEVEL featureLevel; 
+	D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0; 
 	HRESULT hr = QD3D::CreateDefaultDevice(
 		D3D_DRIVER_TYPE_HARDWARE, 
 		&g_pDevice, 

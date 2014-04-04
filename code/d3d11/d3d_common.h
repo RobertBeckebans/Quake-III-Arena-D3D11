@@ -14,7 +14,8 @@ extern "C" {
 #endif
 
 #include <assert.h>
-#include <d3d11_2.h>
+//#include <d3d11_2.h>
+#include <d3d11_1.h>
 
 #ifndef SAFE_RELEASE
 #	define SAFE_RELEASE(x) if(x) { x->Release(); x = nullptr; }
