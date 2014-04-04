@@ -2,7 +2,7 @@
 #include "d3d_image.h"
 #include "d3d_state.h"
 
-typedef struct d3dImage_s
+struct d3dImage_t
 {
     ID3D11Texture2D* pTexture;
     ID3D11ShaderResourceView* pSRV;
@@ -12,9 +12,9 @@ typedef struct d3dImage_s
     int height;
     int frameUsed;
     qboolean dynamic;
-} d3dImage_t;
+};
 
-static d3dImage_s s_d3dImages[MAX_DRAWIMAGES];
+static d3dImage_t s_d3dImages[MAX_DRAWIMAGES];
 
 void D3DDrv_CreateImage( const image_t* image, const byte *pic, qboolean isLightmap )
 {
