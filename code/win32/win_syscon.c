@@ -416,8 +416,12 @@ void Sys_CreateConsole( void )
 												g_wv.hInstance, NULL );
 	SendMessage( s_wcd.hwndBuffer, WM_SETFONT, ( WPARAM ) s_wcd.hfBufferFont, 0 );
 
-	s_wcd.SysInputLineWndProc = ( WNDPROC ) SetWindowLong( s_wcd.hwndInputLine, GWL_WNDPROC, ( long ) InputLineWndProc );
-	SendMessage( s_wcd.hwndInputLine, WM_SETFONT, ( WPARAM ) s_wcd.hfBufferFont, 0 );
+#ifdef _M_X64
+	s_wcd.SysInputLineWndProc = ( WNDPROC ) SetWindowLongPtr( s_wcd.hwndInputLine, GWLP_WNDPROC, (LONG_PTR) InputLineWndProc );
+#else
+    s_wcd.SysInputLineWndProc = (WNDPROC)SetWindowLong(s_wcd.hwndInputLine, GWL_WNDPROC, (long)InputLineWndProc);
+#endif
+    SendMessage(s_wcd.hwndInputLine, WM_SETFONT, (WPARAM)s_wcd.hfBufferFont, 0);
 
 	ShowWindow( s_wcd.hWnd, SW_SHOWDEFAULT);
 	UpdateWindow( s_wcd.hWnd );
