@@ -70,6 +70,29 @@ qboolean XAudio_Init(void)
         goto fail;
     }
 
+    cvar_t* xaudio_debugLevel = Cvar_Get( "xaudio_debugLevel", "0", CVAR_TEMP | CVAR_LATCH );
+
+    if ( xaudio_debugLevel->integer > 0 )
+    {
+        XAUDIO2_DEBUG_CONFIGURATION dbgCfg;
+        ZeroMemory( &dbgCfg, sizeof( dbgCfg ) );
+        dbgCfg.TraceMask = XAUDIO2_LOG_ERRORS | XAUDIO2_LOG_WARNINGS;
+        
+        if ( xaudio_debugLevel->integer > 1 )
+            dbgCfg.TraceMask |= XAUDIO2_LOG_INFO;
+        if ( xaudio_debugLevel->integer > 2 )
+            dbgCfg.TraceMask |= XAUDIO2_LOG_DETAIL;
+        if ( xaudio_debugLevel->integer > 3 )
+            dbgCfg.TraceMask |= XAUDIO2_LOG_STREAMING;
+
+        if ( IsDebuggerPresent() ) 
+        {
+            dbgCfg.BreakMask = XAUDIO2_LOG_ERRORS;
+        }
+
+        g_pXAudio2->SetDebugConfiguration( &dbgCfg );
+    }
+
     hr = g_pXAudio2->CreateMasteringVoice( &g_pMasterVoice );
     if ( FAILED( hr ) )
     {
@@ -77,10 +100,6 @@ qboolean XAudio_Init(void)
         goto fail;
     }
     
-#ifdef _DEBUG
-    // TODO: debug config
-#endif
-
     // Set up the DMA structure
     dma.channels = 2;
     dma.samplebits = 16;
