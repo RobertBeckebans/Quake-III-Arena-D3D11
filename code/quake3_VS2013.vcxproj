@@ -582,15 +582,15 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="botlib\botlib.vcxproj">
+    <ProjectReference Include="botlib\botlib_VS2013.vcxproj">
       <Project>{a410161f-ae9f-485d-a01f-5294891430a6}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="renderer\renderer.vcxproj">
+    <ProjectReference Include="renderer\renderer_VS2013.vcxproj">
       <Project>{ab424155-fbed-4d8d-b007-5b6cf93ea395}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="splines\Splines.vcxproj">
+    <ProjectReference Include="splines\Splines_VS2013.vcxproj">
       <Project>{dbaf2c53-3858-455d-a1ae-3fc093515314}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
