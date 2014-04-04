@@ -31,7 +31,7 @@ qhandle_t PROXY_RegisterModel( const char *name ) {
     dx = gl;
 
     if (dx != gl) {
-        Com_Error( ERR_FATAL, "Proxy RegisterModel() returning conflicting results: %d vs %d\n", gl, dx);
+        Com_Error( ERR_FATAL, "[PROXY DRIVER] RegisterModel() returning conflicting results: %d vs %d\n", gl, dx);
     }
     return dx;
 }
@@ -44,7 +44,7 @@ qhandle_t PROXY_RegisterSkin( const char *name ) {
     dx = gl;
 
     if (dx != gl) {
-        Com_Error( ERR_FATAL, "Proxy RegisterModel() returning conflicting results: %d vs %d\n", gl, dx);
+        Com_Error( ERR_FATAL, "[PROXY DRIVER] RegisterModel() returning conflicting results: %d vs %d\n", gl, dx);
     }
     return dx;
 }
@@ -57,7 +57,7 @@ qhandle_t PROXY_RegisterShader( const char *name ) {
     dx = gl;
 
     if (dx != gl) {
-        Com_Error( ERR_FATAL, "Proxy RegisterModel() returning conflicting results: %d vs %d\n", gl, dx);
+        Com_Error( ERR_FATAL, "[PROXY DRIVER] RegisterModel() returning conflicting results: %d vs %d\n", gl, dx);
     }
     return dx;
 }
@@ -70,7 +70,7 @@ qhandle_t PROXY_RegisterShaderNoMip( const char *name ) {
     dx = gl;
 
     if (dx != gl) {
-        Com_Error( ERR_FATAL, "Proxy RegisterModel() returning conflicting results: %d vs %d\n", gl, dx);
+        Com_Error( ERR_FATAL, "[PROXY DRIVER] RegisterModel() returning conflicting results: %d vs %d\n", gl, dx);
     }
     return dx;
 }
@@ -126,7 +126,7 @@ int		PROXY_LightForPoint( vec3_t point, vec3_t ambientLight, vec3_t directedLigh
     dx = gl;
 
     if (dx != gl) {
-        Com_Error( ERR_FATAL, "Proxy LightForPoint() returning conflicting results: %d vs %d\n", gl, dx);
+        Com_Error( ERR_FATAL, "[PROXY DRIVER] LightForPoint() returning conflicting results: %d vs %d\n", gl, dx);
     }
 
     return dx;
