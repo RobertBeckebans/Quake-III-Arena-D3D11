@@ -96,6 +96,9 @@ void D3DDrv_Clear( unsigned long bits, const float* clearCol, unsigned long sten
 {
     if ( bits & CLEAR_COLOR )
     {
+        static float defaultCol[] = { 0, 0, 0, 0 };
+        if ( !clearCol ) { clearCol = defaultCol; }
+
         g_pImmediateContext->ClearRenderTargetView( g_pBackBufferView, clearCol );
     }
 
