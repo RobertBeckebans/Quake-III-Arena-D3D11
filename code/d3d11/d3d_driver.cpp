@@ -159,10 +159,10 @@ void D3DDrv_SetPortalRendering( qboolean enabled, const float* flipMatrix, const
         // Transform the supplied plane by the INVERSE of the flipMatrix
         // We can just transpose the flipMatrix because it's orthogonal
         // To clip, dot(vertex, plane) < 0
-        g_RunState.psConstants.clipPlane[0] = flipMatrix[ 0] * plane[0] + flipMatrix[ 1] * plane[1] + flipMatrix[ 2] * plane[2] + flipMatrix[ 3] * plane[3];
-        g_RunState.psConstants.clipPlane[1] = flipMatrix[ 4] * plane[0] + flipMatrix[ 5] * plane[1] + flipMatrix[ 6] * plane[2] + flipMatrix[ 7] * plane[3]; 
-        g_RunState.psConstants.clipPlane[2] = flipMatrix[ 8] * plane[0] + flipMatrix[ 9] * plane[1] + flipMatrix[10] * plane[2] + flipMatrix[11] * plane[3]; 
-        g_RunState.psConstants.clipPlane[3] = flipMatrix[12] * plane[0] + flipMatrix[13] * plane[1] + flipMatrix[14] * plane[2] + flipMatrix[15] * plane[3]; 
+        g_RunState.psConstants.clipPlane[0] = flipMatrix[ 0] * plane[0] + flipMatrix[ 4] * plane[1] + flipMatrix[ 8] * plane[2] + flipMatrix[12] * plane[3];
+        g_RunState.psConstants.clipPlane[1] = flipMatrix[ 1] * plane[0] + flipMatrix[ 5] * plane[1] + flipMatrix[ 9] * plane[2] + flipMatrix[13] * plane[3]; 
+        g_RunState.psConstants.clipPlane[2] = flipMatrix[ 2] * plane[0] + flipMatrix[ 6] * plane[1] + flipMatrix[10] * plane[2] + flipMatrix[14] * plane[3]; 
+        g_RunState.psConstants.clipPlane[3] = flipMatrix[ 3] * plane[0] + flipMatrix[ 7] * plane[1] + flipMatrix[11] * plane[2] + flipMatrix[15] * plane[3]; 
     }
     else
     {

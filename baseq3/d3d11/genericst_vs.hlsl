@@ -12,6 +12,7 @@ struct VS_PS_Data
 	float4 Position : SV_POSITION;
 	float2 AlbedoTC : TEXCOORD0;
     float4 Color : COLOR;
+    float4 ViewPos : TEXCOORD2;
 };
 
 VS_PS_Data Main(VS_Data input)
@@ -23,6 +24,7 @@ VS_PS_Data Main(VS_Data input)
 	output.Position = DepthRangeHack(sPos);
     output.AlbedoTC = input.AlbedoTC;
 	output.Color = input.Color;
+    output.ViewPos = viewPos;
 
    	return output;
 }

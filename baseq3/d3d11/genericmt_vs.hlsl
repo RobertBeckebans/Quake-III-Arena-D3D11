@@ -14,6 +14,7 @@ struct VS_PS_Data
 	float2 AlbedoTC : TEXCOORD0;
     float2 LightmapTC : TEXCOORD1;
     float4 Color : COLOR;
+    float4 ViewPos : TEXCOORD2;
 };
 
 VS_PS_Data Main(VS_Data input)
@@ -26,6 +27,7 @@ VS_PS_Data Main(VS_Data input)
     output.AlbedoTC = input.AlbedoTC;
     output.LightmapTC = input.LightmapTC;
 	output.Color = input.Color;
+    output.ViewPos = viewPos;
 
 	return output;
 }
