@@ -251,7 +251,7 @@ IOutputStream^ NET_OpenNewStream( const netadr_t* to )
 
     HostName^ remoteHostName = ref new HostName( Win8::CopyString( ipAddress ) );
 
-    concurrency::create_task( g_Socket->GetOutputStreamAsync( remoteHostName, to->port.ToString() ) ).then(
+    concurrency::create_task( g_Socket->GetOutputStreamAsync( remoteHostName, BigShort( to->port ).ToString() ) ).then(
         [hEvent, &stream] ( IOutputStream^ s )
     {
         stream = s;
@@ -300,6 +300,8 @@ WIN8_EXPORT qboolean Sys_GetPacket( netadr_t *net_from, msg_t *net_message ) {
     
     // Get the address of the sender
     swscanf_s( args->RemotePort->Data(), L"%d", &net_from->port );
+
+    net_from->port = BigShort( net_from->port );
 
     // Oh my.
     char seriousHack[256];
@@ -396,7 +398,7 @@ WIN8_EXPORT void Sys_ShowIP(void) {
 NET_StartListeningOnPort
 =====================
 */
-HRESULT NET_StartListeningOnPort( HostName^ localHost, int port, bool bindToAny )
+HRESULT NET_StartListeningOnPort( HostName^ localHost, int port )
 {
     Platform::String^ serviceName = port.ToString();
 
@@ -406,10 +408,10 @@ HRESULT NET_StartListeningOnPort( HostName^ localHost, int port, bool bindToAny 
 
     // @pjb: todo: on Blue we can do .wait()
 
-    if ( bindToAny )
+    if ( localHost == nullptr )
     {
         // Try to bind to a specific address.
-        concurrency::create_task( g_Socket->BindEndpointAsync( localHost, serviceName ) ).then(
+        concurrency::create_task( g_Socket->BindServiceNameAsync( serviceName ) ).then(
             [bindEndPointComplete, &status] ( concurrency::task<void> previousTask )
         {
             try
@@ -477,8 +479,6 @@ void NET_StartListening( void ) {
 
     HostName^ localHost = nullptr;
 
-    bool bindToAny = !( *ip->string );
-
     auto hostNames = NetworkInformation::GetHostNames();
     if ( !hostNames->Size )
     {
@@ -501,27 +501,12 @@ void NET_StartListening( void ) {
         }
     }
 
-    // If there was no explicitly specified IP, pick the first adapter
-    for ( int i = 0; localHost == nullptr && i < hostNames->Size; ++i )
+    if ( localHost != nullptr )
     {
-        auto localHostInfo = hostNames->GetAt(i);
-        if ( localHostInfo->IPInformation != nullptr )
-        {
-            localHost = localHostInfo;
-        }
+        Win8::CopyString( localHost->DisplayName, hostNameTmp, sizeof( hostNameTmp ) );
+        Com_Printf( "Found localHost %s.\n", hostNameTmp );
+        Cvar_Set( "net_ip", hostNameTmp );
     }
-
-    // No adapter with IP information
-    if ( localHost == nullptr )
-    {
-        Com_Printf( "ERROR: Found %d adapters but none have IP info.\n", hostNames->Size );
-        return;
-    }
-
-    Win8::CopyString( localHost->DisplayName, hostNameTmp, sizeof( hostNameTmp ) );
-    Com_Printf( "Found localHost %s.\n", hostNameTmp );
-
-    Cvar_Set( "net_ip", hostNameTmp );
 
     g_Socket = ref new DatagramSocket();
         
@@ -529,7 +514,7 @@ void NET_StartListening( void ) {
 	// dedicated servers can be started without requiring
 	// a different net_port for each one
 	for( int i = 0 ; i < 10 ; i++ ) {
-		if ( SUCCEEDED( NET_StartListeningOnPort( localHost, port + i, bindToAny ) ) ) {
+		if ( SUCCEEDED( NET_StartListeningOnPort( localHost, port + i ) ) ) {
 			Cvar_SetValue( "net_port", port + i );
 			return;
 		}
