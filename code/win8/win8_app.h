@@ -1,5 +1,7 @@
 #pragma once
 
+#include <atomic>
+
 ref class Quake3Win8App sealed : public Windows::ApplicationModel::Core::IFrameworkView
 {
 public:
