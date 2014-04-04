@@ -349,6 +349,9 @@
     <ClCompile Include="..\d3d11\d3d_driver.cpp">
       <Filter>Direct3D Implementation</Filter>
     </ClCompile>
+    <ClCompile Include="gl_shadows.c">
+      <Filter>OpenGL Implementation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tr_public.h">

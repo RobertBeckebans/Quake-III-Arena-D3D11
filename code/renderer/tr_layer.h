@@ -42,6 +42,8 @@ typedef struct graphicsApiLayer_s {
     void*           (* WaitForCommands)( void );
     void            (* WaitForRenderThread)( void );
     qboolean        (* SpawnRenderThread )( void (*)( void ) );
+    void            (* ShadowSilhouette)( const float* edges, int edgeCount );
+    void            (* ShadowFinish)( void );
 
     void            (* DebugSetOverdrawMeasureEnabled)( qboolean enabled );
     void            (* DebugSetTextureMode)( const char* mode );

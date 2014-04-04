@@ -403,6 +403,8 @@ void GLRB_DriverInit( graphicsApiLayer_t* layer )
     layer->WaitForCommands = GLimp_RendererSleep;
     layer->WaitForRenderThread = GLimp_FrontEndSleep;
     layer->SpawnRenderThread = GLimp_SpawnRenderThread;
+    layer->ShadowSilhouette = GLRB_ShadowSilhouette;
+    layer->ShadowFinish = GLRB_ShadowFinish;
     layer->DebugSetOverdrawMeasureEnabled = GLRB_SetOverdrawMeasureEnabled;
     layer->DebugSetTextureMode = GL_TextureMode;
     layer->DebugDrawPolygon = GLRB_DebugPolygon;

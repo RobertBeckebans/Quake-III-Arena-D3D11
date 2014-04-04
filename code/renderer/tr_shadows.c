@@ -21,8 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "tr_local.h"
 #include "tr_state.h"
-
-#include "gl_common.h" // @pjb: todo: remove
+#include "tr_layer.h"
 
 /*
 
@@ -47,6 +46,9 @@ static	edgeDef_t	edgeDefs[SHADER_MAX_VERTEXES][MAX_EDGE_DEFS];
 static	int			numEdgeDefs[SHADER_MAX_VERTEXES];
 static	int			facing[SHADER_MAX_INDEXES/3];
 
+float               shadowEdgeBuffer[MAX_EDGE_DEFS * 16]; // @pjb: I hope this is enough!
+const int           shadowEdgeBufferSize = sizeof( shadowEdgeBuffer ) / sizeof( vec4_t );
+
 void R_AddEdgeDef( int i1, int i2, int facing ) {
 	int		c;
 
@@ -60,38 +62,10 @@ void R_AddEdgeDef( int i1, int i2, int facing ) {
 	numEdgeDefs[ i1 ]++;
 }
 
-void R_RenderShadowEdges( void ) {
+// @pjb: instead of rendering directly we're collecting data
+int R_GatherShadowEdgePoints( float* buffer, int maxEdges ) {
+    int     vcount = 0;
 	int		i;
-
-#if 0
-	int		numTris;
-
-	// dumb way -- render every triangle's edges
-	numTris = tess.numIndexes / 3;
-
-	for ( i = 0 ; i < numTris ; i++ ) {
-		int		i1, i2, i3;
-
-		if ( !facing[i] ) {
-			continue;
-		}
-
-		i1 = tess.indexes[ i*3 + 0 ];
-		i2 = tess.indexes[ i*3 + 1 ];
-		i3 = tess.indexes[ i*3 + 2 ];
-
-		qglBegin( GL_TRIANGLE_STRIP );
-		qglVertex3fv( tess.xyz[ i1 ] );
-		qglVertex3fv( tess.xyz[ i1 + tess.numVertexes ] );
-		qglVertex3fv( tess.xyz[ i2 ] );
-		qglVertex3fv( tess.xyz[ i2 + tess.numVertexes ] );
-		qglVertex3fv( tess.xyz[ i3 ] );
-		qglVertex3fv( tess.xyz[ i3 + tess.numVertexes ] );
-		qglVertex3fv( tess.xyz[ i1 ] );
-		qglVertex3fv( tess.xyz[ i1 + tess.numVertexes ] );
-		qglEnd();
-	}
-#else
 	int		c, c2;
 	int		j, k;
 	int		i2;
@@ -126,19 +100,19 @@ void R_RenderShadowEdges( void ) {
 			// if it doesn't share the edge with another front facing
 			// triangle, it is a sil edge
 			if ( hit[ 1 ] == 0 ) {
-				qglBegin( GL_TRIANGLE_STRIP );
-				qglVertex3fv( tess.xyz[ i ] );
-				qglVertex3fv( tess.xyz[ i + tess.numVertexes ] );
-				qglVertex3fv( tess.xyz[ i2 ] );
-				qglVertex3fv( tess.xyz[ i2 + tess.numVertexes ] );
-				qglEnd();
+                memcpy( &buffer[ 0], tess.xyz[i], sizeof(float) * 4 );
+                memcpy( &buffer[ 4], tess.xyz[i + tess.numVertexes], sizeof(float) * 4 );
+                memcpy( &buffer[ 8], tess.xyz[i2], sizeof(float) * 4 );
+                memcpy( &buffer[12], tess.xyz[i2 + tess.numVertexes], sizeof(float) * 4 );
+                buffer += 16;
 				c_edges++;
 			} else {
 				c_rejected++;
 			}
 		}
 	}
-#endif
+
+    return c_edges;
 }
 
 /*
@@ -156,6 +130,7 @@ triangleFromEdge[ v1 ][ v2 ]
 void RB_ShadowTessEnd( void ) {
 	int		i;
 	int		numTris;
+    int     edgePoints;
 	vec3_t	lightDir;
 
 	// we can only do this if we have enough space in the vertex buffers
@@ -209,32 +184,13 @@ void RB_ShadowTessEnd( void ) {
 		R_AddEdgeDef( i3, i1, facing[ i ] );
 	}
 
+    edgePoints = R_GatherShadowEdgePoints( shadowEdgeBuffer, shadowEdgeBufferSize );
+    if ( edgePoints > shadowEdgeBufferSize ) {
+        Com_Error( ERR_FATAL, "Too many points added to the shadow edge buffer. Memory corruption WILL have happened. Quitting. (%d of %d)\n", edgePoints, shadowEdgeBufferSize );
+    }
+    
 	// draw the silhouette edges
-
-	GL_Bind( tr.whiteImage );
-	qglEnable( GL_CULL_FACE );
-	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO );
-	qglColor3f( 0.2f, 0.2f, 0.2f );
-
-	// don't write to the color buffer
-	qglColorMask( GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE );
-
-	qglEnable( GL_STENCIL_TEST );
-	qglStencilFunc( GL_ALWAYS, 1, 255 );
-
-	// mirrors have the culling order reversed
-	GL_Cull( CT_BACK_SIDED ); // @pjb: resolves to GL_FRONT if to mirror flag is set
-	qglStencilOp( GL_KEEP, GL_KEEP, GL_INCR );
-
-	R_RenderShadowEdges();
-
-	GL_Cull( CT_FRONT_SIDED ); // @pjb: resolves to GL_BACK due to mirror flag is set
-	qglStencilOp( GL_KEEP, GL_KEEP, GL_DECR );
-
-	R_RenderShadowEdges();
-
-	// reenable writing to the color buffer
-	qglColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
+    graphicsDriver.ShadowSilhouette( shadowEdgeBuffer, edgePoints );
 }
 
 
@@ -255,31 +211,8 @@ void RB_ShadowFinish( void ) {
 	if ( vdConfig.stencilBits < 4 ) {
 		return;
 	}
-	qglEnable( GL_STENCIL_TEST );
-	qglStencilFunc( GL_NOTEQUAL, 0, 255 );
 
-	qglDisable (GL_CLIP_PLANE0);
-	qglDisable (GL_CULL_FACE);
-
-	GL_Bind( tr.whiteImage );
-
-    qglLoadIdentity ();
-
-	qglColor3f( 0.6f, 0.6f, 0.6f );
-	GL_State( GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO );
-
-//	qglColor3f( 1, 0, 0 );
-//	GL_State( GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO );
-
-	qglBegin( GL_QUADS );
-	qglVertex3f( -100, 100, -10 );
-	qglVertex3f( 100, 100, -10 );
-	qglVertex3f( 100, -100, -10 );
-	qglVertex3f( -100, -100, -10 );
-	qglEnd ();
-
-	qglColor4f(1,1,1,1);
-	qglDisable( GL_STENCIL_TEST );
+    graphicsDriver.ShadowFinish();
 }
 
 

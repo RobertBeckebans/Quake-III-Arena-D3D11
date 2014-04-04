@@ -75,6 +75,17 @@ void GLRB_GfxInfo_f( void );
 /*
 ====================================================================
 
+SHADOW RENDERING
+
+====================================================================
+*/
+
+void GLRB_ShadowSilhouette( const float* edges, int edgeCount );
+void GLRB_ShadowFinish( void );
+
+/*
+====================================================================
+
 IMPLEMENTATION SPECIFIC FUNCTIONS
 
 ====================================================================
