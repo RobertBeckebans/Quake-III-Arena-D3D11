@@ -198,6 +198,11 @@ void GLRB_GfxInfo_f( void )
 	}
 }
 
+size_t GLRB_QueryError( void )
+{
+    return (size_t) qglGetError();
+}
+
 /*
 @@@@@@@@@@@@@@@@@@@@@
 
@@ -207,6 +212,9 @@ Returns the opengl graphics driver and sets up global state
 */
 void GLRB_DriverInit( graphicsApiLayer_t* layer )
 {
+    layer->Shutdown = GLimp_Shutdown;
+    layer->UnbindResources = GLRB_RestoreTextureState;
+    layer->QueryError = GLRB_QueryError;
     layer->CreateImage = GL_CreateImage;
     layer->DeleteImage = GL_DeleteImage;
     layer->GetImageFormat = GL_GetImageFormat;

@@ -214,6 +214,12 @@ void InitDriver( void )
     R_ValidateGraphicsLayer( &graphicsDriver );
 }
 
+void ShutdownDriver( void )
+{
+    graphicsDriver.Shutdown();
+    Com_Memset( &graphicsDriver, 0, sizeof( graphicsDriver ) );
+}
+
 /*
     @pjb: Validates the driver is completely full of pointers
 */
@@ -737,7 +743,7 @@ R_Init
 ===============
 */
 void R_Init( void ) {	
-	int	err;
+	size_t	err;
 	int i;
 	byte *ptr;
 
@@ -824,9 +830,9 @@ void R_Init( void ) {
 	R_InitFreeType();
 
 
-	err = qglGetError();
+	err = graphicsDriver.QueryError();
 	if ( err != GL_NO_ERROR )
-		ri.Printf (PRINT_ALL, "glGetError() = 0x%x\n", err);
+		ri.Printf (PRINT_WARNING, "Graphics driver error set: 0x%x\n", err);
 
 	ri.Printf( PRINT_ALL, "----- finished R_Init -----\n" );
 }
@@ -856,14 +862,14 @@ void RE_Shutdown( qboolean destroyWindow ) {
 		R_ShutdownCommandBuffers();
 		R_DeleteTextures();
 
-        GLRB_RestoreTextureState();
+        graphicsDriver.UnbindResources();
 	}
 
 	R_DoneFreeType();
 
 	// shut down platform specific OpenGL stuff
 	if ( destroyWindow ) {
-		GLimp_Shutdown();
+        ShutdownDriver();
 	}
 
 	tr.registered = qfalse;

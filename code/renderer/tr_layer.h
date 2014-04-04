@@ -8,6 +8,9 @@
 // @pjb: whichever graphics driver the user chooses, it'll have pointers to its
 // specific utilities
 typedef struct graphicsApiLayer_s {
+    void            (* Shutdown)( void );
+    void            (* UnbindResources)( void );
+    size_t          (* QueryError)( void );
     void            (* CreateImage)( const image_t* image, const byte *pic, qboolean isLightmap );
     void            (* DeleteImage)( const image_t* image );
     imageFormat_t   (* GetImageFormat)( const image_t* image );
