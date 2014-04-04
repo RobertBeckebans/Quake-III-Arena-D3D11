@@ -114,7 +114,6 @@ void D3DWin8_NotifyWindowResize( int logicalSizeX, int logicalSizeY )
     // Allow the video driver to proceed now we have the right information
     if ( DeviceStarted() )
     {
-        // @pjb: todo: need to resize
-        assert(0);
+        Cbuf_AddText( "vid_restart\n" );
     }
 }
