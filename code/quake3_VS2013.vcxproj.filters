@@ -13,22 +13,6 @@
     <Filter Include="Game\VM">
       <UniqueIdentifier>{407f0a53-03ec-4376-a0a1-7019538fabc5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Windows">
-      <UniqueIdentifier>{3e394bd3-6462-4835-b72e-47ec3d401cfa}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Windows\Win32">
-      <UniqueIdentifier>{9d654615-22fe-43bc-abf5-fc5b818d1da5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Windows\Win32\Resource Files">
-      <UniqueIdentifier>{8966fb75-9dd5-4b3b-80e3-9be1eaa9cffd}</UniqueIdentifier>
-      <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;cnt;rtf;gif;jpg;jpeg;jpe</Extensions>
-    </Filter>
-    <Filter Include="Windows\Win8">
-      <UniqueIdentifier>{12d951fa-db10-4160-b645-02d4772e9a8b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Windows\Win8\Assets">
-      <UniqueIdentifier>{231ab93b-236b-4416-ab26-2796a3a0184c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Game\Audio">
       <UniqueIdentifier>{c71fa461-b385-4066-8360-71c05cf1a7ea}</UniqueIdentifier>
     </Filter>
@@ -43,24 +27,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="win32\win_input.c">
-      <Filter>Windows\Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="win32\win_main.c">
-      <Filter>Windows\Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="win32\win_net.c">
-      <Filter>Windows\Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="win32\win_snd.c">
-      <Filter>Windows\Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="win32\win_syscon.c">
-      <Filter>Windows\Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="win32\win_wndproc.c">
-      <Filter>Windows\Win32</Filter>
-    </ClCompile>
     <ClCompile Include="client\cl_ui.c">
       <Filter>Game\Client</Filter>
     </ClCompile>
@@ -193,24 +159,6 @@
     <ClCompile Include="qcommon\vm_x86.c">
       <Filter>Game\VM</Filter>
     </ClCompile>
-    <ClCompile Include="win32\win_shared.c">
-      <Filter>Windows</Filter>
-    </ClCompile>
-    <ClCompile Include="win8\win8_sys.cpp">
-      <Filter>Windows\Win8</Filter>
-    </ClCompile>
-    <ClCompile Include="win8\win8_app.cpp">
-      <Filter>Windows\Win8</Filter>
-    </ClCompile>
-    <ClCompile Include="win8\win8_net.cpp">
-      <Filter>Windows\Win8</Filter>
-    </ClCompile>
-    <ClCompile Include="win8\win8_input.cpp">
-      <Filter>Windows\Win8</Filter>
-    </ClCompile>
-    <ClCompile Include="win8\win8_msgq.cpp">
-      <Filter>Windows\Win8</Filter>
-    </ClCompile>
     <ClCompile Include="xaudio\xaudio_main.cpp">
       <Filter>XAudio2</Filter>
     </ClCompile>
@@ -219,12 +167,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="win32\win_snd.h">
-      <Filter>Windows\Win32</Filter>
-    </ClInclude>
-    <ClInclude Include="win32\win_local.h">
-      <Filter>Windows\Win32</Filter>
-    </ClInclude>
     <ClInclude Include="game\bg_public.h">
       <Filter>Game\Client</Filter>
     </ClInclude>
@@ -285,12 +227,6 @@
     <ClInclude Include="qcommon\cm_public.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="renderer\qgl.h">
-      <Filter>Windows\Win32</Filter>
-    </ClInclude>
-    <ClInclude Include="win32\resource.h">
-      <Filter>Windows\Win32</Filter>
-    </ClInclude>
     <ClInclude Include="server\server.h">
       <Filter>Game\Server</Filter>
     </ClInclude>
@@ -299,15 +235,6 @@
     </ClInclude>
     <ClInclude Include="client\snd_public.h">
       <Filter>Game\Audio</Filter>
-    </ClInclude>
-    <ClInclude Include="win32\win_shared.h">
-      <Filter>Windows</Filter>
-    </ClInclude>
-    <ClInclude Include="win8\win8_app.h">
-      <Filter>Windows\Win8</Filter>
-    </ClInclude>
-    <ClInclude Include="win8\win8_msgq.h">
-      <Filter>Windows\Win8</Filter>
     </ClInclude>
     <ClInclude Include="xaudio\xaudio_local.h">
       <Filter>XAudio2</Filter>
@@ -318,52 +245,5 @@
     <ClInclude Include="xinput\xinput_public.h">
       <Filter>XInput</Filter>
     </ClInclude>
-    <ClInclude Include="win8\win8_msgs.h">
-      <Filter>Windows\Win8</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="win32\cursor2.cur">
-      <Filter>Windows\Win32\Resource Files</Filter>
-    </None>
-    <None Include="win32\cursor3.cur">
-      <Filter>Windows\Win32\Resource Files</Filter>
-    </None>
-    <None Include="unix\ChangeLog" />
-    <None Include="unix\Conscript-pk3" />
-    <None Include="Construct" />
-    <None Include="win8\Quake3_TemporaryKey.pfx">
-      <Filter>Windows\Win8</Filter>
-    </None>
-    <None Include="win8\deployvmdlls.bat">
-      <Filter>Windows\Win8</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="win32\qe3.ico">
-      <Filter>Windows\Win32\Resource Files</Filter>
-    </Image>
-    <Image Include="win8\Assets\Logo.png">
-      <Filter>Windows\Win8\Assets</Filter>
-    </Image>
-    <Image Include="win8\Assets\SmallLogo.png">
-      <Filter>Windows\Win8\Assets</Filter>
-    </Image>
-    <Image Include="win8\Assets\SplashScreen.png">
-      <Filter>Windows\Win8\Assets</Filter>
-    </Image>
-    <Image Include="win8\Assets\StoreLogo.png">
-      <Filter>Windows\Win8\Assets</Filter>
-    </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="win32\winquake.rc">
-      <Filter>Windows\Win32\Resource Files</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <AppxManifest Include="win8\Package_VS2012.appxmanifest">
-      <Filter>Windows\Win8</Filter>
-    </AppxManifest>
   </ItemGroup>
 </Project>

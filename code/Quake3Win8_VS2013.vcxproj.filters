@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Assets">
+      <UniqueIdentifier>{231ab93b-236b-4416-ab26-2796a3a0184c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="win32\win_shared.c" />
+    <ClCompile Include="win8\win8_app.cpp" />
+    <ClCompile Include="win8\win8_input.cpp" />
+    <ClCompile Include="win8\win8_msgq.cpp" />
+    <ClCompile Include="win8\win8_net.cpp" />
+    <ClCompile Include="win8\win8_sys.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="win32\win_shared.h" />
+    <ClInclude Include="win8\win8_app.h" />
+    <ClInclude Include="win8\win8_msgq.h" />
+    <ClInclude Include="win8\win8_msgs.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="win8\deployvmdlls.bat" />
+    <None Include="win8\Quake3_TemporaryKey.pfx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="win8\Assets\Logo.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="win8\Assets\SmallLogo.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="win8\Assets\SplashScreen.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="win8\Assets\StoreLogo.png">
+      <Filter>Assets</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="win8\Package_VS2013.appxmanifest" />
+  </ItemGroup>
+</Project>
