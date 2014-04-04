@@ -46,7 +46,7 @@ static	edgeDef_t	edgeDefs[SHADER_MAX_VERTEXES][MAX_EDGE_DEFS];
 static	int			numEdgeDefs[SHADER_MAX_VERTEXES];
 static	int			facing[SHADER_MAX_INDEXES/3];
 
-float               shadowEdgeBuffer[MAX_EDGE_DEFS * 16]; // @pjb: I hope this is enough!
+float               shadowEdgeBuffer[SHADER_MAX_VERTEXES * MAX_EDGE_DEFS * 16]; // @pjb: I hope this is enough!
 const int           shadowEdgeBufferSize = sizeof( shadowEdgeBuffer ) / sizeof( vec4_t );
 
 void R_AddEdgeDef( int i1, int i2, int facing ) {
