@@ -212,6 +212,7 @@ void GLRB_DriverInit( graphicsLayer_t* layer )
     layer->SetGamma = GLRB_SetGamma;
     layer->GetFrameImageMemoryUsage = GL_SumOfUsedImages;
     layer->GraphicsInfo = GLRB_GfxInfo_f;
+    layer->Clear = GL_Clear;
 
     InitOpenGL();
 

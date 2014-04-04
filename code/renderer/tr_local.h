@@ -877,7 +877,7 @@ typedef struct {
     void            (* SetGamma)( unsigned char red[256], unsigned char green[256], unsigned char blue[256] );
     int             (* GetFrameImageMemoryUsage)( void );
     void            (* GraphicsInfo)( void );
-//    void            (* Clear)( float r, float g, float b, float a );
+    void            (* Clear)( float r, float g, float b, float a );
 } graphicsLayer_t;
 
 /*

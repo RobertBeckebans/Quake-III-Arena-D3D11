@@ -51,8 +51,8 @@ static void RB_Hyperspace( void ) {
 	}
 
 	c = ( backEnd.refdef.time & 255 ) / 255.0f;
-	qglClearColor( c, c, c, 1 );
-	qglClear( GL_COLOR_BUFFER_BIT );
+	
+    vdLayer.Clear(c, c, c, 1);
 
 	backEnd.isHyperspace = qtrue;
 }

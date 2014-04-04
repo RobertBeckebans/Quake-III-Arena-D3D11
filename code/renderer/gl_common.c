@@ -19,6 +19,13 @@ textureMode_t modes[] = {
 	{"GL_LINEAR_MIPMAP_LINEAR", GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR}
 };
 
+
+void GL_Clear( float r, float g, float b, float a )
+{
+	qglClearColor( r, g, b, a );
+	qglClear( GL_COLOR_BUFFER_BIT );
+}
+
 /*
 ===============
 GL_TextureMode

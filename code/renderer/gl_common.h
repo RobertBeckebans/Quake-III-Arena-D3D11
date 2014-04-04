@@ -15,6 +15,7 @@ void	GL_CheckErrors( void );
 void	GL_State( unsigned long stateVector );
 void	GL_TexEnv( int env );
 void	GL_Cull( int cullType );
+void    GL_Clear( float r, float g, float b, float a );
 
 #define GLS_SRCBLEND_ZERO						0x00000001
 #define GLS_SRCBLEND_ONE						0x00000002

@@ -54,6 +54,12 @@ void PROXY_GfxInfo( void )
     ri.Printf( PRINT_ALL, "Using proxied driver: all commands issued to OpenGL and D3D11.\n" );
 }
 
+void PROXY_Clear( float r, float g, float b, float a )
+{
+    openglDriver.Clear( r, g, b, a );
+    // @pjb: todo
+}
+
 void PROXY_DriverInit( graphicsLayer_t* layer )
 {
     layer->CreateImage = PROXY_CreateImage;
@@ -62,6 +68,7 @@ void PROXY_DriverInit( graphicsLayer_t* layer )
     layer->SetGamma = PROXY_SetGamma;
     layer->GetFrameImageMemoryUsage = PROXY_SumOfUsedImages;
     layer->GraphicsInfo = PROXY_GfxInfo;
+    layer->Clear = PROXY_Clear;
 
     // Proxy OpenGL
     GLRB_DriverInit( &openglDriver );
