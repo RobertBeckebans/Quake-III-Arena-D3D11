@@ -196,6 +196,7 @@
     <ClCompile Include="..\d3d11\d3d_draw.cpp" />
     <ClCompile Include="..\d3d11\d3d_driver.cpp" />
     <ClCompile Include="..\d3d11\d3d_image.cpp" />
+    <ClCompile Include="..\d3d11\d3d_drawdata.cpp" />
     <ClCompile Include="..\d3d11\d3d_shaders.cpp" />
     <ClCompile Include="..\d3d11\d3d_state.cpp" />
     <ClCompile Include="..\d3d11\d3d_wnd.cpp" />
@@ -534,6 +535,7 @@
     <ClInclude Include="..\d3d11\d3d_draw.h" />
     <ClInclude Include="..\d3d11\d3d_driver.h" />
     <ClInclude Include="..\d3d11\d3d_image.h" />
+    <ClInclude Include="..\d3d11\d3d_drawdata.h" />
     <ClInclude Include="..\d3d11\d3d_shaders.h" />
     <ClInclude Include="..\d3d11\d3d_state.h" />
     <ClInclude Include="..\d3d11\d3d_wnd.h" />
@@ -857,6 +859,11 @@
       <FileType>Document</FileType>
     </None>
     <None Include="..\..\baseq3\d3d11\fsq_vs.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\baseq3\d3d11\view.hlsl">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

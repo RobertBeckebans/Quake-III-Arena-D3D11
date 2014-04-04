@@ -370,6 +370,9 @@
     <ClCompile Include="..\d3d11\d3d_shaders.cpp">
       <Filter>Direct3D Implementation</Filter>
     </ClCompile>
+    <ClCompile Include="..\d3d11\d3d_drawdata.cpp">
+      <Filter>Direct3D Implementation</Filter>
+    </ClCompile>
     <ClCompile Include="..\d3d11\d3d_draw.cpp">
       <Filter>Direct3D Implementation</Filter>
     </ClCompile>
@@ -472,6 +475,9 @@
       <Filter>Direct3D Implementation</Filter>
     </ClInclude>
     <ClInclude Include="..\d3d11\d3d_shaders.h">
+      <Filter>Direct3D Implementation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\d3d11\d3d_drawdata.h">
       <Filter>Direct3D Implementation</Filter>
     </ClInclude>
     <ClInclude Include="..\d3d11\d3d_draw.h">
@@ -628,13 +634,14 @@
     <None Include="ref_trin.def">
       <Filter>Source Files</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="..\..\baseq3\d3d11\fsq_ps.hlsl">
+    <None Include="..\..\baseq3\d3d11\fsq_ps.hlsl">
       <Filter>Direct3D Implementation\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="..\..\baseq3\d3d11\fsq_vs.hlsl">
+    </None>
+    <None Include="..\..\baseq3\d3d11\fsq_vs.hlsl">
       <Filter>Direct3D Implementation\Shaders</Filter>
-    </FxCompile>
+    </None>
+    <None Include="..\..\baseq3\d3d11\view.hlsl">
+      <Filter>Direct3D Implementation\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
