@@ -963,6 +963,9 @@ Mostly for controlling voodoo environment variables
 ==================
 */
 void CL_Setenv_f( void ) {
+#ifdef WIN8
+	Com_Printf( "setenv not available on this platform.\n" );
+#else
 	int argc = Cmd_Argc();
 
 	if ( argc > 2 ) {
@@ -988,6 +991,7 @@ void CL_Setenv_f( void ) {
 			Com_Printf( "%s undefined\n", Cmd_Argv(1), env );
 		}
 	}
+#endif
 }
 
 
