@@ -305,12 +305,6 @@ static void DrawSkyBox(
 
         const d3dImage_t* image = GetImageRenderInfo( side->image );
 
-        //const d3dImage_t* image = nullptr;
-        //if ( side->image )
-        //    image = GetImageRenderInfo( side->image );
-        //else
-        //    image = GetImageRenderInfo( tr.whiteImage );
-
         g_pImmediateContext->PSSetShaderResources( 0, 1, &image->pSRV );
         g_pImmediateContext->PSSetSamplers( 0, 1, &image->pSampler );
         g_pImmediateContext->Draw( 6, i * 6 );

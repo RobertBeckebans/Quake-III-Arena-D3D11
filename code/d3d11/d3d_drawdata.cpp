@@ -94,30 +94,6 @@ void InitSkyBoxRenderData( d3dSkyBoxRenderData_t* rd )
     CreateVertexLayoutAndShader( "skybox_vs", elements, _countof(elements), &rd->vertexShader, &rd->inputLayout );
     rd->pixelShader = CompilePixelShader( "skybox_ps" );
 
-    /*
-    static const float vertices[] = 
-    {
-        -1, -1, -1, // 0
-         1, -1, -1, // 1
-        -1,  1, -1, // 2
-         1,  1, -1, // 3
-        -1, -1,  1, // 4
-         1, -1,  1, // 5
-        -1,  1,  1, // 6
-         1,  1,  1, // 7
-    };
-
-    static const USHORT indices[] = 
-    {
-        4, 0, 2, 4, 2, 6, // Right
-        1, 5, 7, 1, 7, 3, // Left
-        6, 2, 3, 6, 3, 7, // Back 
-        5, 1, 0, 5, 0, 4, // Front
-        5, 4, 6, 5, 6, 7, // Up     
-        0, 1, 3, 0, 3, 2, // Down
-    };
-    */
-
     static const float skyboxVertexData[] = 
     {
         // Right
@@ -168,16 +144,7 @@ void InitSkyBoxRenderData( d3dSkyBoxRenderData_t* rd )
          1,  1, -1, 0, 1, // 3
         -1,  1, -1, 0, 0, // 2
     };
-
-    //rd->indexBuffer = QD3D::CreateImmutableBuffer( 
-    //    g_pDevice, 
-    //    D3D11_BIND_INDEX_BUFFER, 
-    //    indices,
-    //    sizeof( indices ) );
-    //if ( !rd->indexBuffer ) {
-    //    ri.Error( ERR_FATAL, "Could not create SkyBox index buffer.\n" );
-    //}
-
+    
     rd->vertexBuffer = QD3D::CreateImmutableBuffer(
         g_pDevice, 
         D3D11_BIND_VERTEX_BUFFER,
