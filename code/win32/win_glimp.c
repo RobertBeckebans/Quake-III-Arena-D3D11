@@ -1364,11 +1364,21 @@ void GLimp_Init( void )
 	}
 
 	// save off hInstance and wndproc
+    /* 
+        @pjb: OH GOD MY EYES
+
 	cv = ri.Cvar_Get( "win_hinstance", "", 0 );
 	sscanf( cv->string, "%i", (int *)&g_wv.hInstance );
 
 	cv = ri.Cvar_Get( "win_wndproc", "", 0 );
 	sscanf( cv->string, "%i", (int *)&glw_state.wndproc );
+    */
+    extern HINSTANCE g_hInstance;
+    extern WNDPROC g_pfWndProc;
+
+    g_wv.hInstance = g_hInstance;
+    glw_state.wndproc = g_pfWndProc;
+
 
 	r_allowSoftwareGL = ri.Cvar_Get( "r_allowSoftwareGL", "0", CVAR_LATCH );
 	r_maskMinidriver = ri.Cvar_Get( "r_maskMinidriver", "0", CVAR_LATCH );

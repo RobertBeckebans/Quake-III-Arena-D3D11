@@ -49,6 +49,11 @@ static char		sys_cmdline[MAX_STRING_CHARS];
 #include <stdio.h>
 #include <sys\stat.h>
 
+
+// @pjb: horrible hack to replace a worse hack
+HINSTANCE g_hInstance = NULL;
+WNDPROC g_pfWndProc = NULL;
+
 int fh = 0;
 
 void Spk_Open(char *name)
@@ -1093,8 +1098,15 @@ void Sys_Init( void ) {
 	}
 
 	// save out a couple things in rom cvars for the renderer to access
+    /* 
+        @pjb: ugghh
+
 	Cvar_Get( "win_hinstance", va("%i", (int)g_wv.hInstance), CVAR_ROM );
 	Cvar_Get( "win_wndproc", va("%i", (int)MainWndProc), CVAR_ROM );
+    */
+    g_hInstance = g_wv.hInstance;
+    g_pfWndProc = (WNDPROC) MainWndProc;
+
 
 	//
 	// figure out our CPU

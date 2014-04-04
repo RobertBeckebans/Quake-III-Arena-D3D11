@@ -508,6 +508,9 @@ void Conbuf_AppendText( const char *pMsg )
 	int i = 0;
 	static unsigned long s_totalChars;
 
+    // @pjb: helps output to VS too
+    OutputDebugStringA( pMsg );
+
 	//
 	// if the message is REALLY long, use just the last portion of it
 	//
