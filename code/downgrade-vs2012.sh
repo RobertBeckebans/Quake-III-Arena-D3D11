@@ -25,7 +25,7 @@ for proj in $(find . -name '*VS2013.vcxproj'); do
 	sed -i -e "s/<PlatformToolset>v120<\/PlatformToolset>/<PlatformToolset>v110<\/PlatformToolset>/g" $newproj
 
 # upgrade the minimum vs version
-	sed -i -e "s/<MinimumVisualStudioVersion>12.0</MinimumVisualStudioVersion>/<MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>/g" $newproj
+	sed -i -e "s/<MinimumVisualStudioVersion>12.0<\/MinimumVisualStudioVersion>/<MinimumVisualStudioVersion>11.0<\/MinimumVisualStudioVersion>/g" $newproj
 
 done
 
