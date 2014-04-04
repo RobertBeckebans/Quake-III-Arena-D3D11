@@ -141,7 +141,7 @@ void D3DDrv_ResetState2D( void )
 			  GLS_SRCBLEND_SRC_ALPHA |
 			  GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
 
-    SetCullMode( CT_TWO_SIDED );
+    CommitRasterizerState( CT_TWO_SIDED, qfalse, qfalse );
 
     D3DDrv_SetPortalRendering( qfalse, NULL, NULL );
 }
@@ -160,7 +160,7 @@ void D3DDrv_SetPortalRendering( qboolean enabled, const float* flipMatrix, const
 void D3DDrv_SetDepthRange( float minRange, float maxRange )
 {
     g_RunState.constants.depthRange[0] = minRange;
-    g_RunState.constants.depthRange[1] = maxRange;
+    g_RunState.constants.depthRange[1] = maxRange - minRange;
     g_RunState.dirtyConstants = qtrue;
 }
 

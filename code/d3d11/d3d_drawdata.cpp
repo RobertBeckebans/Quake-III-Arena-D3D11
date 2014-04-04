@@ -144,33 +144,39 @@ void InitRasterStates( d3dRasterStates_t* rs )
 
     D3D11_RASTERIZER_DESC rd;
     ZeroMemory( &rd, sizeof( rd ) );
-    rd.FillMode = D3D11_FILL_SOLID;
     rd.FrontCounterClockwise = TRUE;
 
-    // 
-    // No culling
-    //
-    rd.CullMode = D3D11_CULL_NONE;
-    g_pDevice->CreateRasterizerState( &rd, &rs->cullNone );
+    for ( int cullMode = 0; cullMode < CULLMODE_COUNT; ++cullMode )
+    {
+        rd.CullMode = (D3D11_CULL_MODE)( cullMode + 1 );
 
-    // 
-    // Backface culling
-    //
-    rd.CullMode = D3D11_CULL_BACK;
-    g_pDevice->CreateRasterizerState( &rd, &rs->cullBack );
+        for ( int rasterMode = 0; rasterMode < RASTERIZERSTATE_COUNT; ++rasterMode )
+        {
+            if ( rasterMode & RASTERIZERSTATE_FLAG_POLY_OFFSET )
+            {
+                rd.DepthBias = r_offsetFactor->value;
+                rd.SlopeScaledDepthBias = r_offsetUnits->value;
+            }
+            if ( rasterMode & RASTERIZERSTATE_FLAG_POLY_OUTLINE ) {
+                rd.FillMode = D3D11_FILL_WIREFRAME;
+            } else {
+                rd.FillMode = D3D11_FILL_SOLID;
+            }
 
-    // 
-    // Frontface culling
-    //
-    rd.CullMode = D3D11_CULL_FRONT;
-    g_pDevice->CreateRasterizerState( &rd, &rs->cullFront );
+            g_pDevice->CreateRasterizerState( &rd, &rs->states[cullMode][rasterMode] );
+        }
+    }
 }
 
 void DestroyRasterStates( d3dRasterStates_t* rs )
 {
-    SAFE_RELEASE( rs->cullNone );
-    SAFE_RELEASE( rs->cullBack );
-    SAFE_RELEASE( rs->cullFront );
+    for ( int cullMode = 0; cullMode < CULLMODE_COUNT; ++cullMode )
+    {
+        for ( int rasterMode = 0; rasterMode < RASTERIZERSTATE_COUNT; ++rasterMode )
+        {
+            SAFE_RELEASE( rs->states[cullMode][rasterMode] );
+        }
+    }
 
     Com_Memset( rs, 0, sizeof( d3dRasterStates_t ) );
 }
@@ -241,9 +247,9 @@ void InitBlendStates( d3dBlendStates_t* bs )
     bsd.RenderTarget[0].BlendEnable = TRUE;
     bsd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
     bsd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-    for ( int src = 0; src < D3D_BLEND_SRC_COUNT; ++src )
+    for ( int src = 0; src < BLENDSTATE_SRC_COUNT; ++src )
     {
-        for ( int dst = 0; dst < D3D_BLEND_DST_COUNT; ++dst )
+        for ( int dst = 0; dst < BLENDSTATE_DST_COUNT; ++dst )
         {
             int qSrc = src + 1;
             int qDst = (dst + 1) << 4;
@@ -260,9 +266,9 @@ void DestroyBlendStates( d3dBlendStates_t* bs )
 {
     SAFE_RELEASE( bs->opaque );
 
-    for ( int src = 0; src < D3D_BLEND_SRC_COUNT; ++src )
+    for ( int src = 0; src < BLENDSTATE_SRC_COUNT; ++src )
     {
-        for ( int dst = 0; dst < D3D_BLEND_DST_COUNT; ++dst )
+        for ( int dst = 0; dst < BLENDSTATE_DST_COUNT; ++dst )
         {
             SAFE_RELEASE( bs->states[src][dst] );
         }

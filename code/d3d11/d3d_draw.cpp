@@ -314,21 +314,17 @@ void D3DDrv_DrawStageGeneric( const shaderCommands_t *input )
     UpdateDirtyView();
     UpdateTessBuffers();
 
-    SetCullMode( input->shader->cullType );
+    // todo: wireframe mode?
+    CommitRasterizerState( input->shader->cullType, input->shader->polygonOffset, qfalse );
     
-    // todo: polygon offset
-    if ( input->shader->polygonOffset )
-    {
-        // TODO
-    }
-
     IterateStagesGeneric( input );
 
     // TODO: dynamic lighting
 
     // TODO: fog
 
-    // TODO: revert polygon offset?
+    // TODO: revert polygon offset
+    
 }
 
 void D3DDrv_DrawStageVertexLitTexture( const shaderCommands_t *input )

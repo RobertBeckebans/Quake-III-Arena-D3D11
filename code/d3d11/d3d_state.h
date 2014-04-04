@@ -3,6 +3,32 @@
 #include "d3d_common.h"
 
 //----------------------------------------------------------------------------
+// Consstants
+//----------------------------------------------------------------------------
+
+enum 
+{
+    BLENDSTATE_SRC_COUNT = 9,
+    BLENDSTATE_DST_COUNT = 8,
+    CULLMODE_COUNT = 3
+};
+
+enum 
+{
+    DEPTHSTATE_FLAG_TEST = 1,
+    DEPTHSTATE_FLAG_MASK = 2,
+    DEPTHSTATE_FLAG_EQUAL = 4, // as opposed to the default, LEq.
+    DEPTHSTATE_COUNT = 8
+};
+
+enum 
+{
+    RASTERIZERSTATE_FLAG_POLY_OFFSET = 1,
+    RASTERIZERSTATE_FLAG_POLY_OUTLINE = 2,
+    RASTERIZERSTATE_COUNT = 4
+};
+
+//----------------------------------------------------------------------------
 // Dynamic buffer layouts
 //----------------------------------------------------------------------------
 struct d3dQuadRenderVertex_t
@@ -25,6 +51,7 @@ struct d3dViewConstantBuffer_t
     float depthRange[2];
     float __padding[2];
 };
+
 //----------------------------------------------------------------------------
 // Internal structures
 //----------------------------------------------------------------------------
@@ -100,24 +127,20 @@ struct d3dBackBufferState_t {
 // @pjb: stores common raster states
 struct d3dRasterStates_t
 {
-    ID3D11RasterizerState* cullNone;
-    ID3D11RasterizerState* cullBack;
-    ID3D11RasterizerState* cullFront;
+    ID3D11RasterizerState* states[CULLMODE_COUNT][RASTERIZERSTATE_COUNT];
 };
 
 // @pjb: stores common depth states
 struct d3dDepthStates_t
 {
-    ID3D11DepthStencilState* states[8];
+    ID3D11DepthStencilState* states[DEPTHSTATE_COUNT];
 };
 
 // @pjb: stores common blend states
-#define D3D_BLEND_SRC_COUNT 9
-#define D3D_BLEND_DST_COUNT 8
 struct d3dBlendStates_t
 {
     ID3D11BlendState* opaque;
-    ID3D11BlendState* states[D3D_BLEND_SRC_COUNT][D3D_BLEND_DST_COUNT];
+    ID3D11BlendState* states[BLENDSTATE_SRC_COUNT][BLENDSTATE_DST_COUNT];
 };
 
 // @pjb: stores draw info like samplers and buffers
@@ -172,15 +195,10 @@ void DrawQuad(
     const float* texcoords, 
     const float* color );
 
-void SetCullMode( int cullMode ); // CT_ flags
+// cullmode = CT_ flags
+void CommitRasterizerState( int cullMode, qboolean polyOffset, qboolean outline );
 
-enum 
-{
-    DEPTHSTATE_FLAG_TEST = 1,
-    DEPTHSTATE_FLAG_MASK = 2,
-    DEPTHSTATE_FLAG_EQUAL = 4 // as opposed to the default, LEq.
-};
-
+ID3D11RasterizerState* GetRasterizerState( D3D11_CULL_MODE cullmode, unsigned long mask );
 ID3D11DepthStencilState* GetDepthState( unsigned long mask ); // DEPTHSTATE_FLAG_ enum
 ID3D11BlendState* GetBlendState( int src, int dst );
 D3D11_BLEND GetSrcBlendConstant( int qConstant );

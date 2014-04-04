@@ -63,9 +63,12 @@ void DestroyBuffers()
 //----------------------------------------------------------------------------
 // Set the culling mode depending on whether it's a mirror or not
 //----------------------------------------------------------------------------
-void SetCullMode( int cullType )
+void CommitRasterizerState( int cullType, qboolean polyOffset, qboolean outline )
 {
-    int maskBits = ( backEnd.viewParms.isMirror << 3 ) | cullType;
+    int maskBits = 
+        ( polyOffset << 4 ) |
+        ( backEnd.viewParms.isMirror << 3 ) | 
+        cullType;
 
 	if ( g_RunState.cullMode == maskBits ) {
 		return;
@@ -73,35 +76,39 @@ void SetCullMode( int cullType )
 
 	g_RunState.cullMode = maskBits;
 
-	if ( cullType == CT_TWO_SIDED ) 
-	{
-        g_pImmediateContext->RSSetState( g_DrawState.rasterStates.cullNone );
-	} 
-	else 
-	{
+    // Resolve which direction we're culling in
+    D3D11_CULL_MODE cullMode = D3D11_CULL_NONE;
+	if ( cullType != CT_TWO_SIDED ) 
+    {
 		if ( cullType == CT_BACK_SIDED )
 		{
 			if ( backEnd.viewParms.isMirror )
 			{
-                g_pImmediateContext->RSSetState( g_DrawState.rasterStates.cullFront );
+                cullMode = D3D11_CULL_FRONT;
 			}
 			else
 			{
-                g_pImmediateContext->RSSetState( g_DrawState.rasterStates.cullBack );
+                cullMode = D3D11_CULL_BACK;
 			}
 		}
 		else
 		{
 			if ( backEnd.viewParms.isMirror )
 			{
-                g_pImmediateContext->RSSetState( g_DrawState.rasterStates.cullBack );
+                cullMode = D3D11_CULL_BACK;
 			}
 			else
 			{
-                g_pImmediateContext->RSSetState( g_DrawState.rasterStates.cullFront );
+                cullMode = D3D11_CULL_FRONT;
 			}
 		}
 	}
+
+    int rasterFlags = 0;
+    if ( polyOffset ) { rasterFlags |= RASTERIZERSTATE_FLAG_POLY_OFFSET; }
+    if ( outline ) { rasterFlags |= RASTERIZERSTATE_FLAG_POLY_OUTLINE; }
+
+    g_pImmediateContext->RSSetState( GetRasterizerState( cullMode, rasterFlags ) );
 }
 
 //----------------------------------------------------------------------------
@@ -179,10 +186,20 @@ ID3D11BlendState* GetBlendState( int src, int dst )
     {
         src--;
         dst = (dst >> 4) - 1;
-        ASSERT( src < D3D_BLEND_SRC_COUNT );
-        ASSERT( dst < D3D_BLEND_DST_COUNT );
+        ASSERT( src < BLENDSTATE_SRC_COUNT );
+        ASSERT( dst < BLENDSTATE_DST_COUNT );
         return g_DrawState.blendStates.states[src][dst];
     }
+}
+
+//----------------------------------------------------------------------------
+// Get the blend state based on a mask
+//----------------------------------------------------------------------------
+ID3D11RasterizerState* GetRasterizerState( D3D11_CULL_MODE cullMode, unsigned long rmask )
+{
+    ASSERT( cullMode > 0 && cullMode <= CULLMODE_COUNT );
+    ASSERT( rmask < RASTERIZERSTATE_COUNT );
+    return g_DrawState.rasterStates.states[cullMode-1][rmask];
 }
 
 //----------------------------------------------------------------------------
