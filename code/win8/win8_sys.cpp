@@ -32,7 +32,7 @@ int Win8_GetTime()
 size_t Win8_CopyString( Platform::String^ str, char* dst, size_t dstLen )
 {
     size_t numConverted = 0;
-    errno_t err = wcstombs_s(
+    wcstombs_s(
         &numConverted,
         dst, dstLen,
         str->Data(), dstLen);
@@ -115,7 +115,6 @@ void Win8_Throw( HRESULT hr, Platform::String^ str )
 WIN8_EXPORT char *Sys_GetCurrentUser( void )
 {
 	static char s_userName[1024];
-	unsigned long size = sizeof( s_userName );
 
     strcpy( s_userName, "player" );
 
