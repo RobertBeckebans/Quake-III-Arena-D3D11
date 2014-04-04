@@ -28,7 +28,10 @@ Q3Win8::MessageQueue g_sysMsgs;
 enum GAME_MSG
 {
     GAME_MSG_QUIT,
-    GAME_MSG_VIDEO_CHANGE
+    GAME_MSG_VIDEO_CHANGE,
+    GAME_MSG_MOUSE_MOVE,
+    GAME_MSG_MOUSE_BUTTON,
+    GAME_MSG_KEY
 };
 
 enum SYS_MSG
@@ -88,6 +91,15 @@ namespace Q3Win8
         {
         case GAME_MSG_VIDEO_CHANGE:
             D3DWin8_NotifyWindowResize( (int) msg->Param0, (int) msg->Param1 );
+            break;
+        case GAME_MSG_MOUSE_MOVE:
+            // @pjb: Todo
+            break;
+        case GAME_MSG_MOUSE_BUTTON: 
+            // @pjb: Todo
+            break;
+        case GAME_MSG_KEY:
+            // @pjb: Todo
             break;
         default:
             // Wat
