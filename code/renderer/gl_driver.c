@@ -2,7 +2,6 @@
 #include "tr_layer.h"
 #include "qgl.h"
 #include "gl_common.h"
-#include "gl_image.h"
 
 glstate_t	glState;
 

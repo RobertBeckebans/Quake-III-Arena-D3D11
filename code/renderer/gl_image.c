@@ -1,6 +1,5 @@
 #include "tr_local.h"
 #include "qgl.h"
-#include "gl_image.h"
 #include "gl_common.h"
 
 #include <assert.h> // @pjb: remove me

@@ -75,6 +75,27 @@ void GLRB_GfxInfo_f( void );
 /*
 ====================================================================
 
+IMAGES
+
+====================================================================
+*/
+
+typedef struct image_s image_t;
+
+void GL_CreateImage( const image_t* image, const byte *pic, qboolean isLightmap );
+void GL_DeleteImage( const image_t* image );
+void GL_UpdateCinematic( image_t* image, const byte* pic, int cols, int rows, qboolean dirty );
+
+imageFormat_t GL_GetImageFormat( const image_t* image );
+int GL_SumOfUsedImages( void );
+
+void GL_SetImageBorderColor( const image_t* image, const float* borderColor );
+
+int GL_ConvertImageFormat( imageFormat_t );
+
+/*
+====================================================================
+
 SHADOW RENDERING
 
 ====================================================================
@@ -86,7 +107,18 @@ void GLRB_ShadowFinish( void );
 /*
 ====================================================================
 
-IMPLEMENTATION SPECIFIC FUNCTIONS
+MODEL RENDERING
+
+====================================================================
+*/
+
+
+
+
+/*
+====================================================================
+
+PLATFORM SPECIFIC FUNCTIONS
 
 ====================================================================
 */

@@ -21,7 +21,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // tr_image.c
 #include "tr_local.h"
-#include "gl_image.h"
 #include "tr_layer.h"
 
 /*
@@ -1665,7 +1664,7 @@ static void R_CreateFogImage( void ) {
 	byte	*data;
 	float	g;
 	float	d;
-	float	borderColor[4];
+	//float	borderColor[4];
 
 	data = ri.Hunk_AllocateTempMemory( FOG_S * FOG_T * 4 );
 
@@ -1688,13 +1687,15 @@ static void R_CreateFogImage( void ) {
 	tr.fogImage = R_CreateImage("*fog", (byte *)data, FOG_S, FOG_T, qfalse, qfalse, WRAPMODE_CLAMP );
 	ri.Hunk_FreeTempMemory( data );
 
-	borderColor[0] = 1.0;
+	/*
+    borderColor[0] = 1.0;
 	borderColor[1] = 1.0;
 	borderColor[2] = 1.0;
 	borderColor[3] = 1;
 
     // @pjb : GL-specific hack to add a white border - TODO: truly necessary?
 	GL_SetImageBorderColor( tr.fogImage, borderColor );
+    */
 }
 
 /*
