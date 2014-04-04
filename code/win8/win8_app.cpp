@@ -68,8 +68,13 @@ template<class Type> Type^ Win8_GetType( IUnknown* obj )
 
 int ConvertDipsToPixels(float dips)
 {
+#ifdef _WIN32_WINNT_WINBLUE
+	static const float dipsPerInch = 96.0f;
+	return (int) floor(dips * DisplayInformation::GetForCurrentView()->LogicalDpi / dipsPerInch + 0.5f); // Round to nearest integer.
+#else
 	static const float dipsPerInch = 96.0f;
 	return (int) floor(dips * DisplayProperties::LogicalDpi / dipsPerInch + 0.5f); // Round to nearest integer.
+#endif
 }
 
 namespace Q3Win8
