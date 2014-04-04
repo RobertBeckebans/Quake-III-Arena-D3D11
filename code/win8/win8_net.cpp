@@ -291,22 +291,28 @@ WIN8_EXPORT qboolean Sys_GetPacket( netadr_t *net_from, msg_t *net_message ) {
     auto dataReader = args->GetDataReader();
 
     // How much data is there in the buffer?
-    net_message->cursize = dataReader->UnconsumedBufferLength;
+    net_message->cursize = min( net_message->maxsize, dataReader->UnconsumedBufferLength );
 
     // @pjb: oh Jesus the perf
 
     // Read the data into the packet
-    dataReader->ReadBytes( ref new Platform::Array<byte>( net_message->data, net_message->maxsize ) );
-    
-    // Get the address of the sender
-    swscanf_s( args->RemotePort->Data(), L"%d", &net_from->port );
+    auto buf = ref new Platform::Array<byte>( net_message->cursize );
+    dataReader->ReadBytes( buf );
 
-    net_from->port = BigShort( net_from->port );
+    Com_Memcpy( net_message->data, buf->Data, net_message->cursize );
+
+    Com_Memset( net_from, 0, sizeof( *net_from ) );
 
     // Oh my.
     char seriousHack[256];
     Win8::CopyString( args->RemoteAddress->DisplayName, seriousHack, sizeof( seriousHack ) );
     NET_StringToAdr( seriousHack, net_from );
+    
+    // Get the address of the sender
+    UINT port = 0;
+    swscanf_s( args->RemotePort->Data(), L"%d", &port );
+
+    net_from->port = BigShort( port );
 
     return qtrue;
 }
@@ -406,6 +412,13 @@ HRESULT NET_StartListeningOnPort( HostName^ localHost, int port )
     HANDLE bindEndPointComplete = CreateEventEx( nullptr, nullptr, 0, EVENT_ALL_ACCESS );
     HRESULT status = E_FAIL;
 
+    g_Socket->Control->DontFragment = true;
+    g_Socket->Control->InboundBufferSizeInBytes = 2048;
+
+    // Listen on socket
+    g_Socket->MessageReceived += ref new TypedEventHandler<DatagramSocket^, DatagramSocketMessageReceivedEventArgs^>( 
+        NET_OnMessageReceived );
+
     // @pjb: todo: on Blue we can do .wait()
 
     if ( localHost == nullptr )
@@ -453,16 +466,6 @@ HRESULT NET_StartListeningOnPort( HostName^ localHost, int port )
 
     WaitForSingleObjectEx( bindEndPointComplete, INFINITE, FALSE );
     CloseHandle( bindEndPointComplete );
-
-    if ( status )
-    {
-        g_Socket->Control->DontFragment = true;
-        g_Socket->Control->InboundBufferSizeInBytes = 2048;
-
-        // Listen on socket
-        g_Socket->MessageReceived += ref new TypedEventHandler<DatagramSocket^, DatagramSocketMessageReceivedEventArgs^>( 
-            NET_OnMessageReceived );
-    }
 
     return status;
 }
