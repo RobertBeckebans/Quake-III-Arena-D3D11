@@ -79,13 +79,13 @@ void Win8_SetCommandLine( Platform::Array<Platform::String^>^ args )
 {
     // Set the command line string
     size_t offset = 0;
-    for each (Platform::String^ arg in args)
+    for ( int i = 1; i < args->Length; ++i )
     {
-        if ( offset + 2 + arg->Length() >= MAX_STRING_CHARS )
+        if ( offset + 2 + args[i]->Length() >= MAX_STRING_CHARS )
             break;
 
         sys_cmdline[offset++] = '\"';
-        offset += Win8_CopyString( arg, sys_cmdline + offset, MAX_STRING_CHARS - offset - 2 );
+        offset += Win8_CopyString( args[i], sys_cmdline + offset, MAX_STRING_CHARS - offset - 2 );
         sys_cmdline[offset++] = '\"';
 
         if ( offset < MAX_STRING_CHARS - 1 )
