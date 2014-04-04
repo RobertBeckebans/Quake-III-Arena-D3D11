@@ -38,8 +38,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	CD_EXE_LINUX "quake3"
 #define MEM_THRESHOLD 96*1024*1024
 
-static char		sys_cmdline[MAX_STRING_CHARS];
-
 //============================================
 
 char *Sys_GetCurrentUser( void )

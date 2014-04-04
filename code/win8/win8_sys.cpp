@@ -107,9 +107,8 @@ Sys_Milliseconds
 ================
 */
 int			sys_timeBase;
-int Sys_Milliseconds (void)
+void  Sys_InitTimer (void)
 {
-	int			sys_curtime;
 	static qboolean	initialized = qfalse;
 
 	if (!initialized) {
@@ -117,9 +116,11 @@ int Sys_Milliseconds (void)
 		sys_timeBase = Win8_GetTime();
 		initialized = qtrue;
 	}
-	sys_curtime = Win8_GetTime() - sys_timeBase;
+}
 
-	return sys_curtime;
+int Sys_Milliseconds (void)
+{
+	return Win8_GetTime() - sys_timeBase;
 }
 
 /*
@@ -305,9 +306,7 @@ Sys_GetEvent
 ================
 */
 sysEvent_t Sys_GetEvent( void ) {
-    MSG			msg;
 	sysEvent_t	ev;
-	char		*s;
 	msg_t		netmsg;
 	netadr_t	adr;
 
@@ -315,31 +314,6 @@ sysEvent_t Sys_GetEvent( void ) {
 	if ( eventHead > eventTail ) {
 		eventTail++;
 		return eventQue[ ( eventTail - 1 ) & MASK_QUED_EVENTS ];
-	}
-
-	// pump the message loop
-	while (PeekMessage (&msg, NULL, 0, 0, PM_NOREMOVE)) {
-		if ( !GetMessage (&msg, NULL, 0, 0) ) {
-			Com_Quit_f();
-		}
-
-		// save the msg time, because wndprocs don't have access to the timestamp
-		g_wv.sysMsgTime = msg.time;
-
-		TranslateMessage (&msg);
-      	DispatchMessage (&msg);
-	}
-
-	// check for console commands
-	s = Sys_ConsoleInput();
-	if ( s ) {
-		char	*b;
-		int		len;
-
-		len = (int) strlen( s ) + 1;
-		b = Z_Malloc( len );
-		Q_strncpyz( b, s, len-1 );
-		Sys_QueEvent( 0, SE_CONSOLE, 0, 0, len, b );
 	}
 
 	// check for network packets
@@ -351,7 +325,7 @@ sysEvent_t Sys_GetEvent( void ) {
 		// copy out to a seperate buffer for qeueing
 		// the readcount stepahead is for SOCKS support
 		len = sizeof( netadr_t ) + netmsg.cursize - netmsg.readcount;
-		buf = Z_Malloc( len );
+		buf = ( netadr_t* ) Z_Malloc( len );
 		*buf = adr;
 		memcpy( buf+1, &netmsg.data[netmsg.readcount], netmsg.cursize - netmsg.readcount );
 		Sys_QueEvent( 0, SE_PACKET, 0, 0, len, buf );
@@ -366,7 +340,7 @@ sysEvent_t Sys_GetEvent( void ) {
 	// create an empty event to return
 
 	memset( &ev, 0, sizeof( ev ) );
-	ev.evTime = timeGetTime();
+	ev.evTime = Sys_Milliseconds();
 
 	return ev;
 }
@@ -385,56 +359,10 @@ are initialized
 void Sys_Init( void ) {
 	int cpuid;
 
-	// make sure the timer is high precision, otherwise
-	// NT gets 18ms resolution
-	timeBeginPeriod( 1 );
-
 	Cmd_AddCommand ("in_restart", Sys_In_Restart_f);
 	Cmd_AddCommand ("net_restart", Sys_Net_Restart_f);
 
-	g_wv.osversion.dwOSVersionInfoSize = sizeof( g_wv.osversion );
-
-#pragma warning( disable : 4996 )
-	if (!GetVersionEx (&g_wv.osversion))
-		Sys_Error ("Couldn't get OS info");
-#pragma warning( default : 4996 )
-
-	if (g_wv.osversion.dwMajorVersion < 4)
-		Sys_Error ("Quake3 requires Windows version 4 or greater");
-	if (g_wv.osversion.dwPlatformId == VER_PLATFORM_WIN32s)
-		Sys_Error ("Quake3 doesn't run on Win32s");
-
-	if ( g_wv.osversion.dwPlatformId == VER_PLATFORM_WIN32_NT )
-	{
-		Cvar_Set( "arch", "winnt" );
-	}
-	else if ( g_wv.osversion.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS )
-	{
-		if ( LOWORD( g_wv.osversion.dwBuildNumber ) >= WIN98_BUILD_NUMBER )
-		{
-			Cvar_Set( "arch", "win98" );
-		}
-		else if ( LOWORD( g_wv.osversion.dwBuildNumber ) >= OSR2_BUILD_NUMBER )
-		{
-			Cvar_Set( "arch", "win95 osr2.x" );
-		}
-		else
-		{
-			Cvar_Set( "arch", "win95" );
-		}
-	}
-	else
-	{
-		Cvar_Set( "arch", "unknown Windows variant" );
-	}
-
-	// save out a couple things in rom cvars for the renderer to access
-    /* 
-        @pjb: ugghh
-
-	Cvar_Get( "win_hinstance", va("%i", (int)g_wv.hInstance), CVAR_ROM );
-	Cvar_Get( "win_wndproc", va("%i", (int)MainWndProc), CVAR_ROM );
-    */
+	Cvar_Set( "arch", "win8" );
 
 	//
 	// figure out our CPU
@@ -514,17 +442,11 @@ void Sys_Init( void ) {
 
 	IN_Init();		// FIXME: not in dedicated?
 }
-
+/*
 //=======================================================================
 
 int	totalMsec, countMsec;
 
-/*
-==================
-WinMain
-
-==================
-*/
 int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 	char		cwd[MAX_OSPATH];
 	int			startTime, endTime;
@@ -534,36 +456,19 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
         return 0;
 	}
 
-    g_wv.hPrimaryWnd = NULL;
-	g_wv.hInstance = hInstance;
 	Q_strncpyz( sys_cmdline, lpCmdLine, sizeof( sys_cmdline ) );
-
-	// done before Com/Sys_Init since we need this for error output
-	Sys_CreateConsole();
 
 	// no abort/retry/fail errors
 	SetErrorMode( SEM_FAILCRITICALERRORS );
 
 	// get the initial time base
-	Sys_Milliseconds();
-#if 0
-	// if we find the CD, add a +set cddir xxx command line
-	Sys_ScanForCD();
-#endif
-
-	Sys_InitStreamThread();
+	Sys_InitTimer();
+    Sys_InitStreamThread();
 
 	Com_Init( sys_cmdline );
 	NET_Init();
 
-	_getcwd (cwd, sizeof(cwd));
-	Com_Printf("Working directory: %s\n", cwd);
-
-	// hide the early console since we've reached the point where we
-	// have a working graphics subsystems
-	if ( !com_dedicated->integer && !com_viewlog->integer ) {
-		Sys_ShowConsole( 0, qfalse );
-	}
+	Com_Printf( "Working directory: %s\n", Sys_GetCwd() );
 
     // main game loop
 	while( 1 ) {
@@ -597,6 +502,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 
 
 
+*/
 
 
 

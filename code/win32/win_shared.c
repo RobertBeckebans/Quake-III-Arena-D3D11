@@ -34,6 +34,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <io.h>
 #include <conio.h>
 
+char	sys_cmdline[MAX_STRING_CHARS];
+
 // define this to use alternate spanking method
 // I found out that the regular way doesn't work on my box for some reason
 // see the associated spank.sh script

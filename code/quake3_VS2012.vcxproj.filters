@@ -196,6 +196,9 @@
     <ClCompile Include="win8\win8_sys.cpp">
       <Filter>Windows\Win8</Filter>
     </ClCompile>
+    <ClCompile Include="win8\win8_app.cpp">
+      <Filter>Windows\Win8</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="win32\win_snd.h">
@@ -287,6 +290,9 @@
     </ClInclude>
     <ClInclude Include="win32\win_shared.h">
       <Filter>Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="win8\win8_app.h">
+      <Filter>Windows\Win8</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

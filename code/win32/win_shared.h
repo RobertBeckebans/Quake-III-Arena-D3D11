@@ -38,6 +38,7 @@ EVENT LOOP
 extern sysEvent_t	eventQue[MAX_QUED_EVENTS];
 extern int			eventHead, eventTail;
 extern byte		sys_packetReceived[MAX_MSGLEN];
+extern char		sys_cmdline[MAX_STRING_CHARS];
 
 /*
 ========================================================================
@@ -50,9 +51,12 @@ SHARED SYSTEM FUNCTIONS
 void Sys_In_Restart_f( void );
 void Sys_Net_Restart_f( void );
 void Sys_InitStreamThread( void );
+void Sys_QueEvent( int time, sysEventType_t type, int value, int value2, int ptrLength, void *ptr );
+
+qboolean	Sys_GetPacket ( netadr_t *net_from, msg_t *net_message );
 
 void	IN_Init (void);
 void	IN_Shutdown (void);
-
+void    IN_Frame( void );
 
 #endif
