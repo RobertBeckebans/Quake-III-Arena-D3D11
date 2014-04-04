@@ -229,6 +229,9 @@ void D3DDrv_EndFrame( void )
 
 	// Discard the contents of the depth stencil.
 	g_pImmediateContext->DiscardView( g_BufferState.depthBufferView );
+
+    // Present unbinds the rendertarget, so let's put it back (FFS)
+    g_pImmediateContext->OMSetRenderTargets( 1, &g_BufferState.backBufferView, g_BufferState.depthBufferView );
 #endif
 
 	if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
