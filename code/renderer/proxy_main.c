@@ -298,7 +298,13 @@ void PROXY_DebugDrawPolygon( int color, int numPoints, const float* points )
     glDriver.DebugDrawPolygon( color, numPoints, points );
 }
 
+void PROXY_BeginTessellate( shaderCommands_t* tess )
+{
+}
 
+void PROXY_EndTessellate( shaderCommands_t* tess )
+{
+}
 
 static void PositionOpenGLWindowRightOfD3D( void )
 {
@@ -414,6 +420,8 @@ void PROXY_DriverInit( graphicsApiLayer_t* layer )
     layer->DrawStageGeneric = PROXY_DrawStageGeneric;
     layer->DrawStageVertexLitTexture = PROXY_DrawStageVertexLitTexture;
     layer->DrawStageLightmappedMultitexture = PROXY_DrawStageLightmappedMultitexture;
+    layer->BeginTessellate = PROXY_BeginTessellate;
+    layer->EndTessellate = PROXY_EndTessellate;
     layer->DebugDrawAxis = PROXY_DebugDrawAxis;
     layer->DebugDrawTris = PROXY_DebugDrawTris;
     layer->DebugDrawNormals = PROXY_DebugDrawNormals;

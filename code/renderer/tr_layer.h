@@ -46,6 +46,8 @@ typedef struct graphicsApiLayer_s {
     void            (* DrawStageGeneric)( const shaderCommands_t *input );
     void            (* DrawStageVertexLitTexture)( const shaderCommands_t *input );
     void            (* DrawStageLightmappedMultitexture)( const shaderCommands_t *input );
+    void            (* BeginTessellate)( shaderCommands_t* input );
+    void            (* EndTessellate)( shaderCommands_t* input );
 
     void            (* DebugDrawAxis)( void );
     void            (* DebugDrawNormals)( shaderCommands_t *input );

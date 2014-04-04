@@ -199,6 +199,14 @@ void D3DDrv_DebugSetTextureMode( const char* mode )
 
 }
 
+void D3DDrv_BeginTessellate( shaderCommands_t* input )
+{
+}
+
+void D3DDrv_EndTessellate( shaderCommands_t* input )
+{
+}
+
 void SetupVideoConfig()
 {
     // Set up a bunch of default state
@@ -289,6 +297,8 @@ D3D_PUBLIC void D3DDrv_DriverInit( graphicsApiLayer_t* layer )
     layer->DrawStageGeneric = D3DDrv_DrawStageGeneric;
     layer->DrawStageVertexLitTexture = D3DDrv_DrawStageVertexLitTexture;
     layer->DrawStageLightmappedMultitexture = D3DDrv_DrawStageLightmappedMultitexture;
+    layer->BeginTessellate = D3DDrv_BeginTessellate;
+    layer->EndTessellate = D3DDrv_EndTessellate;
     layer->DebugDrawAxis = D3DDrv_DebugDrawAxis;
     layer->DebugDrawTris = D3DDrv_DebugDrawTris;
     layer->DebugDrawNormals = D3DDrv_DebugDrawNormals;

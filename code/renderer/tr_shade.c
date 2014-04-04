@@ -258,6 +258,8 @@ void RB_BeginSurface( shader_t *shader, int fogNum ) {
 	if (tess.shader->clampTime && tess.shaderTime >= tess.shader->clampTime) {
 		tess.shaderTime = tess.shader->clampTime;
 	}
+
+    graphicsDriver.BeginTessellate( &tess );
 }
 
 
@@ -613,6 +615,8 @@ void RB_EndSurface( void ) {
 	shaderCommands_t *input;
 
 	input = &tess;
+
+    graphicsDriver.EndTessellate( input );
 
 	if (input->numIndexes == 0) {
 		return;
