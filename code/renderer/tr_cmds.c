@@ -104,7 +104,7 @@ R_ShutdownCommandBuffers
 void R_ShutdownCommandBuffers( void ) {
 	// kill the rendering thread
 	if ( vdConfig.smpActive ) {
-		GLimp_WakeRenderer( NULL );
+        graphicsDriver.NotifyOfCommands( NULL );
 		vdConfig.smpActive = qfalse;
 	}
 }
@@ -143,7 +143,7 @@ void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
 		}
 
 		// sleep until the renderer has completed
-		GLimp_FrontEndSleep();
+		graphicsDriver.WaitForRenderThread();
 	}
 
 	// at this point, the back end thread is idle, so it is ok
@@ -158,7 +158,7 @@ void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
 		if ( !vdConfig.smpActive ) {
 			RB_ExecuteRenderCommands( cmdList->cmds );
 		} else {
-			GLimp_WakeRenderer( cmdList );
+            graphicsDriver.NotifyOfCommands( cmdList );
 		}
 	}
 }
@@ -183,7 +183,7 @@ void R_SyncRenderThread( void ) {
 	if ( !vdConfig.smpActive ) {
 		return;
 	}
-	GLimp_FrontEndSleep();
+	graphicsDriver.WaitForRenderThread();
 }
 
 /*
@@ -336,11 +336,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		else
 		{
 			R_SyncRenderThread();
-			qglEnable( GL_STENCIL_TEST );
-			qglStencilMask( ~0U );
-			qglClearStencil( 0U );
-			qglStencilFunc( GL_ALWAYS, 0U, ~0U );
-			qglStencilOp( GL_KEEP, GL_INCR, GL_INCR );
+            graphicsDriver.SetOverdrawMeasureEnabled( qtrue );
 		}
 		r_measureOverdraw->modified = qfalse;
 	}
@@ -349,7 +345,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		// this is only reached if it was on and is now off
 		if ( r_measureOverdraw->modified ) {
 			R_SyncRenderThread();
-			qglDisable( GL_STENCIL_TEST );
+            graphicsDriver.SetOverdrawMeasureEnabled( qfalse );
 		}
 		r_measureOverdraw->modified = qfalse;
 	}

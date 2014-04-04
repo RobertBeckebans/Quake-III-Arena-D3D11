@@ -34,7 +34,11 @@ typedef struct graphicsApiLayer_s {
     void            (* SetDepthRange)( float minRange, float maxRange );
     void            (* SetDrawBuffer)( int buffer );
     void            (* EndFrame)( void );
+    void            (* NotifyOfCommands )( void *data );
     void*           (* WaitForCommands)( void );
+    void            (* WaitForRenderThread)( void );
+    void            (* SpawnRenderThread )( void (*)( void ) );
+    void            (* SetOverdrawMeasureEnabled)( qboolean enabled );
 } graphicsApiLayer_t;
 
 extern graphicsApiLayer_t      graphicsDriver;

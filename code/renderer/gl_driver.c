@@ -312,6 +312,22 @@ void GLRB_SetDrawBuffer( int buffer )
     }
 }
 
+void GLRB_SetOverdrawMeasureEnabled( qboolean enabled )
+{
+    if ( !enabled )
+    {
+        qglDisable( GL_STENCIL_TEST );
+    }
+    else
+    {
+		qglEnable( GL_STENCIL_TEST );
+		qglStencilMask( ~0U );
+		qglClearStencil( 0U );
+		qglStencilFunc( GL_ALWAYS, 0U, ~0U );
+		qglStencilOp( GL_KEEP, GL_INCR, GL_INCR );
+    }
+}
+
 /*
 @@@@@@@@@@@@@@@@@@@@@
 
@@ -347,7 +363,11 @@ void GLRB_DriverInit( graphicsApiLayer_t* layer )
     layer->SetDepthRange = GL_SetDepthRange;
     layer->SetDrawBuffer = GLRB_SetDrawBuffer;
     layer->EndFrame = GLimp_EndFrame;
+    layer->NotifyOfCommands = GLimp_WakeRenderer;
     layer->WaitForCommands = GLimp_RendererSleep;
+    layer->WaitForRenderThread = GLimp_FrontEndSleep;
+    layer->SpawnRenderThread = GLimp_SpawnRenderThread;
+    layer->SetOverdrawMeasureEnabled = GLRB_SetOverdrawMeasureEnabled;
 
     InitOpenGL();
 
