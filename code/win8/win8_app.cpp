@@ -20,6 +20,20 @@ using namespace Windows::Foundation;
 using namespace Windows::Graphics::Display;
 using namespace concurrency;
 
+Q3Win8::MessageQueue g_gameMsgs;
+Q3Win8::MessageQueue g_sysMsgs;
+
+enum GAME_MSG
+{
+    GAME_MSG_QUIT,
+    GAME_MSG_VIDEO_CHANGE
+};
+
+enum SYS_MSG
+{
+    SYS_MSG_EXCEPTION
+};
+
 bool Win8_DisplayException( Platform::Exception^ ex )
 {
     // Throw up a dialog box!
@@ -45,13 +59,27 @@ bool Win8_DisplayException( Platform::Exception^ ex )
     }
 }
 
+template<class Type> IUnknown* Win8_GetPointer( Type^ obj )
+{
+    Platform::Agile<Type> agile( obj );
+    IUnknown* ptr = reinterpret_cast<IUnknown*>( agile.Get() );
+    ptr->AddRef();
+    return ptr;
+}
+
+template<class Type> Type^ Win8_GetType( IUnknown* obj )
+{
+    Platform::Details::AgileHelper<Type> agile( reinterpret_cast<__abi_IUnknown*>( obj ), true );
+    return agile;
+}
+
 namespace Q3Win8
 {
     void HandleMessage( const MSG* msg )
     {
         switch (msg->Message)
         {
-        case MSG_VIDEO_CHANGE:
+        case GAME_MSG_VIDEO_CHANGE:
             D3DWin8_NotifyWindowResize( (int) msg->Param0, (int) msg->Param1 );
             break;
         default:
@@ -70,9 +98,9 @@ namespace Q3Win8
             // @pjb: todo
 
             // Process any messages from the queue
-            while ( PopMessage( &msg ) )
+            while ( g_gameMsgs.Pop( &msg ) )
             {
-                if ( msg.Message == MSG_QUIT )
+                if ( msg.Message == GAME_MSG_QUIT )
                     return;
 
                 HandleMessage( &msg );
@@ -90,9 +118,6 @@ namespace Q3Win8
     {
         try
         {
-            // Force the graphics layer to wait for window bringup
-            D3DWin8_InitDeferral();
-
             // Init quake stuff
 	        Sys_InitTimer();
             Sys_InitStreamThread();
@@ -107,7 +132,11 @@ namespace Q3Win8
         }
         catch ( Platform::Exception^ ex )
         {
-            Win8_DisplayException( ex );
+            Q3Win8::MSG msg;
+            ZeroMemory( &msg, sizeof(msg) );
+            msg.Message = SYS_MSG_EXCEPTION;
+            msg.Param0 = (size_t) Win8_GetPointer( ex );
+            g_sysMsgs.Post( &msg );
         }
         catch ( ... )
         {
@@ -117,6 +146,8 @@ namespace Q3Win8
 
         IN_Shutdown();
         NET_Shutdown();
+
+        D3DWin8_CleanupDeferral();
 
         return 0;
     }
@@ -165,12 +196,8 @@ void Quake3Win8App::SetWindow(CoreWindow^ window)
 	pointerVisualizationSettings->IsBarrelButtonFeedbackEnabled = false;
 	m_logicalSize = Windows::Foundation::Size(window->Bounds.Width, window->Bounds.Height);
 
-    Q3Win8::MSG msg;
-    ZeroMemory( &msg, sizeof(msg) );
-    msg.Message = Q3Win8::MSG_VIDEO_CHANGE;
-    msg.Param0 = m_logicalSize.Width;
-    msg.Param1 = m_logicalSize.Height;
-    Q3Win8::PostMessage( &msg );
+    IUnknown* windowPtr = Win8_GetPointer( window );
+    D3DWin8_NotifyNewWindow( windowPtr, m_logicalSize.Width, m_logicalSize.Height );
 }
 
 void Quake3Win8App::Load(Platform::String^ entryPoint)
@@ -183,13 +210,31 @@ void Quake3Win8App::Load(Platform::String^ entryPoint)
 
 void Quake3Win8App::Run()
 {
+    Q3Win8::MSG msg;
+
 	while ( !m_gameThread.is_done() )
 	{
 		if (m_windowVisible)
 		{
 			CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
 			
+            // Get new messages
+            while ( g_sysMsgs.Pop( &msg ) )
+            {
+                switch ( msg.Message )
+                {
+                case SYS_MSG_EXCEPTION:
+                    Win8_DisplayException( Win8_GetType<Platform::Exception>( (IUnknown*) msg.Param0 ) );
+                    break;
+                default:
+                    assert(0);
+                    break;
+                }
+            }
+
 		    // @pjb: todo: Notify the game that there's a new frame
+
+
 		}
 		else
 		{
@@ -208,10 +253,10 @@ void Quake3Win8App::OnWindowSizeChanged(CoreWindow^ window, WindowSizeChangedEve
     
     Q3Win8::MSG msg;
     ZeroMemory( &msg, sizeof(msg) );
-    msg.Message = Q3Win8::MSG_VIDEO_CHANGE;
+    msg.Message = GAME_MSG_VIDEO_CHANGE;
     msg.Param0 = m_logicalSize.Width;
     msg.Param1 = m_logicalSize.Height;
-    Q3Win8::PostMessage( &msg );
+    g_gameMsgs.Post( &msg );
 }
 
 void Quake3Win8App::OnVisibilityChanged(CoreWindow^ sender, VisibilityChangedEventArgs^ args)
@@ -225,8 +270,8 @@ void Quake3Win8App::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args
 
     Q3Win8::MSG msg;
     ZeroMemory( &msg, sizeof(msg) );
-    msg.Message = Q3Win8::MSG_QUIT;
-    Q3Win8::PostMessage( &msg );
+    msg.Message = GAME_MSG_QUIT;
+    g_gameMsgs.Post( &msg );
 }
 
 void Quake3Win8App::OnPointerPressed(CoreWindow^ sender, PointerEventArgs^ args)
@@ -255,8 +300,8 @@ void Quake3Win8App::OnSuspending(Platform::Object^ sender, SuspendingEventArgs^ 
     // Quickly quit!
     Q3Win8::MSG msg;
     ZeroMemory( &msg, sizeof(msg) );
-    msg.Message = Q3Win8::MSG_QUIT;
-    Q3Win8::PostMessage( &msg );
+    msg.Message = GAME_MSG_QUIT;
+    g_gameMsgs.Post( &msg );
 
 	create_task([this, deferral]()
 	{
@@ -291,6 +336,9 @@ main
 int main( Platform::Array<Platform::String^>^ args )
 {
     Win8_SetCommandLine( args );
+
+    // Force the graphics layer to wait for window bringup
+    D3DWin8_InitDeferral();
     
     auto q3ApplicationSource = ref new Quake3Win8ApplicationSource();
 

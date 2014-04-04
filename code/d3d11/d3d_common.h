@@ -130,6 +130,13 @@ namespace QD3D
 		_In_ ID3D11Device2* device,
 		_Out_ DXGI_SWAP_CHAIN_DESC1* swapChainDesc);
 	
+    //----------------------------------------------------------------------------
+	// Gets the DXGI factory
+	//----------------------------------------------------------------------------
+    HRESULT GetDxgiFactory( 
+        _In_ ID3D11Device2* device, 
+        _Out_ IDXGIFactory2** dxgiFactory );
+
 	//----------------------------------------------------------------------------
 	// Creates a swap chain
 	//----------------------------------------------------------------------------

@@ -1,33 +1,17 @@
 #include "win8_msgq.h"
 
-#include <atomic>
-
 namespace Q3Win8
 {
-    static const int c_numMsgs = 1024;
-    static MSG g_msgBuf[c_numMsgs];
-    static std::atomic<int> g_consumerCursor = 0;
-    static std::atomic<int> g_producerCursor = 0;
-    static std::atomic<int> g_producerReserve = 0;
-
-    static __forceinline int WrapMsgIndex( int pos )
+    MessageQueue::MessageQueue()
+        : m_consumerCursor(0)
+        , m_producerCursor(0)
+        , m_producerReserve(0)
     {
-        return pos % c_numMsgs;
     }
 
-    static __forceinline MSG* GetMsgAt( int pos )
+    void MessageQueue::Post( const MSG* msg )
     {
-        return &g_msgBuf[WrapMsgIndex(pos)];
-    }
-
-    void PostMessage( const MSG* msg )
-    {
-        int reservedSlot = g_producerReserve.fetch_add(1);
-        if ( reservedSlot == WrapMsgIndex(g_consumerCursor) )
-        {
-            // Uh oh, we wrapped
-            assert(0);
-        }
+        int reservedSlot = m_producerReserve.fetch_add(1);
 
         // Copy the message into the ringbuffer
         MSG* dst = GetMsgAt( reservedSlot );
@@ -35,21 +19,21 @@ namespace Q3Win8
 
         // Unlock the ringbuffer. Only the thread with the correct view of the 
         // producer cursor can unlock.
-        int producerCursorView = reservedSlot - 1;
-        while (!g_producerCursor.compare_exchange_strong(producerCursorView, reservedSlot)) 
+        int producerCursorView = reservedSlot;
+        while (!m_producerCursor.compare_exchange_strong(producerCursorView, reservedSlot + 1)) 
         {
             assert(producerCursorView < reservedSlot);
-            producerCursorView = reservedSlot - 1;
+            producerCursorView = reservedSlot + 1;
         }
     }
 
-    bool PopMessage( MSG* msg )
+    bool MessageQueue::Pop( MSG* msg )
     {
         // Empty queue
-        if ( g_consumerCursor == g_producerCursor )
+        if ( m_consumerCursor == m_producerCursor )
             return false;
 
-        *msg = *GetMsgAt( g_consumerCursor.fetch_add(1) );
+        *msg = *GetMsgAt( m_consumerCursor.fetch_add(1) );
         return true;
     }
 }

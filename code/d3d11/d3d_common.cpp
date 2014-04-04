@@ -143,6 +143,35 @@ namespace QD3D
 		}
 	}
 
+    //----------------------------------------------------------------------------
+	// Gets the DXGI factory
+	//----------------------------------------------------------------------------
+    HRESULT GetDxgiFactory( 
+        _In_ ID3D11Device2* device, 
+        _Out_ IDXGIFactory2** dxgiFactory )
+    {
+		// Get the factory associated with the device
+		IDXGIDevice3* dxgiDevice;
+		HRESULT hr = device->QueryInterface(__uuidof(IDXGIDevice3), (void **)&dxgiDevice);
+        if ( FAILED( hr ) )
+            return hr;
+
+		IDXGIAdapter* dxgiAdapter;
+		hr = dxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void **)&dxgiAdapter);
+        if ( FAILED( hr ) )
+        {
+            SAFE_RELEASE( dxgiDevice );
+            return hr;
+        }
+
+		hr = dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), (void **)dxgiFactory);
+
+        SAFE_RELEASE(dxgiDevice);
+        SAFE_RELEASE(dxgiAdapter);
+
+        return hr;
+    }
+
 	//----------------------------------------------------------------------------
 	// Creates a swap chain
 	//----------------------------------------------------------------------------
@@ -154,19 +183,15 @@ namespace QD3D
         _In_ const DXGI_SWAP_CHAIN_FULLSCREEN_DESC* fsd,
 		_Out_ IDXGISwapChain1** swapChain)
 	{
-		// Get the factory associated with the device
-		IDXGIDevice3* dxgiDevice;
-		device->QueryInterface(__uuidof(IDXGIDevice3), (void **)&dxgiDevice);
-		IDXGIAdapter* dxgiAdapter;
-		dxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void **)&dxgiAdapter);
-		IDXGIFactory2* dxgiFactory;
-		dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), (void **)&dxgiFactory);
+        IDXGIFactory2* dxgiFactory = nullptr;
+        HRESULT hr = GetDxgiFactory( device, &dxgiFactory );
+
+        if ( FAILED( hr ) )
+            return hr;
 	
 		// Create the swap chain
-		HRESULT hr = dxgiFactory->CreateSwapChainForHwnd(device, hWnd, scd, fsd, nullptr, swapChain);
+		hr = dxgiFactory->CreateSwapChainForHwnd(device, hWnd, scd, fsd, nullptr, swapChain);
 
-        SAFE_RELEASE(dxgiDevice);
-        SAFE_RELEASE(dxgiAdapter);
         SAFE_RELEASE(dxgiFactory);
         
         return hr;
