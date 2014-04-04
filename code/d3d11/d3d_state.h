@@ -48,7 +48,6 @@ struct d3dViewConstantBuffer_t
 {
     float projectionMatrix[16];
     float modelViewMatrix[16];
-    float clipPlane[4];
     float depthRange[2];
     float __padding[2];
 };

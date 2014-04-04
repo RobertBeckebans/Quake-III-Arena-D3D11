@@ -3,7 +3,6 @@ cbuffer ViewData : register(b0)
 {
     float4x4 Projection;
     float4x4 View;
-    float4 ClipPlane;
     float2 DepthRange; // x: DepthRangeMin, y: DepthRange
 };
 

@@ -154,7 +154,23 @@ void D3DDrv_ResetState3D( void )
 
 void D3DDrv_SetPortalRendering( qboolean enabled, const float* flipMatrix, const float* plane )
 {
+    if ( enabled ) 
+    {
+        // Transform the supplied plane by the INVERSE of the flipMatrix
+        // We can just transpose the flipMatrix because it's orthogonal
+        // To clip, dot(vertex, plane) < 0
 
+    }
+    else
+    {
+        // Reset the clip plane
+        //g_RunState.constants.clipPlane[0] = 
+        //g_RunState.constants.clipPlane[1] = 
+        //g_RunState.constants.clipPlane[2] = 
+        //g_RunState.constants.clipPlane[3] = 0;
+    }
+
+    g_RunState.dirtyConstants = qtrue;
 }
 
 void D3DDrv_SetDepthRange( float minRange, float maxRange )
