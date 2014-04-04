@@ -185,6 +185,15 @@ namespace Q3Win8
     }
 }
 
+void Win8_PostQuitMessage()
+{
+    Q3Win8::MSG msg;
+    ZeroMemory( &msg, sizeof(msg) );
+    msg.Message = GAME_MSG_QUIT;
+    msg.TimeStamp = Sys_Milliseconds();
+    g_gameMsgs.Post(&msg);
+}
+
 Quake3Win8App::Quake3Win8App() :
 	m_windowClosed(false),
 	m_windowVisible(true),

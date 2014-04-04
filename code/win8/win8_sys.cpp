@@ -188,8 +188,8 @@ WIN8_EXPORT void Sys_ShowConsole( int visLevel, qboolean quitOnClose )
     (void)( visLevel );
     (void)( quitOnClose );
 
-    // @pjb: I've made sure no other code calls this with
-    // quitOnClose.
+    if (quitOnClose)
+        Win8_PostQuitMessage();
 }
 
 /*
@@ -219,7 +219,7 @@ Sys_Quit
 ==============
 */
 WIN8_EXPORT void Sys_Quit( void ) {
-    // @pjb: don't have to do anything. Already going down by this point.
+    Win8_PostQuitMessage();
 }
 
 /*

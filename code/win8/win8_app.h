@@ -51,6 +51,7 @@ public:
 };
 
 void Win8_SetCommandLine( Platform::Array<Platform::String^>^ args );
+void Win8_PostQuitMessage();
 
 // @pjb: 
 void Sys_SetFrameTime( int time );
