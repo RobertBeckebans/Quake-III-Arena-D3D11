@@ -471,14 +471,14 @@ void D3DDrv_DrawStageGeneric( const shaderCommands_t *input )
 
 void D3DDrv_DrawStageVertexLitTexture( const shaderCommands_t *input )
 {
-    UpdateViewState();
-
+    // Optimizing this is a low priority
+    D3DDrv_DrawStageGeneric( input );
 }
 
 void D3DDrv_DrawStageLightmappedMultitexture( const shaderCommands_t *input )
 {
-    UpdateViewState();
-
+    // Optimizing this is a low priority
+    D3DDrv_DrawStageGeneric( input );
 }
 
 void D3DDrv_BeginTessellate( const shaderCommands_t* input )
