@@ -94,7 +94,18 @@ void D3DDrv_GfxInfo( void )
 
 void D3DDrv_Clear( unsigned long bits, const float* clearCol, unsigned long stencil, float depth )
 {
-    
+    if ( bits & CLEAR_COLOR )
+    {
+        g_pImmediateContext->ClearRenderTargetView( g_pBackBufferView, clearCol );
+    }
+
+    if ( bits & ( CLEAR_DEPTH | CLEAR_STENCIL ) )
+    {
+        DWORD clearBits = 0;
+        if ( bits & CLEAR_DEPTH ) { clearBits |= D3D11_CLEAR_DEPTH; }
+        if ( bits & CLEAR_STENCIL ) { clearBits |= D3D11_CLEAR_STENCIL; }
+        g_pImmediateContext->ClearDepthStencilView( g_pDepthBufferView, clearBits, depth, (UINT8) stencil );
+    }
 }
 
 void D3DDrv_SetProjection( const float* projMatrix )
