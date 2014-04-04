@@ -462,6 +462,9 @@
     <ClInclude Include="..\d3d11\d3d_compiler.h">
       <Filter>Direct3D Implementation</Filter>
     </ClInclude>
+    <ClInclude Include="..\d3d11\d3d_shaders.h">
+      <Filter>Direct3D Implementation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\ft2\ahangles.h">

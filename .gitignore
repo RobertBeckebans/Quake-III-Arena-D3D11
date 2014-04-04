@@ -4,10 +4,9 @@
 ipch
 *.suo
 *.pdb
-baseq3
-missionpack
-demoq3
-demota
+*.cfg
+*.pk3
+*.log
 *.res
 botlib.log
 Build

@@ -531,6 +531,7 @@
     <ClInclude Include="..\d3d11\d3d_compiler.h" />
     <ClInclude Include="..\d3d11\d3d_driver.h" />
     <ClInclude Include="..\d3d11\d3d_image.h" />
+    <ClInclude Include="..\d3d11\d3d_shaders.h" />
     <ClInclude Include="..\d3d11\d3d_state.h" />
     <ClInclude Include="..\d3d11\d3d_wnd.h" />
     <ClInclude Include="..\qcommon\cm_public.h" />
