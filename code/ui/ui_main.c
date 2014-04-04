@@ -288,7 +288,7 @@ int Text_Width(const char *text, float scale, int limit) {
 	useScale = scale * font->glyphScale;
   out = 0;
   if (text) {
-    len = strlen(text);
+    len = (int) strlen(text);
 		if (limit > 0 && len > limit) {
 			len = limit;
 		}
@@ -323,7 +323,7 @@ int Text_Height(const char *text, float scale, int limit) {
 	useScale = scale * font->glyphScale;
   max = 0;
   if (text) {
-    len = strlen(text);
+    len = (int) strlen(text);
 		if (limit > 0 && len > limit) {
 			len = limit;
 		}
@@ -369,7 +369,7 @@ void Text_Paint(float x, float y, float scale, vec4_t color, const char *text, f
     const char *s = text; // bk001206 - unsigned
 		trap_R_SetColor( color );
 		memcpy(&newColor[0], &color[0], sizeof(vec4_t));
-    len = strlen(text);
+    len = (int) strlen(text);
 		if (limit > 0 && len > limit) {
 			len = limit;
 		}
@@ -438,7 +438,7 @@ void Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const cha
     const char *s = text; // bk001206 - unsigned
 		trap_R_SetColor( color );
 		memcpy(&newColor[0], &color[0], sizeof(vec4_t));
-    len = strlen(text);
+    len = (int) strlen(text);
 		if (limit > 0 && len > limit) {
 			len = limit;
 		}
@@ -536,7 +536,7 @@ static void Text_Paint_Limit(float *maxX, float x, float y, float scale, vec4_t 
 		}
 		useScale = scale * font->glyphScale;
 		trap_R_SetColor( color );
-    len = strlen(text);					 
+    len = (int) strlen(text);					 
 		if (limit > 0 && len > limit) {
 			len = limit;
 		}
@@ -1929,15 +1929,17 @@ static void UI_DrawKeyBindStatus(rectDef_t *rect, float scale, vec4_t color, int
 }
 
 static void UI_DrawGLInfo(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
-	char * eptr;
-	char buff[1024];
-	const char *lines[64];
-	int y, numLines, i;
+	//char * eptr;
+	//char buff[1024];
+	//const char *lines[64];
+	//int y, numLines, i;
 
 	Text_Paint(rect->x + 2, rect->y, scale, color, va("VENDOR: %s", uiInfo.uiDC.glconfig.vendor_string), 0, 30, textStyle);
 	Text_Paint(rect->x + 2, rect->y + 15, scale, color, va("VERSION: %s: %s", uiInfo.uiDC.glconfig.version_string,uiInfo.uiDC.glconfig.renderer_string), 0, 30, textStyle);
 	Text_Paint(rect->x + 2, rect->y + 30, scale, color, va ("PIXELFORMAT: color(%d-bits) Z(%d-bits) stencil(%d-bits)", uiInfo.uiDC.glconfig.colorBits, uiInfo.uiDC.glconfig.depthBits, uiInfo.uiDC.glconfig.stencilBits), 0, 30, textStyle);
 
+    /*
+    @pjb: todo: hacked out for now
 	// build null terminated extension strings
   // TTimo: https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=399
   // in TA this was not directly crashing, but displaying a nasty broken shader right in the middle
@@ -1971,6 +1973,8 @@ static void UI_DrawGLInfo(rectDef_t *rect, float scale, vec4_t color, int textSt
 			break;
 		}
 	}
+
+    */
 
 
 }
@@ -2825,7 +2829,7 @@ static void UI_LoadMods() {
 	numdirs = trap_FS_GetFileList( "$modlist", "", dirlist, sizeof(dirlist) );
 	dirptr  = dirlist;
 	for( i = 0; i < numdirs; i++ ) {
-		dirlen = strlen( dirptr ) + 1;
+		dirlen = (int) strlen( dirptr ) + 1;
     descptr = dirptr + dirlen;
 		uiInfo.modList[uiInfo.modCount].modName = String_Alloc(dirptr);
 		uiInfo.modList[uiInfo.modCount].modDescr = String_Alloc(descptr);
@@ -2854,7 +2858,7 @@ static void UI_LoadTeams() {
 	if (count) {
 		teamName = teamList;
 		for ( i = 0; i < count; i++ ) {
-			len = strlen( teamName );
+			len = (int) strlen( teamName );
 			UI_ParseTeamInfo(teamName);
 			teamName += len + 1;
 		}
@@ -2881,7 +2885,7 @@ static void UI_LoadMovies() {
 		}
 		moviename = movielist;
 		for ( i = 0; i < uiInfo.movieCount; i++ ) {
-			len = strlen( moviename );
+			len = (int) strlen( moviename );
 			if (!Q_stricmp(moviename +  len - 4,".roq")) {
 				moviename[len-4] = '\0';
 			}
@@ -2918,7 +2922,7 @@ static void UI_LoadDemos() {
 		}
 		demoname = demolist;
 		for ( i = 0; i < uiInfo.demoCount; i++ ) {
-			len = strlen( demoname );
+			len = (int) strlen( demoname );
 			if (!Q_stricmp(demoname +  len - strlen(demoExt), demoExt)) {
 				demoname[len-strlen(demoExt)] = '\0';
 			}
@@ -3744,10 +3748,10 @@ static void UI_BuildServerDisplayList(qboolean force) {
 
 	// do motd updates here too
 	trap_Cvar_VariableStringBuffer( "cl_motdString", uiInfo.serverStatus.motd, sizeof(uiInfo.serverStatus.motd) );
-	len = strlen(uiInfo.serverStatus.motd);
+	len = (int) strlen(uiInfo.serverStatus.motd);
 	if (len == 0) {
 		strcpy(uiInfo.serverStatus.motd, "Welcome to Team Arena!");
-		len = strlen(uiInfo.serverStatus.motd);
+		len = (int) strlen(uiInfo.serverStatus.motd);
 	} 
 	if (len != uiInfo.serverStatus.motdLen) {
 		uiInfo.serverStatus.motdLen = len;
@@ -3974,7 +3978,7 @@ static int UI_GetServerStatusInfo( const char *serverAddress, serverStatusInfo_t
 				name = p;
 				Com_sprintf(&info->pings[len], sizeof(info->pings)-len, "%d", i);
 				info->lines[info->numLines][0] = &info->pings[len];
-				len += strlen(&info->pings[len]) + 1;
+				len += (int) strlen(&info->pings[len]) + 1;
 				info->lines[info->numLines][1] = score;
 				info->lines[info->numLines][2] = ping;
 				info->lines[info->numLines][3] = name;
@@ -4974,7 +4978,7 @@ static void UI_BuildQ3Model_List( void )
 	dirptr  = dirlist;
 	for (i=0; i<numdirs && uiInfo.q3HeadCount < MAX_PLAYERMODELS; i++,dirptr+=dirlen+1)
 	{
-		dirlen = strlen(dirptr);
+		dirlen = (int) strlen(dirptr);
 		
 		if (dirlen && dirptr[dirlen-1]=='/') dirptr[dirlen-1]='\0';
 
@@ -4986,7 +4990,7 @@ static void UI_BuildQ3Model_List( void )
 		fileptr  = filelist;
 		for (j=0; j<numfiles && uiInfo.q3HeadCount < MAX_PLAYERMODELS;j++,fileptr+=filelen+1)
 		{
-			filelen = strlen(fileptr);
+			filelen = (int) strlen(fileptr);
 
 			COM_StripExtension(fileptr,skinname);
 
@@ -5318,11 +5322,11 @@ static void UI_ReadableSize ( char *buf, int bufsize, int value )
 {
 	if (value > 1024*1024*1024 ) { // gigs
 		Com_sprintf( buf, bufsize, "%d", value / (1024*1024*1024) );
-		Com_sprintf( buf+strlen(buf), bufsize-strlen(buf), ".%02d GB", 
+		Com_sprintf( buf+strlen(buf), bufsize-(int) strlen(buf), ".%02d GB", 
 			(value % (1024*1024*1024))*100 / (1024*1024*1024) );
 	} else if (value > 1024*1024 ) { // megs
 		Com_sprintf( buf, bufsize, "%d", value / (1024*1024) );
-		Com_sprintf( buf+strlen(buf), bufsize-strlen(buf), ".%02d MB", 
+		Com_sprintf( buf+strlen(buf), bufsize-(int) strlen(buf), ".%02d MB", 
 			(value % (1024*1024))*100 / (1024*1024) );
 	} else if (value > 1024 ) { // kilos
 		Com_sprintf( buf, bufsize, "%d KB", value / 1024 );

@@ -89,7 +89,7 @@ static int		allocPoint, outOfMemory;
 UI_Alloc
 ===============
 */				  
-void *UI_Alloc( int size ) {
+void *UI_Alloc( size_t size ) {
 	char	*p; 
 
 	if ( allocPoint + size > MEM_POOL_SIZE ) {
