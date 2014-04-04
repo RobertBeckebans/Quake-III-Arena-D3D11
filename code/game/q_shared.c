@@ -886,7 +886,7 @@ void QDECL Com_sprintf( char *dest, int size, const char *fmt, ...) {
 	}
 	if (len >= size) {
 		Com_Printf ("Com_sprintf: overflow of %i in %i\n", len, size);
-#if defined(_DEBUG) && !defined(WIN8)
+#if defined(_DEBUG)
 		// @pjb: standard way of breaking into the debugger
         DebugBreak();
 #endif
