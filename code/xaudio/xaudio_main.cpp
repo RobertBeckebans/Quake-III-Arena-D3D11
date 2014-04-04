@@ -241,7 +241,7 @@ void XAudio_Submit( int offset, int length )
     //Com_Printf( "Offset %d length %d\n", offset, length );
 
     // Why? Because magic.
-    length >>= 1;
+    length >>= 2;
 
     // Get the length in bytes
     int byteLength = length * ( dma.samplebits / 8 );
