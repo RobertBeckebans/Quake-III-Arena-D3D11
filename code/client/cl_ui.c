@@ -759,7 +759,7 @@ static int FloatAsInt( float f ) {
 
 void *VM_ArgPtr( size_t intValue );
 #define	VMA(x) VM_ArgPtr(args[x])
-#define	VMF(x)	((float *)args)[x]
+#define	VMF(x)	*((float *)(&args[x]))
 
 /*
 ====================
