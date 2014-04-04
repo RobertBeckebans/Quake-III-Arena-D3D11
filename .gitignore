@@ -6,6 +6,7 @@ ipch
 *.pdb
 baseq3
 missionpack
+demoq3
 *.res
 botlib.log
 Build
