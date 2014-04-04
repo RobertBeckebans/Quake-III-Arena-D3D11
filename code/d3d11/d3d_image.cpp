@@ -1,18 +1,6 @@
 #include "d3d_common.h"
-#include "d3d_image.h"
 #include "d3d_state.h"
-
-struct d3dImage_t
-{
-    ID3D11Texture2D* pTexture;
-    ID3D11ShaderResourceView* pSRV;
-    DXGI_FORMAT internalFormat;
-    D3D11_SAMPLER_DESC samplerDesc;
-    int width;
-    int height;
-    int frameUsed;
-    qboolean dynamic;
-};
+#include "d3d_image.h"
 
 static d3dImage_t s_d3dImages[MAX_DRAWIMAGES];
 
@@ -102,22 +90,33 @@ void CreateImageCustom(
         d3dImage->internalFormat );
 
     // Choose the wrap/clamp mode
+    D3D11_SAMPLER_DESC samplerDesc;
+    Com_Memset( &samplerDesc, 0, sizeof( samplerDesc ) );
+
     switch ( image->wrapClampMode )
     {
     case WRAPMODE_CLAMP:
-        d3dImage->samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-        d3dImage->samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+        samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+        samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+        samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
         break;
     case WRAPMODE_REPEAT:
-        d3dImage->samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-        d3dImage->samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+        samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+        samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+        samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
         break;
     }
     
     if ( image->mipmap )
-        d3dImage->samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+        samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
     else
-        d3dImage->samplerDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+        samplerDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+
+    
+    // @pjb: todo: get a sampler rather than creating a new one each time
+    g_pDevice->CreateSamplerState(
+        &samplerDesc, 
+        &d3dImage->pSampler );
 
     d3dImage->width = width;
     d3dImage->height = height;
@@ -158,6 +157,7 @@ void D3DDrv_DeleteImage( const image_t* image )
 
     SAFE_RELEASE( d3dImage->pTexture );
     SAFE_RELEASE( d3dImage->pSRV );
+    SAFE_RELEASE( d3dImage->pSampler );
 
     Com_Memset( d3dImage, 0, sizeof( d3dImage_t ) );
 }
@@ -217,4 +217,24 @@ int D3DDrv_SumOfUsedImages( void )
 	return total;
 }
 
+const d3dImage_t* GetImageRenderInfo( const image_t* image )
+{
+    const d3dImage_t* d3dImage = &s_d3dImages[image->index];
 
+    if ( !d3dImage->pTexture ) {
+        ri.Error( ERR_FATAL, "Illegal image index.\n" );
+    }
+
+    return d3dImage;
+}
+
+
+void InitImages()
+{
+    Com_Memset( s_d3dImages, 0, sizeof( s_d3dImages ) );
+}
+
+void DestroyImages()
+{
+
+}

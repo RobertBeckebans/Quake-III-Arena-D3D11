@@ -8,3 +8,6 @@ void D3DDrv_UpdateCinematic( const image_t* image, const byte* pic, int cols, in
 imageFormat_t D3DDrv_GetImageFormat( const image_t* image );
 int D3DDrv_SumOfUsedImages( void );
 
+const d3dImage_t* GetImageRenderInfo( const image_t* image );
+void InitImages();
+void DestroyImages();

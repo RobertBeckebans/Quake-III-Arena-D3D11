@@ -14,24 +14,6 @@
 //----------------------------------------------------------------------------
 HRESULT g_hrLastError = S_OK;
 
-D3D11_TEXTURE2D_DESC g_BackBufferDesc;
-ID3D11RenderTargetView* g_pBackBufferView = nullptr;
-ID3D11DepthStencilView* g_pDepthBufferView = nullptr;
-
-//----------------------------------------------------------------------------
-// Constants
-//----------------------------------------------------------------------------
-// @pjb: todo: replace these with defaults from CVars
-static const DXGI_FORMAT DEPTH_TEXTURE_FORMAT = DXGI_FORMAT_R24G8_TYPELESS;
-static const DXGI_FORMAT DEPTH_DEPTH_VIEW_FORMAT = DXGI_FORMAT_D24_UNORM_S8_UINT;
-static const DXGI_FORMAT DEPTH_SHADER_VIEW_FORMAT = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-
-//----------------------------------------------------------------------------
-// Forward declarations
-//----------------------------------------------------------------------------
-void CreateBuffers();
-void DestroyBuffers();
-
 //----------------------------------------------------------------------------
 //
 // DRIVER INTERFACE
@@ -39,8 +21,7 @@ void DestroyBuffers();
 //----------------------------------------------------------------------------
 void D3DDrv_Shutdown( void )
 {
-    DestroyShaders();
-    DestroyBuffers();
+    DestroyDrawState();
     D3DWnd_Shutdown();
 }
 
@@ -71,7 +52,12 @@ void D3DDrv_ReadStencil( int x, int y, int width, int height, byte* dest )
 
 void D3DDrv_DrawImage( const image_t* image, const float* coords, const float* texcoords, const float* color )
 {
-
+    DrawQuad(
+        &g_DrawState.quadRenderData,
+        GetImageRenderInfo( image ),
+        coords,
+        texcoords,
+        color );
 }
 
 void D3DDrv_SetGamma( unsigned char red[256], unsigned char green[256], unsigned char blue[256] )
@@ -96,7 +82,7 @@ void D3DDrv_Clear( unsigned long bits, const float* clearCol, unsigned long sten
         static float defaultCol[] = { 0, 0, 0, 0 };
         if ( !clearCol ) { clearCol = defaultCol; }
 
-        g_pImmediateContext->ClearRenderTargetView( g_pBackBufferView, clearCol );
+        g_pImmediateContext->ClearRenderTargetView( g_State.backBufferView, clearCol );
     }
 
     if ( bits & ( CLEAR_DEPTH | CLEAR_STENCIL ) )
@@ -104,28 +90,36 @@ void D3DDrv_Clear( unsigned long bits, const float* clearCol, unsigned long sten
         DWORD clearBits = 0;
         if ( bits & CLEAR_DEPTH ) { clearBits |= D3D11_CLEAR_DEPTH; }
         if ( bits & CLEAR_STENCIL ) { clearBits |= D3D11_CLEAR_STENCIL; }
-        g_pImmediateContext->ClearDepthStencilView( g_pDepthBufferView, clearBits, depth, (UINT8) stencil );
+        g_pImmediateContext->ClearDepthStencilView( g_State.depthBufferView, clearBits, depth, (UINT8) stencil );
     }
 }
 
 void D3DDrv_SetProjection( const float* projMatrix )
 {
-    memcpy( g_State.projectionMatrix, projMatrix, sizeof(float) * 16 );
+    memcpy( g_RunState.projectionMatrix, projMatrix, sizeof(float) * 16 );
+
+    d3dViewConstantBuffer_t* cb = QD3D::MapDynamicBuffer<d3dViewConstantBuffer_t>( g_pImmediateContext, g_DrawState.viewRenderData.constantBuffer );
+    memcpy( cb->projectionMatrix, projMatrix, sizeof(float) * 16 );
+    g_pImmediateContext->Unmap( g_DrawState.viewRenderData.constantBuffer, 0 );
 }
 
 void D3DDrv_GetProjection( float* projMatrix )
 {
-    memcpy( projMatrix, g_State.projectionMatrix, sizeof(float) * 16 );
+    memcpy( projMatrix, g_RunState.projectionMatrix, sizeof(float) * 16 );
 }
 
 void D3DDrv_SetModelView( const float* modelViewMatrix )
 {
-    memcpy( g_State.modelViewMatrix, modelViewMatrix, sizeof(float) * 16 );
+    memcpy( g_RunState.modelViewMatrix, modelViewMatrix, sizeof(float) * 16 );
+
+    d3dViewConstantBuffer_t* cb = QD3D::MapDynamicBuffer<d3dViewConstantBuffer_t>( g_pImmediateContext, g_DrawState.viewRenderData.constantBuffer );
+    memcpy( cb->modelViewMatrix, modelViewMatrix, sizeof(float) * 16 );
+    g_pImmediateContext->Unmap( g_DrawState.viewRenderData.constantBuffer, 0 );
 }
 
 void D3DDrv_GetModelView( float* modelViewMatrix )
 {
-    memcpy( modelViewMatrix, g_State.modelViewMatrix, sizeof(float) * 16 );
+    memcpy( modelViewMatrix, g_RunState.modelViewMatrix, sizeof(float) * 16 );
 }
 
 void D3DDrv_SetViewport( int left, int top, int width, int height )
@@ -147,7 +141,7 @@ void D3DDrv_Flush( void )
 
 void D3DDrv_SetState( unsigned long stateMask )
 {
-    g_State.stateMask = stateMask;
+    g_RunState.stateMask = stateMask;
 }
 
 void D3DDrv_ResetState2D( void )
@@ -185,7 +179,12 @@ void D3DDrv_SetDrawBuffer( int buffer )
 
 void D3DDrv_EndFrame( void )
 {
-
+    switch (vdConfig.displayFrequency)
+    {
+    case 60: g_pSwapChain->Present( 1, 0 ); break; 
+    case 30: g_pSwapChain->Present( 2, 0 ); break;
+    default: g_pSwapChain->Present( 0, 0 ); break; 
+    }
 }
 
 void D3DDrv_MakeCurrent( qboolean current )
@@ -277,7 +276,7 @@ void SetupVideoConfig()
     Q_strncpyz( vdConfig.vendor_string, "Microsoft Corporation", sizeof( vdConfig.vendor_string ) );
 
     D3D11_DEPTH_STENCIL_VIEW_DESC depthBufferViewDesc;
-    g_pDepthBufferView->GetDesc( &depthBufferViewDesc );
+    g_State.depthBufferView->GetDesc( &depthBufferViewDesc );
 
     DWORD colorDepth = 0, depthDepth = 0, stencilDepth = 0;
     if ( FAILED( QD3D::GetBitDepthForFormat( g_State.swapChainDesc.BufferDesc.Format, &colorDepth ) ) )
@@ -355,56 +354,17 @@ D3D_PUBLIC void D3DDrv_DriverInit( graphicsApiLayer_t* layer )
     layer->DebugSetTextureMode = D3DDrv_DebugSetTextureMode;
     layer->DebugDrawPolygon = D3DDrv_DebugDrawPolygon;
 
+    Com_Memset( &g_State, 0, sizeof( g_State ) );
+
     // This, weirdly, can be called multiple times. Catch that if that's the case.
     if ( g_pDevice == nullptr )
     {
         D3DWnd_Init();
     }
-    
-    // Create the back buffers
-    DestroyBuffers();
-    CreateBuffers();
 
+    InitDrawState();
+    
     // Set up vdConfig global
     SetupVideoConfig();
-
-    // Load shaders
-    InitShaders();
-}
-
-//----------------------------------------------------------------------------
-//
-// LOCAL FUNCTIONS
-//
-//----------------------------------------------------------------------------
-
-
-//----------------------------------------------------------------------------
-// Get the back buffer and depth/stencil buffer.
-//----------------------------------------------------------------------------
-void CreateBuffers()
-{
-    g_pBackBufferView = QD3D::CreateBackBufferView(g_pSwapChain, g_pDevice, &g_BackBufferDesc);
-    ASSERT(g_pBackBufferView);
-
-    g_pDepthBufferView = QD3D::CreateDepthBufferView(
-        g_pDevice,
-        g_BackBufferDesc.Width,
-        g_BackBufferDesc.Height,
-        DEPTH_TEXTURE_FORMAT,
-        DEPTH_DEPTH_VIEW_FORMAT,
-        g_BackBufferDesc.SampleDesc.Count,
-        g_BackBufferDesc.SampleDesc.Quality,
-        D3D11_BIND_SHADER_RESOURCE);
-    ASSERT(g_pDepthBufferView);
-}
-
-//----------------------------------------------------------------------------
-// Release references to the back buffer and depth
-//----------------------------------------------------------------------------
-void DestroyBuffers()
-{
-    SAFE_RELEASE(g_pBackBufferView);
-    SAFE_RELEASE(g_pDepthBufferView);
 }
 

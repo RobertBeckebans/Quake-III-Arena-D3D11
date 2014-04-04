@@ -22,6 +22,12 @@ void PROXY_Shutdown( void )
     glDriver.Shutdown();
 }
 
+// Why? If the D3D driver fails, we can't call regular Shutdown because glDriver will still be null
+void PROXY_ShutdownOne( void )
+{
+    d3dDriver.Shutdown();
+}
+
 void PROXY_UnbindResources( void )
 {
     d3dDriver.UnbindResources();
@@ -372,7 +378,7 @@ void PROXY_DriverInit( graphicsApiLayer_t* layer )
 {
     vdconfig_t old_vdConfig, gl_vdConfig, d3d_vdConfig;
 
-    layer->Shutdown = PROXY_Shutdown;
+    layer->Shutdown = PROXY_ShutdownOne;
     layer->UnbindResources = PROXY_UnbindResources;
     layer->LastError = PROXY_LastError;
     layer->ReadPixels = PROXY_ReadPixels;
@@ -429,14 +435,16 @@ void PROXY_DriverInit( graphicsApiLayer_t* layer )
 
     // Init the D3D driver and back up the vdConfig
     D3DDrv_DriverInit( &d3dDriver );
+    R_ValidateGraphicsLayer( &d3dDriver );
     d3d_vdConfig = vdConfig;
+
+    // Switch to the proper shutdown version
+    layer->Shutdown = PROXY_Shutdown;
 
     // Init the GL driver and back up the vdConfig
     GLRB_DriverInit( &glDriver );
-    gl_vdConfig = vdConfig;
-
-    R_ValidateGraphicsLayer( &d3dDriver );
     R_ValidateGraphicsLayer( &glDriver );
+    gl_vdConfig = vdConfig;
 
     // Let's arrange these windows shall we?
     PositionOpenGLWindowRightOfD3D();

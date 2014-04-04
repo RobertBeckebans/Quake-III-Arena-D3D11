@@ -1,6 +1,7 @@
 #include "d3d_common.h"
 #include "d3d_compiler.h"
 #include "d3d_shaders.h"
+#include "d3d_state.h"
 
 // Shader cvars
 cvar_t* d3d_compileDebug = nullptr;
@@ -13,7 +14,7 @@ cvar_t* d3d_vsTarget = nullptr;
 cvar_t* d3d_psTarget = nullptr;
 
 
-void CompileShader( const char* filename, const char* target )
+ID3DBlob* CompileShader( const char* filename, const char* target )
 {
     void* buf;
     int length = ri.FS_ReadFile( filename, &buf );
@@ -81,9 +82,52 @@ void CompileShader( const char* filename, const char* target )
         }
     }
 
-
-
     ri.FS_FreeFile( buf );
+
+    return blob;
+}
+
+ID3D11PixelShader* CompilePixelShader( const char* name )
+{
+    ID3DBlob* blob = CompileShader( va( "d3d11/%s.hlsl", name ), d3d_psTarget->string );
+    assert( blob );
+
+    ID3D11PixelShader* shader = nullptr;
+    HRESULT hr = g_pDevice->CreatePixelShader(
+        blob->GetBufferPointer(),
+        blob->GetBufferSize(),
+        nullptr,
+        &shader );
+    if ( FAILED( hr ) ) {
+        ri.Error( ERR_FATAL, "Failed to create pixel shader '%s': 0x%08X\n", name, hr );
+    }
+
+    SAFE_RELEASE( blob );
+
+    return shader;
+}
+
+ID3D11VertexShader* CompileVertexShader( const char* name, ID3DBlob** ppBlob )
+{
+    ID3DBlob* blob = CompileShader( va( "d3d11/%s.hlsl", name ), d3d_vsTarget->string );
+    assert( blob );
+
+    ID3D11VertexShader* shader = nullptr;
+    HRESULT hr = g_pDevice->CreateVertexShader(
+        blob->GetBufferPointer(),
+        blob->GetBufferSize(),
+        nullptr,
+        &shader );
+    if ( FAILED( hr ) ) {
+        ri.Error( ERR_FATAL, "Failed to create vertex shader '%s': 0x%08X\n", name, hr );
+    }
+
+    if ( ppBlob )
+        *ppBlob = blob;
+    else
+        SAFE_RELEASE( blob );
+
+    return shader;
 }
 
 void InitShaders()
@@ -104,13 +148,6 @@ void InitShaders()
     d3d_compileSkipValidation = Cvar_Get( "d3d_compileSkipValidation", "0", CVAR_ARCHIVE | CVAR_LATCH );
     d3d_vsTarget = Cvar_Get( "d3d_vsTarget", "vs_5_0", CVAR_ARCHIVE | CVAR_LATCH );
     d3d_psTarget = Cvar_Get( "d3d_psTarget", "ps_5_0", CVAR_ARCHIVE | CVAR_LATCH );
-
-    //
-    // Load shaders
-    //
-    CompileShader( "d3d11/fsq_vs.hlsl", d3d_vsTarget->string );
-    CompileShader( "d3d11/fsq_ps.hlsl", d3d_psTarget->string );
-    // @pjb: todo: cache these and use them!
 }
 
 void DestroyShaders()

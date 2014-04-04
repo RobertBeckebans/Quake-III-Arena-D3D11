@@ -14,6 +14,7 @@ extern "C" {
 #endif
 
 #include <assert.h>
+#include <malloc.h>
 //#include <d3d11_2.h>
 #include <d3d11_1.h>
 
@@ -253,6 +254,237 @@ namespace QD3D
         _In_ DXGI_FORMAT srv_format);
 
 	//----------------------------------------------------------------------------
+	// Creates a buffer full of GPU-read CPU-no-access fixed data. 
+	//----------------------------------------------------------------------------
+	ID3D11Buffer* 
+	CreateImmutableBuffer(
+		_In_ ID3D11Device* device,
+		_In_ UINT bindFlags, 
+		_In_count_(size) const void* data, 
+		_In_ size_t size);
+
+	//----------------------------------------------------------------------------
+	// Quick helper function for creating a CPU writable buffer of a given size 
+	// and type. This will be created with the DYNAMIC usage flags and writable
+	// by CPU.
+    //
+	// This function will also ASSERT if your structure is not a multiple of 16
+	// bytes in size.
+	//
+    // Only use this for small buffers as this allocates on the stack.
+	//
+	// Usage: 
+	//	
+	//	struct Foo { ... };
+	//
+	//	ID3D11Buffer* buffer = DirectX::CreateDynamicBuffer<Foo>(pDevice, D3D11_BIND_VERTEX_BUFFER, nElements);
+	//
+	//----------------------------------------------------------------------------
+	template<class Struct>
+	ID3D11Buffer* 
+	CreateDynamicBuffer(
+		_In_ ID3D11Device* device, 
+		_In_ UINT bindFlags,
+		_In_ UINT count)
+	{
+        static_assert( sizeof(Struct) % 16 == 0, "Struct must be a mulitple of 16 bytes in size" );
+
+        const size_t c_MaxStackThreshold = 256;
+
+        Struct* default_constants = nullptr;
+
+        // Allocate on the stack if it's small enough
+        if (sizeof(Struct) * count <= c_MaxStackThreshold)
+        {
+		    default_constants = (Struct*)_alloca(sizeof(Struct) * count);
+		    for (UINT i = 0; i < count; ++i)
+			    default_constants[i] = Struct();
+        }
+        else
+            default_constants = new Struct[count];
+
+		D3D11_BUFFER_DESC bd;
+		ZeroMemory(&bd, sizeof(bd));
+
+		bd.Usage = D3D11_USAGE_DYNAMIC;
+		bd.ByteWidth = sizeof(Struct) * count;
+		bd.BindFlags = bindFlags;
+		bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	
+		D3D11_SUBRESOURCE_DATA srd;
+		ZeroMemory(&srd, sizeof(srd));
+
+		srd.pSysMem = default_constants;
+
+		ID3D11Buffer* buffer;
+		device->CreateBuffer(&bd, &srd, &buffer);
+
+		ASSERT(buffer);
+
+        if (sizeof(Struct) * count > c_MaxStackThreshold)
+            delete [] default_constants;
+
+		return buffer;
+	}
+
+	//----------------------------------------------------------------------------
+	// Quick helper function for creating a dynamic buffer of a given size 
+	// and type. This function only allocates space for ONE entry.
+	//
+	// This function will also ASSERT if your structure is not a multiple of 16
+	// bytes in size.
+	//
+    // Only use this for small buffers as this allocates on the stack.
+	//
+	// Usage: 
+	//	
+	//	struct Foo { ... };
+	//
+	//	ID3D11Buffer* constantBuffer = DirectX::CreateDynamicBuffer<Foo>(pDevice);
+	//
+	//----------------------------------------------------------------------------
+	template<class Struct>
+	ID3D11Buffer* 
+	CreateDynamicBuffer(
+		_In_ ID3D11Device* device, 
+		_In_ UINT bindFlags)
+	{
+		return CreateDynamicBuffer<Struct>(device, bindFlags, 1);
+	}
+
+	//----------------------------------------------------------------------------
+	// Shorthand for mapping a dynamic buffer and discard the current contents
+	//----------------------------------------------------------------------------
+	template<class Struct>
+	Struct* 
+	MapDynamicBuffer(
+		_In_ ID3D11DeviceContext* context, 
+		_In_ ID3D11Buffer* buffer)
+	{
+		D3D11_MAPPED_SUBRESOURCE map;
+		context->Map( buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &map);
+		return (Struct*)map.pData;
+	}
+
+	//----------------------------------------------------------------------------
+	// Shorthand for mapping, copying and unmapping a dynamic buffer.
+	//----------------------------------------------------------------------------
+	template<class Struct>
+	BOOL 
+	UploadDynamicBuffer(
+		_In_ ID3D11DeviceContext* context, 
+		_In_ ID3D11Buffer* buffer, 
+		_In_ UINT count, 
+		_In_ const Struct* structs)
+	{
+		// optionally don't block using D3D11_MAP_FLAG_DO_NOT_WAIT for second to last parameter
+
+		D3D11_MAPPED_SUBRESOURCE map;
+		if (FAILED(context->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &map)))
+		{
+			return FALSE;
+		}
+
+		memcpy(map.pData, structs, sizeof(Struct) * count);
+		context->Unmap(buffer, 0);
+
+		return TRUE;
+	}
+
+	//----------------------------------------------------------------------------
+    // A dynamic buffer
+	//----------------------------------------------------------------------------
+    template<class T>
+    class DynamicBuffer
+    {
+    public:
+
+        DynamicBuffer(
+            _In_ ID3D11Device* pDevice,
+            _In_ UINT bindFlags);
+        DynamicBuffer(
+            _In_ ID3D11Device* pDevice,
+            _In_ UINT bindFlags, 
+            _In_ UINT count);
+        ~DynamicBuffer();
+
+        UINT Size() const { return m_count; }
+
+        T* MapDiscard(
+            _In_ ID3D11DeviceContext* context);
+        void Unmap(
+            _In_ ID3D11DeviceContext* context);
+
+        BOOL UploadDiscard(
+            _In_ ID3D11DeviceContext* context,
+            _In_ const T* data);
+
+		ID3D11Buffer* Buffer() const { return m_buffer; }
+        
+    private:
+
+        UINT m_count;
+        ID3D11Buffer* m_buffer;
+    };
+
+	//----------------------------------------------------------------------------
+    // Dynamic buffer methods
+	//----------------------------------------------------------------------------
+    template<class T> 
+    DynamicBuffer<T>::DynamicBuffer(
+        _In_ ID3D11Device* pDevice,
+        _In_ UINT bindFlags)
+    {
+        m_count = 1;
+        m_buffer = CreateDynamicBuffer<T>(pDevice, bindFlags);
+    }
+
+    template<class T> 
+    DynamicBuffer<T>::DynamicBuffer(
+        _In_ ID3D11Device* pDevice,
+        _In_ UINT bindFlags,
+        _In_ UINT count)
+    {
+        m_count = count;
+        m_buffer = CreateDynamicBuffer<T>(pDevice, bindFlags, count);
+    }
+
+    template<class T> 
+    DynamicBuffer<T>::~DynamicBuffer()
+    {
+        SAFE_RELEASE(m_buffer);
+    }
+
+    template<class T> 
+    T* 
+    DynamicBuffer<T>::MapDiscard(
+        _In_ ID3D11DeviceContext* context)
+    {
+        return MapDynamicBuffer<T>(context, m_buffer);
+    }
+
+    template<class T>
+    void 
+    DynamicBuffer<T>::Unmap(
+        _In_ ID3D11DeviceContext* context)
+    {
+        context->Unmap(m_buffer);
+    }
+
+    template<class T>
+    BOOL
+    DynamicBuffer<T>::UploadDiscard(
+        _In_ ID3D11DeviceContext* context,
+        _In_ const T* data)
+    {
+        return UploadDynamicBuffer<T>(
+            context,
+            m_buffer,
+            m_count,
+            data);
+    }
+
+    //----------------------------------------------------------------------------
 	// 
 	//----------------------------------------------------------------------------
 	class SavedRasterizerState

@@ -640,4 +640,25 @@ namespace QD3D
 		device->CreateShaderResourceView(texture, &srvd, &view);
 		return view;
 	}
+
+    //----------------------------------------------------------------------------
+    // Helper function for creating an immutable buffer
+   	//----------------------------------------------------------------------------
+	ID3D11Buffer* CreateImmutableBuffer(ID3D11Device* device, UINT bindFlags, const void* data, size_t size)
+	{
+		D3D11_BUFFER_DESC desc;
+		ZeroMemory(&desc, sizeof(desc));
+		desc.Usage = D3D11_USAGE_IMMUTABLE;
+		desc.BindFlags = bindFlags;
+		desc.ByteWidth = (UINT)size;
+
+		D3D11_SUBRESOURCE_DATA srd;
+		ZeroMemory(&srd, sizeof(srd));
+		srd.pSysMem = data;
+
+		ID3D11Buffer* buffer = NULL;
+		device->CreateBuffer(&desc, &srd, &buffer);
+
+		return buffer;
+	}
 }
