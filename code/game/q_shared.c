@@ -24,8 +24,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "q_shared.h"
 
 // @pjb: for DebugBreak
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
+#ifdef (_WIN32) && !defined(WIN8)
+#   define WIN32_LEAN_AND_MEAN
+#   include <Windows.h>
+#endif
 
 float Com_Clamp( float min, float max, float value ) {
 	if ( value < min ) {
