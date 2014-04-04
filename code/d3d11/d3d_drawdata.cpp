@@ -114,3 +114,46 @@ void DestroyRasterStates( d3dRasterStates_t* rs )
     Com_Memset( rs, 0, sizeof( d3dRasterStates_t ) );
 }
 
+void InitDepthStates( d3dDepthStates_t* ds )
+{
+    Com_Memset( ds, 0, sizeof( d3dDepthStates_t ) );
+
+    // 
+    // No depth write or test
+    //
+    D3D11_DEPTH_STENCIL_DESC dsd;
+    ZeroMemory( &dsd, sizeof( dsd ) );
+    dsd.DepthEnable = FALSE;
+    dsd.StencilEnable = FALSE;
+    g_pDevice->CreateDepthStencilState( &dsd, &ds->none );
+}
+
+void DestroyDepthStates( d3dDepthStates_t* ds )
+{
+    SAFE_RELEASE( ds->none );
+
+    Com_Memset( ds, 0, sizeof( d3dDepthStates_t ) );
+}
+
+void InitBlendStates( d3dBlendStates_t* bs )
+{
+    Com_Memset( bs, 0, sizeof( d3dBlendStates_t ) );
+
+    // 
+    // No blending
+    //
+    D3D11_BLEND_DESC bsd;
+    ZeroMemory( &bsd, sizeof( bsd ) );
+    bsd.RenderTarget[0].BlendEnable = FALSE;
+    g_pDevice->CreateBlendState( &bsd, &bs->opaque );
+}
+
+void DestroyBlendStates( d3dBlendStates_t* bs )
+{
+    SAFE_RELEASE( bs->opaque );
+
+    Com_Memset( bs, 0, sizeof( d3dBlendStates_t ) );
+}
+
+
+

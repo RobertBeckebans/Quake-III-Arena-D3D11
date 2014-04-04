@@ -82,15 +82,22 @@ void InitDrawState()
     InitQuadRenderData( &g_DrawState.quadRenderData );
     InitViewRenderData( &g_DrawState.viewRenderData );
     InitRasterStates( &g_DrawState.rasterStates );
+    InitDepthStates( &g_DrawState.depthStates );
+    InitBlendStates( &g_DrawState.blendStates );
 
     // Set up some default state
+    float blendFactor[4] = {0, 0, 0, 0};
+    g_pImmediateContext->OMSetDepthStencilState( g_DrawState.depthStates.none, 0 );
     g_pImmediateContext->RSSetState( g_DrawState.rasterStates.cullNone );
+    g_pImmediateContext->OMSetBlendState( g_DrawState.blendStates.opaque, blendFactor, 0 );
     g_pImmediateContext->OMSetRenderTargets( 1, &g_State.backBufferView, g_State.depthBufferView );
 }
 
 void DestroyDrawState()
 {
     DestroyRasterStates( &g_DrawState.rasterStates );
+    DestroyDepthStates( &g_DrawState.depthStates );
+    DestroyBlendStates( &g_DrawState.blendStates );
     DestroyQuadRenderData( &g_DrawState.quadRenderData );
     DestroyViewRenderData( &g_DrawState.viewRenderData );
     DestroyShaders();
@@ -101,6 +108,22 @@ void DestroyDrawState()
     Com_Memset( &g_DrawState, 0, sizeof( g_DrawState ) );
 }
 
+void UpdateDirtyTransform()
+{
+    d3dViewConstantBuffer_t* cb = QD3D::MapDynamicBuffer<d3dViewConstantBuffer_t>( g_pImmediateContext, g_DrawState.viewRenderData.constantBuffer );
+    memcpy( cb->projectionMatrix, g_RunState.projectionMatrix, sizeof(float) * 16 );
+    memcpy( cb->modelViewMatrix, g_RunState.modelViewMatrix, sizeof(float) * 16 );
+    g_pImmediateContext->Unmap( g_DrawState.viewRenderData.constantBuffer, 0 );
+    g_RunState.dirtyTransform = qfalse;
+}
+
+// @pjb: forceinline because I don't want to put the 'if' inside UpdateDirtyTransform
+__forceinline void EnsureCleanTransform()
+{
+    if ( g_RunState.dirtyTransform )
+        UpdateDirtyTransform();
+}
+
 void DrawQuad( 
     const d3dQuadRenderData_t* qrd,
     const d3dImage_t* image,
@@ -108,6 +131,8 @@ void DrawQuad(
     const float* texcoords,
     const float* color )
 {
+    EnsureCleanTransform();
+
     //
     // Update the constant buffer
     //

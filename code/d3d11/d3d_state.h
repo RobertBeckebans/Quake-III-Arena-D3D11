@@ -50,12 +50,26 @@ struct d3dRasterStates_t
     ID3D11RasterizerState* cullNone;
 };
 
+// @pjb: stores common depth states
+struct d3dDepthStates_t
+{
+    ID3D11DepthStencilState* none;
+};
+
+// @pjb: stores common blend states
+struct d3dBlendStates_t
+{
+    ID3D11BlendState* opaque;
+};
+
 // @pjb: stores draw info like samplers and buffers
 struct d3dDrawState_t
 {
     d3dQuadRenderData_t quadRenderData;
     d3dViewRenderData_t viewRenderData;
     d3dRasterStates_t rasterStates;
+    d3dDepthStates_t depthStates;
+    d3dBlendStates_t blendStates;
 };
 
 // @pjb: stores the run-time game state. The game is set up like a state machine so we'll be doing the same.
@@ -63,6 +77,7 @@ struct d3dRunState_t {
     float modelViewMatrix[16];
     float projectionMatrix[16];
     unsigned long stateMask; // combination of GLS_* flags
+    qboolean dirtyTransform;
 };
 
 //----------------------------------------------------------------------------
@@ -113,7 +128,6 @@ void DrawQuad(
     const float* coords, 
     const float* texcoords, 
     const float* color );
-
 
 //----------------------------------------------------------------------------
 // Driver entry points

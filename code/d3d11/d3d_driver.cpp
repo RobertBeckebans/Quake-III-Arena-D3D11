@@ -97,10 +97,7 @@ void D3DDrv_Clear( unsigned long bits, const float* clearCol, unsigned long sten
 void D3DDrv_SetProjection( const float* projMatrix )
 {
     memcpy( g_RunState.projectionMatrix, projMatrix, sizeof(float) * 16 );
-
-    d3dViewConstantBuffer_t* cb = QD3D::MapDynamicBuffer<d3dViewConstantBuffer_t>( g_pImmediateContext, g_DrawState.viewRenderData.constantBuffer );
-    memcpy( cb->projectionMatrix, projMatrix, sizeof(float) * 16 );
-    g_pImmediateContext->Unmap( g_DrawState.viewRenderData.constantBuffer, 0 );
+    g_RunState.dirtyTransform = qtrue;
 }
 
 void D3DDrv_GetProjection( float* projMatrix )
@@ -111,10 +108,7 @@ void D3DDrv_GetProjection( float* projMatrix )
 void D3DDrv_SetModelView( const float* modelViewMatrix )
 {
     memcpy( g_RunState.modelViewMatrix, modelViewMatrix, sizeof(float) * 16 );
-
-    d3dViewConstantBuffer_t* cb = QD3D::MapDynamicBuffer<d3dViewConstantBuffer_t>( g_pImmediateContext, g_DrawState.viewRenderData.constantBuffer );
-    memcpy( cb->modelViewMatrix, modelViewMatrix, sizeof(float) * 16 );
-    g_pImmediateContext->Unmap( g_DrawState.viewRenderData.constantBuffer, 0 );
+    g_RunState.dirtyTransform = qtrue;
 }
 
 void D3DDrv_GetModelView( float* modelViewMatrix )
