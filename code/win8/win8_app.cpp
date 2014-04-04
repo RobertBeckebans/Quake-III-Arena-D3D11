@@ -34,28 +34,27 @@ enum SYS_MSG
     SYS_MSG_EXCEPTION
 };
 
-bool Win8_DisplayException( Platform::Exception^ ex )
+Windows::Foundation::IAsyncOperation<Windows::UI::Popups::IUICommand^>^
+    Win8_DisplayException( Platform::Exception^ ex )
 {
     // Throw up a dialog box!
     try
     {
         Windows::UI::Popups::MessageDialog^ dlg = ref new Windows::UI::Popups::MessageDialog(ex->Message);
-        concurrency::create_task( dlg->ShowAsync() );
-
-        return true;
+        return dlg->ShowAsync();
     }
     catch ( Platform::AccessDeniedException^ )
     {
-        return false;
+        return nullptr;
     }
     catch ( Platform::Exception^ ex )
     {
         OutputDebugStringW( ex->Message->Data() );
-        return false;
+        return nullptr;
     }
     catch ( ... )
     {
-        return false;
+        return nullptr;
     }
 }
 
@@ -155,7 +154,8 @@ namespace Q3Win8
 
 Quake3Win8App::Quake3Win8App() :
 	m_windowClosed(false),
-	m_windowVisible(true)
+	m_windowVisible(true),
+    m_currentMsgDlg(nullptr)
 {
 }
 
@@ -208,39 +208,55 @@ void Quake3Win8App::Load(Platform::String^ entryPoint)
     } );
 }
 
-void Quake3Win8App::Run()
+void Quake3Win8App::HandleMessagesFromGame()
 {
     Q3Win8::MSG msg;
 
+    // Get new messages
+    while ( g_sysMsgs.Pop( &msg ) )
+    {
+        switch ( msg.Message )
+        {
+        case SYS_MSG_EXCEPTION:
+            m_currentMsgDlg = Win8_DisplayException( Win8_GetType<Platform::Exception>( (IUnknown*) msg.Param0 ) );
+            break;
+        default:
+            assert(0);
+            break;
+        }
+    }
+}
+
+void Quake3Win8App::Run()
+{
 	while ( !m_gameThread.is_done() )
 	{
 		if (m_windowVisible)
 		{
 			CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
 			
-            // Get new messages
-            while ( g_sysMsgs.Pop( &msg ) )
-            {
-                switch ( msg.Message )
-                {
-                case SYS_MSG_EXCEPTION:
-                    Win8_DisplayException( Win8_GetType<Platform::Exception>( (IUnknown*) msg.Param0 ) );
-                    break;
-                default:
-                    assert(0);
-                    break;
-                }
-            }
+            HandleMessagesFromGame();
 
 		    // @pjb: todo: Notify the game that there's a new frame
-
-
 		}
 		else
 		{
 			CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessOneAndAllPending);
 		}
 	}
+
+    // Consume any dangling messagse
+    HandleMessagesFromGame();
+
+    // If there's a dialog waiting to be dismissed, poll
+    if ( m_currentMsgDlg != nullptr )
+    {
+        auto task = Concurrency::create_task( m_currentMsgDlg );
+        while ( !task.is_done() )
+        {
+			CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessOneAndAllPending);
+        }
+    }
 }
 
 void Quake3Win8App::Uninitialize()

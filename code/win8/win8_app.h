@@ -26,10 +26,14 @@ protected:
 
 private:
 
+    void HandleMessagesFromGame();
+
     std::atomic<bool> m_windowClosed;
 	std::atomic<bool> m_windowVisible;
     Windows::Foundation::Size m_logicalSize;
     Concurrency::task<int> m_gameThread;
+
+    Windows::Foundation::IAsyncOperation<Windows::UI::Popups::IUICommand^>^ m_currentMsgDlg;
 };
 
 ref class Quake3Win8ApplicationSource sealed : Windows::ApplicationModel::Core::IFrameworkViewSource
