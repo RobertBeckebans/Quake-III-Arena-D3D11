@@ -11,6 +11,7 @@ struct MSG
     size_t Message;
     size_t Param0;
     size_t Param1;
+    size_t TimeStamp;
 };
 
 class MessageQueue

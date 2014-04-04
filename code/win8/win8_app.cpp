@@ -110,6 +110,8 @@ namespace Q3Win8
                 if ( msg.Message == GAME_MSG_QUIT )
                     return;
 
+                Sys_SetFrameTime( (int) msg.TimeStamp );
+
                 HandleMessage( &msg );
             }
 
@@ -143,6 +145,7 @@ namespace Q3Win8
             ZeroMemory( &msg, sizeof(msg) );
             msg.Message = SYS_MSG_EXCEPTION;
             msg.Param0 = (size_t) Win8_GetPointer( ex );
+            msg.TimeStamp = Sys_Milliseconds();
             g_sysMsgs.Post( &msg );
         }
         catch ( ... )
@@ -292,6 +295,7 @@ void Quake3Win8App::OnWindowSizeChanged(CoreWindow^ window, WindowSizeChangedEve
     msg.Message = GAME_MSG_VIDEO_CHANGE;
     msg.Param0 = ConvertDipsToPixels( m_logicalSize.Width );
     msg.Param1 = ConvertDipsToPixels( m_logicalSize.Height );
+    msg.TimeStamp = Sys_Milliseconds();
     g_gameMsgs.Post( &msg );
 }
 
@@ -307,6 +311,7 @@ void Quake3Win8App::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args
     Q3Win8::MSG msg;
     ZeroMemory( &msg, sizeof(msg) );
     msg.Message = GAME_MSG_QUIT;
+    msg.TimeStamp = Sys_Milliseconds();
     g_gameMsgs.Post( &msg );
 }
 
@@ -337,6 +342,7 @@ void Quake3Win8App::OnSuspending(Platform::Object^ sender, SuspendingEventArgs^ 
     Q3Win8::MSG msg;
     ZeroMemory( &msg, sizeof(msg) );
     msg.Message = GAME_MSG_QUIT;
+    msg.TimeStamp = Sys_Milliseconds();
     g_gameMsgs.Post( &msg );
 
 	create_task([this, deferral]()

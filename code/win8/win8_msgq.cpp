@@ -11,6 +11,8 @@ namespace Q3Win8
 
     void MessageQueue::Post( const MSG* msg )
     {
+        assert( msg->TimeStamp > 0 );
+
         int reservedSlot = m_producerReserve.fetch_add(1);
 
         // Copy the message into the ringbuffer

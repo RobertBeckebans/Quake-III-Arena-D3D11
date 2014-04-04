@@ -156,6 +156,17 @@ WIN8_EXPORT int Sys_Milliseconds (void)
 	return Win8_GetTime() - sys_timeBase;
 }
 
+// @pjb I hate this
+int g_LastFrameEventTime = 0;
+void Sys_SetFrameTime( int time )
+{
+    g_LastFrameEventTime = time;
+}
+WIN8_EXPORT int Sys_FrameTime (void)
+{
+    return g_LastFrameEventTime;
+}
+
 /*
 ==================
 Sys_LowPhysicalMemory()

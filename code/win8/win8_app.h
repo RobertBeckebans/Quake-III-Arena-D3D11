@@ -46,3 +46,6 @@ public:
 };
 
 void Win8_SetCommandLine( Platform::Array<Platform::String^>^ args );
+
+// @pjb: 
+void Sys_SetFrameTime( int time );
