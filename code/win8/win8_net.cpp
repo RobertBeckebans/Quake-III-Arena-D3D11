@@ -192,11 +192,22 @@ bool NET_Ipv4ToString( const BYTE* address, char* str, size_t len )
     return true;
 }
 
+bool NET_IsIpv6NetAdr( const netadr_t* a )
+{
+    return 
+        ((const UINT*) a->ip)[1] != 0 &&
+        ((const UINT*) a->ip)[2] != 0 &&
+        ((const UINT*) a->ip)[3] != 0;
+}
+
 
 WIN8_EXPORT qboolean Sys_StringToAdr( const char *s, netadr_t *a ) {
-    
-    // @pjb: todo
-    return qfalse;
+
+    // @pjb: We won't support IPX any more here.
+    if ( !NET_StringToIpv6( s, a->ip ) )
+        if ( !NET_StringToIpv4( s, a->ip ) )
+            return qfalse;
+    return qtrue;
 }
 
 /*
@@ -424,8 +435,13 @@ void NET_StartListening( void ) {
 NET_StopListening
 ====================
 */
-void NET_StopListening( void ) {
-    // @pjb: todo
+void NET_StopListening( void ) 
+{
+    if ( g_Socket != nullptr )
+    {
+        g_Socket->Close();
+        g_Socket = nullptr;
+    }
 }
 
 /*
