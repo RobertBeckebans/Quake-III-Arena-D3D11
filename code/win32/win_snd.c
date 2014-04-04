@@ -263,7 +263,7 @@ int DirectSound_InitDS ()
 	SNDDMA_BeginPainting ();
 	if (dma.buffer)
 		memset(dma.buffer, 0, dma.samples * dma.samplebits/8);
-	SNDDMA_Submit ();
+	SNDDMA_Submit (dma.samples);
 	return 1;
 }
 /*
@@ -358,7 +358,10 @@ Send sound to device if buffer isn't really the dma buffer
 Also unlocks the dsound buffer
 ===============
 */
-void DirectSound_Submit( void ) {
+void DirectSound_Submit( int samples ) {
+
+    (void)( samples );
+
     // unlock the dsound buffer
 	if ( pDSBuf ) {
 		pDSBuf->lpVtbl->Unlock(pDSBuf, dma.buffer, locksize, NULL, 0);

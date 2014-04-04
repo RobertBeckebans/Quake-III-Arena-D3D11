@@ -679,7 +679,7 @@ void S_ClearSoundBuffer( void ) {
     //   not affecting win32, we have #define Snd_Memset Com_Memset
     // https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=371
 		Snd_Memset(dma.buffer, clear, dma.samples * dma.samplebits/8);
-	SNDDMA_Submit ();
+	SNDDMA_Submit ( dma.samples );
 }
 
 /*
@@ -1237,6 +1237,7 @@ void S_Update_(void) {
 	float			ma, op;
 	float			thisTime, sane;
 	static			int ot = -1;
+    int             startTime;
 
 	if ( !s_soundStarted || s_soundMuted ) {
 		return;
@@ -1284,9 +1285,10 @@ void S_Update_(void) {
 
 	SNDDMA_BeginPainting ();
 
+    startTime = s_paintedtime;
 	S_PaintChannels (endtime);
 
-	SNDDMA_Submit ();
+	SNDDMA_Submit ( s_paintedtime - startTime );
 
 	lastTime = thisTime;
 }

@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "snd_local.h"
 #include "../win32/win_snd.h"
+#include "../xaudio/xaudio_public.h"
 
 // @pjb: sound API definition
 typedef struct {
@@ -29,7 +30,7 @@ typedef struct {
     qboolean    (* Init)( void );
     int         (* GetDMAPos)( void );
     void        (* BeginPainting)( void );
-    void        (* Submit)( void );
+    void        (* Submit)( int samples );
     void        (* Activate)( void );
 } soundApi_t;
 
@@ -37,14 +38,27 @@ static soundApi_t s_soundDriver;
 
 void SND_InitDriverAPI( void )
 {
-    Com_Memset( &s_soundDriver, 0, sizeof( s_soundDriver ) );
+    cvar_t* snd_driver = Cvar_Get( "snd_driver", "dsound", CVAR_ARCHIVE | CVAR_LATCH );
 
-    s_soundDriver.Shutdown = DirectSound_Shutdown;
-    s_soundDriver.Init = DirectSound_Init;
-    s_soundDriver.GetDMAPos = DirectSound_GetDMAPos;
-    s_soundDriver.BeginPainting = DirectSound_BeginPainting;
-    s_soundDriver.Submit = DirectSound_Submit;
-    s_soundDriver.Activate = DirectSound_Activate;
+    Com_Memset( &s_soundDriver, 0, sizeof( s_soundDriver ) );
+       
+    if ( Q_strncmp( snd_driver->string, "dsound", 6 ) == 0 ) {
+        s_soundDriver.Shutdown = DirectSound_Shutdown;
+        s_soundDriver.Init = DirectSound_Init;
+        s_soundDriver.GetDMAPos = DirectSound_GetDMAPos;
+        s_soundDriver.BeginPainting = DirectSound_BeginPainting;
+        s_soundDriver.Submit = DirectSound_Submit;
+        s_soundDriver.Activate = DirectSound_Activate;
+    } else if ( Q_strncmp( snd_driver->string, "xaudio", 6 ) == 0 ) {
+        s_soundDriver.Shutdown = XAudio_Shutdown;
+        s_soundDriver.Init = XAudio_Init;
+        s_soundDriver.GetDMAPos = XAudio_GetDMAPos;
+        s_soundDriver.BeginPainting = XAudio_BeginPainting;
+        s_soundDriver.Submit = XAudio_Submit;
+        s_soundDriver.Activate = XAudio_Activate;
+    } else {
+        Com_Error( ERR_FATAL, "Unknown sound driver '%s'\n", snd_driver->string );
+    }
 }
 
 
@@ -112,9 +126,9 @@ Send sound to device if buffer isn't really the dma buffer
 Also unlocks the dsound buffer
 ===============
 */
-void SNDDMA_Submit( void ) {
+void SNDDMA_Submit( int samples ) {
 
-    s_soundDriver.Submit();
+    s_soundDriver.Submit( samples );
 }
 
 /*
