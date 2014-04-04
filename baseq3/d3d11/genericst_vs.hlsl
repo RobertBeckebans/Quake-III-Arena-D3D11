@@ -1,4 +1,4 @@
-#include "view.hlsl"
+#include "vscommon.hlsl"
 
 struct VS_Data
 {

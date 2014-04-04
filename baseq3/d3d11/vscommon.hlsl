@@ -1,5 +1,5 @@
 
-cbuffer ViewData : register(b0)
+cbuffer ViewDataVS : register(b0)
 {
     float4x4 Projection;
     float4x4 View;

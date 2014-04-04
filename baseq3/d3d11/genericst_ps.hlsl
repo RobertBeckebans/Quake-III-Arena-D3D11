@@ -1,3 +1,4 @@
+#include "pscommon.hlsl"
 
 Texture2D Diffuse;
 
