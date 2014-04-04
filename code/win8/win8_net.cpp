@@ -400,6 +400,25 @@ WIN8_EXPORT void Sys_ShowIP(void) {
 }
 
 /*
+====================
+NET_OnConnectionReceived
+
+DO NOT USE ANY QUAKE FUNCTIONS. (Sys_Milliseconds is an exception.)
+This function MUST interop with the game through the message queue.
+====================
+*/
+void NET_OnMessageReceived( 
+    DatagramSocket^ socket, 
+    DatagramSocketMessageReceivedEventArgs^ args )
+{
+    Win8::MSG msg;
+    INIT_MSG( msg );
+    msg.Message = NET_MSG_INCOMING_MESSAGE;
+    msg.Param0 = (size_t) Win8::GetPointer( args );
+    g_NetMsgQueue.Post( &msg );
+}
+
+/*
 =====================
 NET_StartListeningOnPort
 =====================

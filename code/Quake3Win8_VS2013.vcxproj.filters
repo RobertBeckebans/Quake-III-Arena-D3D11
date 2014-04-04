@@ -13,7 +13,6 @@
     <ClCompile Include="win8\win8_net.cpp" />
     <ClCompile Include="win8\win8_sys.cpp" />
     <ClCompile Include="win8\win8_utils.cpp" />
-    <ClCompile Include="win8\win8_netAsync.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="win32\win_shared.h" />
@@ -28,7 +27,7 @@
     <None Include="win8\Quake3_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <AppxManifest Include="win8\Package_VS2012.appxmanifest" />
+    <AppxManifest Include="win8\Package_VS2013.appxmanifest" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="win8\Assets\logo30.png">
