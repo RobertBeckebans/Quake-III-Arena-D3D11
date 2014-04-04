@@ -270,8 +270,8 @@ void D3DDrv_DrawStageGeneric( const shaderCommands_t *input )
 {
     UpdateDirtyView();
 
-    //SetCullMode( input->shader->cullType );
-    SetCullMode( CT_TWO_SIDED );
+    SetCullMode( input->shader->cullType );
+    //SetCullMode( CT_TWO_SIDED );
     
     // todo: polygon offset
     if ( input->shader->polygonOffset )
@@ -305,7 +305,7 @@ void D3DDrv_BeginTessellate( const shaderCommands_t* input )
     // Do nothing.
 }
 
-template<class _Type> void UpdateTessBuffer( ID3D11Buffer* gpuBuf, const _Type* cpuBuf, size_t size )
+void UpdateTessBuffer( ID3D11Buffer* gpuBuf, const void* cpuBuf, size_t size )
 {
 	D3D11_MAPPED_SUBRESOURCE map;
 	g_pImmediateContext->Map( gpuBuf, 0, D3D11_MAP_WRITE_DISCARD, 0, &map);
