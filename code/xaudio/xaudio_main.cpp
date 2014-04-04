@@ -208,7 +208,7 @@ void XAudio_BeginPainting( void )
     while (true)
     {
         g_pSourceVoice->GetState( &state );
-        if ( state.BuffersQueued < STREAMING_BUFFER_COUNT - 1 )
+        if ( state.BuffersQueued < STREAMING_BUFFER_COUNT )
             break;
 
         WaitForSingleObject( g_Context.hBufferEndEvent, INFINITE );
