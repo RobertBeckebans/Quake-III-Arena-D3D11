@@ -313,7 +313,7 @@ qboolean IN_InitDIMouse( void ) {
 	}
 
 	// set the cooperativity level.
-	hr = IDirectInputDevice_SetCooperativeLevel(g_pMouse, g_wv.hWnd,
+    hr = IDirectInputDevice_SetCooperativeLevel(g_pMouse, g_wv.hWnd,
 			DISCL_EXCLUSIVE | DISCL_FOREGROUND);
 
 	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=50
@@ -573,16 +573,20 @@ void IN_StartupMouse( void )
 	if ( in_mouse->integer == -1 ) {
 		Com_Printf ("Skipping check for DirectInput\n");
 	} else {
-    if (!g_wv.hWnd)
-    {
-      Com_Printf ("No window for DirectInput mouse init, delaying\n");
-      s_wmv.mouseStartupDelayed = qtrue;
-      return;
-    }
-		if ( IN_InitDIMouse() ) {
-	    s_wmv.mouseInitialized = qtrue;
+
+        if (!g_wv.hWnd)
+        {
+          Com_Printf ("No window for DirectInput mouse init, delaying\n");
+          s_wmv.mouseStartupDelayed = qtrue;
+          return;
+        }
+
+        // @pjb: if we're debugging it's useful to have a mouse that works
+		if ( !IsDebuggerPresent() && IN_InitDIMouse() ) {
+	        s_wmv.mouseInitialized = qtrue;
 			return;
 		}
+
 		Com_Printf ("Falling back to Win32 mouse support...\n");
 	}
 	s_wmv.mouseInitialized = qtrue;
