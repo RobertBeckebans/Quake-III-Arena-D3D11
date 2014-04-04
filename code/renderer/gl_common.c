@@ -1,4 +1,5 @@
 #include "tr_local.h"
+#include "tr_state.h"
 #include "qgl.h"
 #include "gl_common.h"
 
@@ -20,10 +21,24 @@ textureMode_t modes[] = {
 };
 
 
-void GL_Clear( float r, float g, float b, float a )
+void GL_Clear( unsigned long bits, const float* clearCol, unsigned long stencil, float depth )
 {
-	qglClearColor( r, g, b, a );
-	qglClear( GL_COLOR_BUFFER_BIT );
+    int glBits = 0;
+    if (bits & CLEAR_COLOR) {
+        glBits |= GL_COLOR_BUFFER_BIT ;
+	    qglClearColor( clearCol[0], clearCol[1], clearCol[2], clearCol[3] );
+    }
+    if (bits & CLEAR_STENCIL) {
+        glBits |= GL_STENCIL_BUFFER_BIT;
+        qglClearStencil( stencil );
+    }
+    if (bits & CLEAR_DEPTH) {
+        glBits |= GL_DEPTH_BUFFER_BIT;
+        qglClearDepth( depth );
+    }
+
+    if (glBits)
+	    qglClear( glBits );
 }
 
 void GL_SetProjection( const float* projMatrix )

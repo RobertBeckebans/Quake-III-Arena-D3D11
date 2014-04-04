@@ -423,6 +423,9 @@
     <ClInclude Include="tr_layer.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="tr_state.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\ft2\ahangles.h">

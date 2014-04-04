@@ -51,8 +51,10 @@ static void RB_Hyperspace( void ) {
 	}
 
 	c = ( backEnd.refdef.time & 255 ) / 255.0f;
-	
-    graphicsDriver.Clear(c, c, c, 1);
+    {
+        float clearCol[] = { c, c, c, 1.0f };
+        graphicsDriver.Clear( CLEAR_COLOR, clearCol, G_DEFAULT_STENCIL, G_DEFAULT_DEPTH );
+    }
 
 	backEnd.isHyperspace = qtrue;
 }
@@ -78,6 +80,7 @@ to actually render the visible surfaces for this view
 */
 void RB_BeginDrawingView (void) {
 	int clearBits = 0;
+    float clearCol[4] = { 0, 0, 0, 0 };
 
 	// sync with gl if needed
 	if ( r_finish->integer == 1 && !glState.finishCalled ) {
@@ -98,24 +101,27 @@ void RB_BeginDrawingView (void) {
 	SetViewportAndScissor();
 
 	// ensures that depth writes are enabled for the depth clear
-	GL_State( GLS_DEFAULT );
-	// clear relevant buffers
-	clearBits = GL_DEPTH_BUFFER_BIT;
+	graphicsDriver.SetState( GLS_DEFAULT );
+
+    // clear relevant buffers
+	clearBits = CLEAR_DEPTH;
 
 	if ( r_measureOverdraw->integer || r_shadows->integer == 2 )
 	{
-		clearBits |= GL_STENCIL_BUFFER_BIT;
+		clearBits |= CLEAR_STENCIL;
 	}
+
 	if ( r_fastsky->integer && !( backEnd.refdef.rdflags & RDF_NOWORLDMODEL ) )
 	{
-		clearBits |= GL_COLOR_BUFFER_BIT;	// FIXME: only if sky shaders have been used
+		clearBits |= CLEAR_COLOR;	// FIXME: only if sky shaders have been used
 #ifdef _DEBUG
-		qglClearColor( 0.8f, 0.7f, 0.4f, 1.0f );	// FIXME: get color of sky
-#else
-		qglClearColor( 0.0f, 0.0f, 0.0f, 1.0f );	// FIXME: get color of sky
+        clearCol[0] = 0.8f; // FIXME: get color of sky
+        clearCol[1] = 0.7f;
+        clearCol[2] = 0.4f;
+        clearCol[3] = 1.0f;
 #endif
 	}
-	qglClear( clearBits );
+	graphicsDriver.Clear( clearBits, clearCol, G_DEFAULT_STENCIL, G_DEFAULT_DEPTH );
 
 	if ( ( backEnd.refdef.rdflags & RDF_HYPERSPACE ) )
 	{

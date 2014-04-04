@@ -217,6 +217,7 @@ void GLRB_DriverInit( graphicsApiLayer_t* layer )
     layer->SetProjection = GL_SetProjection;
     layer->SetViewport = GL_SetViewport;
     layer->Flush = GL_Finish;
+    layer->SetState = GL_State;
 
     InitOpenGL();
 

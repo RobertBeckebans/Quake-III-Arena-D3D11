@@ -108,6 +108,16 @@ typedef enum {
     IMAGEFORMAT_RGB5
 } imageFormat_t;
 
+// @pjb: different clearing types
+typedef enum {
+    CLEAR_COLOR   = 1,
+    CLEAR_DEPTH   = 2,
+    CLEAR_STENCIL = 4
+} clearBits_t;
+
+#define G_DEFAULT_STENCIL 0
+#define G_DEFAULT_DEPTH 1.0f // @pjb: check me
+
 typedef struct image_s {
 	char		    imgName[MAX_QPATH];		// game path, including extension
 	int			    width, height;				// source image

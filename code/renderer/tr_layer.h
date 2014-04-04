@@ -3,6 +3,8 @@
 #ifndef __TR_LAYER_H__
 #define __TR_LAYER_H__
 
+#include "tr_state.h"
+
 // @pjb: whichever graphics driver the user chooses, it'll have pointers to its
 // specific utilities
 typedef struct graphicsApiLayer_s {
@@ -12,10 +14,11 @@ typedef struct graphicsApiLayer_s {
     void            (* SetGamma)( unsigned char red[256], unsigned char green[256], unsigned char blue[256] );
     int             (* GetFrameImageMemoryUsage)( void );
     void            (* GraphicsInfo)( void );
-    void            (* Clear)( float r, float g, float b, float a );
+    void            (* Clear)( unsigned long bits, const float* clearCol, unsigned long stencil, float depth );
     void            (* SetProjection)( const float* projMatrix );
     void            (* SetViewport)( int left, int top, int width, int height );
     void            (* Flush)( void );
+    void            (* SetState)( unsigned long stateMask ); // Use GLS_* flags in tr_state.h
 } graphicsApiLayer_t;
 
 extern graphicsApiLayer_t      graphicsDriver;

@@ -841,6 +841,7 @@
     <ClInclude Include="..\jpeg-6\jpegint.h" />
     <ClInclude Include="..\jpeg-6\jpeglib.h" />
     <ClInclude Include="..\jpeg-6\jversion.h" />
+    <ClInclude Include="tr_state.h" />
     <CustomBuild Include="..\ft2\ahangles.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug TA|x64'">true</ExcludedFromBuild>

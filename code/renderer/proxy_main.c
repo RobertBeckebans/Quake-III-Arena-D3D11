@@ -55,9 +55,9 @@ void PROXY_GfxInfo( void )
     ri.Printf( PRINT_ALL, "Using proxied driver: all commands issued to OpenGL and D3D11.\n" );
 }
 
-void PROXY_Clear( float r, float g, float b, float a )
+void PROXY_Clear( unsigned long bits, const float* clearCol, unsigned long stencil, float depth )
 {
-    openglDriver.Clear( r, g, b, a );
+    openglDriver.Clear( bits, clearCol, stencil, depth );
     // @pjb: todo
 }
 
