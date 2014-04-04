@@ -198,10 +198,9 @@
     <ClCompile Include="gl_common.c" />
     <ClCompile Include="gl_driver.c" />
     <ClCompile Include="gl_image.c" />
+    <ClCompile Include="gl_shadows.c" />
     <ClCompile Include="proxy_main.c" />
     <ClCompile Include="tr_animation.c">
-    </ClCompile>
-    <ClCompile Include="gl_backend.c">
     </ClCompile>
     <ClCompile Include="tr_backend.c" />
     <ClCompile Include="tr_bsp.c">
