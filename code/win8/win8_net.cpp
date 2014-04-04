@@ -25,6 +25,7 @@ static qboolean networkingEnabled = qfalse;
 static cvar_t	*net_noudp;
 
 DatagramSocket^ g_Socket = nullptr;
+DataWriter^ g_SocketDataWriter = nullptr;
 std::map<netadr_t, DataWriter^> g_StreamOutCache;
 Win8::MessageQueue g_NetMsgQueue;
 
@@ -314,22 +315,30 @@ Sys_SendPacket
 */
 WIN8_EXPORT void Sys_SendPacket( int length, const void *data, netadr_t to )
 {
-    if ( g_Socket == nullptr )
+    // Ignore IPX requests
+    if ( g_Socket == nullptr || to.type == NA_IPX || to.type == NA_BROADCAST_IPX )
         return;
 
     DataWriter^ stream = nullptr;
 
-    // Look up the peer in the output stream cache
-    auto cache = g_StreamOutCache.find( to );
-    if ( cache == std::end( g_StreamOutCache ) )
+    if ( to.type == NA_BROADCAST )
     {
-        // Not cached. Cache it now!
-        stream = NET_OpenNewStream( &to );
-        g_StreamOutCache[to] = stream;
+        stream = g_SocketDataWriter;
     }
     else
     {
-        stream = cache->second;
+        // Look up the peer in the output stream cache
+        auto cache = g_StreamOutCache.find( to );
+        if ( cache == std::end( g_StreamOutCache ) )
+        {
+            // Not cached. Cache it now!
+            stream = NET_OpenNewStream( &to );
+            g_StreamOutCache[to] = stream;
+        }
+        else
+        {
+            stream = cache->second;
+        }
     }
 
     // @pjb: todo: the efficiency of this really concerns me
@@ -502,6 +511,7 @@ void NET_StartListening( void ) {
     Cvar_Set( "net_ip", hostNameTmp );
 
     g_Socket = ref new DatagramSocket();
+    g_SocketDataWriter = ref new DataWriter( g_Socket->OutputStream );
         
 	// automatically scan for a valid port, so multiple
 	// dedicated servers can be started without requiring
@@ -535,10 +545,8 @@ void NET_StopListening( void )
     g_StreamOutCache.clear();
 
     // Close the socket
-    if ( g_Socket != nullptr )
-    {
-        g_Socket = nullptr;
-    }
+    g_SocketDataWriter = nullptr;
+    g_Socket = nullptr;
 }
 
 /*
