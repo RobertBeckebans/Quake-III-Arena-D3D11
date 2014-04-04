@@ -219,7 +219,7 @@ void XAudio_BeginPainting( int reserve )
 
             LARGE_INTEGER startTime, endTime;
             QueryPerformanceCounter( &startTime );
-            WaitForSingleObject( g_Context.hBufferEndEvent, INFINITE );
+            WaitForSingleObjectEx( g_Context.hBufferEndEvent, INFINITE, FALSE );
             QueryPerformanceCounter( &endTime );
 
             int msBlock = (endTime.QuadPart - startTime.QuadPart) * g_Freq;
@@ -276,7 +276,7 @@ void XAudio_Submit( int offset, int length )
 
         LARGE_INTEGER startTime, endTime;
         QueryPerformanceCounter( &startTime );
-        WaitForSingleObject( g_Context.hBufferEndEvent, INFINITE );
+        WaitForSingleObjectEx( g_Context.hBufferEndEvent, INFINITE, FALSE );
         QueryPerformanceCounter( &endTime );
 
         int msBlock = (endTime.QuadPart - startTime.QuadPart) * g_Freq;
