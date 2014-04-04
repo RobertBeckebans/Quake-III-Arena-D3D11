@@ -197,12 +197,19 @@ void D3DDrv_EndFrame( void )
 		frequency = min( vdConfig.displayFrequency, 60 / r_swapInterval->integer );
     }
 
+    HRESULT hr = S_OK;
     switch (frequency)
     {
-    case 60: g_pSwapChain->Present( 1, 0 ); break; 
-    case 30: g_pSwapChain->Present( 2, 0 ); break;
-    default: g_pSwapChain->Present( 0, 0 ); break; 
+    case 60: hr = g_pSwapChain->Present( 1, 0 ); break; 
+    case 30: hr = g_pSwapChain->Present( 2, 0 ); break;
+    default: hr = g_pSwapChain->Present( 0, 0 ); break; 
     }
+
+	if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
+	{
+		// Someone kicked the cord out or something. REBOOT TEH VIDYOS!
+        Cbuf_AddText( "vid_restart\n" );
+	}
 }
 
 void D3DDrv_MakeCurrent( qboolean current )
