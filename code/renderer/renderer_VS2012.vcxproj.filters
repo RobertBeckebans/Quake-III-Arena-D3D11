@@ -355,9 +355,6 @@
     <ClCompile Include="gl_shade.c">
       <Filter>OpenGL Implementation</Filter>
     </ClCompile>
-    <ClCompile Include="tr_smp.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\d3d11\d3d_state.cpp">
       <Filter>Direct3D Implementation</Filter>
     </ClCompile>
@@ -384,6 +381,9 @@
     </ClCompile>
     <ClCompile Include="..\d3d11\d3d_device.cpp">
       <Filter>Direct3D Implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="tr_smp.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

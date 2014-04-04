@@ -111,7 +111,7 @@ void D3DWin8_NotifyNewWindow( IUnknown* window, int logicalSizeX, int logicalSiz
     SetEvent( g_WaitingForVideoEvent );
 
     // Wait for video to bring up before we allow the main thread to continue
-    WaitForSingleObject( g_WaitingForVideoFinishedEvent, INFINITE );
+    WaitForSingleObjectEx( g_WaitingForVideoFinishedEvent, INFINITE, FALSE );
 }
 
 void D3DWin8_NotifyWindowResize( int logicalSizeX, int logicalSizeY )

@@ -297,6 +297,7 @@ void SetupVideoConfig()
     vdConfig.textureEnvAddAvailable = qtrue;
     vdConfig.stereoEnabled = qfalse; // @pjb: todo: d3d stereo support
 
+#ifndef _ARM_
 	DEVMODE dm;
     memset( &dm, 0, sizeof( dm ) );
 	dm.dmSize = sizeof( dm );
@@ -304,6 +305,10 @@ void SetupVideoConfig()
 	{
 		vdConfig.displayFrequency = dm.dmDisplayFrequency;
 	}
+#else
+    // @pjb: todo: EnumDisplaySettingsEx doesn't exist.
+    vdConfig.displayFrequency = 60;
+#endif
     
 #ifdef WIN8
     // We expect vidWidth, vidHeight and windowAspect to all be set by now in most cases,

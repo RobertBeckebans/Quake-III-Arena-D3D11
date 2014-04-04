@@ -2359,7 +2359,11 @@ Com_Init
 void Com_Init( char *commandLine ) {
 	char	*s;
 
+#ifndef _ARM_
 	Com_Printf( "%s %s %s\n", Q3_VERSION, CPUSTRING, __DATE__ );
+#else
+    Com_Printf( "%s ARM %s\n", Q3_VERSION, __DATE__ );
+#endif
 
 	if ( setjmp (abortframe) ) {
 		Sys_Error ("Error during initialization");
@@ -2466,7 +2470,11 @@ void Com_Init( char *commandLine ) {
 	Cmd_AddCommand ("changeVectors", MSG_ReportChangeVectors_f );
 	Cmd_AddCommand ("writeconfig", Com_WriteConfig_f );
 
+#ifndef _ARM_
 	s = va("%s %s %s", Q3_VERSION, CPUSTRING, __DATE__ );
+#else
+	s = va("%s ARM %s", Q3_VERSION, __DATE__ );
+#endif
 	com_version = Cvar_Get ("version", s, CVAR_ROM | CVAR_SERVERINFO );
 
 	Sys_Init();

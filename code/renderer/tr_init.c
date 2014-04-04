@@ -24,11 +24,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tr_local.h"
 #include "tr_layer.h"
 
-// @pjb proxy driver declarations
-#include "proxy_main.h"
+// @pjb: various driver includes
 #include "../d3d11/d3d_driver.h"
-
-#include "gl_common.h"
+#if !defined(WIN8)
+#   include "gl_common.h"
+#   include "proxy_main.h"
+#endif 
 
 vdconfig_t	vdConfig;
 

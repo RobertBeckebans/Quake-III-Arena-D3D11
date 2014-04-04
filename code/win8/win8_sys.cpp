@@ -13,6 +13,15 @@ extern "C" {
 //============================================
 // Quake APIs
 
+
+WIN8_EXPORT void Sys_CreateThreadWin8( void (* function)( void* ), void* data )
+{
+    concurrency::create_task( [function, data] () 
+    {
+        function(data);
+    } );
+}
+
 WIN8_EXPORT char *Sys_GetCurrentUser( void )
 {
 	static char s_userName[1024];
