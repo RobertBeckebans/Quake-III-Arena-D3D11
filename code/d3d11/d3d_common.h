@@ -15,8 +15,9 @@ extern "C" {
 
 #include <assert.h>
 #include <malloc.h>
-//#include <d3d11_2.h>
-#include <d3d11_1.h>
+//#include <d3d11_1.h>
+#include <d3d11_2.h>
+#include <dxgi1_3.h>
 
 #ifndef V_SOFT
 #   define V_SOFT(x)       { HRESULT _hr=(x); if (FAILED(_hr)) g_hrLastError = _hr; }
@@ -96,7 +97,7 @@ namespace QD3D
 	HRESULT 
 	CreateDefaultDevice(
 		_In_ D3D_DRIVER_TYPE driver, 
-		_Out_ ID3D11Device** device,
+		_Out_ ID3D11Device2** device,
 		_Out_ ID3D11DeviceContext** context,
 		_Out_ D3D_FEATURE_LEVEL* featureLevel);
 
@@ -105,8 +106,7 @@ namespace QD3D
 	//----------------------------------------------------------------------------
 	void
 	GetDefaultSwapChainDesc(
-		_In_ HWND hWnd,
-		_Out_ DXGI_SWAP_CHAIN_DESC* swapChainDesc);
+		_Out_ DXGI_SWAP_CHAIN_DESC1* swapChainDesc);
 
 	//----------------------------------------------------------------------------
 	// Creates a multisampled swap chain description.
@@ -114,10 +114,9 @@ namespace QD3D
 	//----------------------------------------------------------------------------
 	HRESULT 
 	GetMultiSampledSwapChainDesc(
-		_In_ HWND hWnd, 
-		_In_ ID3D11Device* device,
+		_In_ ID3D11Device2* device,
 		_In_ UINT multiSampleCount,
-		_Out_ DXGI_SWAP_CHAIN_DESC* swapChainDesc);
+		_Out_ DXGI_SWAP_CHAIN_DESC1* swapChainDesc);
 
 	//----------------------------------------------------------------------------
 	// Returns the highest possible quality swap chain description, starting with
@@ -128,18 +127,19 @@ namespace QD3D
 	//----------------------------------------------------------------------------
 	void 
 	GetBestQualitySwapChainDesc(
-		_In_ HWND hWnd, 
-		_In_ ID3D11Device* device,
-		_Out_ DXGI_SWAP_CHAIN_DESC* swapChainDesc);
+		_In_ ID3D11Device2* device,
+		_Out_ DXGI_SWAP_CHAIN_DESC1* swapChainDesc);
 	
 	//----------------------------------------------------------------------------
 	// Creates a swap chain
 	//----------------------------------------------------------------------------
 	HRESULT
 	CreateSwapChain(
-		_In_ ID3D11Device* device,
-		_In_ DXGI_SWAP_CHAIN_DESC* swapChainDesc,
-		_Out_ IDXGISwapChain** swapChain);
+		_In_ ID3D11Device2* device,
+        _In_ HWND hWnd,
+		_In_ const DXGI_SWAP_CHAIN_DESC1* scd,
+        _In_ const DXGI_SWAP_CHAIN_FULLSCREEN_DESC* fsd,
+		_Out_ IDXGISwapChain1** swapChain);
 
 	//----------------------------------------------------------------------------
 	// Extracts the back buffer from the swap chain
@@ -179,7 +179,7 @@ namespace QD3D
     // Helper function for creating 2D textures
    	//----------------------------------------------------------------------------
 	ID3D11Texture2D* CreateTexture2D(
-        _In_ ID3D11Device* device, 
+        _In_ ID3D11Device2* device, 
         _In_ UINT width,
         _In_ UINT height, 
         _In_ DXGI_FORMAT t2d_format, 
@@ -193,7 +193,7 @@ namespace QD3D
     // Helper function for creating 3D textures
    	//----------------------------------------------------------------------------
 	ID3D11Texture3D* CreateTexture3D(
-        _In_ ID3D11Device* device, 
+        _In_ ID3D11Device2* device, 
         _In_ UINT width, 
         _In_ UINT height, 
         _In_ UINT depth, 
@@ -205,15 +205,15 @@ namespace QD3D
     // Helper function for creating a view of the back buffer
    	//----------------------------------------------------------------------------
 	ID3D11RenderTargetView* CreateBackBufferView(
-        _In_ IDXGISwapChain* swapChain,
-        _In_ ID3D11Device* device, 
+        _In_ IDXGISwapChain1* swapChain,
+        _In_ ID3D11Device2* device, 
         _Out_opt_ D3D11_TEXTURE2D_DESC* optionalOut_BBDesc = NULL);
 
     //----------------------------------------------------------------------------
     // Helper function for creating a view of a depth buffer
    	//----------------------------------------------------------------------------
 	ID3D11DepthStencilView* CreateDepthBufferView(
-        _In_ ID3D11Device* device, 
+        _In_ ID3D11Device2* device, 
         _In_ UINT width, 
         _In_ UINT height, 
         _In_ DXGI_FORMAT t2d_format, 
@@ -226,7 +226,7 @@ namespace QD3D
     // Helper function for creating a view of a render target
    	//----------------------------------------------------------------------------
 	ID3D11RenderTargetView* CreateRenderTargetView(
-        _In_ ID3D11Device* device, 
+        _In_ ID3D11Device2* device, 
         _In_ UINT width, 
         _In_ UINT height, 
         _In_ DXGI_FORMAT t2d_format, 
@@ -239,7 +239,7 @@ namespace QD3D
     // Helper function for creating a view of a 2D render target
    	//----------------------------------------------------------------------------
 	ID3D11RenderTargetView* CreateTexture2DRenderTargetView(
-        _In_ ID3D11Device* device, 
+        _In_ ID3D11Device2* device, 
         _In_ ID3D11Texture2D* texture, 
         _In_ DXGI_FORMAT rtv_format);
 
@@ -247,7 +247,7 @@ namespace QD3D
     // Helper function for creating a view of a 2D depth buffer
    	//----------------------------------------------------------------------------
 	ID3D11DepthStencilView* CreateTexture2DDepthBufferView(
-        _In_ ID3D11Device* device, 
+        _In_ ID3D11Device2* device, 
         _In_ ID3D11Texture2D* texture, 
         _In_ DXGI_FORMAT dsv_format);
 
@@ -255,7 +255,7 @@ namespace QD3D
     // Helper function for creating a view of a 2D texture
    	//----------------------------------------------------------------------------
 	ID3D11ShaderResourceView* CreateTexture2DShaderResourceView(
-        _In_ ID3D11Device* device, 
+        _In_ ID3D11Device2* device, 
         _In_ ID3D11Texture2D* texture, 
         _In_ DXGI_FORMAT srv_format);
 
@@ -264,7 +264,7 @@ namespace QD3D
 	//----------------------------------------------------------------------------
 	ID3D11Buffer* 
 	CreateImmutableBuffer(
-		_In_ ID3D11Device* device,
+		_In_ ID3D11Device2* device,
 		_In_ UINT bindFlags, 
 		_In_count_(size) const void* data, 
 		_In_ size_t size);
@@ -289,7 +289,7 @@ namespace QD3D
 	template<class Struct>
 	ID3D11Buffer* 
 	CreateDynamicBuffer(
-		_In_ ID3D11Device* device, 
+		_In_ ID3D11Device2* device, 
 		_In_ UINT bindFlags,
 		_In_ UINT count)
 	{
@@ -352,7 +352,7 @@ namespace QD3D
 	template<class Struct>
 	ID3D11Buffer* 
 	CreateDynamicBuffer(
-		_In_ ID3D11Device* device, 
+		_In_ ID3D11Device2* device, 
 		_In_ UINT bindFlags)
 	{
 		return CreateDynamicBuffer<Struct>(device, bindFlags, 1);
@@ -406,10 +406,10 @@ namespace QD3D
     public:
 
         DynamicBuffer(
-            _In_ ID3D11Device* pDevice,
+            _In_ ID3D11Device2* pDevice,
             _In_ UINT bindFlags);
         DynamicBuffer(
-            _In_ ID3D11Device* pDevice,
+            _In_ ID3D11Device2* pDevice,
             _In_ UINT bindFlags, 
             _In_ UINT count);
         ~DynamicBuffer();
@@ -438,7 +438,7 @@ namespace QD3D
 	//----------------------------------------------------------------------------
     template<class T> 
     DynamicBuffer<T>::DynamicBuffer(
-        _In_ ID3D11Device* pDevice,
+        _In_ ID3D11Device2* pDevice,
         _In_ UINT bindFlags)
     {
         m_count = 1;
@@ -447,7 +447,7 @@ namespace QD3D
 
     template<class T> 
     DynamicBuffer<T>::DynamicBuffer(
-        _In_ ID3D11Device* pDevice,
+        _In_ ID3D11Device2* pDevice,
         _In_ UINT bindFlags,
         _In_ UINT count)
     {

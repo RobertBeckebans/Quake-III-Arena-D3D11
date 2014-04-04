@@ -32,7 +32,7 @@ namespace QD3D
 	HRESULT 
 	CreateDefaultDevice(
 		_In_ D3D_DRIVER_TYPE driver, 
-		_Out_ ID3D11Device** device,
+		_Out_ ID3D11Device2** device,
 		_Out_ ID3D11DeviceContext** context,
 		_Out_ D3D_FEATURE_LEVEL* featureLevel)
 	{
@@ -47,7 +47,9 @@ namespace QD3D
         }
 #endif
 
-		return D3D11CreateDevice(
+        ID3D11Device* device11 = nullptr;
+
+		HRESULT hr = D3D11CreateDevice(
 					NULL, // TODO: individual adapters
 					driver,
 					NULL,
@@ -55,9 +57,15 @@ namespace QD3D
 					NULL,
 					0,
 					D3D11_SDK_VERSION,
-					device,
+					&device11,
 					featureLevel,
 					context);
+        if ( SUCCEEDED( hr ) ) 
+        {
+		    return device11->QueryInterface(__uuidof(ID3D11Device2), (void **) device);
+        }
+
+        return hr;
 	}
 
 	//----------------------------------------------------------------------------
@@ -65,17 +73,12 @@ namespace QD3D
 	//----------------------------------------------------------------------------
 	void
 	GetDefaultSwapChainDesc(
-		_In_ HWND hWnd,
-		_Out_ DXGI_SWAP_CHAIN_DESC* scd)
+		_Out_ DXGI_SWAP_CHAIN_DESC1* scd)
 	{
-		ZeroMemory(scd, sizeof(*scd));
-
-		scd->BufferCount = 1;
-		scd->BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		scd->BufferCount = 2;
+		scd->Format = DXGI_FORMAT_B8G8R8A8_UNORM;
 		scd->BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		scd->OutputWindow = hWnd;
 		scd->SampleDesc.Count = 1;
-		scd->Windowed = TRUE;
 	}
 
 	//----------------------------------------------------------------------------
@@ -84,13 +87,10 @@ namespace QD3D
 	//----------------------------------------------------------------------------
 	HRESULT 
 	GetMultiSampledSwapChainDesc(
-		_In_ HWND hWnd, 
-		_In_ ID3D11Device* device,
+		_In_ ID3D11Device2* device,
 		_In_ UINT msaaSamples,
-		_Out_ DXGI_SWAP_CHAIN_DESC* out)
+		_Out_ DXGI_SWAP_CHAIN_DESC1* out)
 	{
-		ZeroMemory(out, sizeof(*out));
-
 		const DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
 		UINT qualityLevels = 0;
@@ -105,13 +105,11 @@ namespace QD3D
 			return E_FAIL;
 		}
 
-		out->BufferCount = 1;
-		out->BufferDesc.Format = format;
+		out->BufferCount = 2;
+		out->Format = format;
 		out->BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		out->OutputWindow = hWnd;
 		out->SampleDesc.Count = msaaSamples;
 		out->SampleDesc.Quality = 0;
-		out->Windowed = TRUE;
 
 		return S_OK;
 	}
@@ -125,15 +123,14 @@ namespace QD3D
 	//----------------------------------------------------------------------------
 	void 
 	GetBestQualitySwapChainDesc(
-		_In_ HWND hWnd, 
-		_In_ ID3D11Device* device,
-		_Out_ DXGI_SWAP_CHAIN_DESC* scd)
+		_In_ ID3D11Device2* device,
+		_Out_ DXGI_SWAP_CHAIN_DESC1* scd)
 	{
 		const UINT multiSampleLevels[] = {16, 8, 4, 2, 0};
 		UINT multiSampleIndex = 0;
 		while (multiSampleLevels[multiSampleIndex] != 0)
 		{
-			if (SUCCEEDED(GetMultiSampledSwapChainDesc(hWnd, device, multiSampleLevels[multiSampleIndex], scd)))
+			if (SUCCEEDED(GetMultiSampledSwapChainDesc(device, multiSampleLevels[multiSampleIndex], scd)))
 			{
 				break;
 			}
@@ -142,7 +139,7 @@ namespace QD3D
 
 		if (multiSampleLevels[multiSampleIndex] == 0)
 		{
-			GetDefaultSwapChainDesc(hWnd, scd);
+			GetDefaultSwapChainDesc(scd);
 		}
 	}
 
@@ -151,20 +148,22 @@ namespace QD3D
 	//----------------------------------------------------------------------------
 	HRESULT
 	CreateSwapChain(
-		_In_ ID3D11Device* device,
-		_In_ DXGI_SWAP_CHAIN_DESC* scd,
-		_Out_ IDXGISwapChain** swapChain)
+		_In_ ID3D11Device2* device,
+        _In_ HWND hWnd,
+		_In_ const DXGI_SWAP_CHAIN_DESC1* scd,
+        _In_ const DXGI_SWAP_CHAIN_FULLSCREEN_DESC* fsd,
+		_Out_ IDXGISwapChain1** swapChain)
 	{
 		// Get the factory associated with the device
-		IDXGIDevice* dxgiDevice;
-		device->QueryInterface(__uuidof(IDXGIDevice), (void **)&dxgiDevice);
+		IDXGIDevice3* dxgiDevice;
+		device->QueryInterface(__uuidof(IDXGIDevice3), (void **)&dxgiDevice);
 		IDXGIAdapter* dxgiAdapter;
 		dxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void **)&dxgiAdapter);
-		IDXGIFactory* dxgiFactory;
-		dxgiAdapter->GetParent(__uuidof(IDXGIFactory), (void **)&dxgiFactory);
+		IDXGIFactory2* dxgiFactory;
+		dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), (void **)&dxgiFactory);
 	
 		// Create the swap chain
-		HRESULT hr = dxgiFactory->CreateSwapChain(device, scd, swapChain);
+		HRESULT hr = dxgiFactory->CreateSwapChainForHwnd(device, hWnd, scd, fsd, nullptr, swapChain);
 
         SAFE_RELEASE(dxgiDevice);
         SAFE_RELEASE(dxgiAdapter);
@@ -400,7 +399,7 @@ namespace QD3D
     // Helper function for creating 2D textures
    	//----------------------------------------------------------------------------
 	ID3D11Texture2D* CreateTexture2D(
-		_In_ ID3D11Device* device, 
+		_In_ ID3D11Device2* device, 
 		_In_ UINT width,
 		_In_ UINT height, 
 		_In_ DXGI_FORMAT t2d_format,  
@@ -444,7 +443,7 @@ namespace QD3D
     // Helper function for creating 3D textures
    	//----------------------------------------------------------------------------
 	ID3D11Texture3D* CreateTexture3D(
-		_In_ ID3D11Device* device, 
+		_In_ ID3D11Device2* device, 
 		_In_ UINT width,
 		_In_ UINT height, 
 		_In_ UINT depth,
@@ -483,7 +482,7 @@ namespace QD3D
     //----------------------------------------------------------------------------
     // Helper function for creating a view of the back buffer
    	//----------------------------------------------------------------------------
-	ID3D11RenderTargetView* CreateBackBufferView(IDXGISwapChain* swapChain, ID3D11Device* device, D3D11_TEXTURE2D_DESC* opt_desc)
+	ID3D11RenderTargetView* CreateBackBufferView(IDXGISwapChain1* swapChain, ID3D11Device2* device, D3D11_TEXTURE2D_DESC* opt_desc)
 	{
 		ID3D11Texture2D* back_buffer = NULL;
 		GetBackBuffer(swapChain, &back_buffer);
@@ -504,7 +503,7 @@ namespace QD3D
     // Helper function for creating a view of a depth buffer
    	//----------------------------------------------------------------------------
 	ID3D11DepthStencilView* CreateDepthBufferView(
-		ID3D11Device* device, 
+		ID3D11Device2* device, 
 		UINT width, 
 		UINT height, 
 		DXGI_FORMAT t2d_format,
@@ -553,7 +552,7 @@ namespace QD3D
     // Helper function for creating a view of a render target
    	//----------------------------------------------------------------------------
 	ID3D11RenderTargetView* CreateRenderTargetView(
-		_In_ ID3D11Device* device, 
+		_In_ ID3D11Device2* device, 
 		UINT width,
 		UINT height, 
 		DXGI_FORMAT t2d_format, 
@@ -602,7 +601,7 @@ namespace QD3D
     // Helper function for creating a view of a 2D render target
    	//----------------------------------------------------------------------------
 	ID3D11RenderTargetView* CreateTexture2DRenderTargetView(
-		_In_ ID3D11Device* device, 
+		_In_ ID3D11Device2* device, 
 		ID3D11Texture2D* texture,
 		DXGI_FORMAT rtv_format)
 	{
@@ -626,7 +625,7 @@ namespace QD3D
     // Helper function for creating a view of a 2D depth buffer
    	//----------------------------------------------------------------------------
 	ID3D11DepthStencilView* CreateTexture2DDepthBufferView(
-		ID3D11Device* device, 
+		ID3D11Device2* device, 
 		ID3D11Texture2D* depth_buffer,
 		DXGI_FORMAT dsv_format)
 	{
@@ -649,7 +648,7 @@ namespace QD3D
     //----------------------------------------------------------------------------
     // Helper function for creating a view of a 2D texture
    	//----------------------------------------------------------------------------
-	ID3D11ShaderResourceView* CreateTexture2DShaderResourceView(_In_ ID3D11Device* device, _In_ ID3D11Texture2D* texture, DXGI_FORMAT srv_format)
+	ID3D11ShaderResourceView* CreateTexture2DShaderResourceView(_In_ ID3D11Device2* device, _In_ ID3D11Texture2D* texture, DXGI_FORMAT srv_format)
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
 		ZeroMemory(&srvd, sizeof(srvd));
@@ -670,7 +669,7 @@ namespace QD3D
     //----------------------------------------------------------------------------
     // Helper function for creating an immutable buffer
    	//----------------------------------------------------------------------------
-	ID3D11Buffer* CreateImmutableBuffer(ID3D11Device* device, UINT bindFlags, const void* data, size_t size)
+	ID3D11Buffer* CreateImmutableBuffer(ID3D11Device2* device, UINT bindFlags, const void* data, size_t size)
 	{
 		D3D11_BUFFER_DESC desc;
 		ZeroMemory(&desc, sizeof(desc));

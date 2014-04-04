@@ -208,7 +208,7 @@ Sys_Quit
 ==============
 */
 WIN8_EXPORT void Sys_Quit( void ) {
-    Win8_Throw( S_OK, nullptr );
+    // @pjb: don't have to do anything. Already going down by this point.
 }
 
 /*
@@ -361,8 +361,6 @@ WIN8_EXPORT sysEvent_t Sys_GetEvent( void ) {
 		eventTail++;
 		return eventQue[ ( eventTail - 1 ) & MASK_QUED_EVENTS ];
 	}
-
-    //assert(0); // @pjb: todo: retrieve messages from the custom win8 pump
 
 	// check for network packets
 	MSG_Init( &netmsg, sys_packetReceived, sizeof( sys_packetReceived ) );

@@ -205,6 +205,9 @@
     <ClCompile Include="win8\win8_input.cpp">
       <Filter>Windows\Win8</Filter>
     </ClCompile>
+    <ClCompile Include="win8\win8_msgq.cpp">
+      <Filter>Windows\Win8</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="win32\win_snd.h">
@@ -298,6 +301,9 @@
       <Filter>Windows</Filter>
     </ClInclude>
     <ClInclude Include="win8\win8_app.h">
+      <Filter>Windows\Win8</Filter>
+    </ClInclude>
+    <ClInclude Include="win8\win8_msgq.h">
       <Filter>Windows\Win8</Filter>
     </ClInclude>
   </ItemGroup>

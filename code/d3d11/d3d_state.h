@@ -143,7 +143,7 @@ struct d3dBackBufferState_t {
     D3D11_TEXTURE2D_DESC backBufferDesc;
     ID3D11RenderTargetView* backBufferView;
     ID3D11DepthStencilView* depthBufferView;
-    DXGI_SWAP_CHAIN_DESC swapChainDesc;
+    DXGI_SWAP_CHAIN_DESC1 swapChainDesc;
     D3D_FEATURE_LEVEL featureLevel;
 };
 
@@ -202,9 +202,9 @@ extern d3dDrawState_t g_DrawState;
 //----------------------------------------------------------------------------
 // Imports from d3d_wnd.cpp
 //----------------------------------------------------------------------------
-extern ID3D11Device* g_pDevice;
+extern ID3D11Device2* g_pDevice;
 extern ID3D11DeviceContext* g_pImmediateContext;
-extern IDXGISwapChain* g_pSwapChain;
+extern IDXGISwapChain1* g_pSwapChain;
 
 //----------------------------------------------------------------------------
 // Internal APIs
@@ -212,6 +212,7 @@ extern IDXGISwapChain* g_pSwapChain;
 
 void InitDrawState();
 void DestroyDrawState();
+
 
 void DrawQuad( 
     const d3dQuadRenderData_t* qrd, 

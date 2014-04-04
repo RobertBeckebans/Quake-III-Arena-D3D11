@@ -1,10 +1,15 @@
 // D3D headers
 #include "d3d_common.h"
 #include "d3d_driver.h"
-#include "d3d_wnd.h"
 #include "d3d_state.h"
 #include "d3d_image.h"
 #include "d3d_shaders.h"
+
+#ifdef WIN8
+#   include "d3d_win8.h"
+#else
+#   include "d3d_wnd.h"
+#endif
 
 // @pjb: this is just here to deliberately fuck the build if driver is used in here
 #define driver #driver_disallowed
@@ -24,7 +29,7 @@ void D3DDrv_Shutdown( void )
     DestroyDrawState();
 
 #ifdef WIN8
-    // @pjb: todo: shut down window here
+    D3DWin8_Shutdown();
 #else
     D3DWnd_Shutdown();
 #endif
@@ -254,8 +259,8 @@ void SetupVideoConfig()
     g_BufferState.depthBufferView->GetDesc( &depthBufferViewDesc );
 
     DWORD colorDepth = 0, depthDepth = 0, stencilDepth = 0;
-    if ( FAILED( QD3D::GetBitDepthForFormat( g_BufferState.swapChainDesc.BufferDesc.Format, &colorDepth ) ) )
-        ri.Error( ERR_FATAL, "Bad bit depth supplied for color channel (%x)\n", g_BufferState.swapChainDesc.BufferDesc.Format );
+    if ( FAILED( QD3D::GetBitDepthForFormat( g_BufferState.swapChainDesc.Format, &colorDepth ) ) )
+        ri.Error( ERR_FATAL, "Bad bit depth supplied for color channel (%x)\n", g_BufferState.swapChainDesc.Format );
 
     if ( FAILED( QD3D::GetBitDepthForDepthStencilFormat( depthBufferViewDesc.Format, &depthDepth, &stencilDepth ) ) )
         ri.Error( ERR_FATAL, "Bad bit depth supplied for depth-stencil (%x)\n", depthBufferViewDesc.Format );
@@ -337,7 +342,7 @@ D3D_PUBLIC void D3DDrv_DriverInit( void )
     if ( g_pDevice == nullptr )
     {
 #ifdef WIN8
-        // @pjb: todo: init d3d here
+        D3DWin8_Init();
 #else
         D3DWnd_Init();
 #endif
