@@ -14,8 +14,29 @@
 
 static graphicsApiLayer_t openglDriver;
 
+void PROXY_Shutdown( void )
+{
+    openglDriver.Shutdown();
+}
 
+void PROXY_UnbindResources( void )
+{
+    openglDriver.UnbindResources();
+}
 
+size_t PROXY_LastError( void )
+{
+    //@pjb: todo: decide which one of these takes preference
+    size_t glError = openglDriver.LastError();
+    
+    return glError;
+}
+
+void PROXY_ReadPixels( int x, int y, int width, int height, imageFormat_t requestedFmt, void* dest )
+{
+    //@pjb: todo: decide which one of these takes preference
+    openglDriver.ReadPixels( x, y, width, height, requestedFmt, dest );
+}
 
 void PROXY_CreateImage( const image_t* image, const byte *pic, qboolean isLightmap )
 {
@@ -61,8 +82,32 @@ void PROXY_Clear( unsigned long bits, const float* clearCol, unsigned long stenc
     // @pjb: todo
 }
 
+void PROXY_SetProjection( const float* projMatrix )
+{
+    openglDriver.SetProjection( projMatrix );
+}
+
+void PROXY_SetViewport( int left, int top, int width, int height )
+{
+    openglDriver.SetViewport( left, top, width, height );
+}
+
+void PROXY_Flush( void )
+{
+    openglDriver.Flush();
+}
+
+void PROXY_SetState( unsigned long stateMask )
+{
+    openglDriver.SetState( stateMask );
+}
+
 void PROXY_DriverInit( graphicsApiLayer_t* layer )
 {
+    layer->Shutdown = PROXY_Shutdown;
+    layer->UnbindResources = PROXY_UnbindResources;
+    layer->LastError = PROXY_LastError;
+    layer->ReadPixels = PROXY_ReadPixels;
     layer->CreateImage = PROXY_CreateImage;
     layer->DeleteImage = PROXY_DeleteImage;
     layer->GetImageFormat = PROXY_GetImageFormat;
@@ -70,6 +115,10 @@ void PROXY_DriverInit( graphicsApiLayer_t* layer )
     layer->GetFrameImageMemoryUsage = PROXY_SumOfUsedImages;
     layer->GraphicsInfo = PROXY_GfxInfo;
     layer->Clear = PROXY_Clear;
+    layer->SetProjection = PROXY_SetProjection;
+    layer->SetViewport = PROXY_SetViewport;
+    layer->Flush = PROXY_Flush;
+    layer->SetState = PROXY_SetState;
 
     // Proxy OpenGL
     GLRB_DriverInit( &openglDriver );
