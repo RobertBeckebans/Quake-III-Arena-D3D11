@@ -23,6 +23,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // q_shared.c -- stateless support routines that are included in each code dll
 #include "q_shared.h"
 
+// @pjb: for DebugBreak
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+
 float Com_Clamp( float min, float max, float value ) {
 	if ( value < min ) {
 		return min;
@@ -881,9 +885,8 @@ void QDECL Com_sprintf( char *dest, int size, const char *fmt, ...) {
 	if (len >= size) {
 		Com_Printf ("Com_sprintf: overflow of %i in %i\n", len, size);
 #ifdef	_DEBUG
-		__asm {
-			int 3;
-		}
+		// @pjb: standard way of breaking into the debugger on Microsoft platforms
+        DebugBreak();
 #endif
 	}
 	Q_strncpyz (dest, bigbuffer, size );

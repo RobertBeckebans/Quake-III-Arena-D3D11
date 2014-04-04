@@ -58,15 +58,19 @@ int Sys_Milliseconds (void)
 Sys_SnapVector
 ================
 */
+// @pjb: appears to be dead code anyway
+#ifndef _M_X64
 long fastftol( float f ) {
 	static int tmp;
 	__asm fld f
 	__asm fistp tmp
 	__asm mov eax, tmp
 }
+#endif
 
 void Sys_SnapVector( float *v )
 {
+#ifndef _M_X64
 	int i;
 	float f;
 
@@ -91,6 +95,11 @@ void Sys_SnapVector( float *v )
 	v++;
 	*v = fastftol(*v);
 	*/
+#else
+    v[0] = (int)v[0];
+    v[1] = (int)v[1];
+    v[2] = (int)v[2];
+#endif
 }
 
 
@@ -108,6 +117,8 @@ void Sys_SnapVector( float *v )
 **
 ** --------------------------------------------------------------------------------
 */
+
+#if defined _M_IX86
 static void CPUID( int func, unsigned regs[4] )
 {
 	unsigned regEAX, regEBX, regECX, regEDX;
@@ -231,6 +242,7 @@ static int IsMMX( void )
 		return qtrue;
 	return qfalse;
 }
+#endif
 
 int Sys_GetProcessorId( void )
 {
