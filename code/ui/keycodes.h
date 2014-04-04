@@ -151,6 +151,8 @@ typedef enum {
 	K_AUX15,
 	K_AUX16,
 
+    // @pjb: gamepad buttons
+
 	K_LAST_KEY		// this had better be <256!
 } keyNum_t;
 

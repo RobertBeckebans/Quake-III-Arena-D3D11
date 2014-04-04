@@ -25,6 +25,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../client/client.h"
 #include "win_local.h"
 
+// @pjb: gamepad support
+#include <Xinput.h>
+
 
 typedef struct {
 	int			oldButtonState;
@@ -73,6 +76,54 @@ typedef struct {
 
 static	joystickInfo_t	joy;
 
+// @pjb: gamepad stuff
+typedef struct {
+
+    // device information
+    XINPUT_CAPABILITIES caps;
+    byte userIndex;
+    byte connected : 1;
+    byte inserted : 1;
+    byte removed : 1;
+
+    // Xinput state
+    XINPUT_GAMEPAD state;
+
+    // timer that counts down to the next controller check
+    unsigned short checkTimer;
+
+    // normalized thumbstick values in the range [-1,1]
+    float   x1, y1, x2, y2;
+
+    // bitfield indicating which buttons were pressed in previous frames
+    unsigned short heldButtons;
+
+    // bitfield indicating which buttons were *just* pressed this frame
+    unsigned short pressedButtons;
+
+    // bitfield indicating which buttons were *just* released this frame
+    unsigned short releasedButtons;
+
+    // bitfield indicating which triggers were held, pressed or released this frame
+    byte heldLeftTrigger : 1;
+    byte heldRightTrigger : 1;
+    byte pressedLeftTrigger : 1;
+    byte pressedRightTrigger : 1;
+    byte releasedLeftTrigger : 1;
+    byte releasedRightTrigger : 1;
+
+} gamepadInfo_t;
+
+static gamepadInfo_t gamepads[ XUSER_MAX_COUNT ];
+
+void IN_StartupGamepad( void );
+void IN_GamepadMove( void );
+
+cvar_t  *in_gamepad;
+cvar_t  *in_gamepadCheckDelay;
+cvar_t  *in_gamepadLDeadZone;
+cvar_t  *in_gamepadRDeadZone;
+// @pjb: /gamepad stuff
 
 
 cvar_t	*in_midi;
@@ -663,10 +714,12 @@ void IN_Startup( void ) {
 	IN_StartupMouse ();
 	IN_StartupJoystick ();
 	IN_StartupMIDI();
+    IN_StartupGamepad();
 	Com_Printf ("------------------------------------\n");
 
 	in_mouse->modified = qfalse;
 	in_joystick->modified = qfalse;
+    in_gamepad->modified = qfalse; // @pjb
 }
 
 /*
@@ -707,6 +760,12 @@ void IN_Init( void ) {
 
 	joy_threshold			= Cvar_Get ("joy_threshold",			"0.15",		CVAR_ARCHIVE);
 
+    // @pjb: gamepad variables
+    in_gamepad              = Cvar_Get ("in_gamepad",               "1",        CVAR_ARCHIVE|CVAR_LATCH);
+    in_gamepadCheckDelay    = Cvar_Get ("in_gamepadCheckDelay",     "200",      CVAR_ARCHIVE);
+    in_gamepadLDeadZone     = Cvar_Get ("in_gamepadLDeadZone",      "7849",     CVAR_ARCHIVE);
+    in_gamepadRDeadZone     = Cvar_Get ("in_gamepadRDeadZone",      "8689",     CVAR_ARCHIVE);
+
 	IN_Startup();
 }
 
@@ -740,6 +799,9 @@ Called every frame, even if not generating commands
 void IN_Frame (void) {
 	// post joystick events
 	IN_JoyMove();
+
+    // @pjb: handle gamepad events
+    IN_GamepadMove();
 
 	if ( !s_wmv.mouseInitialized ) {
     if (s_wmv.mouseStartupDelayed && g_wv.hWnd)
@@ -783,6 +845,155 @@ IN_ClearStates
 void IN_ClearStates (void) 
 {
 	s_wmv.oldButtonState = 0;
+}
+
+
+/*
+=========================================================================
+
+@pjb: GAMEPAD
+
+=========================================================================
+*/
+void IN_StartupGamepad(void) {
+
+    if (! in_gamepad->integer ) {
+        Com_Printf("Gamepad is not active.\n");
+        return;
+    }
+
+    ZeroMemory( &gamepads, sizeof(gamepads) );
+
+    // Delay before we check for connected gamepads
+    int checkTime = in_gamepadCheckDelay->integer;
+    for ( int i = 0; i < XUSER_MAX_COUNT; ++i )
+    {
+        gamepads[i].checkTimer = i * checkTime / XUSER_MAX_COUNT;
+    }
+}
+
+#define THUMBSTICK_MAGIC 32767.0f
+
+float IN_GetGamepadThumbstickValue( int value, int deadzone )
+{
+    if ( value > deadzone )
+        return ( value - deadzone ) / ( THUMBSTICK_MAGIC - deadzone );
+    else if ( value < -deadzone )
+        return ( value + deadzone + 1.0f ) / ( THUMBSTICK_MAGIC - deadzone );
+    else
+        return 0;
+}
+
+void IN_GetGamepadReading( gamepadInfo_t* gamepad, int userIndex, int ldeadzone, int rdeadzone )
+{
+    // If this isn't connected, we only want to poll it periodically
+    if ( !gamepad->connected && gamepad->checkTimer > 0 ) {
+        --gamepad->checkTimer;
+        return;
+    }
+
+    // Query the gamepad state, and if that succeeds the gamepad is connected
+    XINPUT_STATE xinputState;
+    byte wasConnected = gamepad->connected;
+    DWORD getStateR = XInputGetState( userIndex, &xinputState );
+    gamepad->connected = ( getStateR == ERROR_SUCCESS ) ? qtrue : qfalse;
+
+    // Track insertions and removals
+    gamepad->removed = ( wasConnected && !gamepad->connected );
+    gamepad->inserted = ( !wasConnected && gamepad->connected );
+
+    // If it's no longer connected, reset the check timer
+    if (! gamepad->connected ) {
+        gamepad->checkTimer = in_gamepadCheckDelay->integer;
+        return;
+    }
+
+    // If we've just plugged it in, cache the capabilities of this gamepad 
+    if ( gamepad->inserted ) {
+        ZeroMemory( gamepad, sizeof( gamepadInfo_t ) );
+        gamepad->inserted = qtrue;
+        gamepad->connected = qtrue;
+        gamepad->userIndex = userIndex;
+        XInputGetCapabilities( userIndex, XINPUT_FLAG_GAMEPAD, &gamepad->caps );
+    }
+
+    // Copy the state
+    memcpy( &gamepad->state, &xinputState.Gamepad, sizeof( XINPUT_GAMEPAD ) );
+
+    //int l_deadzone = in_gamepadLDeadZone->integer;
+    //int r_deadzone = in_gamepadRDeadZone->integer;
+
+    gamepad->x1 = IN_GetGamepadThumbstickValue( gamepad->state.sThumbLX, ldeadzone );
+    gamepad->x2 = IN_GetGamepadThumbstickValue( gamepad->state.sThumbRX, rdeadzone );
+    gamepad->y1 = IN_GetGamepadThumbstickValue( gamepad->state.sThumbLY, ldeadzone );
+    gamepad->y2 = IN_GetGamepadThumbstickValue( gamepad->state.sThumbRY, rdeadzone );
+
+    // Get the buttons that have been pressed or released since the last update
+    gamepad->pressedButtons = ( gamepad->heldButtons ^ gamepad->state.wButtons ) & gamepad->state.wButtons;
+    gamepad->releasedButtons = ( gamepad->heldButtons ^ gamepad->state.wButtons ) & ~gamepad->state.wButtons;
+
+    // Cache the current set of held buttons
+    gamepad->heldButtons = gamepad->state.wButtons;
+
+    // Figure out whether the left trigger has been pulled or not
+    qboolean triggerPressed = gamepad->state.bLeftTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD;
+    if ( triggerPressed ) {
+        gamepad->pressedLeftTrigger = !gamepad->heldLeftTrigger;
+        gamepad->releasedLeftTrigger = qfalse;
+    }
+    else {
+        gamepad->pressedLeftTrigger = qfalse;
+        gamepad->releasedLeftTrigger = gamepad->heldLeftTrigger;
+    }
+
+    gamepad->heldLeftTrigger = triggerPressed;
+
+    // Figure out whether the left trigger has been pulled or not
+    triggerPressed = gamepad->state.bRightTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD;
+    if ( triggerPressed ) {
+        gamepad->pressedRightTrigger = !gamepad->heldRightTrigger;
+        gamepad->releasedRightTrigger = qfalse;
+    }
+    else {
+        gamepad->pressedRightTrigger = qfalse;
+        gamepad->releasedRightTrigger = gamepad->heldRightTrigger;
+    }
+
+    gamepad->heldRightTrigger = triggerPressed;
+}
+
+void IN_ApplyGamepad( const gamepadInfo_t* gamepad )
+{
+    // HACK: need to map these in a context sensitive way. 
+    // e.g. A = enter on menus, A = jump in game
+    
+    if ( gamepad->pressedRightTrigger )
+        Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_MOUSE1, qtrue, 0, NULL );
+    else if ( gamepad->releasedRightTrigger )
+        Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_MOUSE1, qfalse, 0, NULL );
+
+
+}
+
+void IN_GamepadMove(void)
+{
+    int ldeadzone = in_gamepadLDeadZone->integer;
+    int rdeadzone = in_gamepadRDeadZone->integer;
+
+    int firstConnected = -1;
+    for ( int i = 0; i < XUSER_MAX_COUNT; ++i )
+    {
+        IN_GetGamepadReading( &gamepads[i], i, ldeadzone, rdeadzone );
+
+        if (firstConnected == -1 && gamepads[i].connected)
+            firstConnected = i;
+    }
+
+    if (firstConnected == -1)
+        return;
+
+    // Convert the first connected gamepad to input to Quake
+    IN_ApplyGamepad( &gamepads[ firstConnected ] );
 }
 
 
