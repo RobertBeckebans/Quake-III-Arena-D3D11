@@ -2,6 +2,7 @@
 #include "d3d_device.h"
 
 HANDLE g_WaitingForVideoEvent = nullptr;
+HANDLE g_WaitingForVideoFinishedEvent = nullptr;
 int g_WindowWidth = 0;
 int g_WindowHeight = 0;
 IUnknown* g_Window = nullptr;
@@ -9,12 +10,14 @@ IUnknown* g_Window = nullptr;
 void D3DWin8_InitDeferral()
 {
     g_WaitingForVideoEvent = CreateEventEx( nullptr, nullptr, CREATE_EVENT_MANUAL_RESET, EVENT_ALL_ACCESS );
+    g_WaitingForVideoFinishedEvent = CreateEventEx( nullptr, nullptr, CREATE_EVENT_MANUAL_RESET, EVENT_ALL_ACCESS );
 }
 
 void D3DWin8_CleanupDeferral()
 {
     SAFE_RELEASE(g_Window);
     CloseHandle( g_WaitingForVideoEvent );
+    CloseHandle( g_WaitingForVideoFinishedEvent );
 }
 
 void D3DWin8_Init()
@@ -75,6 +78,9 @@ void D3DWin8_Init()
 
     SAFE_RELEASE( swapChain );
     SAFE_RELEASE( device );
+
+    // release the main thread
+    SetEvent( g_WaitingForVideoFinishedEvent );
 }
 
 void D3DWin8_Shutdown()
@@ -87,6 +93,7 @@ void D3DWin8_NotifyNewWindow( IUnknown* window, int logicalSizeX, int logicalSiz
 {
     // Re-enable the deferral of the video init
     ResetEvent( g_WaitingForVideoEvent );
+    ResetEvent( g_WaitingForVideoFinishedEvent );
 
     // Restart the video if we're already running
     if ( g_Window != nullptr )
@@ -102,6 +109,9 @@ void D3DWin8_NotifyNewWindow( IUnknown* window, int logicalSizeX, int logicalSiz
 
     // Allow the game to run again
     SetEvent( g_WaitingForVideoEvent );
+
+    // Wait for video to bring up before we allow the main thread to continue
+    WaitForSingleObject( g_WaitingForVideoFinishedEvent, INFINITE );
 }
 
 void D3DWin8_NotifyWindowResize( int logicalSizeX, int logicalSizeY )

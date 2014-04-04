@@ -232,6 +232,15 @@ Quake3Win8App::Quake3Win8App() :
 
 void Quake3Win8App::Initialize(CoreApplicationView^ applicationView)
 {
+    // @pjb: Todo: on Blue this is way better: poll m_gameThread.is_done()
+    m_gameThread = Concurrency::create_task( [] ()
+    {
+        Q3Win8::GameThread();
+    } ).then( [this] () 
+    {
+        m_gameIsDone = true;
+    } );
+
 	applicationView->Activated +=
         ref new TypedEventHandler<CoreApplicationView^, IActivatedEventArgs^>(this, &Quake3Win8App::OnActivated);
 
@@ -288,14 +297,6 @@ void Quake3Win8App::SetWindow(CoreWindow^ window)
 
 void Quake3Win8App::Load(Platform::String^ entryPoint)
 {
-     // @pjb: Todo: on Blue this is way better: poll m_gameThread.is_done()
-    m_gameThread = Concurrency::create_task( [] ()
-    {
-        Q3Win8::GameThread();
-    } ).then( [this] () 
-    {
-        m_gameIsDone = true;
-    } );
 }
 
 void Quake3Win8App::HandleExceptionMessage( const Q3Win8::MSG* msg )
@@ -311,19 +312,7 @@ void Quake3Win8App::WaitForGameReady()
     // Get new messages
     while ( !g_sysMsgs.Pop( &msg ) ) {}
 
-    switch ( msg.Message )
-    {
-    case SYS_MSG_GAME_READY:
-        // Yay, game is ready to go.
-        break;
-    case SYS_MSG_EXCEPTION:
-        // Crap.
-        HandleExceptionMessage( &msg );
-        break;
-    default:
-        assert(0);
-        break;
-    }
+    HandleMessageFromGame( &msg );
 }
 
 void Quake3Win8App::HandleMessagesFromGame()
@@ -333,15 +322,23 @@ void Quake3Win8App::HandleMessagesFromGame()
     // Get new messages
     while ( g_sysMsgs.Pop( &msg ) )
     {
-        switch ( msg.Message )
-        {
-        case SYS_MSG_EXCEPTION:
-            HandleExceptionMessage( &msg );
-            break;
-        default:
-            assert(0);
-            break;
-        }
+        HandleMessageFromGame( &msg );
+    }
+}
+
+void Quake3Win8App::HandleMessageFromGame( const Q3Win8::MSG* msg )
+{
+    switch ( msg->Message )
+    {
+    case SYS_MSG_EXCEPTION:
+        HandleExceptionMessage( msg );
+        break;
+    case SYS_MSG_GAME_READY:
+        // Yay, game is ready to go.
+        break;
+    default:
+        assert(0);
+        break;
     }
 }
 

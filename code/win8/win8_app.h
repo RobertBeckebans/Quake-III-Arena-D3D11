@@ -42,6 +42,7 @@ private:
     void HandleExceptionMessage( const Q3Win8::MSG* msg );
     void WaitForGameReady();
     void HandleMessagesFromGame();
+    void HandleMessageFromGame( const Q3Win8::MSG* msg );
     void CaptureMouse();
     void ReleaseMouse();
 
