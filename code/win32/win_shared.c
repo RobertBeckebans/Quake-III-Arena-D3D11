@@ -866,6 +866,11 @@ void Sys_QueEvent( int time, sysEventType_t type, int value, int value2, int ptr
 
 	eventHead++;
 
+    // @pjb: special code for the current tick time rather than the current time
+    if ( time == SYS_EVENT_FRAME_TIME ) {
+        time = Sys_FrameTime();
+    }
+
 	if ( time == 0 ) {
 		time = Sys_Milliseconds();
 	}

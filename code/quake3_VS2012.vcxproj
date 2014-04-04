@@ -1883,6 +1883,7 @@
       <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug TA|x64'">true</CompileAsWinRT>
     </ClCompile>
     <ClCompile Include="xaudio\xaudio_main.cpp" />
+    <ClCompile Include="xinput\xinput_main.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game\bg_public.h" />
@@ -1943,6 +1944,7 @@
     </ClInclude>
     <ClInclude Include="xaudio\xaudio_local.h" />
     <ClInclude Include="xaudio\xaudio_public.h" />
+    <ClInclude Include="xinput\xinput_public.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="win32\cursor2.cur" />

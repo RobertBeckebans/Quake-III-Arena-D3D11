@@ -383,6 +383,16 @@ void * QDECL Sys_LoadDll( const char *name, char *fqpath , int (QDECL **entryPoi
 	return libHandle;
 }
 
+/*
+Sys_FrameTime
+
+@pjb: replaces g_wv.sysMsgTime
+*/
+int g_frameTime = 0;
+int Sys_FrameTime( void )
+{
+    return g_frameTime;
+}
 
 /*
 ================
@@ -410,7 +420,7 @@ sysEvent_t Sys_GetEvent( void ) {
 		}
 
 		// save the msg time, because wndprocs don't have access to the timestamp
-		g_wv.sysMsgTime = msg.time;
+		g_frameTime = msg.time;
 
 		TranslateMessage (&msg);
       	DispatchMessage (&msg);

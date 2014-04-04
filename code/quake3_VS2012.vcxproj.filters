@@ -214,6 +214,9 @@
     <ClCompile Include="xaudio\xaudio_main.cpp">
       <Filter>XAudio2</Filter>
     </ClCompile>
+    <ClCompile Include="xinput\xinput_main.c">
+      <Filter>XInput</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="win32\win_snd.h">
@@ -311,6 +314,9 @@
     </ClInclude>
     <ClInclude Include="xaudio\xaudio_public.h">
       <Filter>XAudio2</Filter>
+    </ClInclude>
+    <ClInclude Include="xinput\xinput_public.h">
+      <Filter>XInput</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

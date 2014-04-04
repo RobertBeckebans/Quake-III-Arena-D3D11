@@ -24,9 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../client/client.h"
 #include "win_local.h"
-
-// @pjb: gamepad support
-#include <Xinput.h>
+#include "win_shared.h"
+#include "../xinput/xinput_public.h"
 
 
 typedef struct {
@@ -75,74 +74,6 @@ typedef struct {
 } joystickInfo_t;
 
 static	joystickInfo_t	joy;
-
-// @pjb: gamepad stuff
-typedef struct {
-    float nx, ny;               // normalized [-1,1]
-    short x, y;                 // raw
-    short xDeadZone, yDeadZone; // stripped of deadzone (shouldn't be used directly)
-} gamepadThumbstickReading_t;
-
-typedef struct {
-
-    // device information
-    XINPUT_CAPABILITIES caps;
-
-    // Xinput state
-    XINPUT_GAMEPAD lastState;
-    XINPUT_GAMEPAD state;
-
-    // thumbstick values
-    gamepadThumbstickReading_t leftThumb;
-    gamepadThumbstickReading_t rightThumb;
-
-    // old thumbstick values
-    gamepadThumbstickReading_t oldLeftThumb;
-    gamepadThumbstickReading_t oldRightThumb;
-
-    // timer that counts down to the next controller check
-    unsigned short checkTimer;
-
-    // bitfield indicating which buttons were pressed in previous frames
-    unsigned short heldButtons;
-
-    // bitfield indicating which buttons were *just* pressed this frame
-    unsigned short pressedButtons;
-
-    // bitfield indicating which buttons were *just* released this frame
-    unsigned short releasedButtons;
-
-    // bitfield for controller info: userindex and connectivity state
-    int userIndex : 3;
-    int connected : 1;
-    int inserted : 1;
-    int removed : 1;
-
-    // bitfield indicating which triggers were held, pressed or released this frame
-    int heldLeftTrigger : 1;
-    int heldRightTrigger : 1;
-    int pressedLeftTrigger : 1;
-    int pressedRightTrigger : 1;
-    int releasedLeftTrigger : 1;
-    int releasedRightTrigger : 1;
-
-} gamepadInfo_t;
-
-static gamepadInfo_t gamepads[ XUSER_MAX_COUNT ];
-
-void IN_StartupGamepad( void );
-void IN_GamepadMove( void );
-
-cvar_t  *in_gamepad;
-cvar_t  *in_gamepadCheckDelay;
-cvar_t  *in_gamepadLDeadZone;
-cvar_t  *in_gamepadRDeadZone;
-cvar_t  *in_gamepadXLookSensitivity;
-cvar_t  *in_gamepadYLookSensitivity;
-cvar_t  *in_gamepadInvertX;
-cvar_t  *in_gamepadInvertY;
-// @pjb: /gamepad stuff
-
 
 cvar_t	*in_midi;
 cvar_t	*in_midiport;
@@ -680,13 +611,13 @@ void IN_MouseEvent (int mstate)
 		if ( (mstate & (1<<i)) &&
 			!(s_wmv.oldButtonState & (1<<i)) )
 		{
-			Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_MOUSE1 + i, qtrue, 0, NULL );
+			Sys_QueEvent( SYS_EVENT_FRAME_TIME, SE_KEY, K_MOUSE1 + i, qtrue, 0, NULL );
 		}
 
 		if ( !(mstate & (1<<i)) &&
 			(s_wmv.oldButtonState & (1<<i)) )
 		{
-			Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_MOUSE1 + i, qfalse, 0, NULL );
+			Sys_QueEvent( SYS_EVENT_FRAME_TIME, SE_KEY, K_MOUSE1 + i, qfalse, 0, NULL );
 		}
 	}	
 
@@ -737,7 +668,6 @@ void IN_Startup( void ) {
 
 	in_mouse->modified = qfalse;
 	in_joystick->modified = qfalse;
-    in_gamepad->modified = qfalse; // @pjb
 }
 
 /*
@@ -779,14 +709,7 @@ void IN_Init( void ) {
 	joy_threshold			= Cvar_Get ("joy_threshold",			"0.15",		CVAR_ARCHIVE);
 
     // @pjb: gamepad variables
-    in_gamepad              = Cvar_Get ("in_gamepad",               "1",        CVAR_ARCHIVE|CVAR_LATCH);
-    in_gamepadCheckDelay    = Cvar_Get ("in_gamepadCheckDelay",     "200",      CVAR_ARCHIVE);
-    in_gamepadLDeadZone     = Cvar_Get ("in_gamepadLDeadZone",      "7849",     CVAR_ARCHIVE);
-    in_gamepadRDeadZone     = Cvar_Get ("in_gamepadRDeadZone",      "8689",     CVAR_ARCHIVE);
-    in_gamepadXLookSensitivity = Cvar_Get ("in_gamepadXLookSensitivity",      "0.02",     CVAR_ARCHIVE);
-    in_gamepadYLookSensitivity = Cvar_Get ("in_gamepadYLookSensitivity",      "0.02",     CVAR_ARCHIVE);
-    in_gamepadInvertX       = Cvar_Get ("in_gamepadInvertX",        "0",     CVAR_ARCHIVE);
-    in_gamepadInvertY       = Cvar_Get ("in_gamepadInvertY",        "0",     CVAR_ARCHIVE);
+    IN_RegisterGamepadCvars();
 
 	IN_Startup();
 }
@@ -867,266 +790,6 @@ IN_ClearStates
 void IN_ClearStates (void) 
 {
 	s_wmv.oldButtonState = 0;
-}
-
-
-/*
-=========================================================================
-
-@pjb: GAMEPAD
-
-=========================================================================
-*/
-void IN_StartupGamepad(void) {
-    int checkTime;
-    int i;
-
-    if (! in_gamepad->integer ) {
-        Com_Printf("Gamepad is not active.\n");
-        return;
-    }
-
-    ZeroMemory( &gamepads, sizeof(gamepads) );
-
-    // Delay before we check for connected gamepads
-    checkTime = in_gamepadCheckDelay->integer;
-    for ( i = 0; i < XUSER_MAX_COUNT; ++i )
-    {
-        gamepads[i].checkTimer = i * checkTime / XUSER_MAX_COUNT;
-    }
-}
-
-int IN_GamepadStripDeadzone( int reading, int deadzone )
-{
-    if ( reading > deadzone )
-        return (reading - deadzone);
-    else if ( reading < -deadzone )
-        return (reading + deadzone + 1);
-    else
-        return 0;
-}
-
-#define THUMBSTICK_MAGIC 32767.0f
-float IN_GamepadNormalizeThumbstick( int reading, int deadzone )
-{
-    return reading / (THUMBSTICK_MAGIC - deadzone);
-}
-
-void IN_GetGamepadThumbstickReading( short x, short y, int deadzone, gamepadThumbstickReading_t* thumb )
-{
-    thumb->x = x;
-    thumb->y = y;
-    thumb->xDeadZone = IN_GamepadStripDeadzone( x, deadzone );
-    thumb->yDeadZone = IN_GamepadStripDeadzone( y, deadzone );
-    thumb->nx = IN_GamepadNormalizeThumbstick( thumb->xDeadZone, deadzone );
-    thumb->ny = IN_GamepadNormalizeThumbstick( thumb->yDeadZone, deadzone );
-}
-
-void IN_GetGamepadReading( gamepadInfo_t* gamepad, int userIndex )
-{
-    XINPUT_STATE xinputState;
-    byte wasConnected;
-    DWORD getStateR;
-    int ldeadzone;
-    int rdeadzone;
-    qboolean triggerPressed;
-
-    // If this isn't connected, we only want to poll it periodically
-    if ( !gamepad->connected && gamepad->checkTimer > 0 ) {
-        --gamepad->checkTimer;
-        return;
-    }
-
-    // Query the gamepad state, and if that succeeds the gamepad is connected
-    wasConnected = gamepad->connected;
-    getStateR = XInputGetState( userIndex, &xinputState );
-    gamepad->connected = ( getStateR == ERROR_SUCCESS ) ? qtrue : qfalse;
-
-    // Track insertions and removals
-    gamepad->removed = ( wasConnected && !gamepad->connected );
-    gamepad->inserted = ( !wasConnected && gamepad->connected );
-
-    // If it's no longer connected, reset the check timer
-    if (! gamepad->connected ) {
-        gamepad->checkTimer = in_gamepadCheckDelay->integer;
-        return;
-    }
-
-    // If we've just plugged it in, cache the capabilities of this gamepad 
-    if ( gamepad->inserted ) {
-        ZeroMemory( gamepad, sizeof( gamepadInfo_t ) );
-        gamepad->inserted = qtrue;
-        gamepad->connected = qtrue;
-        gamepad->userIndex = userIndex;
-        XInputGetCapabilities( userIndex, XINPUT_FLAG_GAMEPAD, &gamepad->caps );
-    }
-
-    // Get some old state
-    ldeadzone = in_gamepadLDeadZone->integer;
-    rdeadzone = in_gamepadRDeadZone->integer;
-
-    // Cache the old state
-    memcpy( &gamepad->lastState, &gamepad->state, sizeof( XINPUT_GAMEPAD ) );
-
-    // Copy the state
-    memcpy( &gamepad->state, &xinputState.Gamepad, sizeof( XINPUT_GAMEPAD ) );
-
-    gamepad->oldLeftThumb = gamepad->leftThumb;
-    gamepad->oldRightThumb = gamepad->rightThumb;
-
-    //Get thumbstick values
-    IN_GetGamepadThumbstickReading( 
-        gamepad->state.sThumbLX, 
-        gamepad->state.sThumbLY,
-        ldeadzone,
-        &gamepad->leftThumb );
-
-    IN_GetGamepadThumbstickReading(
-        gamepad->state.sThumbRX,
-        gamepad->state.sThumbRY,
-        rdeadzone,
-        &gamepad->rightThumb );
-
-    // Get the buttons that have been pressed or released since the last update
-    gamepad->pressedButtons = ( gamepad->heldButtons ^ gamepad->state.wButtons ) & gamepad->state.wButtons;
-    gamepad->releasedButtons = ( gamepad->heldButtons ^ gamepad->state.wButtons ) & ~gamepad->state.wButtons;
-
-    // Cache the current set of held buttons
-    gamepad->heldButtons = gamepad->state.wButtons;
-
-    // Figure out whether the left trigger has been pulled or not
-    triggerPressed = gamepad->state.bLeftTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD;
-    if ( triggerPressed ) {
-        gamepad->pressedLeftTrigger = !gamepad->heldLeftTrigger;
-        gamepad->releasedLeftTrigger = qfalse;
-    }
-    else {
-        gamepad->pressedLeftTrigger = qfalse;
-        gamepad->releasedLeftTrigger = gamepad->heldLeftTrigger;
-    }
-
-    gamepad->heldLeftTrigger = triggerPressed;
-
-    // Figure out whether the left trigger has been pulled or not
-    triggerPressed = gamepad->state.bRightTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD;
-    if ( triggerPressed ) {
-        gamepad->pressedRightTrigger = !gamepad->heldRightTrigger;
-        gamepad->releasedRightTrigger = qfalse;
-    }
-    else {
-        gamepad->pressedRightTrigger = qfalse;
-        gamepad->releasedRightTrigger = gamepad->heldRightTrigger;
-    }
-
-    gamepad->heldRightTrigger = triggerPressed;
-}
-
-typedef struct 
-{
-    DWORD xinput;
-    int quake;
-} gamepadButtonMapping_t;
-
-static const gamepadButtonMapping_t gamepadButtonMappings[] = { 
-    { XINPUT_GAMEPAD_DPAD_UP       , K_GAMEPAD_DPAD_UP     },
-    { XINPUT_GAMEPAD_DPAD_DOWN     , K_GAMEPAD_DPAD_DOWN   },
-    { XINPUT_GAMEPAD_DPAD_LEFT     , K_GAMEPAD_DPAD_LEFT   },
-    { XINPUT_GAMEPAD_DPAD_RIGHT    , K_GAMEPAD_DPAD_RIGHT  },
-    { XINPUT_GAMEPAD_START         , K_GAMEPAD_START       },
-    { XINPUT_GAMEPAD_BACK          , K_GAMEPAD_BACK        },
-    { XINPUT_GAMEPAD_LEFT_THUMB    , K_GAMEPAD_LSTICK      },
-    { XINPUT_GAMEPAD_RIGHT_THUMB   , K_GAMEPAD_RSTICK      },
-    { XINPUT_GAMEPAD_LEFT_SHOULDER , K_GAMEPAD_LBUMPER     },
-    { XINPUT_GAMEPAD_RIGHT_SHOULDER, K_GAMEPAD_RBUMPER     },
-    { XINPUT_GAMEPAD_A             , K_GAMEPAD_A           },
-    { XINPUT_GAMEPAD_B             , K_GAMEPAD_B           },
-    { XINPUT_GAMEPAD_X             , K_GAMEPAD_X           },
-    { XINPUT_GAMEPAD_Y             , K_GAMEPAD_Y           }
-};
-
-void IN_ApplyGamepad( const gamepadInfo_t* gamepad )
-{
-    int rdeadzone;
-    int i;
-
-    //
-    // Handle buttons
-    //
-    for ( i = 0; i < _countof(gamepadButtonMappings); ++i )
-    {
-        const gamepadButtonMapping_t* button = &gamepadButtonMappings[i];
-
-        if ( gamepad->pressedButtons & button->xinput )
-            Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, button->quake, qtrue, 0, NULL );
-        else if ( gamepad->releasedButtons & button->xinput )
-            Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, button->quake, qfalse, 0, NULL );
-    }
-    
-    //
-    // Handle triggers
-    //
-    if ( gamepad->pressedRightTrigger )
-        Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_GAMEPAD_RTRIGGER, qtrue, 0, NULL );
-    else if ( gamepad->releasedRightTrigger )
-        Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_GAMEPAD_RTRIGGER, qfalse, 0, NULL );
-
-    if ( gamepad->pressedLeftTrigger )
-        Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_GAMEPAD_LTRIGGER, qtrue, 0, NULL );
-    else if ( gamepad->releasedLeftTrigger )
-        Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_GAMEPAD_LTRIGGER, qfalse, 0, NULL );
-    
-    //
-    // Handle left stick as keys
-    //
-    // If the values have changed ACCOUNTING FOR DEADZONE then we send messages, but only then
-    if ( gamepad->leftThumb.yDeadZone != gamepad->oldLeftThumb.yDeadZone ) {
-        int movement = gamepad->leftThumb.ny * 127;
-        Sys_QueEvent( g_wv.sysMsgTime, SE_GAMEPAD_AXIS, AXIS_FORWARD, movement, 0, NULL );
-    }
-
-    if ( gamepad->leftThumb.xDeadZone != gamepad->oldLeftThumb.xDeadZone ) {
-        int movement = gamepad->leftThumb.nx * 127;
-        Sys_QueEvent( g_wv.sysMsgTime, SE_GAMEPAD_AXIS, AXIS_SIDE, movement, 0, NULL );
-    }
-
-    //
-    // Handle right stick as a mouse
-    //
-    rdeadzone = in_gamepadRDeadZone->integer;
-
-    if ( abs( gamepad->state.sThumbRX ) > rdeadzone || 
-         abs( gamepad->state.sThumbRY ) > rdeadzone ) 
-    {
-        int invertlookx = in_gamepadInvertX->integer ? -1 : 1;
-        int invertlooky = in_gamepadInvertY->integer ? 1 : -1;
-
-        float sensitivityX = in_gamepadXLookSensitivity->value;
-        float sensitivityY = in_gamepadYLookSensitivity->value;
-
-        int x = (gamepad->state.sThumbRX - rdeadzone) * invertlookx * sensitivityX;
-        int y = (gamepad->state.sThumbRY - rdeadzone) * invertlooky * sensitivityY;
-
-        Sys_QueEvent( g_wv.sysMsgTime, SE_MOUSE, x, y, 0, NULL );
-    }
-}
-
-void IN_GamepadMove(void)
-{
-    int i;
-    int firstConnected = -1;
-    for ( i = 0; i < XUSER_MAX_COUNT; ++i )
-    {
-        IN_GetGamepadReading( &gamepads[i], i );
-
-        if (firstConnected == -1 && gamepads[i].connected)
-            firstConnected = i;
-    }
-
-    if (firstConnected == -1)
-        return;
-
-    // Convert the first connected gamepad to input to Quake
-    IN_ApplyGamepad( &gamepads[ firstConnected ] );
 }
 
 
@@ -1298,10 +961,10 @@ void IN_JoyMove( void ) {
 	buttonstate = joy.ji.dwButtons;
 	for ( i=0 ; i < joy.jc.wNumButtons ; i++ ) {
 		if ( (buttonstate & (1<<i)) && !(joy.oldbuttonstate & (1<<i)) ) {
-			Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_JOY1 + i, qtrue, 0, NULL );
+			Sys_QueEvent( SYS_EVENT_FRAME_TIME, SE_KEY, K_JOY1 + i, qtrue, 0, NULL );
 		}
 		if ( !(buttonstate & (1<<i)) && (joy.oldbuttonstate & (1<<i)) ) {
-			Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_JOY1 + i, qfalse, 0, NULL );
+			Sys_QueEvent( SYS_EVENT_FRAME_TIME, SE_KEY, K_JOY1 + i, qfalse, 0, NULL );
 		}
 	}
 	joy.oldbuttonstate = buttonstate;
@@ -1337,11 +1000,11 @@ void IN_JoyMove( void ) {
 	// determine which bits have changed and key an auxillary event for each change
 	for (i=0 ; i < 16 ; i++) {
 		if ( (povstate & (1<<i)) && !(joy.oldpovstate & (1<<i)) ) {
-			Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, joyDirectionKeys[i], qtrue, 0, NULL );
+			Sys_QueEvent( SYS_EVENT_FRAME_TIME, SE_KEY, joyDirectionKeys[i], qtrue, 0, NULL );
 		}
 
 		if ( !(povstate & (1<<i)) && (joy.oldpovstate & (1<<i)) ) {
-			Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, joyDirectionKeys[i], qfalse, 0, NULL );
+			Sys_QueEvent( SYS_EVENT_FRAME_TIME, SE_KEY, joyDirectionKeys[i], qfalse, 0, NULL );
 		}
 	}
 	joy.oldpovstate = povstate;
@@ -1351,7 +1014,7 @@ void IN_JoyMove( void ) {
 		x = JoyToI( joy.ji.dwUpos ) * in_joyBallScale->value;
 		y = JoyToI( joy.ji.dwVpos ) * in_joyBallScale->value;
 		if ( x || y ) {
-			Sys_QueEvent( g_wv.sysMsgTime, SE_MOUSE, x, y, 0, NULL );
+			Sys_QueEvent( SYS_EVENT_FRAME_TIME, SE_MOUSE, x, y, 0, NULL );
 		}
 	}
 }
@@ -1373,7 +1036,7 @@ static void MIDI_NoteOff( int note )
 	if ( qkey > 255 || qkey < K_AUX1 )
 		return;
 
-	Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, qkey, qfalse, 0, NULL );
+	Sys_QueEvent( SYS_EVENT_FRAME_TIME, SE_KEY, qkey, qfalse, 0, NULL );
 }
 
 static void MIDI_NoteOn( int note, int velocity )
@@ -1388,7 +1051,7 @@ static void MIDI_NoteOn( int note, int velocity )
 	if ( qkey > 255 || qkey < K_AUX1 )
 		return;
 
-	Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, qkey, qtrue, 0, NULL );
+	Sys_QueEvent( SYS_EVENT_FRAME_TIME, SE_KEY, qkey, qtrue, 0, NULL );
 }
 
 static void CALLBACK MidiInProc( HMIDIIN hMidiIn, UINT uMsg, DWORD dwInstance, 

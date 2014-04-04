@@ -58,6 +58,10 @@ void Sys_InitStreamThread( void );
 void Sys_QueEvent( int time, sysEventType_t type, int value, int value2, int ptrLength, void *ptr );
 void Sys_DetectCPU( void );
 void Sys_InitTimer( void );
+int Sys_FrameTime( void );
+
+// @pjb: denotes the time at the start of the frame, not the current time
+#define SYS_EVENT_FRAME_TIME (-1)
 
 qboolean	Sys_GetPacket ( netadr_t *net_from, msg_t *net_message );
 
