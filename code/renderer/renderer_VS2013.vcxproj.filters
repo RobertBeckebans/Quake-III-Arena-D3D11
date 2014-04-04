@@ -373,6 +373,9 @@
     <ClCompile Include="..\d3d11\d3d_drawdata.cpp">
       <Filter>Direct3D Implementation</Filter>
     </ClCompile>
+    <ClCompile Include="..\d3d11\d3d_draw.cpp">
+      <Filter>Direct3D Implementation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tr_public.h">
@@ -475,6 +478,9 @@
       <Filter>Direct3D Implementation</Filter>
     </ClInclude>
     <ClInclude Include="..\d3d11\d3d_drawdata.h">
+      <Filter>Direct3D Implementation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\d3d11\d3d_draw.h">
       <Filter>Direct3D Implementation</Filter>
     </ClInclude>
   </ItemGroup>

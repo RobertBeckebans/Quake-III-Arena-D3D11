@@ -193,6 +193,7 @@
   <ItemGroup>
     <ClCompile Include="..\d3d11\d3d_common.cpp" />
     <ClCompile Include="..\d3d11\d3d_compiler.cpp" />
+    <ClCompile Include="..\d3d11\d3d_draw.cpp" />
     <ClCompile Include="..\d3d11\d3d_driver.cpp" />
     <ClCompile Include="..\d3d11\d3d_image.cpp" />
     <ClCompile Include="..\d3d11\d3d_drawdata.cpp" />
@@ -531,6 +532,7 @@
   <ItemGroup>
     <ClInclude Include="..\d3d11\d3d_common.h" />
     <ClInclude Include="..\d3d11\d3d_compiler.h" />
+    <ClInclude Include="..\d3d11\d3d_draw.h" />
     <ClInclude Include="..\d3d11\d3d_driver.h" />
     <ClInclude Include="..\d3d11\d3d_image.h" />
     <ClInclude Include="..\d3d11\d3d_drawdata.h" />
