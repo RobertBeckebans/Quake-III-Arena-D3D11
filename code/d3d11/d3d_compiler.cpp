@@ -66,7 +66,7 @@ namespace QD3D
 	    ID3DBlob* binary;
 	    ID3DBlob* errors;
 
-	    HRESULT hr = D3DCompile(
+	    D3DCompile(
 		    source_data, 
 		    source_length,
             source_name,

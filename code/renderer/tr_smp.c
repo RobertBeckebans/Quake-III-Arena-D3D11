@@ -24,7 +24,7 @@ static void RenderThreadWrapper( void (* function)( void ) ) {
 	function();
 
 	// unbind the context before we die
-    graphicsDriver.MakeCurrent( qfalse );
+    GFX_MakeCurrent( qfalse );
 }
 
 /*
@@ -58,7 +58,7 @@ qboolean RSMP_SpawnRenderThread( void (*function)( void ) ) {
 void* RSMP_RendererSleep( void ) {
 	void	*data;
 
-    graphicsDriver.MakeCurrent( qfalse );
+    GFX_MakeCurrent( qfalse );
 
 	// after this, the front end can exit GLimp_FrontEndSleep
 	SetEvent( renderCompletedEvent );
@@ -67,7 +67,7 @@ void* RSMP_RendererSleep( void ) {
 
 	WaitForSingleObject( renderCommandsEvent, INFINITE );
 
-    graphicsDriver.MakeCurrent( qtrue );
+    GFX_MakeCurrent( qtrue );
 
 	ResetEvent( renderCompletedEvent );
 	ResetEvent( renderCommandsEvent );
@@ -84,14 +84,14 @@ void* RSMP_RendererSleep( void ) {
 void RSMP_FrontEndSleep( void ) {
 	WaitForSingleObject( renderCompletedEvent, INFINITE );
 
-    graphicsDriver.MakeCurrent( qtrue );
+    GFX_MakeCurrent( qtrue );
 }
 
 
 void RSMP_WakeRenderer( void *data ) {
 	smpData = data;
 
-    graphicsDriver.MakeCurrent( qfalse );
+    GFX_MakeCurrent( qfalse );
 
 	// after this, the renderer can continue through GLimp_RendererSleep
 	SetEvent( renderCommandsEvent );

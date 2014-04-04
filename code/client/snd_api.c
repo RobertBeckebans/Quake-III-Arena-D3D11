@@ -21,7 +21,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "snd_local.h"
-#include "../win32/win_snd.h"
+#ifndef WIN8
+#   include "../win32/win_snd.h"
+#endif
 #include "../xaudio/xaudio_public.h"
 
 // @pjb: sound API definition
@@ -42,6 +44,7 @@ void SND_InitDriverAPI( void )
 
     Com_Memset( &s_soundDriver, 0, sizeof( s_soundDriver ) );
        
+#ifndef WIN8
     if ( Q_strncmp( snd_driver->string, "dsound", 6 ) == 0 ) {
         s_soundDriver.Shutdown = DirectSound_Shutdown;
         s_soundDriver.Init = DirectSound_Init;
@@ -50,15 +53,18 @@ void SND_InitDriverAPI( void )
         s_soundDriver.Submit = DirectSound_Submit;
         s_soundDriver.Activate = DirectSound_Activate;
     } else if ( Q_strncmp( snd_driver->string, "xaudio", 6 ) == 0 ) {
+#endif
         s_soundDriver.Shutdown = XAudio_Shutdown;
         s_soundDriver.Init = XAudio_Init;
         s_soundDriver.GetDMAPos = XAudio_GetDMAPos;
         s_soundDriver.BeginPainting = XAudio_BeginPainting;
         s_soundDriver.Submit = XAudio_Submit;
         s_soundDriver.Activate = XAudio_Activate;
+#ifndef WIN8
     } else {
         Com_Error( ERR_FATAL, "Unknown sound driver '%s'\n", snd_driver->string );
     }
+#endif
 }
 
 

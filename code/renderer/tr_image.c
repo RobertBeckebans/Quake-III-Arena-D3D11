@@ -433,9 +433,9 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
     image->wrapClampMode = wrapClampMode;
 
     // Prepare the driver-specific image info
-    graphicsDriver.CreateImage( image, pic, isLightmap );
+    GFX_CreateImage( image, pic, isLightmap );
     
-    image->format = graphicsDriver.GetImageFormat( image );
+    image->format = GFX_GetImageFormat( image );
 
 	hash = generateHashValue(name);
 	image->next = hashTable[hash];
@@ -1852,7 +1852,7 @@ void R_SetColorMappings( void ) {
 		s_intensitytable[i] = j;
 	}
 
-	graphicsDriver.SetGamma( s_gammatable, s_gammatable, s_gammatable );
+	GFX_SetGamma( s_gammatable, s_gammatable, s_gammatable );
 }
 
 /*
@@ -1878,7 +1878,7 @@ void R_DeleteTextures( void ) {
 	int		i;
 
 	for ( i=0; i<tr.numImages ; i++ ) {
-		graphicsDriver.DeleteImage( tr.images[i] );
+		GFX_DeleteImage( tr.images[i] );
 	}
 	Com_Memset( tr.images, 0, sizeof( tr.images ) );
 

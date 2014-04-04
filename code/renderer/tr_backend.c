@@ -58,7 +58,7 @@ static void RB_Hyperspace( void ) {
 	c = ( backEnd.refdef.time & 255 ) / 255.0f;
     {
         float clearCol[] = { c, c, c, 1.0f };
-        graphicsDriver.Clear( CLEAR_COLOR, clearCol, CLEAR_DEFAULT_STENCIL, CLEAR_DEFAULT_DEPTH );
+        GFX_Clear( CLEAR_COLOR, clearCol, CLEAR_DEFAULT_STENCIL, CLEAR_DEFAULT_DEPTH );
     }
 
 	backEnd.isHyperspace = qtrue;
@@ -67,14 +67,14 @@ static void RB_Hyperspace( void ) {
 
 static void Set3DProjection( void ) {
 
-	graphicsDriver.SetProjectionMatrix( backEnd.viewParms.projectionMatrix );
+	GFX_SetProjectionMatrix( backEnd.viewParms.projectionMatrix );
 
 	// set the window clipping
-	graphicsDriver.SetViewport( 
+	GFX_SetViewport( 
         backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, 
 		backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight );
 
-    graphicsDriver.ResetState3D();
+    GFX_ResetState3D();
 }
 
 /*
@@ -91,7 +91,7 @@ void RB_BeginDrawingView (void) {
 
 	// sync with gl if needed
 	if ( r_finish->integer == 1 && !backEnd.finishCalled ) {
-		graphicsDriver.Flush();
+		GFX_Flush();
 		backEnd.finishCalled = qtrue;
 	}
 	if ( r_finish->integer == 0 ) {
@@ -126,7 +126,7 @@ void RB_BeginDrawingView (void) {
         clearCol[3] = 1.0f;
 #endif
 	}
-	graphicsDriver.Clear( clearBits, clearCol, CLEAR_DEFAULT_STENCIL, CLEAR_DEFAULT_DEPTH );
+	GFX_Clear( clearBits, clearCol, CLEAR_DEFAULT_STENCIL, CLEAR_DEFAULT_DEPTH );
 
 	if ( ( backEnd.refdef.rdflags & RDF_HYPERSPACE ) )
 	{
@@ -160,9 +160,9 @@ void RB_BeginDrawingView (void) {
 		plane2[2] = DotProduct (backEnd.viewParms.or.axis[2], plane);
 		plane2[3] = DotProduct (plane, backEnd.viewParms.or.origin) - plane[3];
 
-		graphicsDriver.SetPortalRendering( qtrue, s_flipMatrix, plane2 );
+		GFX_SetPortalRendering( qtrue, s_flipMatrix, plane2 );
 	} else {
-		graphicsDriver.SetPortalRendering( qfalse, NULL, NULL );
+		GFX_SetPortalRendering( qfalse, NULL, NULL );
 	}
 }
 
@@ -280,16 +280,16 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 				R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.or );
 			}
 
-            graphicsDriver.SetModelViewMatrix( backEnd.or.modelMatrix );
+            GFX_SetModelViewMatrix( backEnd.or.modelMatrix );
 
 			//
 			// change depthrange if needed
 			//
 			if ( oldDepthRange != depthRange ) {
 				if ( depthRange ) {
-                    graphicsDriver.SetDepthRange( 0, 0.3f );
+                    GFX_SetDepthRange( 0, 0.3f );
 				} else {
-                    graphicsDriver.SetDepthRange( 0, 1 );
+                    GFX_SetDepthRange( 0, 1 );
 				}
 				oldDepthRange = depthRange;
 			}
@@ -309,9 +309,9 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	}
 
 	// go back to the world modelview matrix
-    graphicsDriver.SetModelViewMatrix( backEnd.viewParms.world.modelMatrix );
+    GFX_SetModelViewMatrix( backEnd.viewParms.world.modelMatrix );
 	if ( depthRange ) {
-        graphicsDriver.SetDepthRange( 0, 1 );
+        GFX_SetDepthRange( 0, 1 );
 	}
 
 #if 0
@@ -377,15 +377,15 @@ static void	Set2DProjection(void) {
 
     backEnd.projection2D = qtrue;
 
-    graphicsDriver.SetViewport( 0, 0, vdConfig.vidWidth, vdConfig.vidHeight );
+    GFX_SetViewport( 0, 0, vdConfig.vidWidth, vdConfig.vidHeight );
 
     // @pjb: generate orthographic projection matrix manually and pass to
-    // graphicsDriver.SetProjection
+    // GFX_SetProjection
     ConstructOrtho( orthoMatrix, 0, vdConfig.vidWidth, vdConfig.vidHeight, 0, 0, 1 ); 
-    graphicsDriver.SetProjectionMatrix( orthoMatrix );
+    GFX_SetProjectionMatrix( orthoMatrix );
 
     // Reset the state for 2D rendering
-    graphicsDriver.ResetState2D();
+    GFX_ResetState2D();
 
 	// set time for 2D shaders
 	backEnd.refdef.time = ri.Milliseconds();
@@ -412,7 +412,7 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 	R_SyncRenderThread();
 
 	// we definately want to sync every frame for the cinematics
-	graphicsDriver.Flush();
+	GFX_Flush();
 
 	start = end = 0;
 	if ( r_speeds->integer ) {
@@ -452,12 +452,12 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
             tr.identityLight 
         };
 
-        graphicsDriver.DrawImage( tr.scratchImage[client], coords, texcoords, color );
+        GFX_DrawImage( tr.scratchImage[client], coords, texcoords, color );
     }
 }
 
 void RE_UploadCinematic (int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty) {
-    graphicsDriver.UpdateCinematic( tr.scratchImage[client], data, cols, rows, dirty );
+    GFX_UpdateCinematic( tr.scratchImage[client], data, cols, rows, dirty );
     tr.scratchImage[client]->width = cols;
     tr.scratchImage[client]->height = rows;
 }
@@ -594,12 +594,12 @@ const void	*RB_DrawBuffer( const void *data ) {
 
 	cmd = (const drawBufferCommand_t *)data;
 
-    graphicsDriver.SetDrawBuffer( cmd->buffer );
+    GFX_SetDrawBuffer( cmd->buffer );
 
 	// clear screen for debugging
 	if ( r_clear->integer ) {
         const float clearCol[] = { 1, 0, 0.5f, 1 };
-        graphicsDriver.Clear( CLEAR_COLOR | CLEAR_DEPTH, clearCol, CLEAR_DEFAULT_STENCIL, CLEAR_DEFAULT_DEPTH );
+        GFX_Clear( CLEAR_COLOR | CLEAR_DEPTH, clearCol, CLEAR_DEFAULT_STENCIL, CLEAR_DEFAULT_DEPTH );
 	}
 
 	return (const void *)(cmd + 1);
@@ -625,8 +625,8 @@ void RB_ShowImages( void ) {
 		Set2DProjection();
 	}
 
-    graphicsDriver.Clear( CLEAR_COLOR, CLEAR_DEFAULT_COLOR, CLEAR_DEFAULT_STENCIL, CLEAR_DEFAULT_DEPTH );
-	graphicsDriver.Flush();
+    GFX_Clear( CLEAR_COLOR, CLEAR_DEFAULT_COLOR, CLEAR_DEFAULT_STENCIL, CLEAR_DEFAULT_DEPTH );
+	GFX_Flush();
 
 	start = ri.Milliseconds();
 
@@ -648,11 +648,11 @@ void RB_ShowImages( void ) {
         {
             float coords[] = { x, y, x + w, y + h };
             float texcoords[] = { 0, 0, 1, 1 };   
-            graphicsDriver.DrawImage( image, coords, texcoords, NULL );
+            GFX_DrawImage( image, coords, texcoords, NULL );
         }
 	}
 
-	graphicsDriver.Flush();
+	GFX_Flush();
 
 	end = ri.Milliseconds();
 	ri.Printf( PRINT_ALL, "%i msec to draw all images\n", end - start );
@@ -689,7 +689,7 @@ const void	*RB_SwapBuffers( const void *data ) {
 		unsigned char *stencilReadback;
 
 		stencilReadback = ri.Hunk_AllocateTempMemory( vdConfig.vidWidth * vdConfig.vidHeight );
-        graphicsDriver.ReadStencil( 0, 0, vdConfig.vidWidth, vdConfig.vidHeight, stencilReadback );
+        GFX_ReadStencil( 0, 0, vdConfig.vidWidth, vdConfig.vidHeight, stencilReadback );
 
 		for ( i = 0; i < vdConfig.vidWidth * vdConfig.vidHeight; i++ ) {
 			sum += stencilReadback[i];
@@ -701,12 +701,10 @@ const void	*RB_SwapBuffers( const void *data ) {
 
 
 	if ( !backEnd.finishCalled ) {
-		graphicsDriver.Flush();
+		GFX_Flush();
 	}
 
-	GLimp_LogComment( "***************** RB_SwapBuffers *****************\n\n\n" );
-
-    graphicsDriver.EndFrame();
+    GFX_EndFrame();
 
 	backEnd.projection2D = qfalse;
 
@@ -751,7 +749,7 @@ void RB_TakeScreenshot( int x, int y, int width, int height, char *fileName ) {
 	buffer[15] = height >> 8;
 	buffer[16] = 24;	// pixel size
 
-	graphicsDriver.ReadPixels( x, y, width, height, IMAGEFORMAT_RGB, buffer+18 ); 
+	GFX_ReadPixels( x, y, width, height, IMAGEFORMAT_RGB, buffer+18 ); 
 
 	// swap rgb to bgr
 	c = 18 + width * height * 3;
@@ -781,7 +779,7 @@ void RB_TakeScreenshotJPEG( int x, int y, int width, int height, char *fileName 
 
 	buffer = ri.Hunk_AllocateTempMemory(vdConfig.vidWidth*vdConfig.vidHeight*4);
 
-	graphicsDriver.ReadPixels( x, y, width, height, IMAGEFORMAT_RGBA, buffer ); 
+	GFX_ReadPixels( x, y, width, height, IMAGEFORMAT_RGBA, buffer ); 
 
 	// gamma correct
 	if ( ( tr.overbrightBits > 0 ) && vdConfig.deviceSupportsGamma ) {

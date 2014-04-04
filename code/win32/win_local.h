@@ -88,7 +88,8 @@ typedef struct
 
 	// when we get a windows message, we store the time off so keyboard processing
 	// can know the exact time of an event
-	unsigned		sysMsgTime;
+	//unsigned		sysMsgTime;
+    // @pjb: replaced by Sys_FrameTime
 } WinVars_t;
 
 extern WinVars_t	g_wv;

@@ -1142,9 +1142,6 @@ extern	cvar_t	*r_saveFontData;
 
 //====================================================================
 
-// @pjb: forward declare this but don't use
-typedef struct graphicsApiLayer_s graphicsApiLayer_t;
-
 float R_NoiseGet4f( float x, float y, float z, float t );
 void  R_NoiseInit( void );
 
@@ -1226,9 +1223,6 @@ void R_MipMap2( unsigned *in, int inWidth, int inHeight );
 void R_ResampleTexture( unsigned *in, int inwidth, int inheight, unsigned *out, int outwidth, int outheight );
 void R_LightScaleTexture (unsigned *in, int inwidth, int inheight, qboolean only_gamma );
 void R_BlendOverTexture( byte *data, int pixelCount, byte blend[4] );
-
-// @pjb: rename this and find a better home for it
-void GLimp_LogComment( char *comment );
 
 //
 // tr_shader.c

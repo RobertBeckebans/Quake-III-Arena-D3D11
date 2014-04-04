@@ -12,6 +12,53 @@
 // @pjb: this is just here to deliberately fuck the build if driver is used in here
 #define driver #driver_disallowed
 
+typedef struct graphicsApiLayer_s {
+    void            (* Shutdown)( void );
+    void            (* UnbindResources)( void );
+    size_t          (* LastError)( void );
+    void            (* ReadPixels)( int x, int y, int width, int height, imageFormat_t requestedFmt, void* dest );
+    void            (* ReadDepth)( int x, int y, int width, int height, float* dest );
+    void            (* ReadStencil)( int x, int y, int width, int height, byte* dest );
+    void            (* CreateImage)( const image_t* image, const byte *pic, qboolean isLightmap );
+    void            (* DeleteImage)( const image_t* image );
+    void            (* UpdateCinematic)( const image_t* image, const byte* pic, int cols, int rows, qboolean dirty );
+    void            (* DrawImage)( const image_t* image, const float* coords, const float* texcoords, const float* color );
+    imageFormat_t   (* GetImageFormat)( const image_t* image );
+    void            (* SetGamma)( unsigned char red[256], unsigned char green[256], unsigned char blue[256] );
+    int             (* GetFrameImageMemoryUsage)( void );
+    void            (* GraphicsInfo)( void );
+    void            (* Clear)( unsigned long bits, const float* clearCol, unsigned long stencil, float depth );
+    void            (* SetProjectionMatrix)( const float* projMatrix );
+    void            (* GetProjectionMatrix)( float* projMatrix );
+    void            (* SetModelViewMatrix)( const float* modelViewMatrix );
+    void            (* GetModelViewMatrix)( float* modelViewMatrix );
+    void            (* SetViewport)( int left, int top, int width, int height );
+    void            (* Flush)( void );
+    void            (* SetState)( unsigned long stateMask ); // Use GLS_* flags in tr_state.h
+    void            (* ResetState2D)( void );
+    void            (* ResetState3D)( void );
+    void            (* SetPortalRendering)( qboolean enabled, const float* flipMatrix, const float* plane );
+    void            (* SetDepthRange)( float minRange, float maxRange );
+    void            (* SetDrawBuffer)( int buffer );
+    void            (* EndFrame)( void );
+    void            (* MakeCurrent)( qboolean current );
+    void            (* ShadowSilhouette)( const float* edges, int edgeCount );
+    void            (* ShadowFinish)( void );
+    void            (* DrawSkyBox)( const skyboxDrawInfo_t* skybox, const float* eye_origin, const float* colorTint );
+    void            (* DrawBeam)( const image_t* image, const float* color, const vec3_t startPoints[], const vec3_t endPoints[], int segs );
+    void            (* DrawStageGeneric)( const shaderCommands_t *input );
+    void            (* DrawStageVertexLitTexture)( const shaderCommands_t *input );
+    void            (* DrawStageLightmappedMultitexture)( const shaderCommands_t *input );
+    void            (* BeginTessellate)( const shaderCommands_t* input );
+    void            (* EndTessellate)( const shaderCommands_t* input );
+    void            (* DebugDrawAxis)( void );
+    void            (* DebugDrawNormals)( const shaderCommands_t *input );
+    void            (* DebugDrawTris)( const shaderCommands_t *input );
+    void            (* DebugSetOverdrawMeasureEnabled)( qboolean enabled );
+    void            (* DebugSetTextureMode)( const char* mode );
+    void            (* DebugDrawPolygon)( int color, int numPoints, const float* points );
+} graphicsApiLayer_t;
+
 static graphicsApiLayer_t glDriver;
 static graphicsApiLayer_t d3dDriver;
 static cvar_t* proxy_driverPriority = NULL;
@@ -26,6 +73,7 @@ void PROXY_Shutdown( void )
 void PROXY_ShutdownOne( void )
 {
     d3dDriver.Shutdown();
+    glDriver.Shutdown();
 }
 
 void PROXY_UnbindResources( void )
@@ -384,54 +432,125 @@ static void ReconcileVideoConfigs( const vdconfig_t* d3dConfig, const vdconfig_t
     outConfig->stencilBits = min( d3dConfig->stencilBits, glConfig->stencilBits );
 }
 
-void PROXY_DriverInit( graphicsApiLayer_t* layer )
+void ShadowGfxApiBindings( graphicsApiLayer_t* layer )
+{
+    layer->Shutdown = GFX_Shutdown;
+    layer->UnbindResources = GFX_UnbindResources;
+    layer->LastError = GFX_LastError;
+    layer->ReadPixels = GFX_ReadPixels;
+    layer->ReadDepth = GFX_ReadDepth;
+    layer->ReadStencil = GFX_ReadStencil;
+    layer->CreateImage = GFX_CreateImage;
+    layer->DeleteImage = GFX_DeleteImage;
+    layer->UpdateCinematic = GFX_UpdateCinematic;
+    layer->DrawImage = GFX_DrawImage;
+    layer->GetImageFormat = GFX_GetImageFormat;
+    layer->SetGamma = GFX_SetGamma;
+    layer->GetFrameImageMemoryUsage = GFX_GetFrameImageMemoryUsage;
+    layer->GraphicsInfo = GFX_GraphicsInfo;
+    layer->Clear = GFX_Clear;
+    layer->SetProjectionMatrix = GFX_SetProjectionMatrix;
+    layer->GetProjectionMatrix = GFX_GetProjectionMatrix;
+    layer->SetModelViewMatrix = GFX_SetModelViewMatrix;
+    layer->GetModelViewMatrix = GFX_GetModelViewMatrix;
+    layer->SetViewport = GFX_SetViewport;
+    layer->Flush = GFX_Flush;
+    layer->SetState = GFX_SetState;
+    layer->ResetState2D = GFX_ResetState2D;
+    layer->ResetState3D = GFX_ResetState3D;
+    layer->SetPortalRendering = GFX_SetPortalRendering;
+    layer->SetDepthRange = GFX_SetDepthRange;
+    layer->SetDrawBuffer = GFX_SetDrawBuffer;
+    layer->EndFrame = GFX_EndFrame;
+    layer->MakeCurrent = GFX_MakeCurrent;
+    layer->ShadowSilhouette = GFX_ShadowSilhouette;
+    layer->ShadowFinish = GFX_ShadowFinish;
+    layer->DrawSkyBox = GFX_DrawSkyBox;
+    layer->DrawBeam = GFX_DrawBeam;
+    layer->DrawStageGeneric = GFX_DrawStageGeneric;
+    layer->DrawStageVertexLitTexture = GFX_DrawStageVertexLitTexture;
+    layer->DrawStageLightmappedMultitexture = GFX_DrawStageLightmappedMultitexture;
+    layer->BeginTessellate = GFX_BeginTessellate;
+    layer->EndTessellate = GFX_EndTessellate;
+    layer->DebugDrawAxis = GFX_DebugDrawAxis;
+    layer->DebugDrawTris = GFX_DebugDrawTris;
+    layer->DebugDrawNormals = GFX_DebugDrawNormals;
+    layer->DebugSetOverdrawMeasureEnabled = GFX_DebugSetOverdrawMeasureEnabled;
+    layer->DebugSetTextureMode = GFX_DebugSetTextureMode;
+    layer->DebugDrawPolygon = GFX_DebugDrawPolygon;
+}
+
+void SetProxyBindings( void )
+{
+    GFX_Shutdown = PROXY_ShutdownOne;
+    GFX_UnbindResources = PROXY_UnbindResources;
+    GFX_LastError = PROXY_LastError;
+    GFX_ReadPixels = PROXY_ReadPixels;
+    GFX_ReadDepth = PROXY_ReadDepth;
+    GFX_ReadStencil = PROXY_ReadStencil;
+    GFX_CreateImage = PROXY_CreateImage;
+    GFX_DeleteImage = PROXY_DeleteImage;
+    GFX_UpdateCinematic = PROXY_UpdateCinematic;
+    GFX_DrawImage = PROXY_DrawImage;
+    GFX_GetImageFormat = PROXY_GetImageFormat;
+    GFX_SetGamma = PROXY_SetGamma;
+    GFX_GetFrameImageMemoryUsage = PROXY_SumOfUsedImages;
+    GFX_GraphicsInfo = PROXY_GfxInfo;
+    GFX_Clear = PROXY_Clear;
+    GFX_SetProjectionMatrix = PROXY_SetProjection;
+    GFX_GetProjectionMatrix = PROXY_GetProjection;
+    GFX_SetModelViewMatrix = PROXY_SetModelView;
+    GFX_GetModelViewMatrix = PROXY_GetModelView;
+    GFX_SetViewport = PROXY_SetViewport;
+    GFX_Flush = PROXY_Flush;
+    GFX_SetState = PROXY_SetState;
+    GFX_ResetState2D = PROXY_ResetState2D;
+    GFX_ResetState3D = PROXY_ResetState3D;
+    GFX_SetPortalRendering = PROXY_SetPortalRendering;
+    GFX_SetDepthRange = PROXY_SetDepthRange;
+    GFX_SetDrawBuffer = PROXY_SetDrawBuffer;
+    GFX_EndFrame = PROXY_EndFrame;
+    GFX_MakeCurrent = PROXY_MakeCurrent;
+    GFX_ShadowSilhouette = PROXY_ShadowSilhouette;
+    GFX_ShadowFinish = PROXY_ShadowFinish;
+    GFX_DrawSkyBox = PROXY_DrawSkyBox;
+    GFX_DrawBeam = PROXY_DrawBeam;
+    GFX_DrawStageGeneric = PROXY_DrawStageGeneric;
+    GFX_DrawStageVertexLitTexture = PROXY_DrawStageVertexLitTexture;
+    GFX_DrawStageLightmappedMultitexture = PROXY_DrawStageLightmappedMultitexture;
+    GFX_BeginTessellate = PROXY_BeginTessellate;
+    GFX_EndTessellate = PROXY_EndTessellate;
+    GFX_DebugDrawAxis = PROXY_DebugDrawAxis;
+    GFX_DebugDrawTris = PROXY_DebugDrawTris;
+    GFX_DebugDrawNormals = PROXY_DebugDrawNormals;
+    GFX_DebugSetOverdrawMeasureEnabled = PROXY_DebugSetOverdrawMeasureEnabled;
+    GFX_DebugSetTextureMode = PROXY_DebugSetTextureMode;
+    GFX_DebugDrawPolygon = PROXY_DebugDrawPolygon;
+}
+
+/*
+    @pjb: Validates the driver is completely full of pointers
+*/
+void ValidateDriverLayerMemory( size_t* memory, size_t size )
+{
+    size_t i;
+    for ( i = 0; i < size / sizeof(size_t); ++i ) {
+        if ( memory[i] == 0 )
+            Com_Error( ERR_FATAL, "Video API layer not set up correctly: missing binding in slot %d.\n", i );
+    }
+}
+
+/*
+    @pjb: Expose the validation API to other areas of the game
+*/
+void ValidateGraphicsLayer( graphicsApiLayer_t* layer )
+{
+    ValidateDriverLayerMemory( (size_t*) layer, sizeof( graphicsApiLayer_t ) );
+}
+
+void PROXY_DriverInit( void )
 {
     vdconfig_t old_vdConfig, gl_vdConfig, d3d_vdConfig;
-
-    layer->Shutdown = PROXY_ShutdownOne;
-    layer->UnbindResources = PROXY_UnbindResources;
-    layer->LastError = PROXY_LastError;
-    layer->ReadPixels = PROXY_ReadPixels;
-    layer->ReadDepth = PROXY_ReadDepth;
-    layer->ReadStencil = PROXY_ReadStencil;
-    layer->CreateImage = PROXY_CreateImage;
-    layer->DeleteImage = PROXY_DeleteImage;
-    layer->UpdateCinematic = PROXY_UpdateCinematic;
-    layer->DrawImage = PROXY_DrawImage;
-    layer->GetImageFormat = PROXY_GetImageFormat;
-    layer->SetGamma = PROXY_SetGamma;
-    layer->GetFrameImageMemoryUsage = PROXY_SumOfUsedImages;
-    layer->GraphicsInfo = PROXY_GfxInfo;
-    layer->Clear = PROXY_Clear;
-    layer->SetProjectionMatrix = PROXY_SetProjection;
-    layer->GetProjectionMatrix = PROXY_GetProjection;
-    layer->SetModelViewMatrix = PROXY_SetModelView;
-    layer->GetModelViewMatrix = PROXY_GetModelView;
-    layer->SetViewport = PROXY_SetViewport;
-    layer->Flush = PROXY_Flush;
-    layer->SetState = PROXY_SetState;
-    layer->ResetState2D = PROXY_ResetState2D;
-    layer->ResetState3D = PROXY_ResetState3D;
-    layer->SetPortalRendering = PROXY_SetPortalRendering;
-    layer->SetDepthRange = PROXY_SetDepthRange;
-    layer->SetDrawBuffer = PROXY_SetDrawBuffer;
-    layer->EndFrame = PROXY_EndFrame;
-    layer->MakeCurrent = PROXY_MakeCurrent;
-    layer->ShadowSilhouette = PROXY_ShadowSilhouette;
-    layer->ShadowFinish = PROXY_ShadowFinish;
-    layer->DrawSkyBox = PROXY_DrawSkyBox;
-    layer->DrawBeam = PROXY_DrawBeam;
-    layer->DrawStageGeneric = PROXY_DrawStageGeneric;
-    layer->DrawStageVertexLitTexture = PROXY_DrawStageVertexLitTexture;
-    layer->DrawStageLightmappedMultitexture = PROXY_DrawStageLightmappedMultitexture;
-    layer->BeginTessellate = PROXY_BeginTessellate;
-    layer->EndTessellate = PROXY_EndTessellate;
-    layer->DebugDrawAxis = PROXY_DebugDrawAxis;
-    layer->DebugDrawTris = PROXY_DebugDrawTris;
-    layer->DebugDrawNormals = PROXY_DebugDrawNormals;
-    layer->DebugSetOverdrawMeasureEnabled = PROXY_DebugSetOverdrawMeasureEnabled;
-    layer->DebugSetTextureMode = PROXY_DebugSetTextureMode;
-    layer->DebugDrawPolygon = PROXY_DebugDrawPolygon;
 
     // Get the configurable driver priority
     proxy_driverPriority = Cvar_Get( "proxy_driverPriority", "0", CVAR_ARCHIVE );
@@ -446,17 +565,19 @@ void PROXY_DriverInit( graphicsApiLayer_t* layer )
     old_vdConfig = vdConfig;
 
     // Init the D3D driver and back up the vdConfig
-    D3DDrv_DriverInit( &d3dDriver );
-    R_ValidateGraphicsLayer( &d3dDriver );
+    D3DDrv_DriverInit();
+    ShadowGfxApiBindings( &d3dDriver );
+    ValidateGraphicsLayer( &d3dDriver );
     d3d_vdConfig = vdConfig;
 
-    // Switch to the proper shutdown version
-    layer->Shutdown = PROXY_Shutdown;
-
     // Init the GL driver and back up the vdConfig
-    GLRB_DriverInit( &glDriver );
-    R_ValidateGraphicsLayer( &glDriver );
+    GLRB_DriverInit();
+    ShadowGfxApiBindings( &glDriver );
+    ValidateGraphicsLayer( &glDriver );
     gl_vdConfig = vdConfig;
+
+    // Now bind our abstracted functions
+    SetProxyBindings();
 
     // Let's arrange these windows shall we?
     PositionOpenGLWindowRightOfD3D();
@@ -465,4 +586,5 @@ void PROXY_DriverInit( graphicsApiLayer_t* layer )
     vdConfig = old_vdConfig;
     ReconcileVideoConfigs( &d3d_vdConfig, &gl_vdConfig, &vdConfig );
 }
+
 

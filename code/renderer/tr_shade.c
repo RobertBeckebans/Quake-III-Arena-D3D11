@@ -273,7 +273,7 @@ void RB_BeginSurface( shader_t *shader, int fogNum ) {
 		tess.shaderTime = tess.shader->clampTime;
 	}
 
-    graphicsDriver.BeginTessellate( &tess );
+    GFX_BeginTessellate( &tess );
 }
 
 
@@ -609,7 +609,7 @@ void RB_StageIteratorGeneric( void )
 
     RB_CalculatePostEffects( &tess );
 
-    graphicsDriver.DrawStageGeneric( &tess );
+    GFX_DrawStageGeneric( &tess );
 }
 
 /*
@@ -621,7 +621,7 @@ void RB_StageIteratorVertexLitTexture( void )
 
     RB_CalculatePostEffects( &tess );
 
-    graphicsDriver.DrawStageVertexLitTexture( &tess );
+    GFX_DrawStageVertexLitTexture( &tess );
 }
 
 /*
@@ -633,7 +633,7 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 
     RB_CalculatePostEffects( &tess );
 
-    graphicsDriver.DrawStageLightmappedMultitexture( &tess );
+    GFX_DrawStageLightmappedMultitexture( &tess );
 }
 
 /*
@@ -644,7 +644,7 @@ void RB_EndSurface( void ) {
 
 	input = &tess;
 
-    graphicsDriver.EndTessellate( input );
+    GFX_EndTessellate( input );
 
 	if (input->numIndexes == 0) {
 		return;
@@ -684,14 +684,12 @@ void RB_EndSurface( void ) {
 	// draw debugging stuff
 	//
 	if ( r_showtris->integer ) {
-		graphicsDriver.DebugDrawTris(input);
+		GFX_DebugDrawTris(input);
 	}
 	if ( r_shownormals->integer ) {
-		graphicsDriver.DebugDrawNormals (input);
+		GFX_DebugDrawNormals (input);
 	}
 	// clear shader so we can tell we don't have any unclosed surfaces
 	tess.numIndexes = 0;
-
-	GLimp_LogComment( "----------\n" );
 }
 

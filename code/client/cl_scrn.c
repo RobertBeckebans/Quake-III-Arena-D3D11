@@ -440,11 +440,16 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 
 	// wide aspect ratio screens need to have the sides cleared
 	// unless they are displaying game renderings
+    /*
+    @pjb: this causes a pretty horrific bug. Because GFX_DrawImage is called from the main 
+    game thread the cinematic actually ends up being drawn first, and as such isn't visible.
+    I'm clearing the screen for cinematics and not touching this with a barge pole.
+    */
 	if ( cls.state != CA_ACTIVE ) {
 		if ( cls.vdconfig.vidWidth * 480 > cls.vdconfig.vidHeight * 640 ) {
-			re.SetColor( g_color_table[0] );
-			re.DrawStretchPic( 0, 0, cls.vdconfig.vidWidth, cls.vdconfig.vidHeight, 0, 0, 0, 0, cls.whiteShader );
-			re.SetColor( NULL );
+			//re.SetColor( g_color_table[0] );
+			//re.DrawStretchPic( 0, 0, cls.vdconfig.vidWidth, cls.vdconfig.vidHeight, 0, 0, 0, 0, cls.whiteShader );
+			//re.SetColor( NULL );
 		}
 	}
 

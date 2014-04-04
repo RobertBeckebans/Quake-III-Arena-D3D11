@@ -242,7 +242,7 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
             // @pjb: release the mouse so we can debug
             extern void IN_DeactivateMouse(void);
             IN_DeactivateMouse();
-            // @pjb: canonical way of breaking in Microsoft platforms
+            // @pjb: canonical way of breaking
 			DebugBreak();
 		}
 	}
@@ -2725,6 +2725,7 @@ void Com_Frame( void ) {
 	// Do this after the server may have started,
 	// but before the client tries to auto-connect
 	if ( com_dedicated->modified ) {
+#ifndef WIN8
 		// get the latched value
 		Cvar_Get( "dedicated", "0", 0 );
 		com_dedicated->modified = qfalse;
@@ -2735,6 +2736,11 @@ void Com_Frame( void ) {
 			CL_Shutdown();
 			Sys_ShowConsole( 1, qtrue );
 		}
+#else
+        Com_Printf( "Dedicated not supported on this platform.\n" );
+        com_dedicated->integer = 0;
+        com_dedicated->modified = qfalse;
+#endif
 	}
 
 	//

@@ -1411,7 +1411,7 @@ void R_DebugGraphics( void ) {
 	// the render thread can't make callbacks to the main thread
 	R_SyncRenderThread();
 
-	ri.CM_DrawDebugSurface( graphicsDriver.DebugDrawPolygon );
+	ri.CM_DrawDebugSurface( GFX_DebugDrawPolygon );
 }
 
 

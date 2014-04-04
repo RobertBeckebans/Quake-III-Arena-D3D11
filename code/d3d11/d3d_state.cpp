@@ -4,6 +4,7 @@
 #include "d3d_image.h"
 #include "d3d_shaders.h"
 #include "d3d_drawdata.h"
+#include "d3d_driver.h"
 
 //----------------------------------------------------------------------------
 // Locals
@@ -12,6 +13,7 @@
 //----------------------------------------------------------------------------
 // Globals
 //----------------------------------------------------------------------------
+d3dBackBufferState_t g_BufferState;
 d3dRunState_t g_RunState;
 d3dDrawState_t g_DrawState;
 

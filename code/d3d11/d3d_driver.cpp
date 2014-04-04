@@ -1,10 +1,15 @@
 // D3D headers
 #include "d3d_common.h"
 #include "d3d_driver.h"
-#include "d3d_wnd.h"
 #include "d3d_state.h"
 #include "d3d_image.h"
 #include "d3d_shaders.h"
+
+#ifdef WIN8
+#   include "d3d_win8.h"
+#else
+#   include "d3d_wnd.h"
+#endif
 
 // @pjb: this is just here to deliberately fuck the build if driver is used in here
 #define driver #driver_disallowed
@@ -22,7 +27,12 @@ HRESULT g_hrLastError = S_OK;
 void D3DDrv_Shutdown( void )
 {
     DestroyDrawState();
+
+#ifdef WIN8
+    D3DWin8_Shutdown();
+#else
     D3DWnd_Shutdown();
+#endif
 }
 
 void D3DDrv_UnbindResources( void )
@@ -119,10 +129,10 @@ void D3DDrv_GetModelView( float* modelViewMatrix )
 void D3DDrv_SetViewport( int left, int top, int width, int height )
 {
     D3D11_VIEWPORT viewport;
-    viewport.TopLeftX = left;
-    viewport.TopLeftY = g_BufferState.backBufferDesc.Height - top - height;
-    viewport.Width = width;
-    viewport.Height = height;
+    viewport.TopLeftX = max( 0, left );
+    viewport.TopLeftY = max( 0, (int)g_BufferState.backBufferDesc.Height - top - height );
+    viewport.Width = min( (int)g_BufferState.backBufferDesc.Width - viewport.TopLeftX, width );
+    viewport.Height = min( (int)g_BufferState.backBufferDesc.Height - viewport.TopLeftY, height );
     viewport.MinDepth = 0;
     viewport.MaxDepth = 1;
     g_pImmediateContext->RSSetViewports( 1, &viewport );
@@ -197,13 +207,32 @@ void D3DDrv_EndFrame( void )
 		frequency = min( vdConfig.displayFrequency, 60 / r_swapInterval->integer );
     }
 
+    DXGI_PRESENT_PARAMETERS parameters = {0};
+	parameters.DirtyRectsCount = 0;
+	parameters.pDirtyRects = nullptr;
+	parameters.pScrollRect = nullptr;
+	parameters.pScrollOffset = nullptr;
+    
     HRESULT hr = S_OK;
     switch (frequency)
     {
-    case 60: hr = g_pSwapChain->Present( 1, 0 ); break; 
-    case 30: hr = g_pSwapChain->Present( 2, 0 ); break;
-    default: hr = g_pSwapChain->Present( 0, 0 ); break; 
+    case 60: hr = g_pSwapChain->Present1( 1, 0, &parameters ); break; 
+    case 30: hr = g_pSwapChain->Present1( 2, 0, &parameters ); break;
+    default: hr = g_pSwapChain->Present1( 0, 0, &parameters ); break; 
     }
+
+#ifdef WIN8
+	// Discard the contents of the render target.
+	// This is a valid operation only when the existing contents will be entirely
+	// overwritten. If dirty or scroll rects are used, this call should be removed.
+	g_pImmediateContext->DiscardView( g_BufferState.backBufferView );
+
+	// Discard the contents of the depth stencil.
+	g_pImmediateContext->DiscardView( g_BufferState.depthBufferView );
+
+    // Present unbinds the rendertarget, so let's put it back (FFS)
+    g_pImmediateContext->OMSetRenderTargets( 1, &g_BufferState.backBufferView, g_BufferState.depthBufferView );
+#endif
 
 	if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
 	{
@@ -249,8 +278,8 @@ void SetupVideoConfig()
     g_BufferState.depthBufferView->GetDesc( &depthBufferViewDesc );
 
     DWORD colorDepth = 0, depthDepth = 0, stencilDepth = 0;
-    if ( FAILED( QD3D::GetBitDepthForFormat( g_BufferState.swapChainDesc.BufferDesc.Format, &colorDepth ) ) )
-        ri.Error( ERR_FATAL, "Bad bit depth supplied for color channel (%x)\n", g_BufferState.swapChainDesc.BufferDesc.Format );
+    if ( FAILED( QD3D::GetBitDepthForFormat( g_BufferState.swapChainDesc.Format, &colorDepth ) ) )
+        ri.Error( ERR_FATAL, "Bad bit depth supplied for color channel (%x)\n", g_BufferState.swapChainDesc.Format );
 
     if ( FAILED( QD3D::GetBitDepthForDepthStencilFormat( depthBufferViewDesc.Format, &depthDepth, &stencilDepth ) ) )
         ri.Error( ERR_FATAL, "Bad bit depth supplied for depth-stencil (%x)\n", depthBufferViewDesc.Format );
@@ -271,65 +300,77 @@ void SetupVideoConfig()
 	DEVMODE dm;
     memset( &dm, 0, sizeof( dm ) );
 	dm.dmSize = sizeof( dm );
-	if ( EnumDisplaySettings( NULL, ENUM_CURRENT_SETTINGS, &dm ) )
+	if ( EnumDisplaySettingsEx( NULL, ENUM_CURRENT_SETTINGS, &dm, 0 ) )
 	{
 		vdConfig.displayFrequency = dm.dmDisplayFrequency;
 	}
     
-    // We expect vidWidth, vidHeight and windowAspect to all be set by now
+#ifdef WIN8
+    // We expect vidWidth, vidHeight and windowAspect to all be set by now in most cases,
+    // but on Win8 they can be enforced by the system instead of set by us.
+    vdConfig.vidWidth = g_BufferState.swapChainDesc.Width;
+    vdConfig.vidHeight = g_BufferState.swapChainDesc.Height;
+    vdConfig.windowAspect = vdConfig.vidWidth / (float)vdConfig.vidHeight;
+#endif
 }
 
-D3D_PUBLIC void D3DDrv_DriverInit( graphicsApiLayer_t* layer )
+D3D_PUBLIC void D3DDrv_DriverInit( void )
 {
-    layer->Shutdown = D3DDrv_Shutdown;
-    layer->UnbindResources = D3DDrv_UnbindResources;
-    layer->LastError = D3DDrv_LastError;
-    layer->ReadPixels = D3DDrv_ReadPixels;
-    layer->ReadDepth = D3DDrv_ReadDepth;
-    layer->ReadStencil = D3DDrv_ReadStencil;
-    layer->CreateImage = D3DDrv_CreateImage;
-    layer->DeleteImage = D3DDrv_DeleteImage;
-    layer->UpdateCinematic = D3DDrv_UpdateCinematic;
-    layer->DrawImage = D3DDrv_DrawImage;
-    layer->GetImageFormat = D3DDrv_GetImageFormat;
-    layer->SetGamma = D3DDrv_SetGamma;
-    layer->GetFrameImageMemoryUsage = D3DDrv_SumOfUsedImages;
-    layer->GraphicsInfo = D3DDrv_GfxInfo;
-    layer->Clear = D3DDrv_Clear;
-    layer->SetProjectionMatrix = D3DDrv_SetProjection;
-    layer->GetProjectionMatrix = D3DDrv_GetProjection;
-    layer->SetModelViewMatrix = D3DDrv_SetModelView;
-    layer->GetModelViewMatrix = D3DDrv_GetModelView;
-    layer->SetViewport = D3DDrv_SetViewport;
-    layer->Flush = D3DDrv_Flush;
-    layer->SetState = D3DDrv_SetState;
-    layer->ResetState2D = D3DDrv_ResetState2D;
-    layer->ResetState3D = D3DDrv_ResetState3D;
-    layer->SetPortalRendering = D3DDrv_SetPortalRendering;
-    layer->SetDepthRange = D3DDrv_SetDepthRange;
-    layer->SetDrawBuffer = D3DDrv_SetDrawBuffer;
-    layer->EndFrame = D3DDrv_EndFrame;
-    layer->MakeCurrent = D3DDrv_MakeCurrent;
-    layer->ShadowSilhouette = D3DDrv_ShadowSilhouette;
-    layer->ShadowFinish = D3DDrv_ShadowFinish;
-    layer->DrawSkyBox = D3DDrv_DrawSkyBox;
-    layer->DrawBeam = D3DDrv_DrawBeam;
-    layer->DrawStageGeneric = D3DDrv_DrawStageGeneric;
-    layer->DrawStageVertexLitTexture = D3DDrv_DrawStageVertexLitTexture;
-    layer->DrawStageLightmappedMultitexture = D3DDrv_DrawStageLightmappedMultitexture;
-    layer->BeginTessellate = D3DDrv_BeginTessellate;
-    layer->EndTessellate = D3DDrv_EndTessellate;
-    layer->DebugDrawAxis = D3DDrv_DebugDrawAxis;
-    layer->DebugDrawTris = D3DDrv_DebugDrawTris;
-    layer->DebugDrawNormals = D3DDrv_DebugDrawNormals;
-    layer->DebugSetOverdrawMeasureEnabled = D3DDrv_DebugSetOverdrawMeasureEnabled;
-    layer->DebugSetTextureMode = D3DDrv_DebugSetTextureMode;
-    layer->DebugDrawPolygon = D3DDrv_DebugDrawPolygon;
+#ifndef WIN8
+    GFX_Shutdown = D3DDrv_Shutdown;
+    GFX_UnbindResources = D3DDrv_UnbindResources;
+    GFX_LastError = D3DDrv_LastError;
+    GFX_ReadPixels = D3DDrv_ReadPixels;
+    GFX_ReadDepth = D3DDrv_ReadDepth;
+    GFX_ReadStencil = D3DDrv_ReadStencil;
+    GFX_CreateImage = D3DDrv_CreateImage;
+    GFX_DeleteImage = D3DDrv_DeleteImage;
+    GFX_UpdateCinematic = D3DDrv_UpdateCinematic;
+    GFX_DrawImage = D3DDrv_DrawImage;
+    GFX_GetImageFormat = D3DDrv_GetImageFormat;
+    GFX_SetGamma = D3DDrv_SetGamma;
+    GFX_GetFrameImageMemoryUsage = D3DDrv_SumOfUsedImages;
+    GFX_GraphicsInfo = D3DDrv_GfxInfo;
+    GFX_Clear = D3DDrv_Clear;
+    GFX_SetProjectionMatrix = D3DDrv_SetProjection;
+    GFX_GetProjectionMatrix = D3DDrv_GetProjection;
+    GFX_SetModelViewMatrix = D3DDrv_SetModelView;
+    GFX_GetModelViewMatrix = D3DDrv_GetModelView;
+    GFX_SetViewport = D3DDrv_SetViewport;
+    GFX_Flush = D3DDrv_Flush;
+    GFX_SetState = D3DDrv_SetState;
+    GFX_ResetState2D = D3DDrv_ResetState2D;
+    GFX_ResetState3D = D3DDrv_ResetState3D;
+    GFX_SetPortalRendering = D3DDrv_SetPortalRendering;
+    GFX_SetDepthRange = D3DDrv_SetDepthRange;
+    GFX_SetDrawBuffer = D3DDrv_SetDrawBuffer;
+    GFX_EndFrame = D3DDrv_EndFrame;
+    GFX_MakeCurrent = D3DDrv_MakeCurrent;
+    GFX_ShadowSilhouette = D3DDrv_ShadowSilhouette;
+    GFX_ShadowFinish = D3DDrv_ShadowFinish;
+    GFX_DrawSkyBox = D3DDrv_DrawSkyBox;
+    GFX_DrawBeam = D3DDrv_DrawBeam;
+    GFX_DrawStageGeneric = D3DDrv_DrawStageGeneric;
+    GFX_DrawStageVertexLitTexture = D3DDrv_DrawStageVertexLitTexture;
+    GFX_DrawStageLightmappedMultitexture = D3DDrv_DrawStageLightmappedMultitexture;
+    GFX_BeginTessellate = D3DDrv_BeginTessellate;
+    GFX_EndTessellate = D3DDrv_EndTessellate;
+    GFX_DebugDrawAxis = D3DDrv_DebugDrawAxis;
+    GFX_DebugDrawTris = D3DDrv_DebugDrawTris;
+    GFX_DebugDrawNormals = D3DDrv_DebugDrawNormals;
+    GFX_DebugSetOverdrawMeasureEnabled = D3DDrv_DebugSetOverdrawMeasureEnabled;
+    GFX_DebugSetTextureMode = D3DDrv_DebugSetTextureMode;
+    GFX_DebugDrawPolygon = D3DDrv_DebugDrawPolygon;
+#endif
 
     // This, weirdly, can be called multiple times. Catch that if that's the case.
     if ( g_pDevice == nullptr )
     {
+#ifdef WIN8
+        D3DWin8_Init();
+#else
         D3DWnd_Init();
+#endif
     }
 
     InitDrawState();

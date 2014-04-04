@@ -448,52 +448,52 @@ Returns the opengl graphics driver and sets up global state
 
 @@@@@@@@@@@@@@@@@@@@@
 */
-void GLRB_DriverInit( graphicsApiLayer_t* layer )
+void GLRB_DriverInit( void )
 {
-    layer->Shutdown = GLRB_Shutdown;
-    layer->UnbindResources = GLRB_RestoreTextureState;
-    layer->LastError = GLRB_LastError;
-    layer->ReadPixels = GLRB_ReadPixels;
-    layer->ReadDepth = GLRB_ReadDepth;
-    layer->ReadStencil = GLRB_ReadStencil;
-    layer->CreateImage = GL_CreateImage;
-    layer->DeleteImage = GL_DeleteImage;
-    layer->UpdateCinematic = GL_UpdateCinematic;
-    layer->DrawImage = GLRB_DrawImage;
-    layer->GetImageFormat = GL_GetImageFormat;
-    layer->SetGamma = GLRB_SetGamma;
-    layer->GetFrameImageMemoryUsage = GL_SumOfUsedImages;
-    layer->GraphicsInfo = GLRB_GfxInfo_f;
-    layer->Clear = GL_Clear;
-    layer->SetProjectionMatrix = GL_SetProjection;
-    layer->GetProjectionMatrix = GL_GetProjection;
-    layer->SetModelViewMatrix = GL_SetModelView;
-    layer->GetModelViewMatrix = GL_GetModelView;
-    layer->SetViewport = GL_SetViewport;
-    layer->Flush = GL_Finish;
-    layer->SetState = GL_State;
-    layer->ResetState2D = GLRB_ResetState2D;
-    layer->ResetState3D = GLRB_ResetState3D;
-    layer->SetPortalRendering = GLRB_SetPortalRendering;
-    layer->SetDepthRange = GL_SetDepthRange;
-    layer->SetDrawBuffer = GLRB_SetDrawBuffer;
-    layer->EndFrame = GLimp_EndFrame;
-    layer->MakeCurrent = GLimp_MakeCurrent;
-    layer->ShadowSilhouette = GLRB_ShadowSilhouette;
-    layer->ShadowFinish = GLRB_ShadowFinish;
-    layer->DrawSkyBox = GLRB_DrawSkyBox;
-    layer->DrawBeam = GLRB_DrawBeam;
-    layer->DrawStageGeneric = GLRB_StageIteratorGeneric;
-    layer->DrawStageVertexLitTexture = GLRB_StageIteratorVertexLitTexture;
-    layer->DrawStageLightmappedMultitexture = GLRB_StageIteratorLightmappedMultitexture;
-    layer->BeginTessellate = GLRB_BeginTessellate;
-    layer->EndTessellate = GLRB_EndTessellate;
-    layer->DebugDrawAxis = GLRB_SurfaceAxis;
-    layer->DebugDrawTris = GLRB_DebugDrawTris;
-    layer->DebugDrawNormals = GLRB_DebugDrawNormals;
-    layer->DebugSetOverdrawMeasureEnabled = GLRB_SetOverdrawMeasureEnabled;
-    layer->DebugSetTextureMode = GL_TextureMode;
-    layer->DebugDrawPolygon = GLRB_DebugPolygon;
+    GFX_Shutdown = GLRB_Shutdown;
+    GFX_UnbindResources = GLRB_RestoreTextureState;
+    GFX_LastError = GLRB_LastError;
+    GFX_ReadPixels = GLRB_ReadPixels;
+    GFX_ReadDepth = GLRB_ReadDepth;
+    GFX_ReadStencil = GLRB_ReadStencil;
+    GFX_CreateImage = GL_CreateImage;
+    GFX_DeleteImage = GL_DeleteImage;
+    GFX_UpdateCinematic = GL_UpdateCinematic;
+    GFX_DrawImage = GLRB_DrawImage;
+    GFX_GetImageFormat = GL_GetImageFormat;
+    GFX_SetGamma = GLRB_SetGamma;
+    GFX_GetFrameImageMemoryUsage = GL_SumOfUsedImages;
+    GFX_GraphicsInfo = GLRB_GfxInfo_f;
+    GFX_Clear = GL_Clear;
+    GFX_SetProjectionMatrix = GL_SetProjection;
+    GFX_GetProjectionMatrix = GL_GetProjection;
+    GFX_SetModelViewMatrix = GL_SetModelView;
+    GFX_GetModelViewMatrix = GL_GetModelView;
+    GFX_SetViewport = GL_SetViewport;
+    GFX_Flush = GL_Finish;
+    GFX_SetState = GL_State;
+    GFX_ResetState2D = GLRB_ResetState2D;
+    GFX_ResetState3D = GLRB_ResetState3D;
+    GFX_SetPortalRendering = GLRB_SetPortalRendering;
+    GFX_SetDepthRange = GL_SetDepthRange;
+    GFX_SetDrawBuffer = GLRB_SetDrawBuffer;
+    GFX_EndFrame = GLimp_EndFrame;
+    GFX_MakeCurrent = GLimp_MakeCurrent;
+    GFX_ShadowSilhouette = GLRB_ShadowSilhouette;
+    GFX_ShadowFinish = GLRB_ShadowFinish;
+    GFX_DrawSkyBox = GLRB_DrawSkyBox;
+    GFX_DrawBeam = GLRB_DrawBeam;
+    GFX_DrawStageGeneric = GLRB_StageIteratorGeneric;
+    GFX_DrawStageVertexLitTexture = GLRB_StageIteratorVertexLitTexture;
+    GFX_DrawStageLightmappedMultitexture = GLRB_StageIteratorLightmappedMultitexture;
+    GFX_BeginTessellate = GLRB_BeginTessellate;
+    GFX_EndTessellate = GLRB_EndTessellate;
+    GFX_DebugDrawAxis = GLRB_SurfaceAxis;
+    GFX_DebugDrawTris = GLRB_DebugDrawTris;
+    GFX_DebugDrawNormals = GLRB_DebugDrawNormals;
+    GFX_DebugSetOverdrawMeasureEnabled = GLRB_SetOverdrawMeasureEnabled;
+    GFX_DebugSetTextureMode = GL_TextureMode;
+    GFX_DebugDrawPolygon = GLRB_DebugPolygon;
 
     InitOpenGL();
 

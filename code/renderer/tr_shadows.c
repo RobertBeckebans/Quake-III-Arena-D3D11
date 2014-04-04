@@ -190,7 +190,7 @@ void RB_ShadowTessEnd( void ) {
     }
     
 	// draw the silhouette edges
-    graphicsDriver.ShadowSilhouette( shadowEdgeBuffer, edgePoints );
+    GFX_ShadowSilhouette( shadowEdgeBuffer, edgePoints );
 }
 
 
@@ -212,7 +212,7 @@ void RB_ShadowFinish( void ) {
 		return;
 	}
 
-    graphicsDriver.ShadowFinish();
+    GFX_ShadowFinish();
 }
 
 

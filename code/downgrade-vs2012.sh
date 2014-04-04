@@ -18,11 +18,17 @@ for proj in $(find . -name '*VS2013.vcxproj'); do
 # replace any mention of other projects with the new project
 	sed -i -e "s/VS2013.vcxproj/VS2012.vcxproj/g" $newproj
 
+# replace any mention of other manifests with the new manifests
+	sed -i -e "s/VS2013.appxmanifest/VS2012.appxmanifest/g" $newproj
+
 # upgrade the toolset version
 	sed -i -e "s/ToolsVersion=\"12.0\"/ToolsVersion=\"4.0\"/g" $newproj
 
 # upgrade the platform toolset version
 	sed -i -e "s/<PlatformToolset>v120<\/PlatformToolset>/<PlatformToolset>v110<\/PlatformToolset>/g" $newproj
+
+# upgrade the minimum vs version
+	sed -i -e "s/<MinimumVisualStudioVersion>12.0<\/MinimumVisualStudioVersion>/<MinimumVisualStudioVersion>11.0<\/MinimumVisualStudioVersion>/g" $newproj
 
 done
 

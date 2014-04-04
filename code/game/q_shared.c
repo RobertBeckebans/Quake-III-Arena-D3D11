@@ -24,8 +24,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "q_shared.h"
 
 // @pjb: for DebugBreak
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
+#if defined(_WIN32) && !defined(WIN8)
+#   define WIN32_LEAN_AND_MEAN
+#   include <Windows.h>
+#endif
 
 float Com_Clamp( float min, float max, float value ) {
 	if ( value < min ) {
@@ -884,8 +886,8 @@ void QDECL Com_sprintf( char *dest, int size, const char *fmt, ...) {
 	}
 	if (len >= size) {
 		Com_Printf ("Com_sprintf: overflow of %i in %i\n", len, size);
-#ifdef	_DEBUG
-		// @pjb: standard way of breaking into the debugger on Microsoft platforms
+#if defined(_DEBUG)
+		// @pjb: standard way of breaking into the debugger
         DebugBreak();
 #endif
 	}
