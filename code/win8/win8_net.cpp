@@ -28,6 +28,9 @@ DatagramSocket^ g_Socket = nullptr;
 std::map<netadr_t, IOutputStream^> g_StreamOutCache;
 Win8::MessageQueue g_NetMsgQueue;
 
+static const USHORT c_MulticastAddress[] = { 0xFF02, 0, 0, 0, 0, 0, 0, 2 }; // All routers
+static const USHORT c_BroadcastAddress[] = { 0xFFFF, 0xFFFF, 0, 0, 0, 0, 0, 0 };
+
 // For the g_StreamOutCache map
 static bool operator < (const netadr_t& a, const netadr_t& b)
 {
@@ -204,8 +207,8 @@ bool NET_Ipv4ToString( const BYTE* address, char* str, size_t len )
 bool NET_IsIpv6NetAdr( const void* ip )
 {
     return 
-        ((const UINT*) ip)[1] != 0 &&
-        ((const UINT*) ip)[2] != 0 &&
+        ((const UINT*) ip)[1] != 0 ||
+        ((const UINT*) ip)[2] != 0 ||
         ((const UINT*) ip)[3] != 0;
 }
 
@@ -252,9 +255,18 @@ IOutputStream^ NET_OpenNewStream( const netadr_t* to )
     HostName^ remoteHostName = ref new HostName( Win8::CopyString( ipAddress ) );
 
     concurrency::create_task( g_Socket->GetOutputStreamAsync( remoteHostName, BigShort( to->port ).ToString() ) ).then(
-        [hEvent, &stream] ( IOutputStream^ s )
+        [hEvent, &stream] ( concurrency::task<IOutputStream^> t )
     {
-        stream = s;
+        try
+        {
+            stream = t.get();
+        }
+        catch ( Platform::Exception^ ex )
+        {
+            OutputDebugStringW( ex->Message->Data() );
+            stream = nullptr;
+        }
+
         SetEvent( hEvent );
     } );
     
@@ -319,36 +331,29 @@ WIN8_EXPORT qboolean Sys_GetPacket( netadr_t *net_from, msg_t *net_message ) {
 
 /*
 ==================
-Sys_SendPacket
+Sys_SendPacketToAddress
 ==================
 */
-WIN8_EXPORT void Sys_SendPacket( int length, const void *data, netadr_t to )
+void Sys_SendPacketToAddress( int length, const void *data, const netadr_t& to )
 {
-    // Ignore IPX requests
-    if ( g_Socket == nullptr || to.type == NA_IPX || to.type == NA_BROADCAST_IPX )
-        return;
-
     IOutputStream^ stream = nullptr;
 
-    if ( to.type == NA_BROADCAST )
+    // Look up the address in the output stream cache
+    auto cache = g_StreamOutCache.find( to );
+    if ( cache == std::end( g_StreamOutCache ) )
     {
-        stream = g_Socket->OutputStream;
+        // Not cached. Cache it now!
+        stream = NET_OpenNewStream( &to );
+        g_StreamOutCache[to] = stream;
     }
     else
     {
-        // Look up the peer in the output stream cache
-        auto cache = g_StreamOutCache.find( to );
-        if ( cache == std::end( g_StreamOutCache ) )
-        {
-            // Not cached. Cache it now!
-            stream = NET_OpenNewStream( &to );
-            g_StreamOutCache[to] = stream;
-        }
-        else
-        {
-            stream = cache->second;
-        }
+        stream = cache->second;
     }
+
+    // Barf :(
+    if ( stream == nullptr )
+        return;
 
     // @pjb: todo: the efficiency of this really concerns me
     try
@@ -360,6 +365,37 @@ WIN8_EXPORT void Sys_SendPacket( int length, const void *data, netadr_t to )
     catch ( Platform::Exception^ ex )
     {
         OutputDebugStringW( ex->Message->Data() );
+    }
+}
+
+/*
+==================
+Sys_SendPacket
+==================
+*/
+WIN8_EXPORT void Sys_SendPacket( int length, const void *data, netadr_t to )
+{
+    // Ignore IPX requests
+    if ( g_Socket == nullptr || to.type == NA_IPX || to.type == NA_BROADCAST_IPX )
+        return;
+
+    if ( to.type == NA_BROADCAST )
+    {
+        // Multicast IPv6
+        static_assert( sizeof( c_MulticastAddress ) == sizeof( to.ip ), "Whoops" );
+        Com_Memcpy( to.ip, c_MulticastAddress, sizeof( c_MulticastAddress ) );
+        
+        Sys_SendPacketToAddress( length, data, to );
+
+        // Broadcast IPv4
+        static_assert( sizeof( c_BroadcastAddress ) == sizeof( to.ip ), "Whoops" );
+        Com_Memcpy( to.ip, c_BroadcastAddress, sizeof( c_BroadcastAddress ) );
+        
+        Sys_SendPacketToAddress( length, data, to );
+    }
+    else 
+    {
+        Sys_SendPacketToAddress( length, data, to );
     }
 }
 
@@ -487,6 +523,11 @@ HRESULT NET_StartListeningOnPort( HostName^ localHost, int port )
 
     WaitForSingleObjectEx( bindEndPointComplete, INFINITE, FALSE );
     CloseHandle( bindEndPointComplete );
+
+    // Join multicast group
+    char multicastGroupStr[256];
+    NET_Ipv6ToString( (const BYTE*) c_MulticastAddress, multicastGroupStr, sizeof( multicastGroupStr ) );
+    g_Socket->JoinMulticastGroup( ref new HostName( Win8::CopyString( multicastGroupStr ) ) );
 
     return status;
 }
