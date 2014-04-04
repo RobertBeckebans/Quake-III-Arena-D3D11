@@ -5,6 +5,8 @@
 
 #include "tr_state.h"
 
+extern const float s_identityMatrix[16];
+
 // @pjb: whichever graphics driver the user chooses, it'll have pointers to its
 // specific utilities
 typedef struct graphicsApiLayer_s {
@@ -23,14 +25,16 @@ typedef struct graphicsApiLayer_s {
     int             (* GetFrameImageMemoryUsage)( void );
     void            (* GraphicsInfo)( void );
     void            (* Clear)( unsigned long bits, const float* clearCol, unsigned long stencil, float depth );
-    void            (* SetProjection)( const float* projMatrix );
+    void            (* SetProjectionMatrix)( const float* projMatrix );
+    void            (* GetProjectionMatrix)( float* projMatrix );
+    void            (* SetModelViewMatrix)( const float* modelViewMatrix );
+    void            (* GetModelViewMatrix)( float* modelViewMatrix );
     void            (* SetViewport)( int left, int top, int width, int height );
     void            (* Flush)( void );
     void            (* SetState)( unsigned long stateMask ); // Use GLS_* flags in tr_state.h
     void            (* ResetState2D)( void );
     void            (* ResetState3D)( void );
     void            (* SetPortalRendering)( qboolean enabled, const float* flipMatrix, const float* plane );
-    void            (* SetModelViewMatrix)( const float* modelViewMatrix );
     void            (* SetDepthRange)( float minRange, float maxRange );
     void            (* SetDrawBuffer)( int buffer );
     void            (* EndFrame)( void );

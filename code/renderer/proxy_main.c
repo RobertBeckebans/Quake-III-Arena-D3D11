@@ -101,8 +101,8 @@ void PROXY_Clear( unsigned long bits, const float* clearCol, unsigned long stenc
 
 void PROXY_SetProjection( const float* projMatrix )
 {
-    d3dDriver.SetProjection( projMatrix );
-    openglDriver.SetProjection( projMatrix );
+    d3dDriver.SetProjectionMatrix( projMatrix );
+    openglDriver.SetProjectionMatrix( projMatrix );
 }
 
 void PROXY_SetViewport( int left, int top, int width, int height )
@@ -166,7 +166,7 @@ void PROXY_DriverInit( graphicsApiLayer_t* layer )
     layer->GetFrameImageMemoryUsage = PROXY_SumOfUsedImages;
     layer->GraphicsInfo = PROXY_GfxInfo;
     layer->Clear = PROXY_Clear;
-    layer->SetProjection = PROXY_SetProjection;
+    layer->SetProjectionMatrix = PROXY_SetProjection;
     layer->SetViewport = PROXY_SetViewport;
     layer->Flush = PROXY_Flush;
     layer->SetState = PROXY_SetState;

@@ -154,7 +154,7 @@ D3D_PUBLIC void D3DDrv_DriverInit( graphicsApiLayer_t* layer )
     layer->GetFrameImageMemoryUsage = D3DDrv_SumOfUsedImages;
     layer->GraphicsInfo = D3DDrv_GfxInfo;
     layer->Clear = D3DDrv_Clear;
-    layer->SetProjection = D3DDrv_SetProjection;
+    layer->SetProjectionMatrix = D3DDrv_SetProjection;
     layer->SetViewport = D3DDrv_SetViewport;
     layer->Flush = D3DDrv_Flush;
     layer->SetState = D3DDrv_SetState;

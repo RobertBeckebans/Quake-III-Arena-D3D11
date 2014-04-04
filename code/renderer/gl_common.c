@@ -50,9 +50,26 @@ void GL_Clear( unsigned long bits, const float* clearCol, unsigned long stencil,
 
 void GL_SetProjection( const float* projMatrix )
 {
+    memcpy( glState.projection, projMatrix, sizeof(float) * 16 );
 	qglMatrixMode(GL_PROJECTION);
 	qglLoadMatrixf( projMatrix );
 	qglMatrixMode(GL_MODELVIEW);
+}
+
+void GL_GetProjection( float* projMatrix )
+{
+    memcpy( projMatrix, glState.projection, sizeof(float) * 16 );
+}
+
+void GL_SetModelView( const float* modelViewMatrix )
+{
+    memcpy( glState.modelView, modelViewMatrix, sizeof(float) * 16 );
+    qglLoadMatrixf( modelViewMatrix );
+}
+
+void GL_GetModelView( float* modelViewMatrix )
+{
+    memcpy( modelViewMatrix, glState.modelView, sizeof(float) * 16 );
 }
 
 void GL_SetViewport( int left, int top, int width, int height )
@@ -497,11 +514,6 @@ void GL_SetDefaultState( void )
 	qglEnable( GL_SCISSOR_TEST );
 	qglDisable( GL_CULL_FACE );
 	qglDisable( GL_BLEND );
-}
-
-void GL_SetModelViewMatrix( const float* modelViewMatrix )
-{
-    qglLoadMatrixf( modelViewMatrix );
 }
 
 void GL_SetDepthRange( float minRange, float maxRange )

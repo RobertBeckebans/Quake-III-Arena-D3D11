@@ -34,6 +34,12 @@ static float	s_flipMatrix[16] = {
 	0, 0, 0, 1
 };
 
+const float s_identityMatrix[16] = {
+    1, 0, 0, 0,
+    0, 1, 0, 0, 
+    0, 0, 1, 0,
+    0, 0, 0, 1 
+};
 
 /*
 ================
@@ -61,7 +67,7 @@ static void RB_Hyperspace( void ) {
 
 static void Set3DProjection( void ) {
 
-	graphicsDriver.SetProjection( backEnd.viewParms.projectionMatrix );
+	graphicsDriver.SetProjectionMatrix( backEnd.viewParms.projectionMatrix );
 
 	// set the window clipping
 	graphicsDriver.SetViewport( 
@@ -376,7 +382,7 @@ static void	Set2DProjection(void) {
     // @pjb: generate orthographic projection matrix manually and pass to
     // graphicsDriver.SetProjection
     ConstructOrtho( orthoMatrix, 0, vdConfig.vidWidth, vdConfig.vidHeight, 0, 0, 1 ); 
-    graphicsDriver.SetProjection( orthoMatrix );
+    graphicsDriver.SetProjectionMatrix( orthoMatrix );
 
     // Reset the state for 2D rendering
     graphicsDriver.ResetState2D();

@@ -20,9 +20,11 @@ void GL_TexEnv( int env );
 void GL_Cull( int cullType );
 void GL_Clear( unsigned long bits, const float* clearCol, unsigned long stencil, float depth );
 void GL_SetProjection( const float* projMatrix );
+void GL_GetProjection( float* projMatrix );
+void GL_SetModelView( const float* modelViewMatrix );
+void GL_GetModelView( float* modelViewMatrix );
 void GL_SetViewport( int left, int top, int width, int height );
 void GL_Finish( void );
-void GL_SetModelViewMatrix( const float* modelViewMatrix );
 void GL_SetDepthRange( float minRange, float maxRange );
 
 
@@ -49,6 +51,10 @@ typedef struct {
 	int			    texEnv[2];
 	int			    faceCulling;
 	unsigned long	glStateBits;
+
+    // Shadow state for the transforms
+    float           projection[16];
+    float           modelView[16];
 } glstate_t;
 
 extern glstate_t	        glState;		// outside of TR since it shouldn't be cleared during ref re-init
