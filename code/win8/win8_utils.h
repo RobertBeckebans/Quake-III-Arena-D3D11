@@ -1,5 +1,7 @@
 #pragma once
 
+#include <agile.h>
+
 namespace Win8
 {
     void InitTimer();

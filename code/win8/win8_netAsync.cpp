@@ -14,6 +14,7 @@
 
 #include "win8_msgq.h"
 #include "win8_net.h"
+#include "win8_utils.h"
 
 using namespace Windows::Foundation;
 using namespace Windows::Networking;
@@ -34,7 +35,7 @@ void NET_OnConnectionReceivedAsync(
     Win8::MSG msg;
     INIT_MSG( msg );
     msg.Message = NET_MSG_CLIENT_CONNECT;
-    
+    msg.Param0 = (size_t) Win8::GetPointer( args->Socket );
     g_NetMsgQueue.Post( &msg );
 }
 

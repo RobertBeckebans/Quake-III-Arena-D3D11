@@ -39,6 +39,22 @@ WIN8_EXPORT qboolean Sys_StringToAdr( const char *s, netadr_t *a ) {
 }
 
 /*
+=============
+NET_NewClient
+=============
+*/
+void NET_HandleNewClientMessage( const Win8::MSG* msg ) 
+{
+    // @pjb: Todo
+    
+    auto socket = Win8::GetType< Windows::Networking::Sockets::StreamSocket >( reinterpret_cast<IUnknown*>( msg->Param0 ) );
+
+    Com_Printf( "[NET] Client connect: %S:%d\n", 
+        socket->Information->RemoteAddress->DisplayName->Data(), 
+        socket->Information->RemotePort );
+}
+
+/*
 ==================
 Sys_GetPacket
 
@@ -56,7 +72,7 @@ WIN8_EXPORT qboolean Sys_GetPacket( netadr_t *net_from, msg_t *net_message ) {
         switch (msg.Message)
         {
         case NET_MSG_CLIENT_CONNECT:
-            // @pjb: Todo
+            NET_HandleNewClientMessage( &msg );
             break;
         default:
             assert(0);
