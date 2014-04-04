@@ -40,8 +40,17 @@ void D3DWin8_Init()
     swapChainDesc.SampleDesc.Count = 1;
     swapChainDesc.SampleDesc.Quality = 0;
 
+    QDXGIDevice* dxgiDevice = nullptr;
+    HRESULT hr = QD3D::GetDxgiDevice( device, &dxgiDevice );
+    if ( SUCCEEDED( hr ) )
+    {
+		// Ensure that DXGI does not queue more than one frame at a time. This both reduces latency and
+		// ensures that the application will only render after each VSync, minimizing power consumption.
+        dxgiDevice->SetMaximumFrameLatency(1);
+    }
+
     IDXGIFactory2* dxgiFactory = nullptr;
-    HRESULT hr = QD3D::GetDxgiFactory( device, &dxgiFactory );
+    hr = QD3D::GetDxgiFactory( device, &dxgiFactory );
     if ( FAILED( hr ) )
     {
         ri.Error( ERR_FATAL, "Failed to get DXGI Factory: 0x%08x.\n", hr );
