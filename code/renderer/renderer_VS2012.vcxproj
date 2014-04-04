@@ -277,7 +277,7 @@
       <PreserveSbr>true</PreserveSbr>
     </Bscmake>
     <FxCompile>
-      <ObjectFileOutput>$(OutDir)\baseq3\hlsl\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput>$(OutDir)AppX\baseq3\hlsl\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -337,7 +337,7 @@
       <PreserveSbr>true</PreserveSbr>
     </Bscmake>
     <FxCompile>
-      <ObjectFileOutput>$(OutDir)\baseq3\hlsl\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput>$(OutDir)AppX\baseq3\hlsl\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
@@ -397,7 +397,7 @@
       <PreserveSbr>true</PreserveSbr>
     </Bscmake>
     <FxCompile>
-      <ObjectFileOutput>$(OutDir)baseq3\hlsl\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput>$(OutDir)AppX\baseq3\hlsl\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -456,7 +456,7 @@
       <PreserveSbr>true</PreserveSbr>
     </Bscmake>
     <FxCompile>
-      <ObjectFileOutput>$(OutDir)\baseq3\hlsl\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput>$(OutDir)AppX\baseq3\hlsl\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -516,7 +516,7 @@
       <PreserveSbr>true</PreserveSbr>
     </Bscmake>
     <FxCompile>
-      <ObjectFileOutput>$(OutDir)\baseq3\hlsl\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput>$(OutDir)AppX\baseq3\hlsl\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
@@ -576,7 +576,7 @@
       <PreserveSbr>true</PreserveSbr>
     </Bscmake>
     <FxCompile>
-      <ObjectFileOutput>$(OutDir)baseq3\hlsl\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput>$(OutDir)AppX\baseq3\hlsl\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
