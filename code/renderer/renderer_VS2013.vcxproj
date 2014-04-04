@@ -538,6 +538,7 @@
     <ClInclude Include="proxy_main.h" />
     <ClInclude Include="qgl.h" />
     <ClInclude Include="..\game\surfaceflags.h" />
+    <ClInclude Include="tr_layer.h" />
     <ClInclude Include="tr_local.h" />
     <ClInclude Include="tr_public.h" />
     <ClInclude Include="..\cgame\tr_types.h" />
@@ -553,6 +554,7 @@
     <ClInclude Include="..\jpeg-6\jpegint.h" />
     <ClInclude Include="..\jpeg-6\jpeglib.h" />
     <ClInclude Include="..\jpeg-6\jversion.h" />
+    <ClInclude Include="tr_state.h" />
     <CustomBuild Include="..\ft2\ahangles.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

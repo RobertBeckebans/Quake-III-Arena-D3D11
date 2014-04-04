@@ -429,6 +429,9 @@
     <ClInclude Include="gl_image.h">
       <Filter>OpenGL Implementation</Filter>
     </ClInclude>
+    <ClInclude Include="tr_layer.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\d3d11\d3d_common.h">
       <Filter>Direct3D Implementation</Filter>
     </ClInclude>
@@ -440,6 +443,9 @@
     </ClInclude>
     <ClInclude Include="..\d3d11\d3d_driver.h">
       <Filter>Direct3D Implementation</Filter>
+    </ClInclude>
+    <ClInclude Include="tr_state.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
