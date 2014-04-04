@@ -156,7 +156,7 @@ D3D_PUBLIC void D3DWnd_Init( void )
 		&featureLevel);
     if (FAILED(hr) || !g_pDevice || !g_pImmediateContext)
 	{
-        ri.Error( ERR_FATAL, "Failed to create Direct3D 11 device.\n" );
+        ri.Error( ERR_FATAL, "Failed to create Direct3D 11 device: 0x%08x.\n", hr );
         return;
 	}
 
@@ -166,10 +166,11 @@ D3D_PUBLIC void D3DWnd_Init( void )
     // @pjb: todo: do these based on cvars (or if not set, pick the best one)
     QD3D::GetBestQualitySwapChainDesc(g_hWnd, g_pDevice, &swapChainDesc);
 
-    if (FAILED(QD3D::CreateSwapChain(g_pDevice, &swapChainDesc, &g_pSwapChain)))
+    hr = QD3D::CreateSwapChain(g_pDevice, &swapChainDesc, &g_pSwapChain);
+    if (FAILED(hr))
     {
         // @pjb: todo: if swapchain desc is too fancy, fall back
-        ri.Error( ERR_FATAL, "Failed to create Direct3D 11 swapchain.\n" );
+        ri.Error( ERR_FATAL, "Failed to create Direct3D 11 swapchain: 0x%08x.\n", hr );
         return;
     }
 
