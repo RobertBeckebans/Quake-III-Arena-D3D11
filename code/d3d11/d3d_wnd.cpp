@@ -60,7 +60,7 @@ static BOOL RegisterWindowClass()
     wc.lpfnWndProc = (WNDPROC) Direct3DWndProc;
     wc.cbClsExtra = 0;
     wc.hInstance = g_wv.hInstance;
-    wc.hIcon = LoadIcon(NULL, MAKEINTRESOURCE(IDI_ICON1));
+    wc.hIcon = LoadIcon( g_wv.hInstance, MAKEINTRESOURCE(IDI_ICON1) );
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = NULL;
     wc.lpszMenuName = NULL;
