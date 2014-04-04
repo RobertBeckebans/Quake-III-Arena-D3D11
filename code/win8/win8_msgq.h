@@ -2,6 +2,10 @@
 
 #include <stdint.h>
 #include <atomic>
+#include <concurrent_queue.h>
+
+// Convenience macro for setting up a message
+#define INIT_MSG( msg )        { ZeroMemory( &(msg), sizeof( msg ) ); (msg).TimeStamp = Sys_Milliseconds(); }
 
 namespace Q3Win8
 {
@@ -22,21 +26,8 @@ public:
     bool Pop( MSG* msg );
 
 private:
-    __forceinline int WrapMsgIndex( int pos ) const
-    {
-        return pos % c_numMsgs;
-    }
-
-    __forceinline MSG* GetMsgAt( int pos )
-    {
-        return &m_msgBuf[WrapMsgIndex(pos)];
-    }
-  
-    static const int c_numMsgs = 1024;
-    MSG m_msgBuf[c_numMsgs];
-    std::atomic<int> m_consumerCursor;
-    std::atomic<int> m_producerCursor;
-    std::atomic<int> m_producerReserve;
+    
+    concurrency::concurrent_queue<MSG> m_msgs;
 };
 
 }
