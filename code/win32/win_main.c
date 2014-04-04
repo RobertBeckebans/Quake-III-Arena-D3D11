@@ -306,6 +306,8 @@ void * QDECL Sys_LoadDll( const char *name, char *fqpath , int (QDECL **entryPoi
 
 #ifdef _M_X64
 	Com_sprintf( filename, sizeof( filename ), "%sx64.dll", name );
+#elif defined(_ARM_)
+	Com_sprintf( filename, sizeof( filename ), "%sarm.dll", name );
 #else
     Com_sprintf(filename, sizeof(filename), "%sx86.dll", name);
 #endif
