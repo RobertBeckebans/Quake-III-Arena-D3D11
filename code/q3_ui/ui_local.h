@@ -569,6 +569,7 @@ extern void			UI_Refresh( int realtime );
 extern qboolean		UI_ConsoleCommand( int realTime );
 extern float		UI_ClampCvar( float min, float max, float value );
 extern void			UI_DrawNamedPic( float x, float y, float width, float height, const char *picname );
+extern void			UI_DrawHandlePicNative( float x, float y, float w, float h, qhandle_t hShader );  // @pjb: draws at native res, not 640x480
 extern void			UI_DrawHandlePic( float x, float y, float w, float h, qhandle_t hShader ); 
 extern void			UI_FillRect( float x, float y, float width, float height, const float *color );
 extern void			UI_DrawRect( float x, float y, float width, float height, const float *color );
