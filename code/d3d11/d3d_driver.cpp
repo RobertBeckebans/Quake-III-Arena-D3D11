@@ -215,6 +215,16 @@ void D3DDrv_EndFrame( void )
     default: hr = g_pSwapChain->Present( 0, 0 ); break; 
     }
 
+#ifdef WIN8
+	// Discard the contents of the render target.
+	// This is a valid operation only when the existing contents will be entirely
+	// overwritten. If dirty or scroll rects are used, this call should be removed.
+	g_pImmediateContext->DiscardView( g_BufferState.backBufferView );
+
+	// Discard the contents of the depth stencil.
+	g_pImmediateContext->DiscardView( g_BufferState.depthBufferView );
+#endif
+
 	if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
 	{
 		// Someone kicked the cord out or something. REBOOT TEH VIDYOS!
@@ -286,11 +296,13 @@ void SetupVideoConfig()
 		vdConfig.displayFrequency = dm.dmDisplayFrequency;
 	}
     
+#ifdef WIN8
     // We expect vidWidth, vidHeight and windowAspect to all be set by now in most cases,
     // but on Win8 they can be enforced by the system instead of set by us.
     vdConfig.vidWidth = g_BufferState.swapChainDesc.Width;
     vdConfig.vidHeight = g_BufferState.swapChainDesc.Height;
     vdConfig.windowAspect = vdConfig.vidWidth / (float)vdConfig.vidHeight;
+#endif
 }
 
 D3D_PUBLIC void D3DDrv_DriverInit( void )
