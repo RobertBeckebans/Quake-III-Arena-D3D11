@@ -11,3 +11,4 @@ demota
 *.res
 botlib.log
 Build
+servercache.dat
