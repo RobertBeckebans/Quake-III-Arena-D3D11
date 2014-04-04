@@ -289,7 +289,7 @@ WIN8_EXPORT qboolean Sys_GetPacket( netadr_t *net_from, msg_t *net_message ) {
     auto dataReader = args->GetDataReader();
 
     // How much data is there in the buffer?
-    int packetSize = dataReader->UnconsumedBufferLength;
+    net_message->cursize = dataReader->UnconsumedBufferLength;
 
     // @pjb: oh Jesus the perf
 
