@@ -327,10 +327,10 @@ void InitDrawState()
     Com_Memset( &g_DrawState, 0, sizeof( g_DrawState ) );
 
     // Set up default state
-    Com_Memcpy( g_RunState.constants.modelViewMatrix, s_identityMatrix, sizeof(float) * 16 );
-    Com_Memcpy( g_RunState.constants.projectionMatrix, s_identityMatrix, sizeof(float) * 16 );
-    g_RunState.constants.depthRange[0] = 0;
-    g_RunState.constants.depthRange[1] = 1;
+    Com_Memcpy( g_RunState.vsConstants.modelViewMatrix, s_identityMatrix, sizeof(float) * 16 );
+    Com_Memcpy( g_RunState.vsConstants.projectionMatrix, s_identityMatrix, sizeof(float) * 16 );
+    g_RunState.vsConstants.depthRange[0] = 0;
+    g_RunState.vsConstants.depthRange[1] = 1;
     g_RunState.stateMask = 0;
     g_RunState.dirtyConstants = qtrue;
     g_RunState.cullMode = -1;

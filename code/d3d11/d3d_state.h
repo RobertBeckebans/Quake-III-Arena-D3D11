@@ -70,7 +70,7 @@ struct d3dImage_t
 
 struct d3dViewRenderData_t
 {
-    ID3D11Buffer* constantBuffer;
+    ID3D11Buffer* vsConstantBuffer;
 };
 
 struct d3dQuadRenderData_t
@@ -159,7 +159,7 @@ struct d3dDrawState_t
 
 // @pjb: stores the run-time game state. The game is set up like a state machine so we'll be doing the same.
 struct d3dRunState_t {
-    d3dViewConstantBuffer_t constants;
+    d3dViewConstantBuffer_t vsConstants;
     unsigned long stateMask; // combination of GLS_* flags
     int cullMode; // CT_ flag
     unsigned long depthStateMask;

@@ -12,9 +12,9 @@
 void UpdateDirtyView()
 {
     // Upload the constants
-    d3dViewConstantBuffer_t* cb = QD3D::MapDynamicBuffer<d3dViewConstantBuffer_t>( g_pImmediateContext, g_DrawState.viewRenderData.constantBuffer );
-    memcpy( cb, &g_RunState.constants, sizeof(d3dViewConstantBuffer_t) );
-    g_pImmediateContext->Unmap( g_DrawState.viewRenderData.constantBuffer, 0 );
+    d3dViewConstantBuffer_t* cb = QD3D::MapDynamicBuffer<d3dViewConstantBuffer_t>( g_pImmediateContext, g_DrawState.viewRenderData.vsConstantBuffer );
+    memcpy( cb, &g_RunState.vsConstants, sizeof(d3dViewConstantBuffer_t) );
+    g_pImmediateContext->Unmap( g_DrawState.viewRenderData.vsConstantBuffer, 0 );
     g_RunState.dirtyConstants = qfalse;
 }
 
@@ -189,7 +189,7 @@ void DrawQuad(
     g_pImmediateContext->IASetInputLayout( qrd->inputLayout );
     g_pImmediateContext->IASetIndexBuffer( qrd->indexBuffer, DXGI_FORMAT_R16_UINT, 0 );
     g_pImmediateContext->VSSetShader( qrd->vertexShader, nullptr, 0 );
-    g_pImmediateContext->VSSetConstantBuffers( 0, 1, &g_DrawState.viewRenderData.constantBuffer );
+    g_pImmediateContext->VSSetConstantBuffers( 0, 1, &g_DrawState.viewRenderData.vsConstantBuffer );
     g_pImmediateContext->PSSetShader( qrd->pixelShader, nullptr, 0 );
     g_pImmediateContext->PSSetSamplers( 0, 1, &image->pSampler );
     g_pImmediateContext->PSSetShaderResources( 0, 1, &image->pSRV );
@@ -234,7 +234,7 @@ static void TessDrawTextured( const shaderCommands_t* input, int stage )
 
     g_pImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
     g_pImmediateContext->IASetIndexBuffer( buffers->indexes, DXGI_FORMAT_R32_UINT, 0 );
-    g_pImmediateContext->VSSetConstantBuffers( 0, 1, &g_DrawState.viewRenderData.constantBuffer );
+    g_pImmediateContext->VSSetConstantBuffers( 0, 1, &g_DrawState.viewRenderData.vsConstantBuffer );
     g_pImmediateContext->IASetInputLayout( resources->inputLayoutST );
     g_pImmediateContext->VSSetShader( resources->vertexShaderST, nullptr, 0 );
     g_pImmediateContext->PSSetShader( resources->pixelShaderST, nullptr, 0 );
@@ -266,7 +266,7 @@ static void TessDrawMultitextured( const shaderCommands_t* input, int stage )
     g_pImmediateContext->IASetIndexBuffer( buffers->indexes, DXGI_FORMAT_R32_UINT, 0 );
     g_pImmediateContext->IASetInputLayout( resources->inputLayoutMT );
     g_pImmediateContext->VSSetShader( resources->vertexShaderMT, nullptr, 0 );
-    g_pImmediateContext->VSSetConstantBuffers( 0, 1, &g_DrawState.viewRenderData.constantBuffer );
+    g_pImmediateContext->VSSetConstantBuffers( 0, 1, &g_DrawState.viewRenderData.vsConstantBuffer );
     g_pImmediateContext->PSSetShader( resources->pixelShaderMT, nullptr, 0 );
     g_pImmediateContext->PSSetSamplers( 0, 2, psSamplers );
     g_pImmediateContext->PSSetShaderResources( 0, 2, psResources );
