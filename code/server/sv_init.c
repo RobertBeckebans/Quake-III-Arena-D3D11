@@ -591,7 +591,7 @@ void SV_Init (void) {
 	Cvar_Get ("sv_referencedPakNames", "", CVAR_SYSTEMINFO | CVAR_ROM );
 
     // @pjb: force sv_pure 0 on debug builds
-#ifdef _DEBUG
+#if defined(_DEBUG) || defined(WIN8)
     Cvar_Set( "sv_pure", "0" );
 #endif
 
