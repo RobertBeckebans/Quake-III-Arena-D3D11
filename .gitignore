@@ -9,3 +9,5 @@ ipch
 baseq3
 *.res
 Debug_TA
+DebugAxp
+q3_ui___Win32_Debug
