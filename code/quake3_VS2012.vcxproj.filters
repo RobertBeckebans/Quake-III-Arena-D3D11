@@ -9,7 +9,16 @@
       <UniqueIdentifier>{7fad259c-0d27-42d4-b2e4-87ac8b03091c}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;fi;fd</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
+    <Filter Include="Win8">
+      <UniqueIdentifier>{12d951fa-db10-4160-b645-02d4772e9a8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Win8\Assets">
+      <UniqueIdentifier>{231ab93b-236b-4416-ab26-2796a3a0184c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Win32">
+      <UniqueIdentifier>{9d654615-22fe-43bc-abf5-fc5b818d1da5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Win32\Resource Files">
       <UniqueIdentifier>{8966fb75-9dd5-4b3b-80e3-9be1eaa9cffd}</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;cnt;rtf;gif;jpg;jpeg;jpe</Extensions>
     </Filter>
@@ -144,32 +153,32 @@
     <ClCompile Include="qcommon\vm_x86.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="win32\win_input.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="win32\win_main.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="win32\win_net.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="win32\win_shared.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="win32\win_snd.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="win32\win_syscon.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="win32\win_wndproc.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="client\snd_api.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="xaudio\xaudio_main.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="win32\win_input.c">
+      <Filter>Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="win32\win_main.c">
+      <Filter>Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="win32\win_net.c">
+      <Filter>Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="win32\win_shared.c">
+      <Filter>Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="win32\win_snd.c">
+      <Filter>Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="win32\win_syscon.c">
+      <Filter>Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="win32\win_wndproc.c">
+      <Filter>Win32</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -248,38 +257,58 @@
     <ClInclude Include="qcommon\vm_local.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="win32\win_local.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="win32\win_snd.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="xaudio\xaudio_public.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="xaudio\xaudio_local.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="win32\win_snd.h">
+      <Filter>Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="win32\win_local.h">
+      <Filter>Win32</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="win32\cursor2.cur">
-      <Filter>Resource Files</Filter>
+      <Filter>Win32\Resource Files</Filter>
     </None>
     <None Include="win32\cursor3.cur">
-      <Filter>Resource Files</Filter>
+      <Filter>Win32\Resource Files</Filter>
     </None>
     <None Include="unix\ChangeLog" />
     <None Include="unix\Conscript-pk3" />
     <None Include="Construct" />
+    <None Include="win8\Quake3_TemporaryKey.pfx">
+      <Filter>Win8</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="win32\qe3.ico">
-      <Filter>Resource Files</Filter>
+      <Filter>Win32\Resource Files</Filter>
+    </Image>
+    <Image Include="win8\Assets\Logo.png">
+      <Filter>Win8\Assets</Filter>
+    </Image>
+    <Image Include="win8\Assets\SmallLogo.png">
+      <Filter>Win8\Assets</Filter>
+    </Image>
+    <Image Include="win8\Assets\SplashScreen.png">
+      <Filter>Win8\Assets</Filter>
+    </Image>
+    <Image Include="win8\Assets\StoreLogo.png">
+      <Filter>Win8\Assets</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="win32\winquake.rc">
-      <Filter>Resource Files</Filter>
+      <Filter>Win32\Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="win8\Package.appxmanifest">
+      <Filter>Win8</Filter>
+    </AppxManifest>
   </ItemGroup>
 </Project>
