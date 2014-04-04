@@ -168,11 +168,7 @@ void PROXY_DriverInit( graphicsApiLayer_t* layer )
 
     D3DDrv_DriverInit( &d3dDriver );
 
-    // @pjb: todo: remove this. Used to determine what state is changed by GL.
-    vdconfig_t vdConfigCuriosityHack = vdConfig;
     GLRB_DriverInit( &openglDriver );
-
-    (void)( vdConfigCuriosityHack );
 
     R_ValidateGraphicsLayer( &d3dDriver );
     R_ValidateGraphicsLayer( &openglDriver );
