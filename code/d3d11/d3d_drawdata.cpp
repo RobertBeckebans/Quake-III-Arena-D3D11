@@ -156,6 +156,7 @@ void InitRasterStates( d3dRasterStates_t* rs )
             {
                 rd.DepthBias = r_offsetFactor->value;
                 rd.SlopeScaledDepthBias = r_offsetUnits->value;
+                rd.DepthBiasClamp = 1;
             }
             if ( rasterMode & RASTERIZERSTATE_FLAG_POLY_OUTLINE ) {
                 rd.FillMode = D3D11_FILL_WIREFRAME;
