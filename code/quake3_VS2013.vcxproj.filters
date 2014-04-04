@@ -32,8 +32,14 @@
     <Filter Include="Game\Audio">
       <UniqueIdentifier>{c71fa461-b385-4066-8360-71c05cf1a7ea}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game\Audio\XAudio2">
-      <UniqueIdentifier>{8ef1af19-e486-4744-bb60-5ba6e17d93c2}</UniqueIdentifier>
+    <Filter Include="Game\Input">
+      <UniqueIdentifier>{fd820f23-098f-4ddc-b4c7-12fc623171ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="XInput">
+      <UniqueIdentifier>{4d15013a-b8da-483e-b1d5-c4525c0b4b50}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="XAudio2">
+      <UniqueIdentifier>{2dc01e7f-34a6-4cc9-8895-8e65ca69ac5d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -54,9 +60,6 @@
     </ClCompile>
     <ClCompile Include="win32\win_wndproc.c">
       <Filter>Windows\Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="xaudio\xaudio_main.cpp">
-      <Filter>Game\Audio\XAudio2</Filter>
     </ClCompile>
     <ClCompile Include="client\cl_ui.c">
       <Filter>Game\Client</Filter>
@@ -208,6 +211,12 @@
     <ClCompile Include="win8\win8_msgq.cpp">
       <Filter>Windows\Win8</Filter>
     </ClCompile>
+    <ClCompile Include="xaudio\xaudio_main.cpp">
+      <Filter>XAudio2</Filter>
+    </ClCompile>
+    <ClCompile Include="xinput\xinput_main.c">
+      <Filter>XInput</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="win32\win_snd.h">
@@ -215,12 +224,6 @@
     </ClInclude>
     <ClInclude Include="win32\win_local.h">
       <Filter>Windows\Win32</Filter>
-    </ClInclude>
-    <ClInclude Include="xaudio\xaudio_public.h">
-      <Filter>Game\Audio\XAudio2</Filter>
-    </ClInclude>
-    <ClInclude Include="xaudio\xaudio_local.h">
-      <Filter>Game\Audio\XAudio2</Filter>
     </ClInclude>
     <ClInclude Include="game\bg_public.h">
       <Filter>Game\Client</Filter>
@@ -304,6 +307,18 @@
       <Filter>Windows\Win8</Filter>
     </ClInclude>
     <ClInclude Include="win8\win8_msgq.h">
+      <Filter>Windows\Win8</Filter>
+    </ClInclude>
+    <ClInclude Include="xaudio\xaudio_local.h">
+      <Filter>XAudio2</Filter>
+    </ClInclude>
+    <ClInclude Include="xaudio\xaudio_public.h">
+      <Filter>XAudio2</Filter>
+    </ClInclude>
+    <ClInclude Include="xinput\xinput_public.h">
+      <Filter>XInput</Filter>
+    </ClInclude>
+    <ClInclude Include="win8\win8_msgs.h">
       <Filter>Windows\Win8</Filter>
     </ClInclude>
   </ItemGroup>
