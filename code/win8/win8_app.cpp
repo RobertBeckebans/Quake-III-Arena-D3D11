@@ -318,6 +318,8 @@ void Quake3Win8App::OnVisibilityChanged(CoreWindow^ sender, VisibilityChangedEve
 
 void Quake3Win8App::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args)
 {
+    sender->ReleasePointerCapture();
+
 	m_windowClosed = true;
 
     Q3Win8::MSG msg;
@@ -339,7 +341,9 @@ void Quake3Win8App::OnPointerMoved(CoreWindow^ sender, PointerEventArgs^ args)
 
 void Quake3Win8App::OnActivated(CoreApplicationView^ applicationView, IActivatedEventArgs^ args)
 {
-	CoreWindow::GetForCurrentThread()->Activate();
+    auto window = CoreWindow::GetForCurrentThread();
+    window->Activate();
+    window->SetPointerCapture();
 }
 
 void Quake3Win8App::OnSuspending(Platform::Object^ sender, SuspendingEventArgs^ args)
