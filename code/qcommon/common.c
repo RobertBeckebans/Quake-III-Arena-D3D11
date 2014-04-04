@@ -239,6 +239,9 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 	if ( code != ERR_DISCONNECT && code != ERR_NEED_CD ) {
         // @pjb: fix a crash if the cvar hadn't even been registered yet
 		if (!com_noErrorInterrupt || !com_noErrorInterrupt->integer) {
+            // @pjb: release the mouse so we can debug
+            extern void IN_DeactivateMouse(void);
+            IN_DeactivateMouse();
             // @pjb: canonical way of breaking in Microsoft platforms
 			DebugBreak();
 		}
