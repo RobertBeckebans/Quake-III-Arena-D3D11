@@ -1,9 +1,4 @@
-
-cbuffer ViewData : register(b0)
-{
-    float4x4 Projection;
-    float4x4 View;
-};
+#include "view.hlsl"
 
 struct VS_Data
 {

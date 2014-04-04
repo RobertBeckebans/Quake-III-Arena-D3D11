@@ -2,6 +2,32 @@
 
 #include "d3d_common.h"
 
+//----------------------------------------------------------------------------
+// Dynamic buffer layouts
+//----------------------------------------------------------------------------
+struct d3dQuadRenderVertex_t
+{
+    float coords[2];    
+    float texcoords[2];
+};
+
+struct d3dQuadRenderConstantBuffer_t 
+{
+    float color[4];
+};
+
+// @pjb: todo: consider splitting this up if it's a perf issue
+// reuploading the whole thing each time
+struct d3dViewConstantBuffer_t
+{
+    float projectionMatrix[16];
+    float modelViewMatrix[16];
+    float depthRange[2];
+    float __padding[2];
+};
+//----------------------------------------------------------------------------
+// Internal structures
+//----------------------------------------------------------------------------
 // @pjb: back-end representation of an image_t
 struct d3dImage_t
 {
@@ -74,30 +100,9 @@ struct d3dDrawState_t
 
 // @pjb: stores the run-time game state. The game is set up like a state machine so we'll be doing the same.
 struct d3dRunState_t {
-    float modelViewMatrix[16];
-    float projectionMatrix[16];
+    d3dViewConstantBuffer_t constants;
     unsigned long stateMask; // combination of GLS_* flags
-    qboolean dirtyTransform;
-};
-
-//----------------------------------------------------------------------------
-// Dynamic buffer layouts
-//----------------------------------------------------------------------------
-struct d3dQuadRenderVertex_t
-{
-    float coords[2];    
-    float texcoords[2];
-};
-
-struct d3dQuadRenderConstantBuffer_t 
-{
-    float color[4];
-};
-
-struct d3dViewConstantBuffer_t
-{
-    float projectionMatrix[16];
-    float modelViewMatrix[16];
+    qboolean dirtyConstants;
 };
 
 //----------------------------------------------------------------------------

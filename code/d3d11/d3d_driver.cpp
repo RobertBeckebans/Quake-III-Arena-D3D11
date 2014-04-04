@@ -27,7 +27,7 @@ void D3DDrv_Shutdown( void )
 
 void D3DDrv_UnbindResources( void )
 {
-
+    g_pImmediateContext->ClearState();
 }
 
 size_t D3DDrv_LastError( void )
@@ -96,24 +96,24 @@ void D3DDrv_Clear( unsigned long bits, const float* clearCol, unsigned long sten
 
 void D3DDrv_SetProjection( const float* projMatrix )
 {
-    memcpy( g_RunState.projectionMatrix, projMatrix, sizeof(float) * 16 );
-    g_RunState.dirtyTransform = qtrue;
+    memcpy( g_RunState.constants.projectionMatrix, projMatrix, sizeof(float) * 16 );
+    g_RunState.dirtyConstants = qtrue;
 }
 
 void D3DDrv_GetProjection( float* projMatrix )
 {
-    memcpy( projMatrix, g_RunState.projectionMatrix, sizeof(float) * 16 );
+    memcpy( projMatrix, g_RunState.constants.projectionMatrix, sizeof(float) * 16 );
 }
 
 void D3DDrv_SetModelView( const float* modelViewMatrix )
 {
-    memcpy( g_RunState.modelViewMatrix, modelViewMatrix, sizeof(float) * 16 );
-    g_RunState.dirtyTransform = qtrue;
+    memcpy( g_RunState.constants.modelViewMatrix, modelViewMatrix, sizeof(float) * 16 );
+    g_RunState.dirtyConstants = qtrue;
 }
 
 void D3DDrv_GetModelView( float* modelViewMatrix )
 {
-    memcpy( modelViewMatrix, g_RunState.modelViewMatrix, sizeof(float) * 16 );
+    memcpy( modelViewMatrix, g_RunState.constants.modelViewMatrix, sizeof(float) * 16 );
 }
 
 void D3DDrv_SetViewport( int left, int top, int width, int height )

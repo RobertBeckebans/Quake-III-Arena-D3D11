@@ -69,10 +69,18 @@ void DestroyBuffers()
 void InitDrawState()
 {
     // Don't memset g_BufferState here.
-
     Com_Memset( &g_RunState, 0, sizeof( g_RunState ) );
     Com_Memset( &g_DrawState, 0, sizeof( g_DrawState ) );
 
+    // Set up default state
+    Com_Memcpy( g_RunState.constants.modelViewMatrix, s_identityMatrix, sizeof(float) * 16 );
+    Com_Memcpy( g_RunState.constants.projectionMatrix, s_identityMatrix, sizeof(float) * 16 );
+    g_RunState.constants.depthRange[0] = 0;
+    g_RunState.constants.depthRange[1] = 1;
+    g_RunState.stateMask = GLS_DEFAULT;
+    g_RunState.dirtyConstants = qtrue;
+    
+    // Create D3D objects
     DestroyBuffers();
     CreateBuffers();
     InitImages();
@@ -113,20 +121,24 @@ void DestroyDrawState()
     Com_Memset( &g_DrawState, 0, sizeof( g_DrawState ) );
 }
 
-void UpdateDirtyTransform()
+void UpdateDirtyView()
 {
+    // Upload the constants
     d3dViewConstantBuffer_t* cb = QD3D::MapDynamicBuffer<d3dViewConstantBuffer_t>( g_pImmediateContext, g_DrawState.viewRenderData.constantBuffer );
-    memcpy( cb->projectionMatrix, g_RunState.projectionMatrix, sizeof(float) * 16 );
-    memcpy( cb->modelViewMatrix, g_RunState.modelViewMatrix, sizeof(float) * 16 );
+    memcpy( cb, &g_RunState.constants, sizeof(d3dViewConstantBuffer_t) );
     g_pImmediateContext->Unmap( g_DrawState.viewRenderData.constantBuffer, 0 );
-    g_RunState.dirtyTransform = qfalse;
+    g_RunState.dirtyConstants = qfalse;
 }
 
 // @pjb: forceinline because I don't want to put the 'if' inside UpdateDirtyTransform
-__forceinline void EnsureCleanTransform()
+__forceinline void UpdateViewState()
 {
-    if ( g_RunState.dirtyTransform )
-        UpdateDirtyTransform();
+    // If we have dirty constants, update the constant buffer
+    if ( g_RunState.dirtyConstants )
+        UpdateDirtyView();
+
+    // Select what state we want
+
 }
 
 void DrawQuad( 
@@ -136,7 +148,7 @@ void DrawQuad(
     const float* texcoords,
     const float* color )
 {
-    EnsureCleanTransform();
+    UpdateViewState();
 
     //
     // Update the constant buffer

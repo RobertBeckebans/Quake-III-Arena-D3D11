@@ -13,14 +13,41 @@ cvar_t* d3d_compileWarningsAsErrors = nullptr;
 cvar_t* d3d_vsTarget = nullptr;
 cvar_t* d3d_psTarget = nullptr;
 
+#define D3D_SHADER_PATH "d3d11"
+#define D3D_SHADER_EXT "hlsl"
+
+class QShaderInclude : public ID3DInclude
+{
+public:
+
+    HRESULT Open(
+        D3D_INCLUDE_TYPE IncludeType, 
+        LPCSTR pFileName, 
+        LPCVOID pParentData, 
+        LPCVOID *ppData, 
+        UINT *pBytes ) 
+    {
+        void* buf;
+        int length = ri.FS_ReadFile( va( "%s/%s", D3D_SHADER_PATH, pFileName ), &buf );
+        if ( length <= 0 ) {
+            return E_FAIL;
+        }
+
+        *ppData = buf;
+        *pBytes = length;
+        return S_OK;
+    }
+
+    HRESULT Close( 
+        LPCVOID pData )
+    {
+        ri.FS_FreeFile( (void*) pData );
+        return S_OK;
+    }
+};
 
 ID3DBlob* CompileShader( const char* filename, const char* target )
 {
-    void* buf;
-    int length = ri.FS_ReadFile( filename, &buf );
-    if ( length <= 0 ) {
-        ri.Error( ERR_FATAL, "Couldn't load D3D11 shader '%s'\n", filename );
-    }
 
     // @pjb: might want some other macros here one day
     D3D_SHADER_MACRO macros[] = {
@@ -61,15 +88,16 @@ ID3DBlob* CompileShader( const char* filename, const char* target )
         flags |= D3DCOMPILE_WARNINGS_ARE_ERRORS;
     }
 
+    QShaderInclude inc;
     ID3DBlob* errors = nullptr;
-    ID3DBlob* blob = QD3D::CompileShaderFromSource(
-        (LPCSTR) buf,
+    ID3DBlob* blob = QD3D::CompileShaderFromFile(
+        filename,
+        &inc,
         "Main",
         target,
         flags,
         macros,
-        &errors,
-        filename );
+        &errors );
 
     if ( errors ) {
         CHAR textBuf[1024];
@@ -82,14 +110,12 @@ ID3DBlob* CompileShader( const char* filename, const char* target )
         }
     }
 
-    ri.FS_FreeFile( buf );
-
     return blob;
 }
 
 ID3D11PixelShader* CompilePixelShader( const char* name )
 {
-    ID3DBlob* blob = CompileShader( va( "d3d11/%s.hlsl", name ), d3d_psTarget->string );
+    ID3DBlob* blob = CompileShader( va( "%s.%s", name, D3D_SHADER_EXT ), d3d_psTarget->string );
     assert( blob );
 
     ID3D11PixelShader* shader = nullptr;
@@ -109,7 +135,7 @@ ID3D11PixelShader* CompilePixelShader( const char* name )
 
 ID3D11VertexShader* CompileVertexShader( const char* name, ID3DBlob** ppBlob )
 {
-    ID3DBlob* blob = CompileShader( va( "d3d11/%s.hlsl", name ), d3d_vsTarget->string );
+    ID3DBlob* blob = CompileShader( va( "%s.hlsl", name ), d3d_vsTarget->string );
     assert( blob );
 
     ID3D11VertexShader* shader = nullptr;
