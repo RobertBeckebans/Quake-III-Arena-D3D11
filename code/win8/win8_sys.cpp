@@ -8,6 +8,8 @@ extern "C" {
 #include <ppltasks.h>
 #include <assert.h>
 
+#include "win8_app.h"
+
 //============================================
 // Win8 stuff
 
@@ -49,7 +51,7 @@ Platform::String^ Win8_CopyString( const char* src )
     size_t numConverted = 0;
     mbstowcs_s(
         &numConverted,
-        wide, len,
+        wide, len+1,
         src, len );
 
     Platform::String^ dst = ref new Platform::String( wide );
@@ -94,6 +96,14 @@ void Win8_SetCommandLine( Platform::Array<Platform::String^>^ args )
     }
 }
 
+void Win8_Throw( HRESULT hr, Platform::String^ str )
+{
+    if ( str == nullptr )
+        throw ref new Platform::Exception( hr );
+    else
+        throw ref new Platform::Exception( hr, str );
+}
+
 //============================================
 // Quake APIs
 
@@ -111,8 +121,9 @@ WIN8_EXPORT char *Sys_GetCurrentUser( void )
     
         Win8_CopyString( t.get(), s_userName, sizeof( s_userName ) );
     }
-    catch ( ... )
+    catch ( Platform::Exception^ ex )
     {
+        OutputDebugStringW( ex->Message->Data() );
     }
 
 	if ( !s_userName[0] )
@@ -188,16 +199,7 @@ WIN8_EXPORT void QDECL Sys_Error( const char *error, ... ) {
     OutputDebugStringA( text );
 
     Platform::String^ textObj = Win8_CopyString( text );
-
-    // Throw up a dialog box!
-    Windows::UI::Popups::MessageDialog^ dlg = ref new Windows::UI::Popups::MessageDialog(textObj);
-    auto asyncOp = concurrency::create_task( dlg->ShowAsync() );
-    asyncOp.wait();
-
-	IN_Shutdown();
-
-    // TODO: Probably a better way to handle this?
-	exit (1);
+    Win8_Throw( S_OK, textObj );
 }
 
 /*
@@ -206,10 +208,7 @@ Sys_Quit
 ==============
 */
 WIN8_EXPORT void Sys_Quit( void ) {
-
-    IN_Shutdown();
-	
-	exit (0);
+    Win8_Throw( S_OK, nullptr );
 }
 
 /*

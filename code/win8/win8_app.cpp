@@ -18,6 +18,28 @@ using namespace Windows::Foundation;
 using namespace Windows::Graphics::Display;
 using namespace concurrency;
 
+void Win8_HandleFatalException( Platform::Exception^ ex )
+{
+    // Throw up a dialog box!
+    if ( ex->HResult != S_OK )
+    {
+        try
+        {
+            Windows::UI::Popups::MessageDialog^ dlg = ref new Windows::UI::Popups::MessageDialog(ex->Message);
+            auto asyncOp = concurrency::create_task( dlg->ShowAsync() );
+            asyncOp.wait();
+        }
+        catch ( Platform::Exception^ ex )
+        {
+            OutputDebugStringW( ex->Message->Data() );
+        }
+    }
+
+    CoreApplication::Exit();
+}
+
+#define WIN8_SAFE( x )      try { x; } catch ( Platform::Exception^ ex ) { Win8_HandleFatalException( ex ); }
+
 Quake3Win8App::Quake3Win8App() :
 	m_windowClosed(false),
 	m_windowVisible(true)
@@ -67,21 +89,22 @@ void Quake3Win8App::SetWindow(CoreWindow^ window)
 
 void Quake3Win8App::Load(Platform::String^ entryPoint)
 {
-	Sys_InitTimer();
-    Sys_InitStreamThread();
+    WIN8_SAFE(
+    {
+	    Sys_InitTimer();
+        Sys_InitStreamThread();
 
-	Com_Init( sys_cmdline );
-	NET_Init();
+	    Com_Init( sys_cmdline );
+	    NET_Init();
 
-	Com_Printf( "Working directory: %s\n", Sys_Cwd() );
-
-
-
+	    Com_Printf( "Working directory: %s\n", Sys_Cwd() );
+    });
 }
 
 void Quake3Win8App::Run()
 {
-	while (!m_windowClosed)
+	WIN8_SAFE(
+    while (!m_windowClosed)
 	{
 		if (m_windowVisible)
 		{
@@ -97,13 +120,13 @@ void Quake3Win8App::Run()
 		{
 			CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessOneAndAllPending);
 		}
-	}
+	});
 }
 
 void Quake3Win8App::Uninitialize()
 {
-    // @pjb: todo
-    NET_Shutdown();
+    WIN8_SAFE( IN_Shutdown() );
+    WIN8_SAFE( NET_Shutdown() );
 }
 
 void Quake3Win8App::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEventArgs^ args)
@@ -184,6 +207,8 @@ int main( Platform::Array<Platform::String^>^ args )
     Win8_SetCommandLine( args );
     
     auto q3ApplicationSource = ref new Quake3Win8ApplicationSource();
-	CoreApplication::Run(q3ApplicationSource);
+
+    WIN8_SAFE( CoreApplication::Run(q3ApplicationSource) );
+
 	return 0;
 }
