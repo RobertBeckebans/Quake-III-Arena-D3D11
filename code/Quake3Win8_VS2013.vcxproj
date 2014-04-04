@@ -932,6 +932,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="win8\win8_utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="win32\win_shared.h" />

@@ -12,6 +12,7 @@
     <ClCompile Include="win8\win8_msgq.cpp" />
     <ClCompile Include="win8\win8_net.cpp" />
     <ClCompile Include="win8\win8_sys.cpp" />
+    <ClCompile Include="win8\win8_utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="win32\win_shared.h" />

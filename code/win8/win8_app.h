@@ -62,8 +62,32 @@ public:
 	virtual Windows::ApplicationModel::Core::IFrameworkView^ CreateView();
 };
 
+void Win8_InitTimer();
+int Win8_GetTime();
+size_t Win8_CopyString( Platform::String^ str, char* dst, size_t dstLen );
+Platform::String^ Win8_CopyString( const char* src );
+size_t Win8_MultiByteToWide( const char* src, wchar_t* dst, size_t dstLen );
+void Win8_SetCommandLine( Platform::Array<Platform::String^>^ args );
+void Win8_Throw( HRESULT hr, Platform::String^ str );
+Windows::Foundation::IAsyncOperation<Windows::UI::Popups::IUICommand^>^ Win8_DisplayException( Platform::Exception^ ex );
 void Win8_SetCommandLine( Platform::Array<Platform::String^>^ args );
 void Win8_PostQuitMessage();
+
+template<class Type> IUnknown* Win8_GetPointer( Type^ obj )
+{
+    Platform::Agile<Type> agile( obj );
+    IUnknown* ptr = reinterpret_cast<IUnknown*>( agile.Get() );
+    ptr->AddRef();
+    return ptr;
+}
+
+template<class Type> Type^ Win8_GetType( IUnknown* obj )
+{
+    Platform::Details::AgileHelper<Type> agile( reinterpret_cast<__abi_IUnknown*>( obj ), true );
+    return agile;
+}
+
+
 
 // @pjb: 
 void Sys_SetFrameTime( int time );

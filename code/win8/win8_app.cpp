@@ -28,44 +28,6 @@ Q3Win8::MessageQueue g_sysMsgs;
 
 #define NUM_MOUSE_BUTTONS 3
 
-Windows::Foundation::IAsyncOperation<Windows::UI::Popups::IUICommand^>^
-    Win8_DisplayException( Platform::Exception^ ex )
-{
-    // Throw up a dialog box!
-    try
-    {
-        Windows::UI::Popups::MessageDialog^ dlg = ref new Windows::UI::Popups::MessageDialog(ex->Message);
-        return dlg->ShowAsync();
-    }
-    catch ( Platform::AccessDeniedException^ )
-    {
-        return nullptr;
-    }
-    catch ( Platform::Exception^ ex )
-    {
-        OutputDebugStringW( ex->Message->Data() );
-        return nullptr;
-    }
-    catch ( ... )
-    {
-        return nullptr;
-    }
-}
-
-template<class Type> IUnknown* Win8_GetPointer( Type^ obj )
-{
-    Platform::Agile<Type> agile( obj );
-    IUnknown* ptr = reinterpret_cast<IUnknown*>( agile.Get() );
-    ptr->AddRef();
-    return ptr;
-}
-
-template<class Type> Type^ Win8_GetType( IUnknown* obj )
-{
-    Platform::Details::AgileHelper<Type> agile( reinterpret_cast<__abi_IUnknown*>( obj ), true );
-    return agile;
-}
-
 int ConvertDipsToPixels(float dips)
 {
 #ifdef _WIN32_WINNT_WINBLUE
