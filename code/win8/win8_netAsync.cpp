@@ -26,16 +26,14 @@ using namespace Windows::Networking::Sockets;
 NET_OnConnectionReceived
 ====================
 */
-void NET_OnConnectionReceivedAsync( 
-    StreamSocketListener^ sender, 
-    StreamSocketListenerConnectionReceivedEventArgs^ args )
+void NET_OnMessageReceived( 
+    DatagramSocket^ socket, 
+    DatagramSocketMessageReceivedEventArgs^ args )
 {
-    // @pjb: Todo
-
     Win8::MSG msg;
     INIT_MSG( msg );
-    msg.Message = NET_MSG_CLIENT_CONNECT;
-    msg.Param0 = (size_t) Win8::GetPointer( args->Socket );
+    msg.Message = NET_MSG_INCOMING_MESSAGE;
+    msg.Param0 = (size_t) Win8::GetPointer( args );
     g_NetMsgQueue.Post( &msg );
 }
 

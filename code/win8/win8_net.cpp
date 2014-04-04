@@ -22,7 +22,7 @@ static qboolean networkingEnabled = qfalse;
 
 static cvar_t	*net_noudp;
 
-StreamSocketListener^ g_Listener = nullptr;
+DatagramSocket^ g_Socket = nullptr;
 Win8::MessageQueue g_NetMsgQueue;
 
 /*
@@ -43,15 +43,16 @@ WIN8_EXPORT qboolean Sys_StringToAdr( const char *s, netadr_t *a ) {
 NET_NewClient
 =============
 */
-void NET_HandleNewClientMessage( const Win8::MSG* msg ) 
+void NET_HandleNewMessage( const Win8::MSG* msg ) 
 {
     // @pjb: Todo
     
-    auto socket = Win8::GetType< Windows::Networking::Sockets::StreamSocket >( reinterpret_cast<IUnknown*>( msg->Param0 ) );
+    auto args = Win8::GetType< Windows::Networking::Sockets::DatagramSocketMessageReceivedEventArgs >( reinterpret_cast<IUnknown*>( msg->Param0 ) );
+    auto inputStream = args->GetDataStream();
 
-    Com_Printf( "[NET] Client connect: %S:%d\n", 
-        socket->Information->RemoteAddress->DisplayName->Data(), 
-        socket->Information->RemotePort );
+    Com_Printf( "[NET] New packet received from %S:%d\n", 
+        args->RemoteAddress->DisplayName->Data(),
+        args->RemotePort );
 }
 
 /*
@@ -71,8 +72,8 @@ WIN8_EXPORT qboolean Sys_GetPacket( netadr_t *net_from, msg_t *net_message ) {
     {
         switch (msg.Message)
         {
-        case NET_MSG_CLIENT_CONNECT:
-            NET_HandleNewClientMessage( &msg );
+        case NET_MSG_INCOMING_MESSAGE:
+            NET_HandleNewMessage( &msg );
             break;
         default:
             assert(0);
@@ -133,7 +134,7 @@ HRESULT NET_StartListeningOnPort( HostName^ localHost, int port, bool bindToAny 
     if ( bindToAny )
     {
         // Try to bind to a specific address.
-        concurrency::create_task( g_Listener->BindEndpointAsync( localHost, serviceName ) ).then(
+        concurrency::create_task( g_Socket->BindEndpointAsync( localHost, serviceName ) ).then(
             [bindEndPointComplete, &status] ( concurrency::task<void> previousTask )
         {
             try
@@ -154,7 +155,7 @@ HRESULT NET_StartListeningOnPort( HostName^ localHost, int port, bool bindToAny 
     else
     {
         // Try to bind to a specific address.
-        concurrency::create_task( g_Listener->BindEndpointAsync( localHost, serviceName ) ).then(
+        concurrency::create_task( g_Socket->BindEndpointAsync( localHost, serviceName ) ).then(
             [bindEndPointComplete, &status] ( concurrency::task<void> previousTask)
         {
             try
@@ -175,6 +176,13 @@ HRESULT NET_StartListeningOnPort( HostName^ localHost, int port, bool bindToAny 
 
     WaitForSingleObjectEx( bindEndPointComplete, INFINITE, FALSE );
     CloseHandle( bindEndPointComplete );
+
+    if ( status )
+    {
+        // Listen on socket
+        g_Socket->MessageReceived += ref new TypedEventHandler<DatagramSocket^, DatagramSocketMessageReceivedEventArgs^>( 
+            NET_OnMessageReceived );
+    }
 
     return status;
 }
@@ -237,11 +245,8 @@ void NET_StartListening( void ) {
 
     Cvar_Set( "net_ip", hostNameTmp );
 
-    g_Listener = ref new StreamSocketListener();
-    g_Listener->ConnectionReceived += 
-        ref new TypedEventHandler<StreamSocketListener^, StreamSocketListenerConnectionReceivedEventArgs^>( 
-            NET_OnConnectionReceivedAsync);
-    
+    g_Socket = ref new DatagramSocket();
+        
 	// automatically scan for a valid port, so multiple
 	// dedicated servers can be started without requiring
 	// a different net_port for each one

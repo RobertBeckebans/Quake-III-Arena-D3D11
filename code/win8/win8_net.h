@@ -2,7 +2,7 @@
 
 enum NET_MSG
 {
-    NET_MSG_CLIENT_CONNECT
+    NET_MSG_INCOMING_MESSAGE
 };
 
 extern Win8::MessageQueue g_NetMsgQueue;
@@ -11,9 +11,9 @@ extern Win8::MessageQueue g_NetMsgQueue;
     Async Events
 */
 
-void NET_OnConnectionReceivedAsync( 
-    Windows::Networking::Sockets::StreamSocketListener^ sender, 
-    Windows::Networking::Sockets::StreamSocketListenerConnectionReceivedEventArgs^ args );
+void NET_OnMessageReceived( 
+    Windows::Networking::Sockets::DatagramSocket^ socket, 
+    Windows::Networking::Sockets::DatagramSocketMessageReceivedEventArgs^ args );
 
 /*
     Thread-safe Quake functions
