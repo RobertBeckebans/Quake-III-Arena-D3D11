@@ -25,6 +25,8 @@ using namespace concurrency;
 Q3Win8::MessageQueue g_gameMsgs;
 Q3Win8::MessageQueue g_sysMsgs;
 
+#define NUM_MOUSE_BUTTONS 3
+
 enum GAME_MSG
 {
     GAME_MSG_QUIT,
@@ -115,10 +117,20 @@ namespace Q3Win8
             }
             break;
         case GAME_MSG_MOUSE_DOWN: 
-            // @pjb: Todo
+            for ( size_t i = 0; i < NUM_MOUSE_BUTTONS; ++i )
+            {
+                // Bit is set if the mouse button was pressed
+                if ( msg->Param0 & (1LL << i) )
+		        	Sys_QueEvent( SYS_EVENT_FRAME_TIME, SE_KEY, K_MOUSE1 + (int) i, qtrue, 0, NULL );
+            }
             break;
         case GAME_MSG_MOUSE_UP: 
-            // @pjb: Todo
+            for ( size_t i = 0; i < NUM_MOUSE_BUTTONS; ++i )
+            {
+                // Bit is set if the mouse button was released
+                if ( msg->Param0 & (1LL << i) )
+		        	Sys_QueEvent( SYS_EVENT_FRAME_TIME, SE_KEY, K_MOUSE1 + (int) i, qfalse, 0, NULL );
+            }
             break;
         case GAME_MSG_KEY_CHAR:
 		    Sys_QueEvent( SYS_EVENT_FRAME_TIME, SE_CHAR, (int) msg->Param0, 0, 0, NULL );
@@ -382,12 +394,35 @@ void Quake3Win8App::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args
     g_gameMsgs.Post( &msg );
 }
 
+// Pack the keycode information in the Win32 way (given here:
+// http://msdn.microsoft.com/en-us/library/windows/desktop/ms646280(v=vs.85).aspx)
+static size_t PackKeyStatus( Windows::UI::Core::CorePhysicalKeyStatus status, bool keyDown )
+{
+    size_t packed;
+    packed  = status.RepeatCount & 0xFFFF;
+    packed |= (status.ScanCode & 0xFF) << 16;
+    packed |= (status.IsExtendedKey & 1) << 24;
+    packed |= (status.WasKeyDown & 1) << 30;
+    packed |= ((keyDown & 1) ^ 1) << 31;
+    return packed;
+}
+
+static size_t PackMouseButtons( Windows::UI::Input::PointerPointProperties^ properties )
+{
+    // @pjb: todo: support for more buttons?
+    size_t packed = 0;
+    packed |= (properties->IsLeftButtonPressed & 1);
+    packed |= (properties->IsMiddleButtonPressed & 1) << 1;
+    packed |= (properties->IsRightButtonPressed & 1) << 2;
+    return packed;
+}
+
 void Quake3Win8App::OnPointerPressed(CoreWindow^ sender, PointerEventArgs^ args)
 {
     Q3Win8::MSG msg;
     ZeroMemory( &msg, sizeof(msg) );
     msg.Message = GAME_MSG_MOUSE_DOWN;
-    // @pjb: todo: which button?
+    msg.Param0 = PackMouseButtons( args->CurrentPoint->Properties );
     msg.TimeStamp = args->CurrentPoint->Timestamp;
     g_gameMsgs.Post( &msg );
 }
@@ -397,7 +432,7 @@ void Quake3Win8App::OnPointerReleased(CoreWindow^ sender, PointerEventArgs^ args
     Q3Win8::MSG msg;
     ZeroMemory( &msg, sizeof(msg) );
     msg.Message = GAME_MSG_MOUSE_UP;
-    // @pjb: todo: which button?
+    msg.Param0 = ~PackMouseButtons( args->CurrentPoint->Properties );
     msg.TimeStamp = args->CurrentPoint->Timestamp;
     g_gameMsgs.Post( &msg );
 }
@@ -421,19 +456,6 @@ void Quake3Win8App::OnPointerWheelChanged(CoreWindow^ sender, PointerEventArgs^ 
     msg.Param0 = args->CurrentPoint->Properties->MouseWheelDelta;
     msg.TimeStamp = args->CurrentPoint->Timestamp;
     g_gameMsgs.Post( &msg );
-}
-
-// Pack the keycode information in the Win32 way (given here:
-// http://msdn.microsoft.com/en-us/library/windows/desktop/ms646280(v=vs.85).aspx)
-static size_t PackKeyStatus( Windows::UI::Core::CorePhysicalKeyStatus status, bool keyDown )
-{
-    size_t packed;
-    packed  = status.RepeatCount & 0xFFFF;
-    packed |= (status.ScanCode & 0xFF) << 16;
-    packed |= (status.IsExtendedKey & 1) << 24;
-    packed |= (status.WasKeyDown & 1) << 30;
-    packed |= ((keyDown & 1) ^ 1) << 31;
-    return packed;
 }
 
 void Quake3Win8App::OnCharacterReceived(CoreWindow^ sender, CharacterReceivedEventArgs^ args)
