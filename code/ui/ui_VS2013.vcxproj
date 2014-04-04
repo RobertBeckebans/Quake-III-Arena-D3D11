@@ -154,31 +154,31 @@
     <LinkIncremental>false</LinkIncremental>
     <TargetName>uix86</TargetName>
     <OutDir>$(SolutionDir)Build\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)BuildIntermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)Build\Intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='vector|x64'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>uix64</TargetName>
     <OutDir>$(SolutionDir)Build\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)BuildIntermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)Build\Intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>uix86</TargetName>
     <OutDir>$(SolutionDir)Build\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)BuildIntermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)Build\Intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release TA|x64'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>uix64</TargetName>
     <OutDir>$(SolutionDir)Build\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)BuildIntermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)Build\Intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>uix86</TargetName>
     <OutDir>$(SolutionDir)Build\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)BuildIntermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)Build\Intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -190,25 +190,25 @@
     <LinkIncremental>false</LinkIncremental>
     <TargetName>uix86</TargetName>
     <OutDir>$(SolutionDir)Build\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)BuildIntermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)Build\Intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>uix64</TargetName>
     <OutDir>$(SolutionDir)Build\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)BuildIntermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)Build\Intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>uix86</TargetName>
     <OutDir>$(SolutionDir)Build\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)BuildIntermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)Build\Intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug TA|x64'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>uix64</TargetName>
     <OutDir>$(SolutionDir)Build\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)BuildIntermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)Build\Intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='vector|Win32'">
     <ClCompile>
