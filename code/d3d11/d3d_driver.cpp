@@ -117,6 +117,16 @@ void D3DDrv_SetState( unsigned long stateMask )
     
 }
 
+void D3DDrv_ResetState2D( void )
+{
+
+}
+
+void D3DDrv_ResetState3D( void )
+{
+
+}
+
 D3D_PUBLIC void D3DDrv_DriverInit( graphicsApiLayer_t* layer )
 {
     layer->Shutdown = D3DDrv_Shutdown;
@@ -134,6 +144,8 @@ D3D_PUBLIC void D3DDrv_DriverInit( graphicsApiLayer_t* layer )
     layer->SetViewport = D3DDrv_SetViewport;
     layer->Flush = D3DDrv_Flush;
     layer->SetState = D3DDrv_SetState;
+    layer->ResetState2D = D3DDrv_ResetState2D;
+    layer->ResetState3D = D3DDrv_ResetState3D;
 
     // This, weirdly, can be called multiple times. Catch that if that's the case.
     if ( g_pDevice == nullptr )

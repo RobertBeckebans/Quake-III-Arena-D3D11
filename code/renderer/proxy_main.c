@@ -123,6 +123,18 @@ void PROXY_SetState( unsigned long stateMask )
     openglDriver.SetState( stateMask );
 }
 
+void PROXY_ResetState2D( void )
+{
+    d3dDriver.ResetState2D();
+    openglDriver.ResetState2D();
+}
+
+void PROXY_ResetState3D( void )
+{
+    d3dDriver.ResetState3D();
+    openglDriver.ResetState3D();
+}
+
 void PROXY_PositionOpenGLWindowRightOfD3D( void )
 {
     HWND hD3DWnd, hGLWnd;
@@ -158,6 +170,8 @@ void PROXY_DriverInit( graphicsApiLayer_t* layer )
     layer->SetViewport = PROXY_SetViewport;
     layer->Flush = PROXY_Flush;
     layer->SetState = PROXY_SetState;
+    layer->ResetState2D = PROXY_ResetState2D;
+    layer->ResetState3D = PROXY_ResetState3D;
 
     // Get the configurable driver priority
     proxy_driverPriority = Cvar_Get( "proxy_driverPriority", "0", CVAR_ARCHIVE );
