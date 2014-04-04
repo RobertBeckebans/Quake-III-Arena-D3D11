@@ -32,7 +32,7 @@ namespace QD3D
 	HRESULT 
 	CreateDefaultDevice(
 		_In_ D3D_DRIVER_TYPE driver, 
-		_Out_ ID3D11Device2** device,
+		_Out_ QD3D11Device** device,
 		_Out_ ID3D11DeviceContext** context,
 		_Out_ D3D_FEATURE_LEVEL* featureLevel)
 	{
@@ -62,7 +62,7 @@ namespace QD3D
 					context);
         if ( SUCCEEDED( hr ) ) 
         {
-		    return device11->QueryInterface(__uuidof(ID3D11Device2), (void **) device);
+		    return device11->QueryInterface(__uuidof(QD3D11Device), (void **) device);
         }
 
         return hr;
@@ -87,7 +87,7 @@ namespace QD3D
 	//----------------------------------------------------------------------------
 	HRESULT 
 	GetMultiSampledSwapChainDesc(
-		_In_ ID3D11Device2* device,
+		_In_ QD3D11Device* device,
 		_In_ UINT msaaSamples,
 		_Out_ DXGI_SWAP_CHAIN_DESC1* out)
 	{
@@ -123,7 +123,7 @@ namespace QD3D
 	//----------------------------------------------------------------------------
 	void 
 	GetBestQualitySwapChainDesc(
-		_In_ ID3D11Device2* device,
+		_In_ QD3D11Device* device,
 		_Out_ DXGI_SWAP_CHAIN_DESC1* scd)
 	{
 		const UINT multiSampleLevels[] = {16, 8, 4, 2, 0};
@@ -147,12 +147,12 @@ namespace QD3D
 	// Gets the DXGI factory
 	//----------------------------------------------------------------------------
     HRESULT GetDxgiFactory( 
-        _In_ ID3D11Device2* device, 
+        _In_ QD3D11Device* device, 
         _Out_ IDXGIFactory2** dxgiFactory )
     {
 		// Get the factory associated with the device
-		IDXGIDevice3* dxgiDevice;
-		HRESULT hr = device->QueryInterface(__uuidof(IDXGIDevice3), (void **)&dxgiDevice);
+		QDXGIDevice* dxgiDevice;
+		HRESULT hr = device->QueryInterface(__uuidof(QDXGIDevice), (void **)&dxgiDevice);
         if ( FAILED( hr ) )
             return hr;
 
@@ -177,7 +177,7 @@ namespace QD3D
 	//----------------------------------------------------------------------------
 	HRESULT
 	CreateSwapChain(
-		_In_ ID3D11Device2* device,
+		_In_ QD3D11Device* device,
         _In_ HWND hWnd,
 		_In_ const DXGI_SWAP_CHAIN_DESC1* scd,
         _In_ const DXGI_SWAP_CHAIN_FULLSCREEN_DESC* fsd,
@@ -424,7 +424,7 @@ namespace QD3D
     // Helper function for creating 2D textures
    	//----------------------------------------------------------------------------
 	ID3D11Texture2D* CreateTexture2D(
-		_In_ ID3D11Device2* device, 
+		_In_ QD3D11Device* device, 
 		_In_ UINT width,
 		_In_ UINT height, 
 		_In_ DXGI_FORMAT t2d_format,  
@@ -468,7 +468,7 @@ namespace QD3D
     // Helper function for creating 3D textures
    	//----------------------------------------------------------------------------
 	ID3D11Texture3D* CreateTexture3D(
-		_In_ ID3D11Device2* device, 
+		_In_ QD3D11Device* device, 
 		_In_ UINT width,
 		_In_ UINT height, 
 		_In_ UINT depth,
@@ -507,7 +507,7 @@ namespace QD3D
     //----------------------------------------------------------------------------
     // Helper function for creating a view of the back buffer
    	//----------------------------------------------------------------------------
-	ID3D11RenderTargetView* CreateBackBufferView(IDXGISwapChain1* swapChain, ID3D11Device2* device, D3D11_TEXTURE2D_DESC* opt_desc)
+	ID3D11RenderTargetView* CreateBackBufferView(IDXGISwapChain1* swapChain, QD3D11Device* device, D3D11_TEXTURE2D_DESC* opt_desc)
 	{
 		ID3D11Texture2D* back_buffer = NULL;
 		GetBackBuffer(swapChain, &back_buffer);
@@ -528,7 +528,7 @@ namespace QD3D
     // Helper function for creating a view of a depth buffer
    	//----------------------------------------------------------------------------
 	ID3D11DepthStencilView* CreateDepthBufferView(
-		ID3D11Device2* device, 
+		QD3D11Device* device, 
 		UINT width, 
 		UINT height, 
 		DXGI_FORMAT t2d_format,
@@ -577,7 +577,7 @@ namespace QD3D
     // Helper function for creating a view of a render target
    	//----------------------------------------------------------------------------
 	ID3D11RenderTargetView* CreateRenderTargetView(
-		_In_ ID3D11Device2* device, 
+		_In_ QD3D11Device* device, 
 		UINT width,
 		UINT height, 
 		DXGI_FORMAT t2d_format, 
@@ -626,7 +626,7 @@ namespace QD3D
     // Helper function for creating a view of a 2D render target
    	//----------------------------------------------------------------------------
 	ID3D11RenderTargetView* CreateTexture2DRenderTargetView(
-		_In_ ID3D11Device2* device, 
+		_In_ QD3D11Device* device, 
 		ID3D11Texture2D* texture,
 		DXGI_FORMAT rtv_format)
 	{
@@ -650,7 +650,7 @@ namespace QD3D
     // Helper function for creating a view of a 2D depth buffer
    	//----------------------------------------------------------------------------
 	ID3D11DepthStencilView* CreateTexture2DDepthBufferView(
-		ID3D11Device2* device, 
+		QD3D11Device* device, 
 		ID3D11Texture2D* depth_buffer,
 		DXGI_FORMAT dsv_format)
 	{
@@ -673,7 +673,7 @@ namespace QD3D
     //----------------------------------------------------------------------------
     // Helper function for creating a view of a 2D texture
    	//----------------------------------------------------------------------------
-	ID3D11ShaderResourceView* CreateTexture2DShaderResourceView(_In_ ID3D11Device2* device, _In_ ID3D11Texture2D* texture, DXGI_FORMAT srv_format)
+	ID3D11ShaderResourceView* CreateTexture2DShaderResourceView(_In_ QD3D11Device* device, _In_ ID3D11Texture2D* texture, DXGI_FORMAT srv_format)
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
 		ZeroMemory(&srvd, sizeof(srvd));
@@ -694,7 +694,7 @@ namespace QD3D
     //----------------------------------------------------------------------------
     // Helper function for creating an immutable buffer
    	//----------------------------------------------------------------------------
-	ID3D11Buffer* CreateImmutableBuffer(ID3D11Device2* device, UINT bindFlags, const void* data, size_t size)
+	ID3D11Buffer* CreateImmutableBuffer(QD3D11Device* device, UINT bindFlags, const void* data, size_t size)
 	{
 		D3D11_BUFFER_DESC desc;
 		ZeroMemory(&desc, sizeof(desc));

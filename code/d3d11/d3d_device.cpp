@@ -2,7 +2,7 @@
 #include "d3d_device.h"
 #include "d3d_state.h"
 
-ID3D11Device2* g_pDevice = nullptr;
+QD3D11Device* g_pDevice = nullptr;
 ID3D11DeviceContext* g_pImmediateContext = nullptr;
 IDXGISwapChain1* g_pSwapChain = nullptr;
 
@@ -11,7 +11,7 @@ bool DeviceStarted()
     return g_pDevice != nullptr;
 }
 
-ID3D11Device2* InitDevice()
+QD3D11Device* InitDevice()
 {
     Com_Memset( &g_BufferState, 0, sizeof( g_BufferState ) );
 

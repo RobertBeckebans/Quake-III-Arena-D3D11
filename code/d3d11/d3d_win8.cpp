@@ -25,7 +25,7 @@ void D3DWin8_Init()
     assert(g_Window);
 
     // Now go ahead :)
-    ID3D11Device2* device = InitDevice();
+    QD3D11Device* device = InitDevice();
 
     // Prepare the swap chain
 	DXGI_SWAP_CHAIN_DESC1 swapChainDesc;

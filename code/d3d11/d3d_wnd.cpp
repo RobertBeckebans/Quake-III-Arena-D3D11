@@ -147,7 +147,7 @@ D3D_PUBLIC void D3DWnd_Init( void )
         return;
     }
 
-	ID3D11Device2* device = InitDevice();
+	QD3D11Device* device = InitDevice();
 
     // @pjb: todo: do these based on cvars (or if not set, pick the best one)
     DXGI_SWAP_CHAIN_DESC1 scDesc;

@@ -202,7 +202,7 @@ extern d3dDrawState_t g_DrawState;
 //----------------------------------------------------------------------------
 // Imports from d3d_wnd.cpp
 //----------------------------------------------------------------------------
-extern ID3D11Device2* g_pDevice;
+extern QD3D11Device* g_pDevice;
 extern ID3D11DeviceContext* g_pImmediateContext;
 extern IDXGISwapChain1* g_pSwapChain;
 

@@ -2,7 +2,7 @@
 #define __D3D_DEVICE_H__
 
 bool DeviceStarted();
-ID3D11Device2* InitDevice(); // release when done
+QD3D11Device* InitDevice(); // release when done
 void DestroyDevice();
 void InitSwapChain( IDXGISwapChain1* swapChain ); // adds ref
 void DestroySwapChain();
