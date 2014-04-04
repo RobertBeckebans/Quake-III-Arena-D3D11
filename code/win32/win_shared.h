@@ -51,4 +51,8 @@ void Sys_In_Restart_f( void );
 void Sys_Net_Restart_f( void );
 void Sys_InitStreamThread( void );
 
+void	IN_Init (void);
+void	IN_Shutdown (void);
+
+
 #endif
