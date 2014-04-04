@@ -101,7 +101,7 @@ void RB_BeginDrawingView (void) {
 	SetViewportAndScissor();
 
 	// ensures that depth writes are enabled for the depth clear
-	graphicsDriver.SetState( GLS_DEFAULT );
+	graphicsDriver.ResetState3D();
 
     // clear relevant buffers
 	clearBits = CLEAR_DEPTH;
@@ -381,15 +381,8 @@ static void	Set2DProjection(void) {
     ConstructOrtho( orthoMatrix, 0, vdConfig.vidWidth, vdConfig.vidHeight, 0, 0, 1 ); 
     graphicsDriver.SetProjection( orthoMatrix );
 
-    // Reset the state for 3D rendering
-    qglLoadIdentity ();
-
-	GL_State( GLS_DEPTHTEST_DISABLE |
-			  GLS_SRCBLEND_SRC_ALPHA |
-			  GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
-
-	qglDisable( GL_CULL_FACE );
-	qglDisable( GL_CLIP_PLANE0 );
+    // Reset the state for 2D rendering
+    graphicsDriver.ResetState2D();
 
 	// set time for 2D shaders
 	backEnd.refdef.time = ri.Milliseconds();

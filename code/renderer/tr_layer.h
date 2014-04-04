@@ -23,6 +23,8 @@ typedef struct graphicsApiLayer_s {
     void            (* SetViewport)( int left, int top, int width, int height );
     void            (* Flush)( void );
     void            (* SetState)( unsigned long stateMask ); // Use GLS_* flags in tr_state.h
+    void            (* ResetState2D)( void );
+    void            (* ResetState3D)( void );
 } graphicsApiLayer_t;
 
 extern graphicsApiLayer_t      graphicsDriver;

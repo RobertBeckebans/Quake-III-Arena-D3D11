@@ -220,6 +220,27 @@ void GLRB_Shutdown( void )
     glState.initialized = qfalse;
 }
 
+void GLRB_ResetState2D( void )
+{
+    qglLoadIdentity();
+
+	GL_State( GLS_DEPTHTEST_DISABLE |
+			  GLS_SRCBLEND_SRC_ALPHA |
+			  GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
+    GL_Cull( CT_TWO_SIDED );
+
+	qglDisable( GL_CLIP_PLANE0 );
+}
+
+void GLRB_ResetState3D( void )
+{
+    // @pjb: todo
+
+    qglLoadIdentity();
+
+    GL_State( GLS_DEFAULT );
+}
+
 /*
 @@@@@@@@@@@@@@@@@@@@@
 
@@ -244,6 +265,8 @@ void GLRB_DriverInit( graphicsApiLayer_t* layer )
     layer->SetViewport = GL_SetViewport;
     layer->Flush = GL_Finish;
     layer->SetState = GL_State;
+    layer->ResetState2D = GLRB_ResetState2D;
+    layer->ResetState3D = GLRB_ResetState3D;
 
     InitOpenGL();
 
