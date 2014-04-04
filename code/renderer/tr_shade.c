@@ -35,6 +35,202 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 shaderCommands_t	tess;
 
 /*
+===================
+Perform dynamic lighting with another rendering pass
+===================
+*/
+static void GLR_ComputeDlightProjection( shaderCommands_t* input, int stage ) {
+	int		i, l;
+#if idppc_altivec
+	vec_t	origin0, origin1, origin2;
+	float   texCoords0, texCoords1;
+	vector float floatColorVec0, floatColorVec1;
+	vector float modulateVec, colorVec, zero;
+	vector short colorShort;
+	vector signed int colorInt;
+	vector unsigned char floatColorVecPerm, modulatePerm, colorChar;
+	vector unsigned char vSel = (vector unsigned char)(0x00, 0x00, 0x00, 0xff,
+							   0x00, 0x00, 0x00, 0xff,
+							   0x00, 0x00, 0x00, 0xff,
+							   0x00, 0x00, 0x00, 0xff);
+#else
+	vec3_t	origin;
+#endif
+	float	*texCoords;
+	byte	*colors;
+	byte	clipBits[SHADER_MAX_VERTEXES];
+	float	scale;
+	float	radius;
+	vec3_t	floatColor;
+	float	modulate;
+    int     numDlights = min( backEnd.refdef.num_dlights, MAX_DLIGHTS );
+
+	if ( !backEnd.refdef.num_dlights ) {
+		return;
+	}
+
+#if idppc_altivec
+	// There has to be a better way to do this so that floatColor 
+	// and/or modulate are already 16-byte aligned.
+	floatColorVecPerm = vec_lvsl(0,(float *)floatColor);
+	modulatePerm = vec_lvsl(0,(float *)&modulate);
+	modulatePerm = (vector unsigned char)vec_splat((vector unsigned int)modulatePerm,0);
+	zero = (vector float)vec_splat_s8(0);
+#endif
+
+    input->dlightCount = numDlights;
+
+	for ( l = 0 ; l < numDlights ; l++ ) {
+		dlight_t	*dl;
+        dlightProjectionInfo_t* dlInfo = &input->dlightInfo[l];
+
+		if ( !( input->dlightBits & ( 1 << l ) ) ) {
+			continue;	// this surface definately doesn't have any of this light
+		}
+		texCoords = dlInfo->texCoordsArray[0];
+		colors = dlInfo->colorArray[0];
+
+		dl = &backEnd.refdef.dlights[l];
+#if idppc_altivec
+		origin0 = dl->transformed[0];
+		origin1 = dl->transformed[1];
+		origin2 = dl->transformed[2];
+#else
+		VectorCopy( dl->transformed, origin );
+#endif
+		radius = dl->radius;
+		scale = 1.0f / radius;
+
+		floatColor[0] = dl->color[0] * 255.0f;
+		floatColor[1] = dl->color[1] * 255.0f;
+		floatColor[2] = dl->color[2] * 255.0f;
+#if idppc_altivec
+		floatColorVec0 = vec_ld(0, floatColor);
+		floatColorVec1 = vec_ld(11, floatColor);
+		floatColorVec0 = vec_perm(floatColorVec0,floatColorVec0,floatColorVecPerm);
+#endif
+		for ( i = 0 ; i < input->numVertexes ; i++, texCoords += 2, colors += 4 ) {
+#if idppc_altivec
+			vec_t dist0, dist1, dist2;
+#else
+			vec3_t	dist;
+#endif
+			int		clip;
+
+			backEnd.pc.c_dlightVertexes++;
+
+#if idppc_altivec
+			//VectorSubtract( origin, input->xyz[i], dist );
+			dist0 = origin0 - input->xyz[i][0];
+			dist1 = origin1 - input->xyz[i][1];
+			dist2 = origin2 - input->xyz[i][2];
+			texCoords0 = 0.5f + dist0 * scale;
+			texCoords1 = 0.5f + dist1 * scale;
+
+			clip = 0;
+			if ( texCoords0 < 0.0f ) {
+				clip |= 1;
+			} else if ( texCoords0 > 1.0f ) {
+				clip |= 2;
+			}
+			if ( texCoords1 < 0.0f ) {
+				clip |= 4;
+			} else if ( texCoords1 > 1.0f ) {
+				clip |= 8;
+			}
+			texCoords[0] = texCoords0;
+			texCoords[1] = texCoords1;
+			
+			// modulate the strength based on the height and color
+			if ( dist2 > radius ) {
+				clip |= 16;
+				modulate = 0.0f;
+			} else if ( dist2 < -radius ) {
+				clip |= 32;
+				modulate = 0.0f;
+			} else {
+				dist2 = Q_fabs(dist2);
+				if ( dist2 < radius * 0.5f ) {
+					modulate = 1.0f;
+				} else {
+					modulate = 2.0f * (radius - dist2) * scale;
+				}
+			}
+			clipBits[i] = clip;
+
+			modulateVec = vec_ld(0,(float *)&modulate);
+			modulateVec = vec_perm(modulateVec,modulateVec,modulatePerm);
+			colorVec = vec_madd(floatColorVec0,modulateVec,zero);
+			colorInt = vec_cts(colorVec,0);	// RGBx
+			colorShort = vec_pack(colorInt,colorInt);		// RGBxRGBx
+			colorChar = vec_packsu(colorShort,colorShort);	// RGBxRGBxRGBxRGBx
+			colorChar = vec_sel(colorChar,vSel,vSel);		// RGBARGBARGBARGBA replace alpha with 255
+			vec_ste((vector unsigned int)colorChar,0,(unsigned int *)colors);	// store color
+#else
+			VectorSubtract( origin, input->xyz[i], dist );
+			texCoords[0] = 0.5f + dist[0] * scale;
+			texCoords[1] = 0.5f + dist[1] * scale;
+
+			clip = 0;
+			if ( texCoords[0] < 0.0f ) {
+				clip |= 1;
+			} else if ( texCoords[0] > 1.0f ) {
+				clip |= 2;
+			}
+			if ( texCoords[1] < 0.0f ) {
+				clip |= 4;
+			} else if ( texCoords[1] > 1.0f ) {
+				clip |= 8;
+			}
+			// modulate the strength based on the height and color
+			if ( dist[2] > radius ) {
+				clip |= 16;
+				modulate = 0.0f;
+			} else if ( dist[2] < -radius ) {
+				clip |= 32;
+				modulate = 0.0f;
+			} else {
+				dist[2] = Q_fabs(dist[2]);
+				if ( dist[2] < radius * 0.5f ) {
+					modulate = 1.0f;
+				} else {
+					modulate = 2.0f * (radius - dist[2]) * scale;
+				}
+			}
+			clipBits[i] = clip;
+
+			colors[0] = myftol(floatColor[0] * modulate);
+			colors[1] = myftol(floatColor[1] * modulate);
+			colors[2] = myftol(floatColor[2] * modulate);
+			colors[3] = 255;
+#endif
+		}
+
+        dlInfo->additive = dl->additive;
+
+		// build a list of triangles that need light
+		dlInfo->numIndexes = 0;
+		for ( i = 0 ; i < input->numIndexes ; i += 3 ) {
+			int		a, b, c;
+
+			a = input->indexes[i];
+			b = input->indexes[i+1];
+			c = input->indexes[i+2];
+			if ( clipBits[a] & clipBits[b] & clipBits[c] ) {
+				continue;	// not lighted
+			}
+			dlInfo->hitIndexes[dlInfo->numIndexes] = a;
+			dlInfo->hitIndexes[dlInfo->numIndexes+1] = b;
+			dlInfo->hitIndexes[dlInfo->numIndexes+2] = c;
+			dlInfo->numIndexes += 3;
+		}
+
+		backEnd.pc.c_totalIndexes += dlInfo->numIndexes;
+		backEnd.pc.c_dlightIndexes += dlInfo->numIndexes;
+	}
+}
+
+/*
 ==============
 RB_BeginSurface
 
@@ -60,8 +256,6 @@ void RB_BeginSurface( shader_t *shader, int fogNum ) {
 	if (tess.shader->clampTime && tess.shaderTime >= tess.shader->clampTime) {
 		tess.shaderTime = tess.shader->clampTime;
 	}
-
-
 }
 
 
@@ -381,6 +575,8 @@ void RB_StageIteratorGeneric( void )
 		ComputeTexCoords( &tess, stage, pStage );
     }
 
+    GLR_ComputeDlightProjection( &tess, 0 ); 
+
     graphicsDriver.DrawStageGeneric( &tess );
 }
 
@@ -390,6 +586,9 @@ void RB_StageIteratorGeneric( void )
 void RB_StageIteratorVertexLitTexture( void )
 {
 	RB_CalcDiffuseColor( ( unsigned char * ) tess.svars[0].colors );
+
+    GLR_ComputeDlightProjection( &tess, 0 ); 
+
     graphicsDriver.DrawStageVertexLitTexture( &tess );
 }
 
@@ -397,6 +596,9 @@ void RB_StageIteratorVertexLitTexture( void )
 ** RB_StageIteratorLightmappedMultitexture
 */
 void RB_StageIteratorLightmappedMultitexture( void ) {
+
+    GLR_ComputeDlightProjection( &tess, 0 ); 
+
     graphicsDriver.DrawStageLightmappedMultitexture( &tess );
 }
 

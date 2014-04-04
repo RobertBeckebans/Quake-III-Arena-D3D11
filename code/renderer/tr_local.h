@@ -450,6 +450,9 @@ typedef struct shaderState_s {
 } shaderState_t;
 
 
+// @pjb: adding a constant for this
+#define MAX_DLIGHTS 32
+
 // trRefdef_t holds everything that comes in refdef_t,
 // as well as the locally generated scene information
 typedef struct {
@@ -1250,6 +1253,15 @@ typedef struct stageVars
 	vec2_t		texcoords[NUM_TEXTURE_BUNDLES][SHADER_MAX_VERTEXES];
 } stageVars_t;
 
+typedef struct {
+    float       texCoordsArray[SHADER_MAX_VERTEXES][2];
+    byte        colorArray[SHADER_MAX_VERTEXES][4];
+    unsigned    hitIndexes[SHADER_MAX_INDEXES];
+    const image_t* dlImage;
+    int         numIndexes;
+    qboolean    additive;
+} dlightProjectionInfo_t;
+
 typedef struct shaderCommands_s 
 {
 	glIndex_t	indexes[SHADER_MAX_INDEXES];
@@ -1262,6 +1274,10 @@ typedef struct shaderCommands_s
 	stageVars_t	svars[MAX_SHADER_STAGES];
 
 	color4ub_t	constantColor255[SHADER_MAX_VERTEXES];
+
+    // @pjb: hack: need to precompute these before we hand over to the graphics layer
+    dlightProjectionInfo_t dlightInfo[MAX_DLIGHTS];
+    int         dlightCount;
 
 	shader_t	*shader;
   float   shaderTime;
