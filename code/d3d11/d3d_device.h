@@ -9,4 +9,7 @@ void DestroySwapChain();
 
 void GetSwapChainDescFromConfig( DXGI_SWAP_CHAIN_DESC1* desc );
 
+void CreateBuffers();
+void DestroyBuffers();
+
 #endif

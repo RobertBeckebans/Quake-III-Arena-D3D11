@@ -38,6 +38,18 @@ void InitSwapChain( IDXGISwapChain1* swapChain )
     swapChain->AddRef();
     g_pSwapChain = swapChain;
     g_pSwapChain->GetDesc1( &g_BufferState.swapChainDesc );
+    
+    // Create D3D objects
+    DestroyBuffers();
+    CreateBuffers();
+
+    // Clear the targets
+    FLOAT clearCol[4] = { 0, 0, 0, 0 };
+    g_pImmediateContext->ClearRenderTargetView( g_BufferState.backBufferView, clearCol );
+    g_pImmediateContext->ClearDepthStencilView( g_BufferState.depthBufferView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0 );
+
+    // Clear the screen immediately
+    g_pSwapChain->Present( 0, 0 );
 }
 
 void DestroyDevice()
