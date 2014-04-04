@@ -917,6 +917,7 @@ static sfxHandle_t Controls_MenuKey( int key )
 		
 			case K_MOUSE2:
 			case K_ESCAPE:
+            case K_GAMEPAD_B: // @pjb
 				if (s_controls.changesmade)
 					Controls_SetConfig();
 				goto ignorekey;	
@@ -933,6 +934,7 @@ static sfxHandle_t Controls_MenuKey( int key )
 		switch (key)
 		{
 			case K_ESCAPE:
+            case K_GAMEPAD_B: // @pjb
 				s_controls.waitingforkey = qfalse;
 				Controls_Update();
 				return (menu_out_sound);

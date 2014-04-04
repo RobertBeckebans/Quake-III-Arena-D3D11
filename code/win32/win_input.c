@@ -962,17 +962,54 @@ void IN_GetGamepadReading( gamepadInfo_t* gamepad, int userIndex, int ldeadzone,
     gamepad->heldRightTrigger = triggerPressed;
 }
 
+typedef struct 
+{
+    DWORD xinput;
+    int quake;
+} gamepadButtonMapping_t;
+
+static const gamepadButtonMapping_t gamepadButtonMappings[] = { 
+    { XINPUT_GAMEPAD_DPAD_UP       , K_GAMEPAD_DPAD_UP     },
+    { XINPUT_GAMEPAD_DPAD_DOWN     , K_GAMEPAD_DPAD_DOWN   },
+    { XINPUT_GAMEPAD_DPAD_LEFT     , K_GAMEPAD_DPAD_LEFT   },
+    { XINPUT_GAMEPAD_DPAD_RIGHT    , K_GAMEPAD_DPAD_RIGHT  },
+    { XINPUT_GAMEPAD_START         , K_GAMEPAD_START       },
+    { XINPUT_GAMEPAD_BACK          , K_GAMEPAD_BACK        },
+    { XINPUT_GAMEPAD_LEFT_THUMB    , K_GAMEPAD_LSTICK      },
+    { XINPUT_GAMEPAD_RIGHT_THUMB   , K_GAMEPAD_RSTICK      },
+    { XINPUT_GAMEPAD_LEFT_SHOULDER , K_GAMEPAD_LBUMPER     },
+    { XINPUT_GAMEPAD_RIGHT_SHOULDER, K_GAMEPAD_RBUMPER     },
+    { XINPUT_GAMEPAD_A             , K_GAMEPAD_A           },
+    { XINPUT_GAMEPAD_B             , K_GAMEPAD_B           },
+    { XINPUT_GAMEPAD_X             , K_GAMEPAD_X           },
+    { XINPUT_GAMEPAD_Y             , K_GAMEPAD_Y           }
+};
+
 void IN_ApplyGamepad( const gamepadInfo_t* gamepad )
 {
     // HACK: need to map these in a context sensitive way. 
     // e.g. A = enter on menus, A = jump in game
+
+    const int buttonBase = K_GAMEPAD_DPAD_UP;
+    for ( int i = 0; i < _countof(gamepadButtonMappings); ++i )
+    {
+        const gamepadButtonMapping_t* button = &gamepadButtonMappings[i];
+
+        if ( gamepad->pressedButtons & button->xinput )
+            Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, button->quake, qtrue, 0, NULL );
+        else if ( gamepad->releasedButtons & button->xinput )
+            Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, button->quake, qfalse, 0, NULL );
+    }
     
     if ( gamepad->pressedRightTrigger )
-        Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_MOUSE1, qtrue, 0, NULL );
+        Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_GAMEPAD_RTRIGGER, qtrue, 0, NULL );
     else if ( gamepad->releasedRightTrigger )
-        Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_MOUSE1, qfalse, 0, NULL );
+        Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_GAMEPAD_RTRIGGER, qfalse, 0, NULL );
 
-
+    if ( gamepad->pressedLeftTrigger )
+        Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_GAMEPAD_LTRIGGER, qtrue, 0, NULL );
+    else if ( gamepad->releasedLeftTrigger )
+        Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_GAMEPAD_LTRIGGER, qfalse, 0, NULL );
 }
 
 void IN_GamepadMove(void)

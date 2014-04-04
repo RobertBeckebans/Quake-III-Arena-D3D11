@@ -471,6 +471,9 @@ static sfxHandle_t RadioButton_Key( menuradiobutton_s *rb, int key )
 		case K_LEFTARROW:
 		case K_KP_RIGHTARROW:
 		case K_RIGHTARROW:
+        case K_GAMEPAD_A:  // @pjb
+        case K_GAMEPAD_DPAD_LEFT:  // @pjb
+        case K_GAMEPAD_DPAD_RIGHT:  // @pjb
 			rb->curvalue = !rb->curvalue;
 			if ( rb->generic.callback )
 				rb->generic.callback( rb, QM_ACTIVATED );
@@ -589,6 +592,7 @@ static sfxHandle_t Slider_Key( menuslider_s *s, int key )
 
 		case K_KP_LEFTARROW:
 		case K_LEFTARROW:
+        case K_GAMEPAD_DPAD_LEFT:  // @pjb
 			if (s->curvalue > s->minvalue)
 			{
 				s->curvalue--;
@@ -600,6 +604,7 @@ static sfxHandle_t Slider_Key( menuslider_s *s, int key )
 
 		case K_KP_RIGHTARROW:
 		case K_RIGHTARROW:
+        case K_GAMEPAD_DPAD_RIGHT:  // @pjb
 			if (s->curvalue < s->maxvalue)
 			{
 				s->curvalue++;
@@ -808,6 +813,7 @@ static sfxHandle_t SpinControl_Key( menulist_s *s, int key )
 		
 		case K_KP_LEFTARROW:
 		case K_LEFTARROW:
+        case K_GAMEPAD_DPAD_LEFT: // @pjb
 			if (s->curvalue > 0)
 			{
 				s->curvalue--;
@@ -819,6 +825,7 @@ static sfxHandle_t SpinControl_Key( menulist_s *s, int key )
 
 		case K_KP_RIGHTARROW:
 		case K_RIGHTARROW:
+        case K_GAMEPAD_DPAD_RIGHT: // @pjb
 			if (s->curvalue < s->numitems-1)
 			{
 				s->curvalue++;
@@ -1049,6 +1056,7 @@ sfxHandle_t ScrollList_Key( menulist_s *l, int key )
 
 		case K_KP_UPARROW:
 		case K_UPARROW:
+        case K_GAMEPAD_DPAD_UP:  // @pjb
 			if( l->curvalue == 0 ) {
 				return menu_buzz_sound;
 			}
@@ -1073,6 +1081,7 @@ sfxHandle_t ScrollList_Key( menulist_s *l, int key )
 
 		case K_KP_DOWNARROW:
 		case K_DOWNARROW:
+        case K_GAMEPAD_DPAD_DOWN:  // @pjb
 			if( l->curvalue == l->numitems - 1 ) {
 				return menu_buzz_sound;
 			}
@@ -1097,6 +1106,7 @@ sfxHandle_t ScrollList_Key( menulist_s *l, int key )
 
 		case K_KP_LEFTARROW:
 		case K_LEFTARROW:
+        case K_GAMEPAD_DPAD_LEFT:  // @pjb
 			if( l->columns == 1 ) {
 				return menu_null_sound;
 			}
@@ -1120,6 +1130,7 @@ sfxHandle_t ScrollList_Key( menulist_s *l, int key )
 
 		case K_KP_RIGHTARROW:
 		case K_RIGHTARROW:
+        case K_GAMEPAD_DPAD_RIGHT:  // @pjb
 			if( l->columns == 1 ) {
 				return menu_null_sound;
 			}
@@ -1591,8 +1602,14 @@ sfxHandle_t Menu_DefaultKey( menuframework_s *m, int key )
 	{
 		case K_MOUSE2:
 		case K_ESCAPE:
+        case K_GAMEPAD_B: // @pjb
 			UI_PopMenu();
 			return menu_out_sound;
+
+        // @pjb: close all menus if start is pressed
+        case K_GAMEPAD_START:
+            UI_ForceMenuOff();
+            return menu_out_sound;
 	}
 
 	if (!m || !m->nitems)
@@ -1645,6 +1662,7 @@ sfxHandle_t Menu_DefaultKey( menuframework_s *m, int key )
 #endif
 		case K_KP_UPARROW:
 		case K_UPARROW:
+        case K_GAMEPAD_DPAD_UP: // @pjb
 			cursor_prev    = m->cursor;
 			m->cursor_prev = m->cursor;
 			m->cursor--;
@@ -1658,6 +1676,7 @@ sfxHandle_t Menu_DefaultKey( menuframework_s *m, int key )
 		case K_TAB:
 		case K_KP_DOWNARROW:
 		case K_DOWNARROW:
+        case K_GAMEPAD_DPAD_DOWN: // @pjb
 			cursor_prev    = m->cursor;
 			m->cursor_prev = m->cursor;
 			m->cursor++;
@@ -1696,6 +1715,7 @@ sfxHandle_t Menu_DefaultKey( menuframework_s *m, int key )
 		case K_AUX15:
 		case K_AUX16:
 		case K_KP_ENTER:
+        case K_GAMEPAD_A: // @pjb
 		case K_ENTER:
 			if (item)
 				if (!(item->flags & (QMF_MOUSEONLY|QMF_GRAYED|QMF_INACTIVE)))

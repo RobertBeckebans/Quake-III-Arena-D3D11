@@ -247,6 +247,7 @@ static sfxHandle_t PlayerModel_MenuKey( int key )
 	{
 		case K_KP_LEFTARROW:
 		case K_LEFTARROW:
+        case K_GAMEPAD_DPAD_LEFT:  // @pjb
 			m = Menu_ItemAtCursor(&s_playermodel.menu);
 			picnum = m->id - ID_PLAYERPIC0;
 			if (picnum >= 0 && picnum <= 15)
@@ -271,6 +272,7 @@ static sfxHandle_t PlayerModel_MenuKey( int key )
 
 		case K_KP_RIGHTARROW:
 		case K_RIGHTARROW:
+        case K_GAMEPAD_DPAD_RIGHT:  // @pjb
 			m = Menu_ItemAtCursor(&s_playermodel.menu);
 			picnum = m->id - ID_PLAYERPIC0;
 			if (picnum >= 0 && picnum <= 15)
@@ -294,6 +296,7 @@ static sfxHandle_t PlayerModel_MenuKey( int key )
 			
 		case K_MOUSE2:
 		case K_ESCAPE:
+        case K_GAMEPAD_B:  // @pjb
 			PlayerModel_SaveChanges();
 			break;
 	}

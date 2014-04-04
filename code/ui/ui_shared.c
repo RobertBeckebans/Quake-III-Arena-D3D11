@@ -2675,10 +2675,12 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 			break;
 		case K_KP_UPARROW:
 		case K_UPARROW:
+        case K_GAMEPAD_DPAD_UP: // @pjb
 			Menu_SetPrevCursorItem(menu);
 			break;
 
 		case K_ESCAPE:
+        case K_GAMEPAD_B: // @pjb
 			if (!g_waitingForKey && menu->onESC) {
 				itemDef_t it;
 		    it.parent = menu;
@@ -2688,6 +2690,7 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 		case K_TAB:
 		case K_KP_DOWNARROW:
 		case K_DOWNARROW:
+        case K_GAMEPAD_DPAD_DOWN: // @pjb
 			Menu_SetNextCursorItem(menu);
 			break;
 
@@ -2735,6 +2738,7 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 		case K_AUX16:
 			break;
 		case K_KP_ENTER:
+        case K_GAMEPAD_A: // @pjb
 		case K_ENTER:
 			if (item) {
 				if (item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD) {
@@ -3478,6 +3482,7 @@ qboolean Item_Bind_HandleKey(itemDef_t *item, int key, qboolean down) {
 		switch (key)
 		{
 			case K_ESCAPE:
+            case K_GAMEPAD_B: // @pjb
 				g_waitingForKey = qfalse;
 				return qtrue;
 	

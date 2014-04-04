@@ -81,16 +81,20 @@ static sfxHandle_t Reset_MenuKey( int key ) {
 	case K_LEFTARROW:
 	case K_KP_RIGHTARROW:
 	case K_RIGHTARROW:
+    case K_GAMEPAD_DPAD_LEFT:  // @pjb
+    case K_GAMEPAD_DPAD_RIGHT:  // @pjb
 		key = K_TAB;
 		break;
 
 	case 'n':
 	case 'N':
+    case K_GAMEPAD_B:  // @pjb
 		Reset_MenuEvent( &s_reset.no, QM_ACTIVATED );
 		break;
 
 	case 'y':
 	case 'Y':
+    case K_GAMEPAD_A:  // @pjb
 		Reset_MenuEvent( &s_reset.yes, QM_ACTIVATED );
 		break;
 	}
