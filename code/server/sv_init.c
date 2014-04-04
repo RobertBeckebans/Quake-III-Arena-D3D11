@@ -590,6 +590,11 @@ void SV_Init (void) {
 	Cvar_Get ("sv_referencedPaks", "", CVAR_SYSTEMINFO | CVAR_ROM );
 	Cvar_Get ("sv_referencedPakNames", "", CVAR_SYSTEMINFO | CVAR_ROM );
 
+    // @pjb: force sv_pure 0 on debug builds
+#ifdef _DEBUG
+    Cvar_Set( "sv_pure", "0" );
+#endif
+
 	// server vars
 	sv_rconPassword = Cvar_Get ("rconPassword", "", CVAR_TEMP );
 	sv_privatePassword = Cvar_Get ("sv_privatePassword", "", CVAR_TEMP );
