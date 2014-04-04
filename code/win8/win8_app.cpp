@@ -30,6 +30,7 @@ enum GAME_MSG
     GAME_MSG_QUIT,
     GAME_MSG_VIDEO_CHANGE,
     GAME_MSG_MOUSE_MOVE,
+    GAME_MSG_MOUSE_WHEEL,
     GAME_MSG_MOUSE_DOWN,
     GAME_MSG_MOUSE_UP,
     GAME_MSG_KEY_DOWN,
@@ -97,6 +98,21 @@ namespace Q3Win8
             break;
         case GAME_MSG_MOUSE_MOVE:
             // @pjb: Todo
+            break;
+        case GAME_MSG_MOUSE_WHEEL:
+            {
+                int delta = (int) msg->Param0;
+                if ( delta > 0 )
+                {
+				    Sys_QueEvent( SYS_EVENT_FRAME_TIME, SE_KEY, K_MWHEELUP, qtrue, 0, NULL );
+				    Sys_QueEvent( SYS_EVENT_FRAME_TIME, SE_KEY, K_MWHEELUP, qfalse, 0, NULL );
+                }
+                else
+                {
+				    Sys_QueEvent( SYS_EVENT_FRAME_TIME, SE_KEY, K_MWHEELDOWN, qtrue, 0, NULL );
+				    Sys_QueEvent( SYS_EVENT_FRAME_TIME, SE_KEY, K_MWHEELDOWN, qfalse, 0, NULL );
+                }
+            }
             break;
         case GAME_MSG_MOUSE_DOWN: 
             // @pjb: Todo
@@ -225,8 +241,6 @@ void Quake3Win8App::SetWindow(CoreWindow^ window)
 	window->Closed += 
         ref new TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &Quake3Win8App::OnWindowClosed);
 
-	window->PointerCursor = ref new CoreCursor(CoreCursorType::Arrow, 0);
-
 	window->PointerPressed +=
 		ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &Quake3Win8App::OnPointerPressed);
 
@@ -236,6 +250,9 @@ void Quake3Win8App::SetWindow(CoreWindow^ window)
 	window->PointerMoved +=
 		ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &Quake3Win8App::OnPointerMoved);
 
+    window->PointerWheelChanged +=
+        ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &Quake3Win8App::OnPointerWheelChanged);
+
 	window->CharacterReceived +=
 		ref new TypedEventHandler<CoreWindow^, CharacterReceivedEventArgs^>(this, &Quake3Win8App::OnCharacterReceived);
 
@@ -244,6 +261,9 @@ void Quake3Win8App::SetWindow(CoreWindow^ window)
 
 	window->KeyUp +=
 		ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &Quake3Win8App::OnKeyUp);
+
+	window->PointerCursor = nullptr;
+    window->SetPointerCapture();
 
 	// Disable all pointer visual feedback for better performance when touching.
 	auto pointerVisualizationSettings = Windows::UI::Input::PointerVisualizationSettings::GetForCurrentView();
@@ -389,6 +409,16 @@ void Quake3Win8App::OnPointerMoved(CoreWindow^ sender, PointerEventArgs^ args)
     msg.Message = GAME_MSG_MOUSE_MOVE;
     msg.Param0 = args->CurrentPoint->Position.X;
     msg.Param1 = args->CurrentPoint->Position.Y;
+    msg.TimeStamp = args->CurrentPoint->Timestamp;
+    g_gameMsgs.Post( &msg );
+}
+
+void Quake3Win8App::OnPointerWheelChanged(CoreWindow^ sender, PointerEventArgs^ args)
+{
+    Q3Win8::MSG msg;
+    ZeroMemory( &msg, sizeof(msg) );
+    msg.Message = GAME_MSG_MOUSE_WHEEL;
+    msg.Param0 = args->CurrentPoint->Properties->MouseWheelDelta;
     msg.TimeStamp = args->CurrentPoint->Timestamp;
     g_gameMsgs.Post( &msg );
 }
