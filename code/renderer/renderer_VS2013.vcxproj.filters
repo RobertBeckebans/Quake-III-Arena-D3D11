@@ -640,10 +640,14 @@
     <None Include="..\..\baseq3\d3d11\fsq_vs.hlsl">
       <Filter>Direct3D Implementation\Shaders</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="..\..\baseq3\d3d11\view.hlsl">
+    <None Include="..\..\baseq3\d3d11\view.hlsl">
       <Filter>Direct3D Implementation\Shaders</Filter>
-    </FxCompile>
+    </None>
+    <None Include="..\..\baseq3\d3d11\genericmt_ps.hlsl">
+      <Filter>Direct3D Implementation\Shaders</Filter>
+    </None>
+    <None Include="..\..\baseq3\d3d11\genericmt_vs.hlsl">
+      <Filter>Direct3D Implementation\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
