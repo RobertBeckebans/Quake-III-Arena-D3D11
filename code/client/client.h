@@ -295,7 +295,7 @@ typedef struct {
 	netadr_t	authorizeServer;
 
 	// rendering info
-	glconfig_t	glconfig;
+	vdconfig_t	vdconfig;
 	qhandle_t	charSetShader;
 	qhandle_t	whiteShader;
 	qhandle_t	consoleShader;

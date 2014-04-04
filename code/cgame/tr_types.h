@@ -137,7 +137,7 @@ typedef enum {
 
 
 /*
-** glconfig_t
+** vdconfig_t
 **
 ** Contains variables specific to the OpenGL configuration
 ** being run right now.  These are constant once the OpenGL
@@ -156,7 +156,7 @@ typedef enum {
 								// enum set
 	GLDRV_STANDALONE,			// driver is a non-3Dfx standalone driver
 	GLDRV_VOODOO				// driver is a 3Dfx standalone driver
-} glDriverType_t;
+} vdDriverType_t; // @pjb: made this GL-agnostic
 
 typedef enum {
 	GLHW_GENERIC,			// where everthing works the way it should
@@ -166,21 +166,20 @@ typedef enum {
 	GLHW_RIVA128,			// where you can't interpolate alpha
 	GLHW_RAGEPRO,			// where you can't modulate alpha on alpha textures
 	GLHW_PERMEDIA2			// where you don't have src*dst
-} glHardwareType_t;
+} vdHardwareType_t; // @pjb: made this GL-agnostic
 
 typedef struct {
-	char					renderer_string[MAX_STRING_CHARS];
-	char					vendor_string[MAX_STRING_CHARS];
-	char					version_string[MAX_STRING_CHARS];
-	char					extensions_string[BIG_INFO_STRING];
+    char                    renderer_string[MAX_STRING_CHARS];
+    char                    vendor_string[MAX_STRING_CHARS];
+    char                    version_string[MAX_STRING_CHARS];
 
 	int						maxTextureSize;			// queried from GL
 	int						maxActiveTextures;		// multitexture ability
 
 	int						colorBits, depthBits, stencilBits;
 
-	glDriverType_t			driverType;
-	glHardwareType_t		hardwareType;
+	vdDriverType_t			driverType;
+	vdHardwareType_t		hardwareType;
 
 	qboolean				deviceSupportsGamma;
 	textureCompression_t	textureCompression;
@@ -200,7 +199,8 @@ typedef struct {
 	qboolean				isFullscreen;
 	qboolean				stereoEnabled;
 	qboolean				smpActive;		// dual processor
-} glconfig_t;
+} vdconfig_t; // @pjb: made this GL-agnostic
+
 
 // FIXME: VM should be OS agnostic .. in theory
 
@@ -217,6 +217,8 @@ typedef struct {
 
 #define _3DFX_DRIVER_NAME	"3dfxvgl"
 #define OPENGL_DRIVER_NAME	"opengl32"
+#define D3D11_DRIVER_NAME   "d3d11" // @pjb
+#define PROXY_DRIVER_NAME   "proxy" // @pjb
 
 #else
 

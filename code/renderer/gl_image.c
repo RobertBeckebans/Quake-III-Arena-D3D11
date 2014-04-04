@@ -103,8 +103,8 @@ static void Upload32( unsigned *data,
 	// scale both axis down equally so we don't have to
 	// deal with a half mip resampling
 	//
-	while ( scaled_width > glConfig.maxTextureSize
-		|| scaled_height > glConfig.maxTextureSize ) {
+	while ( scaled_width > vdConfig.maxTextureSize
+		|| scaled_height > vdConfig.maxTextureSize ) {
 		scaled_width >>= 1;
 		scaled_height >>= 1;
 	}
@@ -142,7 +142,7 @@ static void Upload32( unsigned *data,
 		// select proper internal format
 		if ( samples == 3 )
 		{
-			if ( glConfig.textureCompression == TC_S3TC )
+			if ( vdConfig.textureCompression == TC_S3TC )
 			{
 				internalFormat = GL_RGB4_S3TC;
 			}

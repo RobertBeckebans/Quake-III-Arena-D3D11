@@ -338,11 +338,11 @@ void	RB_SetGL2D (void) {
 	backEnd.projection2D = qtrue;
 
 	// set 2D virtual screen size
-	qglViewport( 0, 0, glConfig.vidWidth, glConfig.vidHeight );
-	qglScissor( 0, 0, glConfig.vidWidth, glConfig.vidHeight );
+	qglViewport( 0, 0, vdConfig.vidWidth, vdConfig.vidHeight );
+	qglScissor( 0, 0, vdConfig.vidWidth, vdConfig.vidHeight );
 	qglMatrixMode(GL_PROJECTION);
     qglLoadIdentity ();
-	qglOrtho (0, glConfig.vidWidth, glConfig.vidHeight, 0, 0, 1);
+	qglOrtho (0, vdConfig.vidWidth, vdConfig.vidHeight, 0, 0, 1);
 	qglMatrixMode(GL_MODELVIEW);
     qglLoadIdentity ();
 
@@ -628,8 +628,8 @@ void RB_ShowImages( void ) {
 	for ( i=0 ; i<tr.numImages ; i++ ) {
 		image = tr.images[i];
 
-		w = glConfig.vidWidth / 20;
-		h = glConfig.vidHeight / 15;
+		w = vdConfig.vidWidth / 20;
+		h = vdConfig.vidHeight / 15;
 		x = i % 20 * w;
 		y = i / 20 * h;
 
@@ -689,10 +689,10 @@ const void	*RB_SwapBuffers( const void *data ) {
 		long sum = 0;
 		unsigned char *stencilReadback;
 
-		stencilReadback = ri.Hunk_AllocateTempMemory( glConfig.vidWidth * glConfig.vidHeight );
-		qglReadPixels( 0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback );
+		stencilReadback = ri.Hunk_AllocateTempMemory( vdConfig.vidWidth * vdConfig.vidHeight );
+		qglReadPixels( 0, 0, vdConfig.vidWidth, vdConfig.vidHeight, GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback );
 
-		for ( i = 0; i < glConfig.vidWidth * glConfig.vidHeight; i++ ) {
+		for ( i = 0; i < vdConfig.vidWidth * vdConfig.vidHeight; i++ ) {
 			sum += stencilReadback[i];
 		}
 
@@ -742,7 +742,7 @@ void RB_TakeScreenshot( int x, int y, int width, int height, char *fileName ) {
 	byte		*buffer;
 	int			i, c, temp;
 		
-	buffer = ri.Hunk_AllocateTempMemory(glConfig.vidWidth*glConfig.vidHeight*3+18);
+	buffer = ri.Hunk_AllocateTempMemory(vdConfig.vidWidth*vdConfig.vidHeight*3+18);
 
 	Com_Memset (buffer, 0, 18);
 	buffer[2] = 2;		// uncompressed type
@@ -763,8 +763,8 @@ void RB_TakeScreenshot( int x, int y, int width, int height, char *fileName ) {
 	}
 
 	// gamma correct
-	if ( ( tr.overbrightBits > 0 ) && glConfig.deviceSupportsGamma ) {
-		R_GammaCorrect( buffer + 18, glConfig.vidWidth * glConfig.vidHeight * 3 );
+	if ( ( tr.overbrightBits > 0 ) && vdConfig.deviceSupportsGamma ) {
+		R_GammaCorrect( buffer + 18, vdConfig.vidWidth * vdConfig.vidHeight * 3 );
 	}
 
 	ri.FS_WriteFile( fileName, buffer, c );
@@ -780,17 +780,17 @@ RB_TakeScreenshotJPEG
 void RB_TakeScreenshotJPEG( int x, int y, int width, int height, char *fileName ) {
 	byte		*buffer;
 
-	buffer = ri.Hunk_AllocateTempMemory(glConfig.vidWidth*glConfig.vidHeight*4);
+	buffer = ri.Hunk_AllocateTempMemory(vdConfig.vidWidth*vdConfig.vidHeight*4);
 
 	qglReadPixels( x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer ); 
 
 	// gamma correct
-	if ( ( tr.overbrightBits > 0 ) && glConfig.deviceSupportsGamma ) {
-		R_GammaCorrect( buffer, glConfig.vidWidth * glConfig.vidHeight * 4 );
+	if ( ( tr.overbrightBits > 0 ) && vdConfig.deviceSupportsGamma ) {
+		R_GammaCorrect( buffer, vdConfig.vidWidth * vdConfig.vidHeight * 4 );
 	}
 
 	ri.FS_WriteFile( fileName, buffer, 1 );		// create path
-	SaveJPG( fileName, 95, glConfig.vidWidth, glConfig.vidHeight, buffer);
+	SaveJPG( fileName, 95, vdConfig.vidWidth, vdConfig.vidHeight, buffer);
 
 	ri.Hunk_FreeTempMemory( buffer );
 }

@@ -42,21 +42,21 @@ void WG_CheckHardwareGamma( void )
 {
 	HDC			hDC;
 
-	glConfig.deviceSupportsGamma = qfalse;
+	vdConfig.deviceSupportsGamma = qfalse;
 
 	if ( qwglSetDeviceGammaRamp3DFX )
 	{
-		glConfig.deviceSupportsGamma = qtrue;
+		vdConfig.deviceSupportsGamma = qtrue;
 
 		hDC = GetDC( GetDesktopWindow() );
-		glConfig.deviceSupportsGamma = qwglGetDeviceGammaRamp3DFX( hDC, s_oldHardwareGamma );
+		vdConfig.deviceSupportsGamma = qwglGetDeviceGammaRamp3DFX( hDC, s_oldHardwareGamma );
 		ReleaseDC( GetDesktopWindow(), hDC );
 
 		return;
 	}
 
 	// non-3Dfx standalone drivers don't support gamma changes, period
-	if ( glConfig.driverType == GLDRV_STANDALONE )
+	if ( vdConfig.driverType == GLDRV_STANDALONE )
 	{
 		return;
 	}
@@ -64,10 +64,10 @@ void WG_CheckHardwareGamma( void )
 	if ( !r_ignorehwgamma->integer )
 	{
 		hDC = GetDC( GetDesktopWindow() );
-		glConfig.deviceSupportsGamma = GetDeviceGammaRamp( hDC, s_oldHardwareGamma );
+		vdConfig.deviceSupportsGamma = GetDeviceGammaRamp( hDC, s_oldHardwareGamma );
 		ReleaseDC( GetDesktopWindow(), hDC );
 
-		if ( glConfig.deviceSupportsGamma )
+		if ( vdConfig.deviceSupportsGamma )
 		{
 			//
 			// do a sanity check on the gamma values
@@ -76,7 +76,7 @@ void WG_CheckHardwareGamma( void )
 				 ( HIBYTE( s_oldHardwareGamma[1][255] ) <= HIBYTE( s_oldHardwareGamma[1][0] ) ) ||
 				 ( HIBYTE( s_oldHardwareGamma[2][255] ) <= HIBYTE( s_oldHardwareGamma[2][0] ) ) )
 			{
-				glConfig.deviceSupportsGamma = qfalse;
+				vdConfig.deviceSupportsGamma = qfalse;
 				ri.Printf( PRINT_WARNING, "WARNING: device has broken gamma support, generated gamma.dat\n" );
 			}
 
@@ -131,14 +131,14 @@ void mapGammaMax( void ) {
 /*
 ** GLimp_SetGamma
 **
-** This routine should only be called if glConfig.deviceSupportsGamma is TRUE
+** This routine should only be called if vdConfig.deviceSupportsGamma is TRUE
 */
 void GLimp_SetGamma( unsigned char red[256], unsigned char green[256], unsigned char blue[256] ) {
 	unsigned short table[3][256];
 	int		i, j;
 	int		ret;
 
-	if ( !glConfig.deviceSupportsGamma || r_ignorehwgamma->integer || !glw_state.hDC ) {
+	if ( !vdConfig.deviceSupportsGamma || r_ignorehwgamma->integer || !glw_state.hDC ) {
 		return;
 	}
 
@@ -196,7 +196,7 @@ void GLimp_SetGamma( unsigned char red[256], unsigned char green[256], unsigned 
 */
 void WG_RestoreGamma( void )
 {
-	if ( glConfig.deviceSupportsGamma )
+	if ( vdConfig.deviceSupportsGamma )
 	{
 		if ( qwglSetDeviceGammaRamp3DFX )
 		{

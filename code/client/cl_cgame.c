@@ -45,8 +45,8 @@ void CL_GetGameState( gameState_t *gs ) {
 CL_GetGlconfig
 ====================
 */
-void CL_GetGlconfig( glconfig_t *glconfig ) {
-	*glconfig = cls.glconfig;
+void CL_GetVideoConfig( vdconfig_t *vdconfig ) {
+	*vdconfig = cls.vdconfig;
 }
 
 
@@ -584,7 +584,7 @@ int CL_CgameSystemCalls( size_t *args ) {
 	case CG_R_LERPTAG:
 		return re.LerpTag( VMA(1), VMI(2), VMI(3), VMI(4), VMF(5), VMA(6) );
 	case CG_GETGLCONFIG:
-		CL_GetGlconfig( VMA(1) );
+		CL_GetVideoConfig( VMA(1) );
 		return 0;
 	case CG_GETGAMESTATE:
 		CL_GetGameState( VMA(1) );

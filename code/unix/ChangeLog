@@ -1953,7 +1953,7 @@ TODO: the Mac port seems stable, but outputs a bunch of warnings..
 	 trap_Key_IsDown
 	 trap_Key_GetCatcher
 	 trap_Key_SetCatcher
-	 trap_GetGlconfig
+	 trap_GetVideoConfig
          trap_PC_AddGlobalDefine
 	 trap_PC_LoadSource
 	 trap_PC_FreeSource

@@ -1761,7 +1761,7 @@ static qboolean CollapseMultitexture( void ) {
 	// on voodoo2, don't combine different tmus
 	/*
     @pjb: fixing this would be inconvenient. I assume nobody cares any more.
-    if ( glConfig.driverType == GLDRV_VOODOO ) {
+    if ( vdConfig.driverType == GLDRV_VOODOO ) {
 		if ( stages[0].bundle[0].image[0]->TMU ==
 			 stages[1].bundle[0].image[0]->TMU ) {
 			return qfalse;
@@ -1795,7 +1795,7 @@ static qboolean CollapseMultitexture( void ) {
 	}
 
 	// GL_ADD is a separate extension
-	if ( collapse[i].multitextureEnv == GL_ADD && !glConfig.textureEnvAddAvailable ) {
+	if ( collapse[i].multitextureEnv == GL_ADD && !vdConfig.textureEnvAddAvailable ) {
 		return qfalse;
 	}
 
@@ -2244,7 +2244,7 @@ static shader_t *FinishShader( void ) {
 	//
 	// if we are in r_vertexLight mode, never use a lightmap texture
 	//
-	if ( stage > 1 && ( (r_vertexLight->integer && !r_uiFullScreen->integer) || glConfig.hardwareType == GLHW_PERMEDIA2 ) ) {
+	if ( stage > 1 && ( (r_vertexLight->integer && !r_uiFullScreen->integer) || vdConfig.hardwareType == GLHW_PERMEDIA2 ) ) {
 		VertexLightingCollapse();
 		stage = 1;
 		hasLightmapStage = qfalse;

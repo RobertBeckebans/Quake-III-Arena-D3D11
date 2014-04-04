@@ -128,7 +128,7 @@ static int GLW_ChoosePFD( HDC hDC, PIXELFORMATDESCRIPTOR *pPFD )
 	ri.Printf( PRINT_ALL, "...GLW_ChoosePFD( %d, %d, %d )\n", ( int ) pPFD->cColorBits, ( int ) pPFD->cDepthBits, ( int ) pPFD->cStencilBits );
 
 	// count number of PFDs
-	if ( glConfig.driverType > GLDRV_ICD )
+	if ( vdConfig.driverType > GLDRV_ICD )
 	{
 		maxPFD = qwglDescribePixelFormat( hDC, 1, sizeof( PIXELFORMATDESCRIPTOR ), &pfds[0] );
 	}
@@ -147,7 +147,7 @@ static int GLW_ChoosePFD( HDC hDC, PIXELFORMATDESCRIPTOR *pPFD )
 	// grab information
 	for ( i = 1; i <= maxPFD; i++ )
 	{
-		if ( glConfig.driverType > GLDRV_ICD )
+		if ( vdConfig.driverType > GLDRV_ICD )
 		{
 			qwglDescribePixelFormat( hDC, i, sizeof( PIXELFORMATDESCRIPTOR ), &pfds[i] );
 		}
@@ -352,11 +352,11 @@ static void GLW_CreatePFD( PIXELFORMATDESCRIPTOR *pPFD, int colorbits, int depth
 	{
 		ri.Printf( PRINT_ALL, "...attempting to use stereo\n" );
 		src.dwFlags |= PFD_STEREO;
-		glConfig.stereoEnabled = qtrue;
+		vdConfig.stereoEnabled = qtrue;
 	}
 	else
 	{
-		glConfig.stereoEnabled = qfalse;
+		vdConfig.stereoEnabled = qfalse;
 	}
 
 	*pPFD = src;
@@ -387,7 +387,7 @@ static int GLW_MakeContext( PIXELFORMATDESCRIPTOR *pPFD )
 		}
 		ri.Printf( PRINT_ALL, "...PIXELFORMAT %d selected\n", pixelformat );
 
-		if ( glConfig.driverType > GLDRV_ICD )
+		if ( vdConfig.driverType > GLDRV_ICD )
 		{
 			qwglDescribePixelFormat( glw_state.hDC, pixelformat, sizeof( *pPFD ), pPFD );
 			if ( qwglSetPixelFormat( glw_state.hDC, pixelformat, pPFD ) == FALSE )
@@ -555,16 +555,16 @@ static qboolean GLW_InitDriver( const char *drivername, int colorbits )
 		if ( !( pfd.dwFlags & PFD_STEREO ) && ( r_stereo->integer != 0 ) ) 
 		{
 			ri.Printf( PRINT_ALL, "...failed to select stereo pixel format\n" );
-			glConfig.stereoEnabled = qfalse;
+			vdConfig.stereoEnabled = qfalse;
 		}
 	}
 
 	/*
 	** store PFD specifics 
 	*/
-	glConfig.colorBits = ( int ) pfd.cColorBits;
-	glConfig.depthBits = ( int ) pfd.cDepthBits;
-	glConfig.stencilBits = ( int ) pfd.cStencilBits;
+	vdConfig.colorBits = ( int ) pfd.cColorBits;
+	vdConfig.depthBits = ( int ) pfd.cDepthBits;
+	vdConfig.stencilBits = ( int ) pfd.cStencilBits;
 
 	return qtrue;
 }
@@ -753,12 +753,12 @@ static rserr_t GLW_SetMode( const char *drivername,
 	// print out informational messages
 	//
 	ri.Printf( PRINT_ALL, "...setting mode %d:", mode );
-	if ( !R_GetModeInfo( &glConfig.vidWidth, &glConfig.vidHeight, &glConfig.windowAspect, mode ) )
+	if ( !R_GetModeInfo( &vdConfig.vidWidth, &vdConfig.vidHeight, &vdConfig.windowAspect, mode ) )
 	{
 		ri.Printf( PRINT_ALL, " invalid mode\n" );
 		return RSERR_INVALID_MODE;
 	}
-	ri.Printf( PRINT_ALL, " %d %d %s\n", glConfig.vidWidth, glConfig.vidHeight, win_fs[cdsFullscreen] );
+	ri.Printf( PRINT_ALL, " %d %d %s\n", vdConfig.vidWidth, vdConfig.vidHeight, win_fs[cdsFullscreen] );
 
 	//
 	// check our desktop attributes
@@ -772,7 +772,7 @@ static rserr_t GLW_SetMode( const char *drivername,
 	//
 	// verify desktop bit depth
 	//
-	if ( glConfig.driverType != GLDRV_VOODOO )
+	if ( vdConfig.driverType != GLDRV_VOODOO )
 	{
 		if ( glw_state.desktopBitsPixel < 15 || glw_state.desktopBitsPixel == 24 )
 		{
@@ -802,8 +802,8 @@ static rserr_t GLW_SetMode( const char *drivername,
 		
 		dm.dmSize = sizeof( dm );
 		
-		dm.dmPelsWidth  = glConfig.vidWidth;
-		dm.dmPelsHeight = glConfig.vidHeight;
+		dm.dmPelsWidth  = vdConfig.vidWidth;
+		dm.dmPelsHeight = vdConfig.vidHeight;
 		dm.dmFields     = DM_PELSWIDTH | DM_PELSHEIGHT;
 
 		if ( r_displayRefresh->integer != 0 )
@@ -838,7 +838,7 @@ static rserr_t GLW_SetMode( const char *drivername,
 		{
 			ri.Printf( PRINT_ALL, "...already fullscreen, avoiding redundant CDS\n" );
 
-			if ( !GLW_CreateWindow ( drivername, glConfig.vidWidth, glConfig.vidHeight, colorbits, qtrue ) )
+			if ( !GLW_CreateWindow ( drivername, vdConfig.vidWidth, vdConfig.vidHeight, colorbits, qtrue ) )
 			{
 				ri.Printf( PRINT_ALL, "...restoring display settings\n" );
 				ChangeDisplaySettings( 0, 0 );
@@ -858,7 +858,7 @@ static rserr_t GLW_SetMode( const char *drivername,
 			{
 				ri.Printf( PRINT_ALL, "ok\n" );
 
-				if ( !GLW_CreateWindow ( drivername, glConfig.vidWidth, glConfig.vidHeight, colorbits, qtrue) )
+				if ( !GLW_CreateWindow ( drivername, vdConfig.vidWidth, vdConfig.vidHeight, colorbits, qtrue) )
 				{
 					ri.Printf( PRINT_ALL, "...restoring display settings\n" );
 					ChangeDisplaySettings( 0, 0 );
@@ -887,8 +887,8 @@ static rserr_t GLW_SetMode( const char *drivername,
 						modeNum = -1;
 						break;
 					}
-					if ( devmode.dmPelsWidth >= glConfig.vidWidth
-						&& devmode.dmPelsHeight >= glConfig.vidHeight
+					if ( devmode.dmPelsWidth >= vdConfig.vidWidth
+						&& devmode.dmPelsHeight >= vdConfig.vidHeight
 						&& devmode.dmBitsPerPel >= 15 ) {
 						break;
 					}
@@ -897,7 +897,7 @@ static rserr_t GLW_SetMode( const char *drivername,
 				if ( modeNum != -1 && ( cdsRet = ChangeDisplaySettings( &devmode, CDS_FULLSCREEN ) ) == DISP_CHANGE_SUCCESSFUL )
 				{
 					ri.Printf( PRINT_ALL, " ok\n" );
-					if ( !GLW_CreateWindow( drivername, glConfig.vidWidth, glConfig.vidHeight, colorbits, qtrue) )
+					if ( !GLW_CreateWindow( drivername, vdConfig.vidWidth, vdConfig.vidHeight, colorbits, qtrue) )
 					{
 						ri.Printf( PRINT_ALL, "...restoring display settings\n" );
 						ChangeDisplaySettings( 0, 0 );
@@ -916,8 +916,8 @@ static rserr_t GLW_SetMode( const char *drivername,
 					ChangeDisplaySettings( 0, 0 );
 					
 					glw_state.cdsFullscreen = qfalse;
-					glConfig.isFullscreen = qfalse;
-					if ( !GLW_CreateWindow( drivername, glConfig.vidWidth, glConfig.vidHeight, colorbits, qfalse) )
+					vdConfig.isFullscreen = qfalse;
+					if ( !GLW_CreateWindow( drivername, vdConfig.vidWidth, vdConfig.vidHeight, colorbits, qfalse) )
 					{
 						return RSERR_INVALID_MODE;
 					}
@@ -934,7 +934,7 @@ static rserr_t GLW_SetMode( const char *drivername,
 		}
 
 		glw_state.cdsFullscreen = qfalse;
-		if ( !GLW_CreateWindow( drivername, glConfig.vidWidth, glConfig.vidHeight, colorbits, qfalse ) )
+		if ( !GLW_CreateWindow( drivername, vdConfig.vidWidth, vdConfig.vidHeight, colorbits, qfalse ) )
 		{
 			return RSERR_INVALID_MODE;
 		}
@@ -947,11 +947,11 @@ static rserr_t GLW_SetMode( const char *drivername,
 	dm.dmSize = sizeof( dm );
 	if ( EnumDisplaySettings( NULL, ENUM_CURRENT_SETTINGS, &dm ) )
 	{
-		glConfig.displayFrequency = dm.dmDisplayFrequency;
+		vdConfig.displayFrequency = dm.dmDisplayFrequency;
 	}
 
 	// NOTE: this is overridden later on standalone 3Dfx drivers
-	glConfig.isFullscreen = cdsFullscreen;
+	vdConfig.isFullscreen = cdsFullscreen;
 
 	return RSERR_OK;
 }
@@ -970,17 +970,17 @@ static void GLW_InitExtensions( void )
 	ri.Printf( PRINT_ALL, "Initializing OpenGL extensions\n" );
 
 	// GL_S3_s3tc
-	glConfig.textureCompression = TC_NONE;
-	if ( strstr( glConfig.extensions_string, "GL_S3_s3tc" ) )
+	vdConfig.textureCompression = TC_NONE;
+	if ( strstr( glState.extensions_string, "GL_S3_s3tc" ) )
 	{
 		if ( r_ext_compressed_textures->integer )
 		{
-			glConfig.textureCompression = TC_S3TC;
+			vdConfig.textureCompression = TC_S3TC;
 			ri.Printf( PRINT_ALL, "...using GL_S3_s3tc\n" );
 		}
 		else
 		{
-			glConfig.textureCompression = TC_NONE;
+			vdConfig.textureCompression = TC_NONE;
 			ri.Printf( PRINT_ALL, "...ignoring GL_S3_s3tc\n" );
 		}
 	}
@@ -990,17 +990,17 @@ static void GLW_InitExtensions( void )
 	}
 
 	// GL_EXT_texture_env_add
-	glConfig.textureEnvAddAvailable = qfalse;
-	if ( strstr( glConfig.extensions_string, "EXT_texture_env_add" ) )
+	vdConfig.textureEnvAddAvailable = qfalse;
+	if ( strstr( glState.extensions_string, "EXT_texture_env_add" ) )
 	{
 		if ( r_ext_texture_env_add->integer )
 		{
-			glConfig.textureEnvAddAvailable = qtrue;
+			vdConfig.textureEnvAddAvailable = qtrue;
 			ri.Printf( PRINT_ALL, "...using GL_EXT_texture_env_add\n" );
 		}
 		else
 		{
-			glConfig.textureEnvAddAvailable = qfalse;
+			vdConfig.textureEnvAddAvailable = qfalse;
 			ri.Printf( PRINT_ALL, "...ignoring GL_EXT_texture_env_add\n" );
 		}
 	}
@@ -1025,7 +1025,7 @@ static void GLW_InitExtensions( void )
 	qglMultiTexCoord2fARB = NULL;
 	qglActiveTextureARB = NULL;
 	qglClientActiveTextureARB = NULL;
-	if ( strstr( glConfig.extensions_string, "GL_ARB_multitexture" )  )
+	if ( strstr( glState.extensions_string, "GL_ARB_multitexture" )  )
 	{
 		if ( r_ext_multitexture->integer )
 		{
@@ -1035,9 +1035,9 @@ static void GLW_InitExtensions( void )
 
 			if ( qglActiveTextureARB )
 			{
-				qglGetIntegerv( GL_MAX_ACTIVE_TEXTURES_ARB, &glConfig.maxActiveTextures );
+				qglGetIntegerv( GL_MAX_ACTIVE_TEXTURES_ARB, &vdConfig.maxActiveTextures );
 
-				if ( glConfig.maxActiveTextures > 1 )
+				if ( vdConfig.maxActiveTextures > 1 )
 				{
 					ri.Printf( PRINT_ALL, "...using GL_ARB_multitexture\n" );
 				}
@@ -1063,7 +1063,7 @@ static void GLW_InitExtensions( void )
 	// GL_EXT_compiled_vertex_array
 	qglLockArraysEXT = NULL;
 	qglUnlockArraysEXT = NULL;
-	if ( strstr( glConfig.extensions_string, "GL_EXT_compiled_vertex_array" ) && ( glConfig.hardwareType != GLHW_RIVA128 ) )
+	if ( strstr( glState.extensions_string, "GL_EXT_compiled_vertex_array" ) && ( vdConfig.hardwareType != GLHW_RIVA128 ) )
 	{
 		if ( r_ext_compiled_vertex_array->integer )
 		{
@@ -1088,7 +1088,7 @@ static void GLW_InitExtensions( void )
 	qwglGetDeviceGammaRamp3DFX = NULL;
 	qwglSetDeviceGammaRamp3DFX = NULL;
 
-	if ( strstr( glConfig.extensions_string, "WGL_3DFX_gamma_control" ) )
+	if ( strstr( glState.extensions_string, "WGL_3DFX_gamma_control" ) )
 	{
 		if ( !r_ignorehwgamma->integer && r_ext_gamma_control->integer )
 		{
@@ -1180,17 +1180,17 @@ static qboolean GLW_LoadOpenGL( const char *drivername )
 	//
 	if ( strstr( buffer, "opengl32" ) != 0 || r_maskMinidriver->integer )
 	{
-		glConfig.driverType = GLDRV_ICD;
+		vdConfig.driverType = GLDRV_ICD;
 	}
 	else
 	{
-		glConfig.driverType = GLDRV_STANDALONE;
+		vdConfig.driverType = GLDRV_STANDALONE;
 
 		ri.Printf( PRINT_ALL, "...assuming '%s' is a standalone driver\n", drivername );
 
 		if ( strstr( buffer, _3DFX_DRIVER_NAME ) )
 		{
-			glConfig.driverType = GLDRV_VOODOO;
+			vdConfig.driverType = GLDRV_VOODOO;
 		}
 	}
 
@@ -1209,7 +1209,7 @@ static qboolean GLW_LoadOpenGL( const char *drivername )
 		{
 			// if we're on a 24/32-bit desktop and we're going fullscreen on an ICD,
 			// try it again but with a 16-bit desktop
-			if ( glConfig.driverType == GLDRV_ICD )
+			if ( vdConfig.driverType == GLDRV_ICD )
 			{
 				if ( r_colorbits->integer != 16 ||
 					 cdsFullscreen != qtrue ||
@@ -1227,9 +1227,9 @@ static qboolean GLW_LoadOpenGL( const char *drivername )
 			}
 		}
 
-		if ( glConfig.driverType == GLDRV_VOODOO )
+		if ( vdConfig.driverType == GLDRV_VOODOO )
 		{
-			glConfig.isFullscreen = qtrue;
+			vdConfig.isFullscreen = qtrue;
 		}
 
 		return qtrue;
@@ -1252,7 +1252,7 @@ void GLimp_EndFrame (void)
 	if ( r_swapInterval->modified ) {
 		r_swapInterval->modified = qfalse;
 
-		if ( !glConfig.stereoEnabled ) {	// why?
+		if ( !vdConfig.stereoEnabled ) {	// why?
 			if ( qwglSwapIntervalEXT ) {
 				qwglSwapIntervalEXT( r_swapInterval->integer );
 			}
@@ -1263,7 +1263,7 @@ void GLimp_EndFrame (void)
 	// don't flip if drawing to front buffer
 	if ( Q_stricmp( r_drawBuffer->string, "GL_FRONT" ) != 0 )
 	{
-		if ( glConfig.driverType > GLDRV_ICD )
+		if ( vdConfig.driverType > GLDRV_ICD )
 		{
 			if ( !qwglSwapBuffers( glw_state.hDC ) )
 			{
@@ -1390,15 +1390,15 @@ void GLimp_Init( void )
 	GLW_StartOpenGL();
 
 	// get our config strings
-	Q_strncpyz( glConfig.vendor_string, qglGetString (GL_VENDOR), sizeof( glConfig.vendor_string ) );
-	Q_strncpyz( glConfig.renderer_string, qglGetString (GL_RENDERER), sizeof( glConfig.renderer_string ) );
-	Q_strncpyz( glConfig.version_string, qglGetString (GL_VERSION), sizeof( glConfig.version_string ) );
-	Q_strncpyz( glConfig.extensions_string, qglGetString (GL_EXTENSIONS), sizeof( glConfig.extensions_string ) );
+	Q_strncpyz( glState.vendor_string, qglGetString (GL_VENDOR), sizeof( glState.vendor_string ) );
+	Q_strncpyz( glState.renderer_string, qglGetString (GL_RENDERER), sizeof( glState.renderer_string ) );
+	Q_strncpyz( glState.version_string, qglGetString (GL_VERSION), sizeof( glState.version_string ) );
+	Q_strncpyz( glState.extensions_string, qglGetString (GL_EXTENSIONS), sizeof( glState.extensions_string ) );
 
 	//
 	// chipset specific configuration
 	//
-	Q_strncpyz( buf, glConfig.renderer_string, sizeof(buf) );
+	Q_strncpyz( buf, vdConfig.renderer_string, sizeof(buf) );
 	Q_strlwr( buf );
 
 	//
@@ -1406,9 +1406,9 @@ void GLimp_Init( void )
 	// to be overridden when testing driver fixes, etc. but only sets
 	// them to their default state when the hardware is first installed/run.
 	//
-	if ( Q_stricmp( lastValidRenderer->string, glConfig.renderer_string ) )
+	if ( Q_stricmp( lastValidRenderer->string, vdConfig.renderer_string ) )
 	{
-		glConfig.hardwareType = GLHW_GENERIC;
+		vdConfig.hardwareType = GLHW_GENERIC;
 
 		ri.Cvar_Set( "r_textureMode", "GL_LINEAR_MIPMAP_NEAREST" );
 
@@ -1440,7 +1440,7 @@ void GLimp_Init( void )
 	//
 	if ( strstr( buf, "banshee" ) || strstr( buf, "voodoo3" ) )
 	{
-		glConfig.hardwareType = GLHW_3DFX_2D3D;
+		vdConfig.hardwareType = GLHW_3DFX_2D3D;
 	}
 	// VOODOO GRAPHICS w/ 2MB
 	else if ( strstr( buf, "voodoo graphics/1 tmu/2 mb" ) )
@@ -1451,24 +1451,24 @@ void GLimp_Init( void )
 	}
 	else if ( strstr( buf, "rage pro" ) || strstr( buf, "Rage Pro" ) || strstr( buf, "ragepro" ) )
 	{
-		glConfig.hardwareType = GLHW_RAGEPRO;
+		vdConfig.hardwareType = GLHW_RAGEPRO;
 	}
 	else if ( strstr( buf, "rage 128" ) )
 	{
 	}
 	else if ( strstr( buf, "permedia2" ) )
 	{
-		glConfig.hardwareType = GLHW_PERMEDIA2;
+		vdConfig.hardwareType = GLHW_PERMEDIA2;
 	}
 	else if ( strstr( buf, "riva 128" ) )
 	{
-		glConfig.hardwareType = GLHW_RIVA128;
+		vdConfig.hardwareType = GLHW_RIVA128;
 	}
 	else if ( strstr( buf, "riva tnt " ) )
 	{
 	}
 
-	ri.Cvar_Set( "r_lastValidRenderer", glConfig.renderer_string );
+	ri.Cvar_Set( "r_lastValidRenderer", vdConfig.renderer_string );
 
 	GLW_InitExtensions();
 	WG_CheckHardwareGamma();
@@ -1548,7 +1548,7 @@ void GLimp_Shutdown( void )
 	// shutdown QGL subsystem
 	QGL_Shutdown();
 
-	memset( &glConfig, 0, sizeof( glConfig ) );
+	memset( &vdConfig, 0, sizeof( vdConfig ) );
 	memset( &glState, 0, sizeof( glState ) );
 }
 

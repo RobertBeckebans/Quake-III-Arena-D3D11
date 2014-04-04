@@ -143,7 +143,7 @@ localEntity_t *CG_SmokePuff( const vec3_t p, const vec3_t vel,
 	re->customShader = hShader;
 
 	// rage pro can't alpha fade, so use a different shader
-	if ( cgs.glconfig.hardwareType == GLHW_RAGEPRO ) {
+	if ( cgs.vdconfig.hardwareType == GLHW_RAGEPRO ) {
 		re->customShader = cgs.media.smokePuffRageProShader;
 		re->shaderRGBA[0] = 0xff;
 		re->shaderRGBA[1] = 0xff;

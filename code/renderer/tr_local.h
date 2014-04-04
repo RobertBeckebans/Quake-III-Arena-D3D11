@@ -835,16 +835,6 @@ typedef struct {
 #define FUNCTABLE_MASK		(FUNCTABLE_SIZE-1)
 
 
-// the renderer front end should never modify glstate_t
-typedef struct {
-	int			currenttextures[2];
-	int			currenttmu;
-	qboolean	finishCalled;
-	int			texEnv[2];
-	int			faceCulling;
-	unsigned long	glStateBits;
-} glstate_t;
-
 
 typedef struct {
 	int		c_surfaces, c_shaders, c_vertexes, c_indexes, c_totalIndexes;
@@ -987,8 +977,7 @@ typedef struct {
 
 extern backEndState_t	    backEnd;
 extern trGlobals_t	        tr;
-extern glconfig_t	        glConfig;		// outside of TR since it shouldn't be cleared during ref re-init
-extern glstate_t	        glState;		// outside of TR since it shouldn't be cleared during ref re-init
+extern vdconfig_t	        vdConfig;		// outside of TR since it shouldn't be cleared during ref re-init
 extern graphicsDriver_t*    driver;         // @pjb: which driver are we using?
 
 //
@@ -1150,7 +1139,7 @@ void	RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 void	RE_UploadCinematic (int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty);
 
 void		RE_BeginFrame( stereoFrame_t stereoFrame );
-void		RE_BeginRegistration( glconfig_t *glconfig );
+void		RE_BeginRegistration( vdconfig_t *glconfig );
 void		RE_LoadWorldMap( const char *mapname );
 void		RE_SetWorldVisData( const byte *vis );
 qhandle_t	RE_RegisterModel( const char *name );

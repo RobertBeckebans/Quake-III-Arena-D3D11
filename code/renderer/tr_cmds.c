@@ -45,7 +45,7 @@ void R_PerformanceCounters( void ) {
 		ri.Printf (PRINT_ALL, "%i/%i shaders/surfs %i leafs %i verts %i/%i tris %.2f mtex %.2f dc\n",
 			backEnd.pc.c_shaders, backEnd.pc.c_surfaces, tr.pc.c_leafs, backEnd.pc.c_vertexes, 
 			backEnd.pc.c_indexes/3, backEnd.pc.c_totalIndexes/3, 
-			driver->GetFrameImageMemoryUsage()/(1000000.0f), backEnd.pc.c_overDraw / (float)(glConfig.vidWidth * glConfig.vidHeight) ); 
+			driver->GetFrameImageMemoryUsage()/(1000000.0f), backEnd.pc.c_overDraw / (float)(vdConfig.vidWidth * vdConfig.vidHeight) ); 
 	} else if (r_speeds->integer == 2) {
 		ri.Printf (PRINT_ALL, "(patch) %i sin %i sclip  %i sout %i bin %i bclip %i bout\n",
 			tr.pc.c_sphere_cull_patch_in, tr.pc.c_sphere_cull_patch_clip, tr.pc.c_sphere_cull_patch_out, 
@@ -83,12 +83,12 @@ R_InitCommandBuffers
 ====================
 */
 void R_InitCommandBuffers( void ) {
-	glConfig.smpActive = qfalse;
+	vdConfig.smpActive = qfalse;
 	if ( r_smp->integer ) {
 		ri.Printf( PRINT_ALL, "Trying SMP acceleration...\n" );
 		if ( GLimp_SpawnRenderThread( RB_RenderThread ) ) {
 			ri.Printf( PRINT_ALL, "...succeeded.\n" );
-			glConfig.smpActive = qtrue;
+			vdConfig.smpActive = qtrue;
 		} else {
 			ri.Printf( PRINT_ALL, "...failed.\n" );
 		}
@@ -102,9 +102,9 @@ R_ShutdownCommandBuffers
 */
 void R_ShutdownCommandBuffers( void ) {
 	// kill the rendering thread
-	if ( glConfig.smpActive ) {
+	if ( vdConfig.smpActive ) {
 		GLimp_WakeRenderer( NULL );
-		glConfig.smpActive = qfalse;
+		vdConfig.smpActive = qfalse;
 	}
 }
 
@@ -127,7 +127,7 @@ void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
 	// clear it out, in case this is a sync and not a buffer flip
 	cmdList->used = 0;
 
-	if ( glConfig.smpActive ) {
+	if ( vdConfig.smpActive ) {
 		// if the render thread is not idle, wait for it
 		if ( renderThreadActive ) {
 			c_blockedOnRender++;
@@ -154,7 +154,7 @@ void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
 	// actually start the commands going
 	if ( !r_skipBackEnd->integer ) {
 		// let it start on the new batch
-		if ( !glConfig.smpActive ) {
+		if ( !vdConfig.smpActive ) {
 			RB_ExecuteRenderCommands( cmdList->cmds );
 		} else {
 			GLimp_WakeRenderer( cmdList );
@@ -179,7 +179,7 @@ void R_SyncRenderThread( void ) {
 	}
 	R_IssueRenderCommands( qfalse );
 
-	if ( !glConfig.smpActive ) {
+	if ( !vdConfig.smpActive ) {
 		return;
 	}
 	GLimp_FrontEndSleep();
@@ -320,9 +320,9 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	//
 	if ( r_measureOverdraw->integer )
 	{
-		if ( glConfig.stencilBits < 4 )
+		if ( vdConfig.stencilBits < 4 )
 		{
-			ri.Printf( PRINT_ALL, "Warning: not enough stencil bits to measure overdraw: %d\n", glConfig.stencilBits );
+			ri.Printf( PRINT_ALL, "Warning: not enough stencil bits to measure overdraw: %d\n", vdConfig.stencilBits );
 			ri.Cvar_Set( "r_measureOverdraw", "0" );
 			r_measureOverdraw->modified = qfalse;
 		}
@@ -391,7 +391,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	}
 	cmd->commandId = RC_DRAW_BUFFER;
 
-	if ( glConfig.stereoEnabled ) {
+	if ( vdConfig.stereoEnabled ) {
 		if ( stereoFrame == STEREO_LEFT ) {
 			cmd->buffer = (int)GL_BACK_LEFT;
 		} else if ( stereoFrame == STEREO_RIGHT ) {

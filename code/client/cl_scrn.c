@@ -62,14 +62,14 @@ void SCR_AdjustFrom640( float *x, float *y, float *w, float *h ) {
 
 #if 0
 		// adjust for wide screens
-		if ( cls.glconfig.vidWidth * 480 > cls.glconfig.vidHeight * 640 ) {
-			*x += 0.5 * ( cls.glconfig.vidWidth - ( cls.glconfig.vidHeight * 640 / 480 ) );
+		if ( cls.vdconfig.vidWidth * 480 > cls.vdconfig.vidHeight * 640 ) {
+			*x += 0.5 * ( cls.vdconfig.vidWidth - ( cls.vdconfig.vidHeight * 640 / 480 ) );
 		}
 #endif
 
 	// scale for screen sizes
-	xscale = cls.glconfig.vidWidth / 640.0;
-	yscale = cls.glconfig.vidHeight / 480.0;
+	xscale = cls.vdconfig.vidWidth / 640.0;
+	yscale = cls.vdconfig.vidHeight / 480.0;
 	if ( x ) {
 		*x *= xscale;
 	}
@@ -386,9 +386,9 @@ void SCR_DrawDebugGraph (void)
 	//
 	// draw the graph
 	//
-	w = cls.glconfig.vidWidth;
+	w = cls.vdconfig.vidWidth;
 	x = 0;
-	y = cls.glconfig.vidHeight;
+	y = cls.vdconfig.vidHeight;
 	re.SetColor( g_color_table[0] );
 	re.DrawStretchPic(x, y - cl_graphheight->integer, 
 		w, cl_graphheight->integer, 0, 0, 0, 0, cls.whiteShader );
@@ -441,9 +441,9 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 	// wide aspect ratio screens need to have the sides cleared
 	// unless they are displaying game renderings
 	if ( cls.state != CA_ACTIVE ) {
-		if ( cls.glconfig.vidWidth * 480 > cls.glconfig.vidHeight * 640 ) {
+		if ( cls.vdconfig.vidWidth * 480 > cls.vdconfig.vidHeight * 640 ) {
 			re.SetColor( g_color_table[0] );
-			re.DrawStretchPic( 0, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight, 0, 0, 0, 0, cls.whiteShader );
+			re.DrawStretchPic( 0, 0, cls.vdconfig.vidWidth, cls.vdconfig.vidHeight, 0, 0, 0, 0, cls.whiteShader );
 			re.SetColor( NULL );
 		}
 	}
@@ -529,7 +529,7 @@ void SCR_UpdateScreen( void ) {
 	recursive = 1;
 
 	// if running in stereo, we need to draw the frame twice
-	if ( cls.glconfig.stereoEnabled ) {
+	if ( cls.vdconfig.stereoEnabled ) {
 		SCR_DrawScreenField( STEREO_LEFT );
 		SCR_DrawScreenField( STEREO_RIGHT );
 	} else {

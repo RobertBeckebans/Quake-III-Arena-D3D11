@@ -70,5 +70,11 @@ graphicsDriver_t* PROXY_DriverInit( void )
 
     // todo: proxy D3D11
 
+    
+    // Copy the resource strings to the vgConfig
+    Q_strncpyz( vdConfig.renderer_string, "PROXY DRIVER", sizeof( vdConfig.renderer_string ) );
+    Q_strncpyz( vdConfig.vendor_string, "@pjb", sizeof( vdConfig.vendor_string ) );
+    Q_strncpyz( vdConfig.version_string, "1.0", sizeof( vdConfig.version_string ) );
+    
     return &proxyDriver;
 }

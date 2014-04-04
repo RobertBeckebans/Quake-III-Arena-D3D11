@@ -1070,13 +1070,13 @@ void UI_Init( void ) {
 	UI_InitGameinfo();
 
 	// cache redundant calulations
-	trap_GetGlconfig( &uis.glconfig );
+	trap_GetVideoConfig( &uis.vdconfig );
 
 	// for 640x480 virtualized screen
-	uis.scale = uis.glconfig.vidHeight * (1.0/480.0);
-	if ( uis.glconfig.vidWidth * 480 > uis.glconfig.vidHeight * 640 ) {
+	uis.scale = uis.vdconfig.vidHeight * (1.0/480.0);
+	if ( uis.vdconfig.vidWidth * 480 > uis.vdconfig.vidHeight * 640 ) {
 		// wide screen
-		uis.bias = 0.5 * ( uis.glconfig.vidWidth - ( uis.glconfig.vidHeight * (640.0/480.0) ) );
+		uis.bias = 0.5 * ( uis.vdconfig.vidWidth - ( uis.vdconfig.vidHeight * (640.0/480.0) ) );
 	}
 	else {
 		// no wide screen

@@ -301,8 +301,8 @@ void	trap_R_RemapShader( const char *oldShader, const char *newShader, const cha
 	syscall( CG_R_REMAP_SHADER, oldShader, newShader, timeOffset );
 }
 
-void		trap_GetGlconfig( glconfig_t *glconfig ) {
-	syscall( CG_GETGLCONFIG, glconfig );
+void		trap_GetVideoConfig( vdconfig_t *vdconfig ) {
+	syscall( CG_GETGLCONFIG, vdconfig );
 }
 
 void		trap_GetGameState( gameState_t *gamestate ) {

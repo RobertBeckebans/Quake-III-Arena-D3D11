@@ -220,7 +220,7 @@ void R_LightScaleTexture (unsigned *in, int inwidth, int inheight, qboolean only
 {
 	if ( only_gamma )
 	{
-		if ( !glConfig.deviceSupportsGamma )
+		if ( !vdConfig.deviceSupportsGamma )
 		{
 			int		i, c;
 			byte	*p;
@@ -245,7 +245,7 @@ void R_LightScaleTexture (unsigned *in, int inwidth, int inheight, qboolean only
 
 		c = inwidth*inheight;
 
-		if ( glConfig.deviceSupportsGamma )
+		if ( vdConfig.deviceSupportsGamma )
 		{
 			for (i=0 ; i<c ; i++, p+=4)
 			{
@@ -1784,18 +1784,18 @@ void R_SetColorMappings( void ) {
 
 	// setup the overbright lighting
 	tr.overbrightBits = r_overBrightBits->integer;
-	if ( !glConfig.deviceSupportsGamma ) {
+	if ( !vdConfig.deviceSupportsGamma ) {
 		tr.overbrightBits = 0;		// need hardware gamma for overbright
 	}
 
 	// never overbright in windowed mode
-	if ( !glConfig.isFullscreen ) 
+	if ( !vdConfig.isFullscreen ) 
 	{
 		tr.overbrightBits = 0;
 	}
 
 	// allow 2 overbright bits in 24 bit, but only 1 in 16 bit
-	if ( glConfig.colorBits > 16 ) {
+	if ( vdConfig.colorBits > 16 ) {
 		if ( tr.overbrightBits > 2 ) {
 			tr.overbrightBits = 2;
 		}

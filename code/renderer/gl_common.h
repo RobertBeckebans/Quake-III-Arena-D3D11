@@ -56,6 +56,31 @@ void	GL_Cull( int cullType );
 /*
 ====================================================================
 
+GL-SPECIFIC CONFIG
+
+====================================================================
+*/
+
+// the renderer front end should never modify glstate_t
+typedef struct {
+    char            renderer_string[MAX_STRING_CHARS];
+    char            vendor_string[MAX_STRING_CHARS];
+    char            version_string[MAX_STRING_CHARS];
+    char            extensions_string[BIG_INFO_STRING];
+
+	int			    currenttextures[2];
+	int			    currenttmu;
+	qboolean	    finishCalled;
+	int			    texEnv[2];
+	int			    faceCulling;
+	unsigned long	glStateBits;
+} glstate_t;
+
+extern glstate_t	        glState;		// outside of TR since it shouldn't be cleared during ref re-init
+
+/*
+====================================================================
+
 RENDER BACKEND
 
 ====================================================================

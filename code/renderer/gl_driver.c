@@ -3,7 +3,6 @@
 #include "gl_common.h"
 #include "gl_image.h"
 
-glconfig_t	glConfig;
 glstate_t	glState;
 
 void ( APIENTRY * qglMultiTexCoord2fARB )( GLenum texture, GLfloat s, GLfloat t );
@@ -54,23 +53,23 @@ static void InitOpenGL( void )
 	//		- r_gamma
 	//
 	
-	if ( glConfig.vidWidth == 0 )
+	if ( vdConfig.vidWidth == 0 )
 	{
 		GLint		temp;
 		
 		GLimp_Init();
 
-		strcpy( renderer_buffer, glConfig.renderer_string );
+		strcpy( renderer_buffer, vdConfig.renderer_string );
 		Q_strlwr( renderer_buffer );
 
 		// OpenGL driver constants
 		qglGetIntegerv( GL_MAX_TEXTURE_SIZE, &temp );
-		glConfig.maxTextureSize = temp;
+		vdConfig.maxTextureSize = temp;
 
 		// stubbed or broken drivers may have reported 0...
-		if ( glConfig.maxTextureSize <= 0 ) 
+		if ( vdConfig.maxTextureSize <= 0 ) 
 		{
-			glConfig.maxTextureSize = 0;
+			vdConfig.maxTextureSize = 0;
 		}
 	}
 
@@ -95,7 +94,7 @@ Driver overloads
 
 void GLRB_SetGamma( unsigned char red[256], unsigned char green[256], unsigned char blue[256] )
 {
-    if ( glConfig.deviceSupportsGamma )
+    if ( vdConfig.deviceSupportsGamma )
 	{
         GLimp_SetGamma( red, green, blue );
     }
@@ -120,23 +119,23 @@ void GLRB_GfxInfo_f( void )
 		"fullscreen"
 	};
 
-	ri.Printf( PRINT_ALL, "\nGL_VENDOR: %s\n", glConfig.vendor_string );
-	ri.Printf( PRINT_ALL, "GL_RENDERER: %s\n", glConfig.renderer_string );
-	ri.Printf( PRINT_ALL, "GL_VERSION: %s\n", glConfig.version_string );
-	ri.Printf( PRINT_ALL, "GL_EXTENSIONS: %s\n", glConfig.extensions_string );
-	ri.Printf( PRINT_ALL, "GL_MAX_TEXTURE_SIZE: %d\n", glConfig.maxTextureSize );
-	ri.Printf( PRINT_ALL, "GL_MAX_ACTIVE_TEXTURES_ARB: %d\n", glConfig.maxActiveTextures );
-	ri.Printf( PRINT_ALL, "\nPIXELFORMAT: color(%d-bits) Z(%d-bit) stencil(%d-bits)\n", glConfig.colorBits, glConfig.depthBits, glConfig.stencilBits );
-	ri.Printf( PRINT_ALL, "MODE: %d, %d x %d %s hz:", r_mode->integer, glConfig.vidWidth, glConfig.vidHeight, fsstrings[r_fullscreen->integer == 1] );
-	if ( glConfig.displayFrequency )
+	ri.Printf( PRINT_ALL, "\nGL_VENDOR: %s\n", glState.vendor_string );
+	ri.Printf( PRINT_ALL, "GL_RENDERER: %s\n", glState.renderer_string );
+	ri.Printf( PRINT_ALL, "GL_VERSION: %s\n", glState.version_string );
+	ri.Printf( PRINT_ALL, "GL_EXTENSIONS: %s\n", glState.extensions_string );
+	ri.Printf( PRINT_ALL, "GL_MAX_TEXTURE_SIZE: %d\n", vdConfig.maxTextureSize );
+	ri.Printf( PRINT_ALL, "GL_MAX_ACTIVE_TEXTURES_ARB: %d\n", vdConfig.maxActiveTextures );
+	ri.Printf( PRINT_ALL, "\nPIXELFORMAT: color(%d-bits) Z(%d-bit) stencil(%d-bits)\n", vdConfig.colorBits, vdConfig.depthBits, vdConfig.stencilBits );
+	ri.Printf( PRINT_ALL, "MODE: %d, %d x %d %s hz:", r_mode->integer, vdConfig.vidWidth, vdConfig.vidHeight, fsstrings[r_fullscreen->integer == 1] );
+	if ( vdConfig.displayFrequency )
 	{
-		ri.Printf( PRINT_ALL, "%d\n", glConfig.displayFrequency );
+		ri.Printf( PRINT_ALL, "%d\n", vdConfig.displayFrequency );
 	}
 	else
 	{
 		ri.Printf( PRINT_ALL, "N/A\n" );
 	}
-	if ( glConfig.deviceSupportsGamma )
+	if ( vdConfig.deviceSupportsGamma )
 	{
 		ri.Printf( PRINT_ALL, "GAMMA: hardware w/ %d overbright bits\n", tr.overbrightBits );
 	}
@@ -176,21 +175,21 @@ void GLRB_GfxInfo_f( void )
 	ri.Printf( PRINT_ALL, "texture bits: %d\n", r_texturebits->integer );
 	ri.Printf( PRINT_ALL, "multitexture: %s\n", enablestrings[qglActiveTextureARB != 0] );
 	ri.Printf( PRINT_ALL, "compiled vertex arrays: %s\n", enablestrings[qglLockArraysEXT != 0 ] );
-	ri.Printf( PRINT_ALL, "texenv add: %s\n", enablestrings[glConfig.textureEnvAddAvailable != 0] );
-	ri.Printf( PRINT_ALL, "compressed textures: %s\n", enablestrings[glConfig.textureCompression!=TC_NONE] );
-	if ( r_vertexLight->integer || glConfig.hardwareType == GLHW_PERMEDIA2 )
+	ri.Printf( PRINT_ALL, "texenv add: %s\n", enablestrings[vdConfig.textureEnvAddAvailable != 0] );
+	ri.Printf( PRINT_ALL, "compressed textures: %s\n", enablestrings[vdConfig.textureCompression!=TC_NONE] );
+	if ( r_vertexLight->integer || vdConfig.hardwareType == GLHW_PERMEDIA2 )
 	{
 		ri.Printf( PRINT_ALL, "HACK: using vertex lightmap approximation\n" );
 	}
-	if ( glConfig.hardwareType == GLHW_RAGEPRO )
+	if ( vdConfig.hardwareType == GLHW_RAGEPRO )
 	{
 		ri.Printf( PRINT_ALL, "HACK: ragePro approximations\n" );
 	}
-	if ( glConfig.hardwareType == GLHW_RIVA128 )
+	if ( vdConfig.hardwareType == GLHW_RIVA128 )
 	{
 		ri.Printf( PRINT_ALL, "HACK: riva128 approximations\n" );
 	}
-	if ( glConfig.smpActive ) {
+	if ( vdConfig.smpActive ) {
 		ri.Printf( PRINT_ALL, "Using dual processor acceleration\n" );
 	}
 	if ( r_finish->integer ) {
@@ -217,6 +216,11 @@ graphicsDriver_t* GLRB_DriverInit( void )
     };
 
     InitOpenGL();
+
+    // Copy the resource strings to the vgConfig
+    Q_strncpyz( vdConfig.renderer_string, glState.renderer_string, sizeof( vdConfig.renderer_string ) );
+    Q_strncpyz( vdConfig.vendor_string, glState.vendor_string, sizeof( vdConfig.vendor_string ) );
+    Q_strncpyz( vdConfig.version_string, glState.version_string, sizeof( vdConfig.version_string ) );
 
     return &openglDriver;
 }
