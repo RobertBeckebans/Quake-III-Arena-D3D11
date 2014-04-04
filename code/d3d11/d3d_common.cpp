@@ -411,7 +411,7 @@ namespace QD3D
         case DXGI_FORMAT_D32_FLOAT                  :
             *depthBits = 32; *stencilBits = 0; break;
         case DXGI_FORMAT_D24_UNORM_S8_UINT          :
-            *depthBits = 32; *stencilBits = 8; break;
+            *depthBits = 24; *stencilBits = 8; break;
         case DXGI_FORMAT_D16_UNORM                  :
             *depthBits = 16; *stencilBits = 0; break;
         default:
