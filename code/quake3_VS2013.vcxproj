@@ -194,7 +194,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release TA|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <TargetName>quake3</TargetName>
+    <TargetName>quake3_x64</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
@@ -202,7 +202,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <TargetName>quake3</TargetName>
+    <TargetName>quake3_x64</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release TA DEMO|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -210,7 +210,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release TA DEMO|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <TargetName>quake3</TargetName>
+    <TargetName>quake3_x64</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -218,7 +218,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <TargetName>quake3</TargetName>
+    <TargetName>quake3_x64</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug TA DEMO|Win32'">
     <LinkIncremental>true</LinkIncremental>
@@ -226,7 +226,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug TA DEMO|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <TargetName>quake3</TargetName>
+    <TargetName>quake3_x64</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='vector|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -234,7 +234,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='vector|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <TargetName>quake3</TargetName>
+    <TargetName>quake3_x64</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">
     <LinkIncremental>true</LinkIncremental>
@@ -242,7 +242,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug TA|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <TargetName>quake3</TargetName>
+    <TargetName>quake3_x64</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">
     <ClCompile>
@@ -292,10 +292,6 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <PrecompiledHeaderOutputFile>.\Release_TA/quake3.pch</PrecompiledHeaderOutputFile>
-      <AssemblerListingLocation>.\Release_TA/</AssemblerListingLocation>
-      <ObjectFileName>.\Release_TA/</ObjectFileName>
-      <ProgramDataBaseFileName>.\Release_TA/</ProgramDataBaseFileName>
       <BrowseInformation>true</BrowseInformation>
       <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -303,9 +299,7 @@
     <Link>
       <AdditionalDependencies>winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <ProgramDatabaseFile>Release_TA/quake3.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
-      <MapFileName>Release_TA/quake3.map</MapFileName>
       <SubSystem>Windows</SubSystem>
       <StackReserveSize>8388608</StackReserveSize>
     </Link>
@@ -371,12 +365,8 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <PrecompiledHeaderOutputFile>.\Debug/quake3.pch</PrecompiledHeaderOutputFile>
-      <AssemblerListingLocation>.\Debug/</AssemblerListingLocation>
-      <ObjectFileName>.\Debug/</ObjectFileName>
-      <ProgramDataBaseFileName>.\Debug/</ProgramDataBaseFileName>
       <BrowseInformation>true</BrowseInformation>
-      <BrowseInformationFile>.\Debug/</BrowseInformationFile>
+      <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -385,9 +375,7 @@
       <AdditionalDependencies>winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>.\Debug/quake3.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
-      <MapFileName>.\Debug/quake3.map</MapFileName>
       <SubSystem>Windows</SubSystem>
       <StackReserveSize>8388608</StackReserveSize>
     </Link>
@@ -454,10 +442,6 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <PrecompiledHeaderOutputFile>.\quake3___Win32_Release_TA_DEMO/quake3.pch</PrecompiledHeaderOutputFile>
-      <AssemblerListingLocation>.\quake3___Win32_Release_TA_DEMO/</AssemblerListingLocation>
-      <ObjectFileName>.\quake3___Win32_Release_TA_DEMO/</ObjectFileName>
-      <ProgramDataBaseFileName>.\quake3___Win32_Release_TA_DEMO/</ProgramDataBaseFileName>
       <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
@@ -466,9 +450,7 @@
       <AdditionalDependencies>winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>Release_TA/quake3.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
-      <MapFileName>Release_TA/quake3.map</MapFileName>
       <SubSystem>Windows</SubSystem>
       <StackReserveSize>8388608</StackReserveSize>
     </Link>
@@ -529,10 +511,6 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <PrecompiledHeaderOutputFile>.\Release/quake3.pch</PrecompiledHeaderOutputFile>
-      <AssemblerListingLocation>.\Release/</AssemblerListingLocation>
-      <ObjectFileName>.\Release/</ObjectFileName>
-      <ProgramDataBaseFileName>.\Release/</ProgramDataBaseFileName>
       <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </ClCompile>
@@ -540,9 +518,7 @@
       <AdditionalDependencies>winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>.\Release/quake3.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
-      <MapFileName>.\Release/quake3.map</MapFileName>
       <SubSystem>Windows</SubSystem>
       <StackReserveSize>8388608</StackReserveSize>
     </Link>
@@ -600,12 +576,8 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <PrecompiledHeaderOutputFile>.\quake3___Win32_Debug_TA_DEMO/quake3.pch</PrecompiledHeaderOutputFile>
-      <AssemblerListingLocation>.\quake3___Win32_Debug_TA_DEMO/</AssemblerListingLocation>
-      <ObjectFileName>.\quake3___Win32_Debug_TA_DEMO/</ObjectFileName>
-      <ProgramDataBaseFileName>.\quake3___Win32_Debug_TA_DEMO/</ProgramDataBaseFileName>
       <BrowseInformation>true</BrowseInformation>
-      <BrowseInformationFile>.\quake3___Win32_Debug_TA_DEMO/</BrowseInformationFile>
+      <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -614,9 +586,7 @@
       <AdditionalDependencies>winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>.\quake3___Win32_Debug_TA_DEMO/quake3.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
-      <MapFileName>Debug_TA/quake3.map</MapFileName>
       <SubSystem>Windows</SubSystem>
       <StackReserveSize>8388608</StackReserveSize>
     </Link>
@@ -681,10 +651,6 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <PrecompiledHeaderOutputFile>.\quake3___Win32_vector0/quake3.pch</PrecompiledHeaderOutputFile>
-      <AssemblerListingLocation>.\quake3___Win32_vector0/</AssemblerListingLocation>
-      <ObjectFileName>.\quake3___Win32_vector0/</ObjectFileName>
-      <ProgramDataBaseFileName>.\quake3___Win32_vector0/</ProgramDataBaseFileName>
       <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -693,9 +659,7 @@
       <AdditionalDependencies>winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>Release_TA/quake3.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
-      <MapFileName>Release_TA/quake3.map</MapFileName>
       <SubSystem>Windows</SubSystem>
       <StackReserveSize>8388608</StackReserveSize>
     </Link>
@@ -757,12 +721,8 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <PrecompiledHeaderOutputFile>.\Debug_TA/quake3.pch</PrecompiledHeaderOutputFile>
-      <AssemblerListingLocation>.\Debug_TA/</AssemblerListingLocation>
-      <ObjectFileName>.\Debug_TA/</ObjectFileName>
-      <ProgramDataBaseFileName>.\Debug_TA/</ProgramDataBaseFileName>
       <BrowseInformation>true</BrowseInformation>
-      <BrowseInformationFile>.\Debug_TA/</BrowseInformationFile>
+      <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -771,9 +731,7 @@
       <AdditionalDependencies>winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>.\Debug_TA/quake3.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
-      <MapFileName>Debug_TA/quake3.map</MapFileName>
       <SubSystem>Windows</SubSystem>
       <StackReserveSize>8388608</StackReserveSize>
     </Link>

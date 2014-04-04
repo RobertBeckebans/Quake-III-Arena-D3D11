@@ -167,7 +167,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug TA|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <TargetName>qagamex86</TargetName>
+    <TargetName>qagamex64</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -175,7 +175,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <TargetName>qagamex86</TargetName>
+    <TargetName>qagamex64</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Alpha|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -183,7 +183,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Alpha|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <TargetName>qagamex86</TargetName>
+    <TargetName>qagamex64</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Alpha|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -191,7 +191,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Alpha|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <TargetName>qagamex86</TargetName>
+    <TargetName>qagamex64</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -199,7 +199,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <TargetName>qagamex86</TargetName>
+    <TargetName>qagamex64</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -207,7 +207,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release TA|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <TargetName>qagamex86</TargetName>
+    <TargetName>qagamex64</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">
     <ClCompile>
@@ -251,10 +251,6 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <PrecompiledHeaderOutputFile>.\Debug_TA/game.pch</PrecompiledHeaderOutputFile>
-      <AssemblerListingLocation>.\Debug_TA/</AssemblerListingLocation>
-      <ObjectFileName>.\Debug_TA/</ObjectFileName>
-      <ProgramDataBaseFileName>.\Debug_TA/</ProgramDataBaseFileName>
       <BrowseInformation>true</BrowseInformation>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -265,12 +261,10 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <ModuleDefinitionFile>.\game.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>.\Debug_TA/qagamex86.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
       <MapFileName>.\Debug_TA/qagamex86.map</MapFileName>
       <SubSystem>Windows</SubSystem>
       <BaseAddress>0x20000000</BaseAddress>
-      <ImportLibrary>.\Debug_TA/qagamex86.lib</ImportLibrary>
     </Link>
     <Midl>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -327,10 +321,6 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <PrecompiledHeaderOutputFile>.\Debug/game.pch</PrecompiledHeaderOutputFile>
-      <AssemblerListingLocation>.\Debug/</AssemblerListingLocation>
-      <ObjectFileName>.\Debug/</ObjectFileName>
-      <ProgramDataBaseFileName>.\Debug/</ProgramDataBaseFileName>
       <BrowseInformation>true</BrowseInformation>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -341,12 +331,10 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <ModuleDefinitionFile>.\game.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>.\Debug/qagamex86.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
       <MapFileName>.\Debug/qagamex86.map</MapFileName>
       <SubSystem>Windows</SubSystem>
       <BaseAddress>0x20000000</BaseAddress>
-      <ImportLibrary>.\Debug/qagamex86.lib</ImportLibrary>
     </Link>
     <Midl>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -406,10 +394,6 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <PrecompiledHeaderOutputFile>.\ReleaseAXP/game.pch</PrecompiledHeaderOutputFile>
-      <AssemblerListingLocation>.\ReleaseAXP/</AssemblerListingLocation>
-      <ObjectFileName>.\ReleaseAXP/</ObjectFileName>
-      <ProgramDataBaseFileName>.\ReleaseAXP/</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
@@ -418,10 +402,8 @@
       <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <ModuleDefinitionFile>.\game.def</ModuleDefinitionFile>
-      <ProgramDatabaseFile>.\..\ReleaseAXP/qagameaxp.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
       <BaseAddress>0x20000000</BaseAddress>
-      <ImportLibrary>.\..\ReleaseAXP/qagameaxp.lib</ImportLibrary>
     </Link>
     <Midl>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -476,10 +458,6 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <PrecompiledHeaderOutputFile>.\DebugAxp/game.pch</PrecompiledHeaderOutputFile>
-      <AssemblerListingLocation>.\DebugAxp/</AssemblerListingLocation>
-      <ObjectFileName>.\DebugAxp/</ObjectFileName>
-      <ProgramDataBaseFileName>.\DebugAxp/</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -489,10 +467,8 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <ModuleDefinitionFile>.\game.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>.\..\DebugAxp/qagameaxp.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
       <BaseAddress>0x20000000</BaseAddress>
-      <ImportLibrary>.\..\DebugAxp/qagameaxp.lib</ImportLibrary>
     </Link>
     <Midl>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -552,10 +528,6 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <PrecompiledHeaderOutputFile>.\Release/game.pch</PrecompiledHeaderOutputFile>
-      <AssemblerListingLocation>.\Release/</AssemblerListingLocation>
-      <ObjectFileName>.\Release/</ObjectFileName>
-      <ProgramDataBaseFileName>.\Release/</ProgramDataBaseFileName>
       <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </ClCompile>
@@ -563,12 +535,10 @@
       <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <ModuleDefinitionFile>.\game.def</ModuleDefinitionFile>
-      <ProgramDatabaseFile>.\Release/qagamex86.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
       <MapFileName>.\Release/qagamex86.map</MapFileName>
       <SubSystem>Windows</SubSystem>
       <BaseAddress>0x20000000</BaseAddress>
-      <ImportLibrary>.\Release/qagamex86.lib</ImportLibrary>
     </Link>
     <Midl>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -628,10 +598,6 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <PrecompiledHeaderOutputFile>.\Release_TA/game.pch</PrecompiledHeaderOutputFile>
-      <AssemblerListingLocation>.\Release_TA/</AssemblerListingLocation>
-      <ObjectFileName>.\Release_TA/</ObjectFileName>
-      <ProgramDataBaseFileName>.\Release_TA/</ProgramDataBaseFileName>
       <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </ClCompile>
@@ -639,12 +605,10 @@
       <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <ModuleDefinitionFile>.\game.def</ModuleDefinitionFile>
-      <ProgramDatabaseFile>.\Release_TA/qagamex86.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
       <MapFileName>.\Release_TA/qagamex86.map</MapFileName>
       <SubSystem>Windows</SubSystem>
       <BaseAddress>0x20000000</BaseAddress>
-      <ImportLibrary>.\Release_TA/qagamex86.lib</ImportLibrary>
     </Link>
     <Midl>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
