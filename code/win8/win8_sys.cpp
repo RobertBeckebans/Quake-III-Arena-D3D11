@@ -79,10 +79,15 @@ void Win8_SetCommandLine( Platform::Array<Platform::String^>^ args )
 {
     // Set the command line string
     size_t offset = 0;
+    sys_cmdline[0] = 0;
     for ( int i = 1; i < args->Length; ++i )
     {
         if ( offset + 2 + args[i]->Length() >= MAX_STRING_CHARS )
             break;
+
+        // All arguments have to start with a + for quake
+        if ( args[i]->Data()[0] != L'+' )
+            continue;
 
         sys_cmdline[offset++] = '\"';
         offset += Win8_CopyString( args[i], sys_cmdline + offset, MAX_STRING_CHARS - offset - 2 );
