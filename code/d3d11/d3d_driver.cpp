@@ -159,7 +159,9 @@ void D3DDrv_SetPortalRendering( qboolean enabled, const float* flipMatrix, const
 
 void D3DDrv_SetDepthRange( float minRange, float maxRange )
 {
-
+    g_RunState.constants.depthRange[0] = minRange;
+    g_RunState.constants.depthRange[1] = maxRange;
+    g_RunState.dirtyConstants = qtrue;
 }
 
 void D3DDrv_SetDrawBuffer( int buffer )

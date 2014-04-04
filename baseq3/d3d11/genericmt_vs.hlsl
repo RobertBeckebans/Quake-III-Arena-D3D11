@@ -22,7 +22,7 @@ VS_PS_Data Main(VS_Data input)
 
 	float4 viewPos = mul(View, float4(input.Position, 1));
     float4 sPos = mul(Projection, viewPos);
-	output.Position = sPos;
+	output.Position = DepthRangeHack(sPos);
     output.AlbedoTC = input.AlbedoTC;
     output.LightmapTC = input.LightmapTC;
 	output.Color = input.Color;
