@@ -1098,11 +1098,6 @@ void IN_ApplyGamepad( const gamepadInfo_t* gamepad )
 
         Sys_QueEvent( g_wv.sysMsgTime, SE_MOUSE, x, y, 0, NULL );
     }
-
-    //
-    // Also emit UI-specific events for thumbsticks
-    //
-    // TODO
 }
 
 void IN_GamepadMove(void)
