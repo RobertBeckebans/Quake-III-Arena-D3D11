@@ -2,6 +2,11 @@
 
 #include <atomic>
 
+namespace Q3Win8
+{
+    struct MSG;
+}
+
 ref class Quake3Win8App sealed : public Windows::ApplicationModel::Core::IFrameworkView
 {
 public:
@@ -34,6 +39,8 @@ protected:
 
 private:
 
+    void HandleExceptionMessage( const Q3Win8::MSG* msg );
+    void WaitForGameReady();
     void HandleMessagesFromGame();
     void CaptureMouse();
     void ReleaseMouse();

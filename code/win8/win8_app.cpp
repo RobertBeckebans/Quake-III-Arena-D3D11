@@ -163,6 +163,15 @@ namespace Q3Win8
 	    };
     }
 
+    void PostGameReadyMsg()
+    {
+        MSG msg;
+        ZeroMemory( &msg, sizeof( msg ) );
+        msg.Message = SYS_MSG_GAME_READY;
+        msg.TimeStamp = Sys_Milliseconds();
+        g_sysMsgs.Post( &msg );
+    }
+
     void GameThread()
     {
         try
@@ -176,6 +185,8 @@ namespace Q3Win8
             IN_Init();
 
 	        Com_Printf( "Working directory: %s\n", Sys_Cwd() );
+
+            PostGameReadyMsg();
 
             // Loop until done
             GameThreadLoop();
@@ -287,6 +298,34 @@ void Quake3Win8App::Load(Platform::String^ entryPoint)
     } );
 }
 
+void Quake3Win8App::HandleExceptionMessage( const Q3Win8::MSG* msg )
+{
+    assert( msg->Message == SYS_MSG_EXCEPTION );
+    m_currentMsgDlg = Win8_DisplayException( Win8_GetType<Platform::Exception>( (IUnknown*) msg->Param0 ) );
+}
+
+void Quake3Win8App::WaitForGameReady()
+{
+    Q3Win8::MSG msg;
+
+    // Get new messages
+    while ( !g_sysMsgs.Pop( &msg ) ) {}
+
+    switch ( msg.Message )
+    {
+    case SYS_MSG_GAME_READY:
+        // Yay, game is ready to go.
+        break;
+    case SYS_MSG_EXCEPTION:
+        // Crap.
+        HandleExceptionMessage( &msg );
+        break;
+    default:
+        assert(0);
+        break;
+    }
+}
+
 void Quake3Win8App::HandleMessagesFromGame()
 {
     Q3Win8::MSG msg;
@@ -297,7 +336,7 @@ void Quake3Win8App::HandleMessagesFromGame()
         switch ( msg.Message )
         {
         case SYS_MSG_EXCEPTION:
-            m_currentMsgDlg = Win8_DisplayException( Win8_GetType<Platform::Exception>( (IUnknown*) msg.Param0 ) );
+            HandleExceptionMessage( &msg );
             break;
         default:
             assert(0);
@@ -308,6 +347,9 @@ void Quake3Win8App::HandleMessagesFromGame()
 
 void Quake3Win8App::Run()
 {
+    // Stall until the game is ready
+    // WaitForGameReady(); // @pjb: commented out because it's not really a problem
+
 	while ( !m_gameIsDone ) // @pjb: Todo: on Blue this is way better: m_gameThread.is_done()
 	{
 		if (m_windowVisible)

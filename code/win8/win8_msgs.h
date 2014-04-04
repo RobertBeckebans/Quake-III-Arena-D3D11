@@ -17,7 +17,8 @@ enum GAME_MSG
 
 enum SYS_MSG
 {
-    SYS_MSG_EXCEPTION
+    SYS_MSG_EXCEPTION,
+    SYS_MSG_GAME_READY
 };
 
 extern Q3Win8::MessageQueue g_gameMsgs;
