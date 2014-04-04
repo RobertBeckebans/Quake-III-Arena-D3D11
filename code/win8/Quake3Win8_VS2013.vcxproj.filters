@@ -23,7 +23,6 @@
     <ClInclude Include="win8_utils.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="deployvmdlls.bat" />
     <None Include="Quake3_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>

@@ -305,7 +305,8 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" "Release TA" "$(TargetDir)"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -348,7 +349,8 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" "Release TA" "$(TargetDir)"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -392,7 +394,8 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" "Release TA" "$(TargetDir)"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -436,7 +439,8 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" Debug "$(TargetDir)"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -480,7 +484,8 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" Debug "$(TargetDir)"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -525,7 +530,8 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" Debug "$(TargetDir)"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -577,7 +583,8 @@
       <PreserveSbr>true</PreserveSbr>
     </Bscmake>
     <PostBuildEvent>
-      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" Release "$(TargetDir)"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">
@@ -619,7 +626,8 @@
       <PreserveSbr>true</PreserveSbr>
     </Bscmake>
     <PostBuildEvent>
-      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" Release "$(TargetDir)"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">
@@ -662,7 +670,8 @@
       <PreserveSbr>true</PreserveSbr>
     </Bscmake>
     <PostBuildEvent>
-      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" Release "$(TargetDir)"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|Win32'">
@@ -699,7 +708,8 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" "Debug TA" "$(TargetDir)"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -743,7 +753,8 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" "Debug TA" "$(TargetDir)"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -788,7 +799,8 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" "Debug TA" "$(TargetDir)"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -982,7 +994,6 @@
     <ClInclude Include="win8_utils.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="deployvmdlls.bat" />
     <None Include="Quake3_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
@@ -991,8 +1002,40 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\cgame\cgame_VS2012.vcxproj">
+      <Project>{c878e295-cb82-4b40-8ecf-5ce5525466fa}</Project>
+      <Private>true</Private>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+    <ProjectReference Include="..\game\game_VS2012.vcxproj">
+      <Project>{f9ee10da-2404-4154-b904-f93c936c040a}</Project>
+      <Private>true</Private>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+    <ProjectReference Include="..\q3_ui\q3_ui_VS2012.vcxproj">
+      <Project>{d454c4c7-7765-4149-abad-05fdeb9d94f8}</Project>
+      <Private>true</Private>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
     <ProjectReference Include="..\qcommon\quake3_VS2012.vcxproj">
       <Project>{40cdcff3-982c-45fc-8e9e-4a90d6b2a057}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\ui\ui_VS2012.vcxproj">
+      <Project>{a8eac38e-c7da-42f8-811d-77fd092b9d19}</Project>
+      <Private>true</Private>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
