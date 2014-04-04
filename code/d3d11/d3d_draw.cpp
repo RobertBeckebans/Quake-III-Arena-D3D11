@@ -9,21 +9,32 @@
 // @pjb: this is just here to deliberately fuck the build if driver is used in here
 #define driver #driver_disallowed
 
-void UpdateDirtyView()
+void UpdateDirtyViewVS()
 {
     // Upload the constants
-    d3dViewConstantBuffer_t* cb = QD3D::MapDynamicBuffer<d3dViewConstantBuffer_t>( g_pImmediateContext, g_DrawState.viewRenderData.vsConstantBuffer );
-    memcpy( cb, &g_RunState.vsConstants, sizeof(d3dViewConstantBuffer_t) );
+    d3dViewVSConstantBuffer_t* cb = QD3D::MapDynamicBuffer<d3dViewVSConstantBuffer_t>( g_pImmediateContext, g_DrawState.viewRenderData.vsConstantBuffer );
+    memcpy( cb, &g_RunState.vsConstants, sizeof(d3dViewVSConstantBuffer_t) );
     g_pImmediateContext->Unmap( g_DrawState.viewRenderData.vsConstantBuffer, 0 );
-    g_RunState.dirtyConstants = qfalse;
+    g_RunState.vsDirtyConstants = qfalse;
+}
+
+void UpdateDirtyViewPS()
+{
+    // Upload the constants
+    d3dViewPSConstantBuffer_t* cb = QD3D::MapDynamicBuffer<d3dViewPSConstantBuffer_t>( g_pImmediateContext, g_DrawState.viewRenderData.psConstantBuffer );
+    memcpy( cb, &g_RunState.psConstants, sizeof(d3dViewPSConstantBuffer_t) );
+    g_pImmediateContext->Unmap( g_DrawState.viewRenderData.psConstantBuffer, 0 );
+    g_RunState.psDirtyConstants = qfalse;
 }
 
 // @pjb: forceinline because I don't want to put the 'if' inside UpdateDirtyTransform
 __forceinline void UpdateViewState()
 {
     // If we have dirty constants, update the constant buffer
-    if ( g_RunState.dirtyConstants )
-        UpdateDirtyView();
+    if ( g_RunState.vsDirtyConstants )
+        UpdateDirtyViewVS();
+    if ( g_RunState.psDirtyConstants )
+        UpdateDirtyViewPS();
 }
 
 static void SetTessVertexBuffersST( const d3dTessBuffers_t* tess, const d3dTessStageBuffers_t* stage )
@@ -239,6 +250,7 @@ static void TessDrawTextured( const shaderCommands_t* input, int stage )
     g_pImmediateContext->VSSetShader( resources->vertexShaderST, nullptr, 0 );
     g_pImmediateContext->PSSetShader( resources->pixelShaderST, nullptr, 0 );
     g_pImmediateContext->PSSetSamplers( 0, 1, &tex->pSampler );
+    g_pImmediateContext->PSSetConstantBuffers( 0, 1, &g_DrawState.viewRenderData.psConstantBuffer );
     g_pImmediateContext->PSSetShaderResources( 0, 1, &tex->pSRV );
 
     SetTessVertexBuffersST( buffers, &buffers->stages[stage] );
@@ -269,6 +281,7 @@ static void TessDrawMultitextured( const shaderCommands_t* input, int stage )
     g_pImmediateContext->VSSetConstantBuffers( 0, 1, &g_DrawState.viewRenderData.vsConstantBuffer );
     g_pImmediateContext->PSSetShader( resources->pixelShaderMT, nullptr, 0 );
     g_pImmediateContext->PSSetSamplers( 0, 2, psSamplers );
+    g_pImmediateContext->PSSetConstantBuffers( 0, 1, &g_DrawState.viewRenderData.psConstantBuffer );
     g_pImmediateContext->PSSetShaderResources( 0, 2, psResources );
     
     SetTessVertexBuffersMT( buffers, &buffers->stages[stage] );
@@ -311,7 +324,7 @@ static void IterateStagesGeneric( const shaderCommands_t *input )
 
 void D3DDrv_DrawStageGeneric( const shaderCommands_t *input )
 {
-    UpdateDirtyView();
+    UpdateViewState();
     UpdateTessBuffers();
 
     // todo: wireframe mode?
@@ -329,13 +342,13 @@ void D3DDrv_DrawStageGeneric( const shaderCommands_t *input )
 
 void D3DDrv_DrawStageVertexLitTexture( const shaderCommands_t *input )
 {
-    UpdateDirtyView();
+    UpdateViewState();
 
 }
 
 void D3DDrv_DrawStageLightmappedMultitexture( const shaderCommands_t *input )
 {
-    UpdateDirtyView();
+    UpdateViewState();
 
 }
 

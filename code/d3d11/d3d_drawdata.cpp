@@ -123,10 +123,17 @@ void InitViewRenderData( d3dViewRenderData_t* vrd )
 {
     Com_Memset( vrd, 0, sizeof( d3dViewRenderData_t ) );
 
-    vrd->vsConstantBuffer = QD3D::CreateDynamicBuffer<d3dViewConstantBuffer_t>( 
+    vrd->vsConstantBuffer = QD3D::CreateDynamicBuffer<d3dViewVSConstantBuffer_t>( 
         g_pDevice, 
         D3D11_BIND_CONSTANT_BUFFER );
     if ( !vrd->vsConstantBuffer ) {
+        ri.Error( ERR_FATAL, "Could not create view constant buffer.\n" );
+    }
+
+    vrd->psConstantBuffer = QD3D::CreateDynamicBuffer<d3dViewPSConstantBuffer_t>( 
+        g_pDevice, 
+        D3D11_BIND_CONSTANT_BUFFER );
+    if ( !vrd->psConstantBuffer ) {
         ri.Error( ERR_FATAL, "Could not create view constant buffer.\n" );
     }
 }
@@ -134,6 +141,7 @@ void InitViewRenderData( d3dViewRenderData_t* vrd )
 void DestroyViewRenderData( d3dViewRenderData_t* vrd )
 {
     SAFE_RELEASE( vrd->vsConstantBuffer );
+    SAFE_RELEASE( vrd->psConstantBuffer );
 
     Com_Memset( vrd, 0, sizeof( d3dViewRenderData_t ) );
 }

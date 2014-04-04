@@ -332,7 +332,8 @@ void InitDrawState()
     g_RunState.vsConstants.depthRange[0] = 0;
     g_RunState.vsConstants.depthRange[1] = 1;
     g_RunState.stateMask = 0;
-    g_RunState.dirtyConstants = qtrue;
+    g_RunState.vsDirtyConstants = qtrue;
+    g_RunState.psDirtyConstants = qtrue;
     g_RunState.cullMode = -1;
     
     // Create D3D objects

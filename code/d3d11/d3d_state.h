@@ -44,12 +44,17 @@ struct d3dQuadRenderConstantBuffer_t
 
 // @pjb: todo: consider splitting this up if it's a perf issue
 // reuploading the whole thing each time
-struct d3dViewConstantBuffer_t
+struct d3dViewVSConstantBuffer_t
 {
     float projectionMatrix[16];
     float modelViewMatrix[16];
     float depthRange[2];
     float __padding[2];
+};
+
+struct d3dViewPSConstantBuffer_t
+{
+    float clipPlane[4];
 };
 
 //----------------------------------------------------------------------------
@@ -71,6 +76,7 @@ struct d3dImage_t
 struct d3dViewRenderData_t
 {
     ID3D11Buffer* vsConstantBuffer;
+    ID3D11Buffer* psConstantBuffer;
 };
 
 struct d3dQuadRenderData_t
@@ -159,11 +165,13 @@ struct d3dDrawState_t
 
 // @pjb: stores the run-time game state. The game is set up like a state machine so we'll be doing the same.
 struct d3dRunState_t {
-    d3dViewConstantBuffer_t vsConstants;
+    d3dViewVSConstantBuffer_t vsConstants;
+    d3dViewPSConstantBuffer_t psConstants;
     unsigned long stateMask; // combination of GLS_* flags
     int cullMode; // CT_ flag
     unsigned long depthStateMask;
-    qboolean dirtyConstants;
+    qboolean vsDirtyConstants;
+    qboolean psDirtyConstants;
 };
 
 //----------------------------------------------------------------------------

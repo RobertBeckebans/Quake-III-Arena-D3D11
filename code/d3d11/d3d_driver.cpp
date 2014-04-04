@@ -97,7 +97,7 @@ void D3DDrv_Clear( unsigned long bits, const float* clearCol, unsigned long sten
 void D3DDrv_SetProjection( const float* projMatrix )
 {
     memcpy( g_RunState.vsConstants.projectionMatrix, projMatrix, sizeof(float) * 16 );
-    g_RunState.dirtyConstants = qtrue;
+    g_RunState.vsDirtyConstants = qtrue;
 }
 
 void D3DDrv_GetProjection( float* projMatrix )
@@ -108,7 +108,7 @@ void D3DDrv_GetProjection( float* projMatrix )
 void D3DDrv_SetModelView( const float* modelViewMatrix )
 {
     memcpy( g_RunState.vsConstants.modelViewMatrix, modelViewMatrix, sizeof(float) * 16 );
-    g_RunState.dirtyConstants = qtrue;
+    g_RunState.vsDirtyConstants = qtrue;
 }
 
 void D3DDrv_GetModelView( float* modelViewMatrix )
@@ -170,14 +170,14 @@ void D3DDrv_SetPortalRendering( qboolean enabled, const float* flipMatrix, const
         //g_RunState.psConstants.clipPlane[3] = 0;
     }
 
-    g_RunState.dirtyConstants = qtrue;
+    g_RunState.psDirtyConstants = qtrue;
 }
 
 void D3DDrv_SetDepthRange( float minRange, float maxRange )
 {
     g_RunState.vsConstants.depthRange[0] = minRange;
     g_RunState.vsConstants.depthRange[1] = maxRange - minRange;
-    g_RunState.dirtyConstants = qtrue;
+    g_RunState.vsDirtyConstants = qtrue;
 }
 
 void D3DDrv_SetDrawBuffer( int buffer )
