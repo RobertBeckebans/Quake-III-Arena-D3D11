@@ -143,6 +143,23 @@ namespace QD3D
 	GetRenderTargetViewport(
 		_In_ ID3D11RenderTargetView* pRTV,
 		_Out_ D3D11_VIEWPORT* pViewport);
+
+    //----------------------------------------------------------------------------
+    // Returns the number of bits in the particular pixel format
+   	//----------------------------------------------------------------------------
+    HRESULT
+    GetBitDepthForFormat(
+        _In_ DXGI_FORMAT fmt,
+        _Out_ DWORD* bits );
+
+    //----------------------------------------------------------------------------
+    // Returns the number of bits in the particular pixel format
+   	//----------------------------------------------------------------------------
+    HRESULT
+    GetBitDepthForDepthStencilFormat(
+        _In_ DXGI_FORMAT fmt,
+        _Out_ DWORD* depthBits,
+        _Out_ DWORD* stencilBits );
 }
 
 #endif

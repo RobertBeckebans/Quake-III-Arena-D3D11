@@ -312,7 +312,7 @@ static void PositionOpenGLWindowRightOfD3D( void )
     }
 }
 
-static void ReconcileVideoConfigs( const vdconfig_t* glConfig, const vdconfig_t* d3dConfig, vdconfig_t* outConfig )
+static void ReconcileVideoConfigs( const vdconfig_t* d3dConfig, const vdconfig_t* glConfig, vdconfig_t* outConfig )
 {
     // Copy the resource strings to the vgConfig
     Q_strncpyz( outConfig->renderer_string, "PROXY DRIVER", sizeof( outConfig->renderer_string ) );
@@ -420,6 +420,9 @@ void PROXY_DriverInit( graphicsApiLayer_t* layer )
 
     // If using the proxy driver we cannot use fullscreen
     Cvar_Set( "r_fullscreen", "0" );
+
+    // Ignore hardware gamma (D3D does it another way)
+    Cvar_Set( "r_ignorehwgamma", "1" );
 
     // Backup the vdConfig because the drivers will make changes to this (unfortunately)
     old_vdConfig = vdConfig;

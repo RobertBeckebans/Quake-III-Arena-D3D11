@@ -100,7 +100,10 @@ imageFormat_t D3DDrv_GetImageFormat( const image_t* image )
 void D3DDrv_SetGamma( unsigned char red[256], unsigned char green[256], unsigned char blue[256] )
 {
     // @pjb: todo?
-    ri.Error( ERR_FATAL, "D3D11 hardware gamma ramp not implemented." );
+    if ( vdConfig.deviceSupportsGamma )
+    {
+        ri.Error( ERR_FATAL, "D3D11 hardware gamma ramp not implemented." );
+    }
 }
 
 int D3DDrv_SumOfUsedImages( void )
@@ -275,6 +278,58 @@ void D3DDrv_DebugDrawPolygon( int color, int numPoints, const float* points )
 
 }
 
+void SetupVideoConfig()
+{
+    // Set up a bunch of default state
+    const char* d3dVersionStr = "Direct3D 11";
+    switch ( d3dState.featureLevel )
+    {
+    case D3D_FEATURE_LEVEL_9_1 : d3dVersionStr = "v9.1 (Compatibility)"; break;
+    case D3D_FEATURE_LEVEL_9_2 : d3dVersionStr = "v9.2 (Compatibility)"; break;
+    case D3D_FEATURE_LEVEL_9_3 : d3dVersionStr = "v9.3 (Compatibility)"; break;
+    case D3D_FEATURE_LEVEL_10_0: d3dVersionStr = "v10.0 (Compatibility)"; break;
+    case D3D_FEATURE_LEVEL_10_1: d3dVersionStr = "v10.1 (Compatibility)"; break;
+    case D3D_FEATURE_LEVEL_11_0: d3dVersionStr = "v11.0"; break;
+    case D3D_FEATURE_LEVEL_11_1: d3dVersionStr = "v11.1"; break;
+    }
+    Q_strncpyz( vdConfig.renderer_string, "Direct3D 11", sizeof( vdConfig.renderer_string ) );
+    Q_strncpyz( vdConfig.version_string, d3dVersionStr, sizeof( vdConfig.version_string ) );
+    Q_strncpyz( vdConfig.vendor_string, "Microsoft Corporation", sizeof( vdConfig.vendor_string ) );
+
+    D3D11_DEPTH_STENCIL_VIEW_DESC depthBufferViewDesc;
+    g_pDepthBufferView->GetDesc( &depthBufferViewDesc );
+
+    DWORD colorDepth = 0, depthDepth = 0, stencilDepth = 0;
+    if ( FAILED( QD3D::GetBitDepthForFormat( d3dState.swapChainDesc.BufferDesc.Format, &colorDepth ) ) )
+        ri.Error( ERR_FATAL, "Bad bit depth supplied for color channel (%x)\n", d3dState.swapChainDesc.BufferDesc.Format );
+
+    if ( FAILED( QD3D::GetBitDepthForDepthStencilFormat( depthBufferViewDesc.Format, &depthDepth, &stencilDepth ) ) )
+        ri.Error( ERR_FATAL, "Bad bit depth supplied for depth-stencil (%x)\n", depthBufferViewDesc.Format );
+
+    vdConfig.maxTextureSize = D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION;
+    vdConfig.maxActiveTextures = D3D11_REQ_SAMPLER_OBJECT_COUNT_PER_DEVICE;
+    vdConfig.colorBits = (int) colorDepth;
+    vdConfig.depthBits = (int) depthDepth;
+    vdConfig.stencilBits = (int) stencilDepth;
+
+    vdConfig.driverType = GLDRV_ICD;
+    vdConfig.hardwareType = GLHW_GENERIC;
+    vdConfig.deviceSupportsGamma = qfalse; // @pjb: todo?
+    vdConfig.textureCompression = TC_NONE; // @pjb: todo: d3d texture compression
+    vdConfig.textureEnvAddAvailable = qtrue;
+    vdConfig.stereoEnabled = qfalse; // @pjb: todo: d3d stereo support
+
+	DEVMODE dm;
+    memset( &dm, 0, sizeof( dm ) );
+	dm.dmSize = sizeof( dm );
+	if ( EnumDisplaySettings( NULL, ENUM_CURRENT_SETTINGS, &dm ) )
+	{
+		vdConfig.displayFrequency = dm.dmDisplayFrequency;
+	}
+    
+    // We expect vidWidth, vidHeight and windowAspect to all be set by now
+}
+
 D3D_PUBLIC void D3DDrv_DriverInit( graphicsApiLayer_t* layer )
 {
     layer->Shutdown = D3DDrv_Shutdown;
@@ -328,6 +383,8 @@ D3D_PUBLIC void D3DDrv_DriverInit( graphicsApiLayer_t* layer )
     
     DestroyBuffers();
     CreateBuffers();
+
+    SetupVideoConfig();
 }
 
 //----------------------------------------------------------------------------

@@ -146,6 +146,7 @@ typedef enum {
 typedef enum {
 	TC_NONE,
 	TC_S3TC
+    // @pjb: todo: d3d texture compression
 } textureCompression_t;
 
 typedef enum {
