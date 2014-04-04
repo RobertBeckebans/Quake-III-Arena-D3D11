@@ -29,8 +29,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "gl_common.h"
 
-static void GfxInfo_f( void );
-
 graphicsDriver_t* driver = NULL;
 
 cvar_t	*r_flareSize;
@@ -153,6 +151,11 @@ int		max_polys;
 cvar_t	*r_maxpolyverts;
 int		max_polyverts;
 
+// @pjb: driver selection
+cvar_t  *r_driver;
+
+
+
 static void AssertCvarRange( cvar_t *cv, float minVal, float maxVal, qboolean shouldBeIntegral )
 {
 	if ( shouldBeIntegral )
@@ -177,58 +180,31 @@ static void AssertCvarRange( cvar_t *cv, float minVal, float maxVal, qboolean sh
 }
 
 
-/*
-** InitOpenGL
-**
-** This function is responsible for initializing a valid OpenGL subsystem.  This
-** is done by calling GLimp_Init (which gives us a working OGL subsystem) then
-** setting variables, checking GL constants, and reporting the gfx system config
-** to the user.
+/* 
+    @pjb: InitDriver
 */
-static void InitOpenGL( void )
+void InitDriver( void )
 {
-	char renderer_buffer[1024];
-
-	//
-	// initialize OS specific portions of the renderer
-	//
-	// GLimp_Init directly or indirectly references the following cvars:
-	//		- r_fullscreen
-	//		- r_glDriver
-	//		- r_mode
-	//		- r_(color|depth|stencil)bits
-	//		- r_ignorehwgamma
-	//		- r_gamma
-	//
-	
-	if ( glConfig.vidWidth == 0 )
-	{
-		GLint		temp;
-		
-		GLimp_Init();
-
-		strcpy( renderer_buffer, glConfig.renderer_string );
-		Q_strlwr( renderer_buffer );
-
-		// OpenGL driver constants
-		qglGetIntegerv( GL_MAX_TEXTURE_SIZE, &temp );
-		glConfig.maxTextureSize = temp;
-
-		// stubbed or broken drivers may have reported 0...
-		if ( glConfig.maxTextureSize <= 0 ) 
-		{
-			glConfig.maxTextureSize = 0;
-		}
-	}
-
-	// init command buffers and SMP
-	R_InitCommandBuffers();
-
-	// print info
-	GfxInfo_f();
-
-	// set default state
-	GL_SetDefaultState();
+    // @pjb: based on whichever renderer is requested, return different entry points
+	// the RE_ functions are Renderer Entry points
+    if ( strcmp( r_driver->string, "opengl" ) == 0 )
+    {
+        driver = GLRB_DriverInit();
+    }
+    // @pjb: todo
+    // else if ( strcmp( r_driver->string, "d3d11" ) == 0 )
+    //{
+    //  driver = D3D_DriverInit();
+    //}
+    else     if ( strcmp( r_driver->string, "proxy" ) == 0 )
+    {
+        driver = PROXY_DriverInit();
+    }
+    else
+    {
+        // Invalid driver
+		ri.Printf(PRINT_ALL, "Invalid driver: %s\n", r_driver->string );
+    }
 }
 
 /*
@@ -556,104 +532,17 @@ void R_ScreenShotJPEG_f (void) {
 	}
 } 
 
-//============================================================================
-
-/*
-================
-GfxInfo_f
-================
-*/
-void GfxInfo_f( void ) 
+// @pjb: print info about the driver
+void R_GfxInfo( void )
 {
-	cvar_t *sys_cpustring = ri.Cvar_Get( "sys_cpustring", "", 0 );
-	const char *enablestrings[] =
-	{
-		"disabled",
-		"enabled"
-	};
-	const char *fsstrings[] =
-	{
-		"windowed",
-		"fullscreen"
-	};
-
-	ri.Printf( PRINT_ALL, "\nGL_VENDOR: %s\n", glConfig.vendor_string );
-	ri.Printf( PRINT_ALL, "GL_RENDERER: %s\n", glConfig.renderer_string );
-	ri.Printf( PRINT_ALL, "GL_VERSION: %s\n", glConfig.version_string );
-	ri.Printf( PRINT_ALL, "GL_EXTENSIONS: %s\n", glConfig.extensions_string );
-	ri.Printf( PRINT_ALL, "GL_MAX_TEXTURE_SIZE: %d\n", glConfig.maxTextureSize );
-	ri.Printf( PRINT_ALL, "GL_MAX_ACTIVE_TEXTURES_ARB: %d\n", glConfig.maxActiveTextures );
-	ri.Printf( PRINT_ALL, "\nPIXELFORMAT: color(%d-bits) Z(%d-bit) stencil(%d-bits)\n", glConfig.colorBits, glConfig.depthBits, glConfig.stencilBits );
-	ri.Printf( PRINT_ALL, "MODE: %d, %d x %d %s hz:", r_mode->integer, glConfig.vidWidth, glConfig.vidHeight, fsstrings[r_fullscreen->integer == 1] );
-	if ( glConfig.displayFrequency )
-	{
-		ri.Printf( PRINT_ALL, "%d\n", glConfig.displayFrequency );
-	}
-	else
-	{
-		ri.Printf( PRINT_ALL, "N/A\n" );
-	}
-	if ( glConfig.deviceSupportsGamma )
-	{
-		ri.Printf( PRINT_ALL, "GAMMA: hardware w/ %d overbright bits\n", tr.overbrightBits );
-	}
-	else
-	{
-		ri.Printf( PRINT_ALL, "GAMMA: software w/ %d overbright bits\n", tr.overbrightBits );
-	}
-	ri.Printf( PRINT_ALL, "CPU: %s\n", sys_cpustring->string );
-
-	// rendering primitives
-	{
-		int		primitives;
-
-		// default is to use triangles if compiled vertex arrays are present
-		ri.Printf( PRINT_ALL, "rendering primitives: " );
-		primitives = r_primitives->integer;
-		if ( primitives == 0 ) {
-			if ( qglLockArraysEXT ) {
-				primitives = 2;
-			} else {
-				primitives = 1;
-			}
-		}
-		if ( primitives == -1 ) {
-			ri.Printf( PRINT_ALL, "none\n" );
-		} else if ( primitives == 2 ) {
-			ri.Printf( PRINT_ALL, "single glDrawElements\n" );
-		} else if ( primitives == 1 ) {
-			ri.Printf( PRINT_ALL, "multiple glArrayElement\n" );
-		} else if ( primitives == 3 ) {
-			ri.Printf( PRINT_ALL, "multiple glColor4ubv + glTexCoord2fv + glVertex3fv\n" );
-		}
-	}
-
-	ri.Printf( PRINT_ALL, "texturemode: %s\n", r_textureMode->string );
-	ri.Printf( PRINT_ALL, "picmip: %d\n", r_picmip->integer );
-	ri.Printf( PRINT_ALL, "texture bits: %d\n", r_texturebits->integer );
-	ri.Printf( PRINT_ALL, "multitexture: %s\n", enablestrings[qglActiveTextureARB != 0] );
-	ri.Printf( PRINT_ALL, "compiled vertex arrays: %s\n", enablestrings[qglLockArraysEXT != 0 ] );
-	ri.Printf( PRINT_ALL, "texenv add: %s\n", enablestrings[glConfig.textureEnvAddAvailable != 0] );
-	ri.Printf( PRINT_ALL, "compressed textures: %s\n", enablestrings[glConfig.textureCompression!=TC_NONE] );
-	if ( r_vertexLight->integer || glConfig.hardwareType == GLHW_PERMEDIA2 )
-	{
-		ri.Printf( PRINT_ALL, "HACK: using vertex lightmap approximation\n" );
-	}
-	if ( glConfig.hardwareType == GLHW_RAGEPRO )
-	{
-		ri.Printf( PRINT_ALL, "HACK: ragePro approximations\n" );
-	}
-	if ( glConfig.hardwareType == GLHW_RIVA128 )
-	{
-		ri.Printf( PRINT_ALL, "HACK: riva128 approximations\n" );
-	}
-	if ( glConfig.smpActive ) {
-		ri.Printf( PRINT_ALL, "Using dual processor acceleration\n" );
-	}
-	if ( r_finish->integer ) {
-		ri.Printf( PRINT_ALL, "Forcing glFinish\n" );
-	}
+    if (driver)
+        driver->GraphicsInfo();
+    else
+        ri.Printf( PRINT_ALL, "R_GfxInfo: Driver not yet initialized.\n" );
 }
+
+
+//============================================================================
 
 /*
 ===============
@@ -665,6 +554,8 @@ void R_Register( void )
 	//
 	// latched and archived variables
 	//
+    // @pjb - todo: change to d3d
+    r_driver = ri.Cvar_Get( "r_driver", "opengl", CVAR_ARCHIVE | CVAR_LATCH);
 	r_glDriver = ri.Cvar_Get( "r_glDriver", OPENGL_DRIVER_NAME, CVAR_ARCHIVE | CVAR_LATCH );
 	r_allowExtensions = ri.Cvar_Get( "r_allowExtensions", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_ext_compressed_textures = ri.Cvar_Get( "r_ext_compressed_textures", "0", CVAR_ARCHIVE | CVAR_LATCH );
@@ -810,7 +701,7 @@ void R_Register( void )
 	ri.Cmd_AddCommand( "modelist", R_ModeList_f );
 	ri.Cmd_AddCommand( "screenshot", R_ScreenShot_f );
 	ri.Cmd_AddCommand( "screenshotJPEG", R_ScreenShotJPEG_f );
-	ri.Cmd_AddCommand( "gfxinfo", GfxInfo_f );
+	ri.Cmd_AddCommand( "gfxinfo", R_GfxInfo );
 }
 
 /*
@@ -892,7 +783,8 @@ void R_Init( void ) {
 	}
 	R_ToggleSmpFrame();
 
-	InitOpenGL();
+    // @pjb: Select our driver
+    InitDriver();
 
 	R_InitImages();
 
@@ -950,6 +842,20 @@ void RE_Shutdown( qboolean destroyWindow ) {
 	tr.registered = qfalse;
 }
 
+/*
+=============
+RE_EndRegistration
+
+Touch all images to make sure they are resident
+=============
+*/
+void RE_EndRegistration( void ) {
+	R_SyncRenderThread();
+	if (!Sys_LowPhysicalMemory()) {
+		RB_ShowImages();
+	}
+}
+
 
 
 /*
@@ -958,7 +864,7 @@ GetRefAPI
 
 @@@@@@@@@@@@@@@@@@@@@
 */
-refexport_t *GetRefAPI ( int apiVersion, int driverReq, refimport_t *rimp ) {
+refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 	static refexport_t	re;
 
 	ri = *rimp;
@@ -971,30 +877,44 @@ refexport_t *GetRefAPI ( int apiVersion, int driverReq, refimport_t *rimp ) {
 		return NULL;
 	}
 
-    // @pjb: based on whichever renderer is requested, return different entry points
-	// the RE_ functions are Renderer Entry points
-    if ( driverReq == REF_API_OPENGL )
-    {
-        driver = GLRB_DriverInit();
-        GLRB_GetExports( &re );
-    }
-    // @pjb: todo
-    //else if ( driverReq == REF_API_DIRECT3D_11 )
-    //{
-    //  driver = D3D_DriverInit();
-    //  D3D_GetExports( &re );
-    //}
-    else if ( driverReq == REF_API_PROXY )
-    {
-        driver = PROXY_DriverInit();
-        PROXY_GetExports( &re );
-    }
-    else
-    {
-        // Invalid driver
-		ri.Printf(PRINT_ALL, "Invalid REF_API_DRIVER: %i\n", driverReq );
-        return NULL;
-    }
+    /*
+        Exports
+    */
+	re.Shutdown = RE_Shutdown;
 
-	return &re;
+	re.BeginRegistration = RE_BeginRegistration;
+	re.RegisterModel = RE_RegisterModel;
+	re.RegisterSkin = RE_RegisterSkin;
+	re.RegisterShader = RE_RegisterShader;
+	re.RegisterShaderNoMip = RE_RegisterShaderNoMip;
+	re.LoadWorld = RE_LoadWorldMap;
+	re.SetWorldVisData = RE_SetWorldVisData;
+	re.EndRegistration = RE_EndRegistration;
+
+	re.BeginFrame = RE_BeginFrame;
+	re.EndFrame = RE_EndFrame;
+
+	re.MarkFragments = R_MarkFragments;
+	re.LerpTag = R_LerpTag;
+	re.ModelBounds = R_ModelBounds;
+
+	re.ClearScene = RE_ClearScene;
+	re.AddRefEntityToScene = RE_AddRefEntityToScene;
+	re.AddPolyToScene = RE_AddPolyToScene;
+	re.LightForPoint = R_LightForPoint;
+	re.AddLightToScene = RE_AddLightToScene;
+	re.AddAdditiveLightToScene = RE_AddAdditiveLightToScene;
+	re.RenderScene = RE_RenderScene;
+
+	re.SetColor = RE_SetColor;
+	re.DrawStretchPic = RE_StretchPic;
+	re.DrawStretchRaw = RE_StretchRaw;
+	re.UploadCinematic = RE_UploadCinematic;
+
+	re.RegisterFont = RE_RegisterFont;
+	re.RemapShader = R_RemapShader;
+	re.GetEntityToken = R_GetEntityToken;
+	re.inPVS = R_inPVS;
+
+    return &re;
 }

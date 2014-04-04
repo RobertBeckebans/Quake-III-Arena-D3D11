@@ -167,6 +167,6 @@ typedef struct {
 // this is the only function actually exported at the linker level
 // If the module can't init to a valid rendering state, NULL will be
 // returned.
-refexport_t*GetRefAPI( int apiVersion, int driver, refimport_t *rimp );
+refexport_t*GetRefAPI( int apiVersion, refimport_t *rimp );
 
 #endif	// __TR_PUBLIC_H

@@ -886,6 +886,7 @@ typedef struct {
     imageFormat_t   (* GetImageFormat)( const image_t* image );
     void            (* SetGamma)( unsigned char red[256], unsigned char green[256], unsigned char blue[256] );
     int             (* GetFrameImageMemoryUsage)( void );
+    void            (* GraphicsInfo)( void );
 } graphicsDriver_t;
 
 /*
@@ -1155,6 +1156,7 @@ void		RE_SetWorldVisData( const byte *vis );
 qhandle_t	RE_RegisterModel( const char *name );
 qhandle_t	RE_RegisterSkin( const char *name );
 void		RE_Shutdown( qboolean destroyWindow );
+
 
 qboolean	R_GetEntityToken( char *buffer, int size );
 
@@ -1557,5 +1559,8 @@ void R_InitFreeType();
 void R_DoneFreeType();
 void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t *font);
 
+void RB_ShowImages( void );
+void RB_RenderThread( void );
+void RB_ExecuteRenderCommands( const void *data );
 
 #endif //TR_LOCAL_H

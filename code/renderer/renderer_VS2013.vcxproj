@@ -361,6 +361,7 @@
     </ClCompile>
     <ClCompile Include="gl_backend.c">
     </ClCompile>
+    <ClCompile Include="tr_backend.c" />
     <ClCompile Include="tr_bsp.c">
     </ClCompile>
     <ClCompile Include="tr_cmds.c">

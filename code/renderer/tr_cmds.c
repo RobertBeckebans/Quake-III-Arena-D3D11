@@ -86,7 +86,7 @@ void R_InitCommandBuffers( void ) {
 	glConfig.smpActive = qfalse;
 	if ( r_smp->integer ) {
 		ri.Printf( PRINT_ALL, "Trying SMP acceleration...\n" );
-		if ( GLimp_SpawnRenderThread( GLRB_RenderThread ) ) {
+		if ( GLimp_SpawnRenderThread( RB_RenderThread ) ) {
 			ri.Printf( PRINT_ALL, "...succeeded.\n" );
 			glConfig.smpActive = qtrue;
 		} else {
@@ -155,7 +155,7 @@ void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
 	if ( !r_skipBackEnd->integer ) {
 		// let it start on the new batch
 		if ( !glConfig.smpActive ) {
-			GLRB_ExecuteRenderCommands( cmdList->cmds );
+			RB_ExecuteRenderCommands( cmdList->cmds );
 		} else {
 			GLimp_WakeRenderer( cmdList );
 		}
