@@ -88,7 +88,7 @@ Sys_SnapVector
 ================
 */
 // @pjb: appears to be dead code anyway
-#ifndef _M_X64
+#if !defined(_M_X64) && !defined(_ARM_)
 long fastftol( float f ) {
 	static int tmp;
 	__asm fld f
@@ -99,7 +99,7 @@ long fastftol( float f ) {
 
 void Sys_SnapVector( float *v )
 {
-#ifndef _M_X64
+#if !defined(_M_X64) && !defined(_ARM_)
 	int i;
 	float f;
 
