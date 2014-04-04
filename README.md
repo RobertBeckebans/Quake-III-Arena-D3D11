@@ -34,15 +34,19 @@ You can find the solution for this in code\Quake3Win32_VS201X.sln. Make sure Qua
 - If launching from Visual Studio, set the Project Properties > Debugging > Working Directory to `$(ProjectDir)..`.
 - On the command line, specify `+set sv_pure 0`. This is because you're using the VM DLLs.
 
-### Side-by-Side Mode ###
-
-In the desktop version, you can actually do a side-by-side visual comparison of the two renderers.
-
-![Direct3D 11 and OpenGL running side-by-side.][1]
-
 ## Building & Running the Windows 8 Edition ##
 
 You can find the solution for this in code\Quake3Win*8_VS201X.sln. You will need to build and deploy one time to generate the package deployment path, which is in `code\Build\&lt;Platform&gt;\&lt;Configuration&gt;\AppX`. Copy your _baseq3_ folder in there. You should be able to just run after that.
+
+### Enabling or Disabling Features ###
+
+To toggle between XAudio2 or DirectSound use `set snd_driver xaudio` or `set snd_driver dsound`.
+To enable or disable the gamepad, use `set in_gamepad 1/0`.
+To toggle between Direct3D 11 or OpenGL you can `set r_driver d3d11` or `set r_driver opengl` respectively.
+
+In the desktop version, you can actually do a side-by-side visual comparison of the two renderers. `set r_driver proxy` will do this. 
+
+![Direct3D 11 and OpenGL running side-by-side.][1]
 
 The Windows 8 build is always Direct3D 11, XAudio2, XInput enabled. Networking runs on WinRT sockets.
 
@@ -62,6 +66,9 @@ A: It's still the same art, so no. Theoretically it can support textures up to 1
 
 Q: Is this a huge speed improvement?
 A: Not yet. 15 years ago games built their graphics command buffers on the CPU and drip-fed them to the GPU. Nowadays we batch up on the GPU as possible up-front to save bandwidth at run-time. In order to be as nonivasive as possible I have emulated the former approach, but this approach doesn't work as well in this day and age. It's a priority for me to fix that, however.
+
+Q: How do I know what code you've changed?
+A: Apart from the Git diffs, you can look for `@pjb` in the source code.
 
 Q: Why?
 A: Because I love Quake and I love code.
