@@ -60,7 +60,7 @@ static void RB_Hyperspace( void ) {
 }
 
 
-static void SetViewportAndScissor( void ) {
+static void Set3DProjection( void ) {
 
 	graphicsDriver.SetProjection( backEnd.viewParms.projectionMatrix );
 
@@ -68,6 +68,8 @@ static void SetViewportAndScissor( void ) {
 	graphicsDriver.SetViewport( 
         backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, 
 		backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight );
+
+    graphicsDriver.ResetState3D();
 }
 
 /*
@@ -97,11 +99,9 @@ void RB_BeginDrawingView (void) {
 
 	//
 	// set the modelview matrix for the viewer
-	//
-	SetViewportAndScissor();
-
 	// ensures that depth writes are enabled for the depth clear
-	graphicsDriver.ResetState3D();
+	//
+	Set3DProjection();
 
     // clear relevant buffers
 	clearBits = CLEAR_DEPTH;
