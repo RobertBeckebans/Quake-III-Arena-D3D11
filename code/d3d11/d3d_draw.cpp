@@ -199,6 +199,10 @@ void DrawQuad(
     //
     UINT stride = sizeof(float) * 4;
     UINT offset = 0;
+    ID3D11Buffer* psBuffers[] = {
+        g_DrawState.viewRenderData.psConstantBuffer,
+        g_DrawState.quadRenderData.constantBuffer
+    };
 
     g_pImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
     g_pImmediateContext->IASetVertexBuffers( 0, 1, &qrd->vertexBuffer, &stride, &offset );
@@ -209,7 +213,7 @@ void DrawQuad(
     g_pImmediateContext->PSSetShader( qrd->pixelShader, nullptr, 0 );
     g_pImmediateContext->PSSetSamplers( 0, 1, &image->pSampler );
     g_pImmediateContext->PSSetShaderResources( 0, 1, &image->pSRV );
-    g_pImmediateContext->PSSetConstantBuffers( 0, 1, &g_DrawState.quadRenderData.constantBuffer );
+    g_pImmediateContext->PSSetConstantBuffers( 0, 2, psBuffers );
     g_pImmediateContext->DrawIndexed( 6, 0, 0 );
 }
 

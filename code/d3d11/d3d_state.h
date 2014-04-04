@@ -55,6 +55,8 @@ struct d3dViewVSConstantBuffer_t
 struct d3dViewPSConstantBuffer_t
 {
     float clipPlane[4];
+    float alphaClip[2];
+    float __padding[2];
 };
 
 //----------------------------------------------------------------------------

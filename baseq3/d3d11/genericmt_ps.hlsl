@@ -18,8 +18,8 @@ float4 Main(VS_PS_Data input) : SV_TARGET
 {
     ClipToPlane(input.ViewPos);
 
-    return 
+    return FinalColor(
         input.Color *
         Diffuse.Sample(Sampler, input.AlbedoTC) *
-        Lightmap.Sample(Sampler, input.LightmapTC);
+        Lightmap.Sample(Sampler, input.LightmapTC));
 }

@@ -163,9 +163,43 @@ void D3DDrv_SetState( unsigned long stateBits )
             ~0U );
     }
 
+    //
+    // In our shader we need to convert these operations:
+    //  pass if > 0
+    //  pass if < 0.5
+    //  pass if >= 0.5
+    // to: 
+    //  fail if <= 0
+    //  fail if >= 0.5
+    //  fail if < 0.5
+    // clip() will kill any alpha < 0.
     if ( diff & GLS_ATEST_BITS ) 
     {
-        ASSERT(0);
+        const float alphaEps = 0.00001f; // @pjb: HACK HACK HACK
+        switch ( stateBits & GLS_ATEST_BITS )
+        {
+        case 0:
+            g_RunState.psConstants.alphaClip[0] = 1;
+            g_RunState.psConstants.alphaClip[1] = 0;
+            break;
+        case GLS_ATEST_GT_0:
+            g_RunState.psConstants.alphaClip[0] = 1;
+            g_RunState.psConstants.alphaClip[1] = alphaEps;
+            break;
+        case GLS_ATEST_LT_80:
+            g_RunState.psConstants.alphaClip[0] = -1;
+            g_RunState.psConstants.alphaClip[1] = 0.5f;
+            break;
+        case GLS_ATEST_GE_80:
+            g_RunState.psConstants.alphaClip[0] = 1;
+            g_RunState.psConstants.alphaClip[1] = 0.5f;
+            break;
+        default:
+            ASSERT(0);
+            break;
+        }
+
+        g_RunState.psDirtyConstants = qtrue;
     }
 
     g_RunState.stateMask = stateBits;
