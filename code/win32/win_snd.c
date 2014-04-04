@@ -54,14 +54,14 @@ static const char *DSoundError( int error ) {
 	return "unknown";
 }
 
+int DirectSound_InitDS( void );
+
 /*
 ==================
 SNDDMA_Shutdown
 ==================
 */
-void SNDDMA_Shutdown( void ) {
-	Com_DPrintf( "Shutting down sound system\n" );
-
+void DirectSound_Shutdown( void ) {
 	if ( pDS ) {
 		Com_DPrintf( "Destroying DS buffers\n" );
 		if ( pDS )
@@ -114,14 +114,13 @@ Initialize direct sound
 Returns false if failed
 ==================
 */
-qboolean SNDDMA_Init(void) {
+qboolean DirectSound_Init(void) {
 
-	memset ((void *)&dma, 0, sizeof (dma));
 	dsound_init = 0;
 
 	CoInitialize(NULL);
 
-	if ( !SNDDMA_InitDS () ) {
+	if ( !DirectSound_InitDS () ) {
 		return qfalse;
 	}
 
@@ -148,7 +147,7 @@ DEFINE_GUID(IID_IDirectSound8, 0xC50A7E93, 0xF395, 0x4834, 0x9E, 0xF6, 0x7F, 0xA
 DEFINE_GUID(IID_IDirectSound, 0x279AFA83, 0x4981, 0x11CE, 0xA5, 0x21, 0x00, 0x20, 0xAF, 0x0B, 0xE5, 0x60);
 
 
-int SNDDMA_InitDS ()
+int DirectSound_InitDS ()
 {
 	HRESULT			hresult;
 	DSBUFFERDESC	dsbuf;
@@ -276,7 +275,7 @@ inside the recirculating dma buffer, so the mixing code will know
 how many sample are required to fill it up.
 ===============
 */
-int SNDDMA_GetDMAPos( void ) {
+int DirectSound_GetDMAPos( void ) {
 	MMTIME	mmtime;
 	int		s;
 	DWORD	dwWrite;
@@ -304,7 +303,7 @@ SNDDMA_BeginPainting
 Makes sure dma.buffer is valid
 ===============
 */
-void SNDDMA_BeginPainting( void ) {
+void DirectSound_BeginPainting( void ) {
 	int		reps;
 	DWORD	dwSize2;
 	DWORD	*pbuf, *pbuf2;
@@ -359,7 +358,7 @@ Send sound to device if buffer isn't really the dma buffer
 Also unlocks the dsound buffer
 ===============
 */
-void SNDDMA_Submit( void ) {
+void DirectSound_Submit( void ) {
     // unlock the dsound buffer
 	if ( pDSBuf ) {
 		pDSBuf->lpVtbl->Unlock(pDSBuf, dma.buffer, locksize, NULL, 0);
@@ -374,7 +373,7 @@ SNDDMA_Activate
 When we change windows we need to do this
 =================
 */
-void SNDDMA_Activate( void ) {
+void DirectSound_Activate( void ) {
 	if ( !pDS ) {
 		return;
 	}

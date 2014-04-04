@@ -515,6 +515,7 @@
     </ClCompile>
     <ClCompile Include="client\cl_ui.c">
     </ClCompile>
+    <ClCompile Include="client\snd_api.c" />
     <ClCompile Include="qcommon\cm_load.c">
     </ClCompile>
     <ClCompile Include="qcommon\cm_patch.c">
@@ -627,6 +628,7 @@
     <ClInclude Include="qcommon\unzip.h" />
     <ClInclude Include="qcommon\vm_local.h" />
     <ClInclude Include="win32\win_local.h" />
+    <ClInclude Include="win32\win_snd.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="win32\cursor2.cur" />
