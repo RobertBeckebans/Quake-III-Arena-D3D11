@@ -25,6 +25,9 @@ typedef struct graphicsApiLayer_s {
     void            (* SetState)( unsigned long stateMask ); // Use GLS_* flags in tr_state.h
     void            (* ResetState2D)( void );
     void            (* ResetState3D)( void );
+    void            (* SetMirroredRendering)( qboolean enabled, const float* flipMatrix, const float* plane );
+    void            (* SetModelViewMatrix)( const float* modelViewMatrix );
+    void            (* SetDepthRange)( float minRange, float maxRange );
 } graphicsApiLayer_t;
 
 extern graphicsApiLayer_t      graphicsDriver;

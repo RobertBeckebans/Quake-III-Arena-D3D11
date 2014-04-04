@@ -241,6 +241,37 @@ void GLRB_ResetState3D( void )
     GL_State( GLS_DEFAULT );
 }
 
+// This could be two functions, but I want to keep the number of different API calls to a minimum
+void GLRB_SetMirroredRendering( qboolean enabled, const float* flipMatrix, const float* plane )
+{
+    if ( enabled )
+    {
+        double dplane[4] = {
+            plane[0],
+            plane[1],
+            plane[2],
+            plane[3] };
+
+        qglLoadMatrixf( flipMatrix );
+        qglClipPlane( GL_CLIP_PLANE0, dplane );
+        qglEnable( GL_CLIP_PLANE0 );
+    }
+    else
+    {
+        qglDisable( GL_CLIP_PLANE0 );
+    }
+}
+
+void GLRB_SetModelViewMatrix( const float* modelViewMatrix )
+{
+    qglLoadMatrixf( modelViewMatrix );
+}
+
+void GLRB_SetDepthRange( float minRange, float maxRange )
+{
+    qglDepthRange( minRange, maxRange );
+}
+
 /*
 @@@@@@@@@@@@@@@@@@@@@
 
@@ -267,6 +298,9 @@ void GLRB_DriverInit( graphicsApiLayer_t* layer )
     layer->SetState = GL_State;
     layer->ResetState2D = GLRB_ResetState2D;
     layer->ResetState3D = GLRB_ResetState3D;
+    layer->SetMirroredRendering = GLRB_SetMirroredRendering;
+    layer->SetModelViewMatrix = GLRB_SetModelViewMatrix;
+    layer->SetDepthRange = GLRB_SetDepthRange;
 
     InitOpenGL();
 
