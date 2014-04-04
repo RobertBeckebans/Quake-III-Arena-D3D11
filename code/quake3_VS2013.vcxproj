@@ -499,6 +499,7 @@
       <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
       <AdditionalDependencies>xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -542,6 +543,7 @@
       <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
       <AdditionalDependencies>xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -586,6 +588,7 @@
       <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
       <AdditionalDependencies>xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -628,6 +631,7 @@
       <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
       <AdditionalDependencies>xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -670,6 +674,7 @@
       <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
       <AdditionalDependencies>xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -713,6 +718,7 @@
       <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
       <AdditionalDependencies>xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -753,6 +759,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
       <AdditionalDependencies>xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -796,6 +803,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
       <AdditionalDependencies>xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -841,6 +849,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
       <AdditionalDependencies>xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -884,6 +893,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
       <AdditionalDependencies>xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -927,6 +937,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
       <AdditionalDependencies>xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -971,6 +982,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
       <AdditionalDependencies>xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -1014,6 +1026,7 @@
       <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
       <AdditionalDependencies>xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -1053,6 +1066,7 @@
       <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
       <AdditionalDependencies>xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -1093,6 +1107,7 @@
       <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
       <AdditionalDependencies>xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -1131,6 +1146,7 @@
       <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
       <AdditionalDependencies>xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -1169,6 +1185,7 @@
       <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
       <AdditionalDependencies>xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -1208,6 +1225,7 @@
       <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
       <AdditionalDependencies>xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -1245,6 +1263,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
       <AdditionalDependencies>xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -1288,6 +1307,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
       <AdditionalDependencies>xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -1333,6 +1353,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
       <AdditionalDependencies>xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -1376,6 +1397,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
       <AdditionalDependencies>xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -1419,6 +1441,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
       <AdditionalDependencies>xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -1463,6 +1486,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
       <AdditionalDependencies>xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
