@@ -654,7 +654,7 @@ qboolean CheckObeliskAttack( gentity_t *obelisk, gentity_t *attacker );
 //
 // g_mem.c
 //
-void *G_Alloc( int size );
+void *G_Alloc( size_t size );
 void G_InitMemory( void );
 void Svcmd_GameMem_f( void );
 

@@ -205,7 +205,7 @@ void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size, q
 	int		i;
 
 	drawLen = edit->widthInChars;
-	len = strlen( edit->buffer ) + 1;
+	len = (int) strlen( edit->buffer ) + 1;
 
 	// guarantee that cursor will be visible
 	if ( len <= drawLen ) {
@@ -304,7 +304,7 @@ void Field_Paste( field_t *edit ) {
 	}
 
 	// send as if typed, so insert / overstrike works properly
-	pasteLen = strlen( cbd );
+	pasteLen = (int) strlen( cbd );
 	for ( i = 0 ; i < pasteLen ; i++ ) {
 		Field_CharEvent( edit, cbd[i] );
 	}
@@ -331,7 +331,7 @@ void Field_KeyDownEvent( field_t *edit, int key ) {
 		return;
 	}
 
-	len = strlen( edit->buffer );
+	len = (int) strlen( edit->buffer );
 
 	if ( key == K_DEL ) {
 		if ( edit->cursor < len ) {
@@ -400,7 +400,7 @@ void Field_CharEvent( field_t *edit, int ch ) {
 		return;
 	}
 
-	len = strlen( edit->buffer );
+	len = (int) strlen( edit->buffer );
 
 	if ( ch == 'h' - 'a' + 1 )	{	// ctrl-h is backspace
 		if ( edit->cursor > 0 ) {

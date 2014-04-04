@@ -266,7 +266,7 @@ void VM_LoadSymbols( vm_t *vm ) {
 			Com_Printf( "WARNING: incomplete line at end of file\n" );
 			break;
 		}
-		chars = strlen( token );
+		chars = (int) strlen( token );
 		sym = Hunk_Alloc( sizeof( *sym ) + chars, h_high );
 		*prev = sym;
 		prev = &sym->next;
@@ -437,11 +437,13 @@ it will attempt to load as a system dll
 vm_t *VM_Create( const char *module, int (*systemCalls)(int *), 
 				vmInterpret_t interpret ) {
 	vm_t		*vm;
+#if !VM_ONLY_LOAD_DLLS
 	vmHeader_t	*header;
 	int			length;
 	int			dataLength;
-	int			i, remaining;
 	char		filename[MAX_QPATH];
+#endif
+	int			i, remaining;
 
 	if ( !module || !module[0] || !systemCalls ) {
 		Com_Error( ERR_FATAL, "VM_Create: bad parms" );

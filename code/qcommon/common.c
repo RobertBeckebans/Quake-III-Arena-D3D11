@@ -193,7 +193,7 @@ void QDECL Com_Printf( const char *fmt, ... ) {
       opening_qconsole = qfalse;
 		}
 		if ( logfile && FS_Initialized()) {
-			FS_Write(msg, strlen(msg), logfile);
+			FS_Write(msg, (int) strlen(msg), logfile);
 		}
 	}
 }
@@ -530,7 +530,7 @@ Com_StringContains
 char *Com_StringContains(char *str1, char *str2, int casesensitive) {
 	int len, i, j;
 
-	len = strlen(str1) - strlen(str2);
+	len = (int) strlen(str1) - (int) strlen(str2);
 	for (i = 0; i <= len; i++, str1++) {
 		for (j = 0; str2[j]; j++) {
 			if (casesensitive) {
@@ -725,17 +725,19 @@ all big things are allocated on the hunk.
 #define	ZONEID	0x1d4a11
 #define MINFRAGMENT	64
 
+//@ pjb: reordered for alignment purposes
 typedef struct zonedebug_s {
 	char *label;
 	char *file;
+	size_t allocSize;
 	int line;
-	int allocSize;
 } zonedebug_t;
 
+//@ pjb: reordered for alignment purposes
 typedef struct memblock_s {
-	int		size;           // including the header and possibly tiny fragments
-	int     tag;            // a tag of 0 is a free block
+	size_t	size;           // including the header and possibly tiny fragments
 	struct memblock_s       *next, *prev;
+	int     tag;            // a tag of 0 is a free block
 	int     id;        		// should be ZONEID
 #ifdef ZONE_DEBUG
 	zonedebug_t d;
@@ -743,8 +745,8 @@ typedef struct memblock_s {
 } memblock_t;
 
 typedef struct {
-	int		size;			// total bytes malloced, including header
-	int		used;			// total bytes used
+	size_t		size;			// total bytes malloced, including header
+	size_t      used;			// total bytes used
 	memblock_t	blocklist;	// start / end cap for linked list
 	memblock_t	*rover;
 } memzone_t;
@@ -762,7 +764,7 @@ void Z_CheckHeap( void );
 Z_ClearZone
 ========================
 */
-void Z_ClearZone( memzone_t *zone, int size ) {
+void Z_ClearZone( memzone_t *zone, size_t size ) {
 	memblock_t	*block;
 	
 	// set the entire zone to one free block
@@ -787,7 +789,7 @@ void Z_ClearZone( memzone_t *zone, int size ) {
 Z_AvailableZoneMemory
 ========================
 */
-int Z_AvailableZoneMemory( memzone_t *zone ) {
+size_t Z_AvailableZoneMemory( memzone_t *zone ) {
 	return zone->size - zone->used;
 }
 
@@ -796,7 +798,7 @@ int Z_AvailableZoneMemory( memzone_t *zone ) {
 Z_AvailableMemory
 ========================
 */
-int Z_AvailableMemory( void ) {
+size_t Z_AvailableMemory( void ) {
 	return Z_AvailableZoneMemory( mainzone );
 }
 
@@ -907,11 +909,11 @@ Z_TagMalloc
 ================
 */
 #ifdef ZONE_DEBUG
-void *Z_TagMallocDebug( int size, int tag, char *label, char *file, int line ) {
+void *Z_TagMallocDebug( size_t size, int tag, char *label, char *file, int line ) {
 #else
-void *Z_TagMalloc( int size, int tag ) {
+void *Z_TagMalloc( size_t size, int tag ) {
 #endif
-	int		extra, allocSize;
+	size_t		extra, allocSize;
 	memblock_t	*start, *rover, *new, *base;
 	memzone_t *zone;
 
@@ -998,7 +1000,7 @@ Z_Malloc
 ========================
 */
 #ifdef ZONE_DEBUG
-void *Z_MallocDebug( int size, char *label, char *file, int line ) {
+void *Z_MallocDebug( size_t size, char *label, char *file, int line ) {
 #else
 void *Z_Malloc( int size ) {
 #endif
@@ -1017,11 +1019,11 @@ void *Z_Malloc( int size ) {
 }
 
 #ifdef ZONE_DEBUG
-void *S_MallocDebug( int size, char *label, char *file, int line ) {
+void *S_MallocDebug( size_t size, char *label, char *file, int line ) {
 	return Z_TagMallocDebug( size, TAG_SMALL, label, file, line );
 }
 #else
-void *S_Malloc( int size ) {
+void *S_Malloc( size_t size ) {
 	return Z_TagMalloc( size, TAG_SMALL );
 }
 #endif
@@ -1061,13 +1063,13 @@ void Z_LogZoneHeap( memzone_t *zone, char *name ) {
 #endif
 	memblock_t	*block;
 	char		buf[4096];
-	int size, allocSize, numBlocks;
+	size_t size, allocSize, numBlocks;
 
 	if (!logfile || !FS_Initialized())
 		return;
 	size = allocSize = numBlocks = 0;
 	Com_sprintf(buf, sizeof(buf), "\r\n================\r\n%s log\r\n================\r\n", name);
-	FS_Write(buf, strlen(buf), logfile);
+	FS_Write(buf, (int) strlen(buf), logfile);
 	for (block = zone->blocklist.next ; block->next != &zone->blocklist; block = block->next) {
 		if (block->tag) {
 #ifdef ZONE_DEBUG
@@ -1083,7 +1085,7 @@ void Z_LogZoneHeap( memzone_t *zone, char *name ) {
 			}
 			dump[j] = '\0';
 			Com_sprintf(buf, sizeof(buf), "size = %8d: %s, line: %d (%s) [%s]\r\n", block->d.allocSize, block->d.file, block->d.line, block->d.label, dump);
-			FS_Write(buf, strlen(buf), logfile);
+			FS_Write(buf, (int) strlen(buf), logfile);
 			allocSize += block->d.allocSize;
 #endif
 			size += block->size;
@@ -1097,9 +1099,9 @@ void Z_LogZoneHeap( memzone_t *zone, char *name ) {
 	allocSize = numBlocks * sizeof(memblock_t); // + 32 bit alignment
 #endif
 	Com_sprintf(buf, sizeof(buf), "%d %s memory in %d blocks\r\n", size, name, numBlocks);
-	FS_Write(buf, strlen(buf), logfile);
+	FS_Write(buf, (int) strlen(buf), logfile);
 	Com_sprintf(buf, sizeof(buf), "%d %s memory overhead\r\n", size - allocSize, name);
-	FS_Write(buf, strlen(buf), logfile);
+	FS_Write(buf, (int) strlen(buf), logfile);
 }
 
 /*
@@ -1120,18 +1122,18 @@ typedef struct memstatic_s {
 
 // bk001204 - initializer brackets
 memstatic_t emptystring =
-	{ {(sizeof(memblock_t)+2 + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'\0', '\0'} };
+	{ {(sizeof(memblock_t)+2 + 3) & ~3, NULL, NULL, TAG_STATIC, ZONEID}, {'\0', '\0'} };
 memstatic_t numberstring[] = {
-	{ {(sizeof(memstatic_t) + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'0', '\0'} },
-	{ {(sizeof(memstatic_t) + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'1', '\0'} },
-	{ {(sizeof(memstatic_t) + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'2', '\0'} },
-	{ {(sizeof(memstatic_t) + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'3', '\0'} },
-	{ {(sizeof(memstatic_t) + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'4', '\0'} },
-	{ {(sizeof(memstatic_t) + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'5', '\0'} },
-	{ {(sizeof(memstatic_t) + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'6', '\0'} },
-	{ {(sizeof(memstatic_t) + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'7', '\0'} },
-	{ {(sizeof(memstatic_t) + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'8', '\0'} }, 
-	{ {(sizeof(memstatic_t) + 3) & ~3, TAG_STATIC, NULL, NULL, ZONEID}, {'9', '\0'} }
+	{ {(sizeof(memstatic_t) + 3) & ~3,  NULL, NULL, TAG_STATIC, ZONEID}, {'0', '\0'} },
+	{ {(sizeof(memstatic_t) + 3) & ~3,  NULL, NULL, TAG_STATIC, ZONEID}, {'1', '\0'} },
+	{ {(sizeof(memstatic_t) + 3) & ~3,  NULL, NULL, TAG_STATIC, ZONEID}, {'2', '\0'} },
+	{ {(sizeof(memstatic_t) + 3) & ~3,  NULL, NULL, TAG_STATIC, ZONEID}, {'3', '\0'} },
+	{ {(sizeof(memstatic_t) + 3) & ~3,  NULL, NULL, TAG_STATIC, ZONEID}, {'4', '\0'} },
+	{ {(sizeof(memstatic_t) + 3) & ~3,  NULL, NULL, TAG_STATIC, ZONEID}, {'5', '\0'} },
+	{ {(sizeof(memstatic_t) + 3) & ~3,  NULL, NULL, TAG_STATIC, ZONEID}, {'6', '\0'} },
+	{ {(sizeof(memstatic_t) + 3) & ~3,  NULL, NULL, TAG_STATIC, ZONEID}, {'7', '\0'} },
+	{ {(sizeof(memstatic_t) + 3) & ~3,  NULL, NULL, TAG_STATIC, ZONEID}, {'8', '\0'} }, 
+	{ {(sizeof(memstatic_t) + 3) & ~3,  NULL, NULL, TAG_STATIC, ZONEID}, {'9', '\0'} }
 };
 
 /*
@@ -1202,14 +1204,14 @@ typedef struct {
 } hunkHeader_t;
 
 typedef struct {
-	int		mark;
-	int		permanent;
-	int		temp;
-	int		tempHighwater;
+	size_t		mark;
+	size_t		permanent;
+	size_t		temp;
+	size_t		tempHighwater;
 } hunkUsed_t;
 
 typedef struct hunkblock_s {
-	int size;
+	size_t size;
 	byte printed;
 	struct hunkblock_s *next;
 	char *label;
@@ -1223,10 +1225,10 @@ static	hunkUsed_t	hunk_low, hunk_high;
 static	hunkUsed_t	*hunk_permanent, *hunk_temp;
 
 static	byte	*s_hunkData = NULL;
-static	int		s_hunkTotal;
+static	size_t		s_hunkTotal;
 
-static	int		s_zoneTotal;
-static	int		s_smallZoneTotal;
+static	size_t		s_zoneTotal;
+static	size_t		s_smallZoneTotal;
 
 
 /*
@@ -1236,10 +1238,10 @@ Com_Meminfo_f
 */
 void Com_Meminfo_f( void ) {
 	memblock_t	*block;
-	int			zoneBytes, zoneBlocks;
-	int			smallZoneBytes, smallZoneBlocks;
-	int			botlibBytes, rendererBytes;
-	int			unused;
+	size_t		zoneBytes, zoneBlocks;
+	size_t		smallZoneBytes, smallZoneBlocks;
+	size_t		botlibBytes, rendererBytes;
+	size_t		unused;
 
 	zoneBytes = 0;
 	botlibBytes = 0;
@@ -1329,9 +1331,9 @@ Touch all known used data to make sure it is paged in
 ===============
 */
 void Com_TouchMemory( void ) {
-	int		start, end;
-	int		i, j;
-	int		sum;
+	size_t		start, end;
+	size_t		i, j;
+	size_t		sum;
 	memblock_t	*block;
 
 	Z_CheckHeap();
@@ -1415,26 +1417,26 @@ Hunk_Log
 void Hunk_Log( void) {
 	hunkblock_t	*block;
 	char		buf[4096];
-	int size, numBlocks;
+	size_t size, numBlocks;
 
 	if (!logfile || !FS_Initialized())
 		return;
 	size = 0;
 	numBlocks = 0;
 	Com_sprintf(buf, sizeof(buf), "\r\n================\r\nHunk log\r\n================\r\n");
-	FS_Write(buf, strlen(buf), logfile);
+	FS_Write(buf, (int) strlen(buf), logfile);
 	for (block = hunkblocks ; block; block = block->next) {
 #ifdef HUNK_DEBUG
 		Com_sprintf(buf, sizeof(buf), "size = %8d: %s, line: %d (%s)\r\n", block->size, block->file, block->line, block->label);
-		FS_Write(buf, strlen(buf), logfile);
+		FS_Write(buf, (int) strlen(buf), logfile);
 #endif
 		size += block->size;
 		numBlocks++;
 	}
 	Com_sprintf(buf, sizeof(buf), "%d Hunk memory\r\n", size);
-	FS_Write(buf, strlen(buf), logfile);
+	FS_Write(buf, (int) strlen(buf), logfile);
 	Com_sprintf(buf, sizeof(buf), "%d hunk blocks\r\n", numBlocks);
-	FS_Write(buf, strlen(buf), logfile);
+	FS_Write(buf, (int) strlen(buf), logfile);
 }
 
 /*
@@ -1445,7 +1447,7 @@ Hunk_SmallLog
 void Hunk_SmallLog( void) {
 	hunkblock_t	*block, *block2;
 	char		buf[4096];
-	int size, locsize, numBlocks;
+	size_t size, locsize, numBlocks;
 
 	if (!logfile || !FS_Initialized())
 		return;
@@ -1455,7 +1457,7 @@ void Hunk_SmallLog( void) {
 	size = 0;
 	numBlocks = 0;
 	Com_sprintf(buf, sizeof(buf), "\r\n================\r\nHunk Small log\r\n================\r\n");
-	FS_Write(buf, strlen(buf), logfile);
+	FS_Write(buf, (int) strlen(buf), logfile);
 	for (block = hunkblocks; block; block = block->next) {
 		if (block->printed) {
 			continue;
@@ -1474,15 +1476,15 @@ void Hunk_SmallLog( void) {
 		}
 #ifdef HUNK_DEBUG
 		Com_sprintf(buf, sizeof(buf), "size = %8d: %s, line: %d (%s)\r\n", locsize, block->file, block->line, block->label);
-		FS_Write(buf, strlen(buf), logfile);
+		FS_Write(buf, (int) strlen(buf), logfile);
 #endif
 		size += block->size;
 		numBlocks++;
 	}
 	Com_sprintf(buf, sizeof(buf), "%d Hunk memory\r\n", size);
-	FS_Write(buf, strlen(buf), logfile);
+	FS_Write(buf, (int) strlen(buf), logfile);
 	Com_sprintf(buf, sizeof(buf), "%d hunk blocks\r\n", numBlocks);
-	FS_Write(buf, strlen(buf), logfile);
+	FS_Write(buf, (int) strlen(buf), logfile);
 }
 
 /*
@@ -1492,7 +1494,7 @@ Com_InitZoneMemory
 */
 void Com_InitHunkMemory( void ) {
 	cvar_t	*cv;
-	int nMinAlloc;
+	size_t nMinAlloc;
 	char *pMsg = NULL;
 
 	// make sure the file system has allocated and "not" freed any temp blocks
@@ -1548,8 +1550,8 @@ void Com_InitHunkMemory( void ) {
 Hunk_MemoryRemaining
 ====================
 */
-int	Hunk_MemoryRemaining( void ) {
-	int		low, high;
+size_t	Hunk_MemoryRemaining( void ) {
+	size_t		low, high;
 
 	low = hunk_low.permanent > hunk_low.temp ? hunk_low.permanent : hunk_low.temp;
 	high = hunk_high.permanent > hunk_high.temp ? hunk_high.permanent : hunk_high.temp;
@@ -1844,7 +1846,7 @@ Hunk_Trash
 =================
 */
 void Hunk_Trash( void ) {
-	int length, i, rnd;
+	size_t length, i, rnd;
 	char *buf, value;
 
 	return;
@@ -3196,7 +3198,7 @@ FindMatches
 static void FindMatches( const char *s ) {
 	int		i;
 
-	if ( Q_stricmpn( s, completionString, strlen( completionString ) ) ) {
+	if ( Q_stricmpn( s, completionString, (int) strlen( completionString ) ) ) {
 		return;
 	}
 	matchCount++;
@@ -3220,7 +3222,7 @@ PrintMatches
 ===============
 */
 static void PrintMatches( const char *s ) {
-	if ( !Q_stricmpn( s, shortestMatch, strlen( shortestMatch ) ) ) {
+	if ( !Q_stricmpn( s, shortestMatch, (int) strlen( shortestMatch ) ) ) {
 		Com_Printf( "    %s\n", s );
 	}
 }
@@ -3303,13 +3305,13 @@ void Field_CompleteCommand( field_t *field ) {
 		} else {
 			ConcatRemaining( temp.buffer, completionString );
 		}
-		completionField->cursor = strlen( completionField->buffer );
+		completionField->cursor = (int) strlen( completionField->buffer );
 		return;
 	}
 
 	// multiple matches, complete to shortest
 	Com_sprintf( completionField->buffer, sizeof( completionField->buffer ), "\\%s", shortestMatch );
-	completionField->cursor = strlen( completionField->buffer );
+	completionField->cursor = (int) strlen( completionField->buffer );
 	ConcatRemaining( temp.buffer, completionString );
 
 	Com_Printf( "]%s\n", completionField->buffer );

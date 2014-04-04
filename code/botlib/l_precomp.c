@@ -705,7 +705,7 @@ int PC_ExpandBuiltinDefine(source_t *source, token_t *deftoken, define_t *define
 										token_t **firsttoken, token_t **lasttoken)
 {
 	token_t *token;
-	unsigned long t;	//	time_t t; //to prevent LCC warning
+	size_t t;	//	time_t t; //to prevent LCC warning
 	char *curtime;
 
 	token = PC_CopyToken(deftoken);
@@ -728,7 +728,7 @@ int PC_ExpandBuiltinDefine(source_t *source, token_t *deftoken, define_t *define
 		{
 			strcpy(token->string, source->scriptstack->filename);
 			token->type = TT_NAME;
-			token->subtype = strlen(token->string);
+			token->subtype = (int) strlen(token->string);
 			*firsttoken = token;
 			*lasttoken = token;
 			break;
@@ -743,7 +743,7 @@ int PC_ExpandBuiltinDefine(source_t *source, token_t *deftoken, define_t *define
 			strcat(token->string, "\"");
 			free(curtime);
 			token->type = TT_NAME;
-			token->subtype = strlen(token->string);
+			token->subtype = (int) strlen(token->string);
 			*firsttoken = token;
 			*lasttoken = token;
 			break;
@@ -757,7 +757,7 @@ int PC_ExpandBuiltinDefine(source_t *source, token_t *deftoken, define_t *define
 			strcat(token->string, "\"");
 			free(curtime);
 			token->type = TT_NAME;
-			token->subtype = strlen(token->string);
+			token->subtype = (int) strlen(token->string);
 			*firsttoken = token;
 			*lasttoken = token;
 			break;
@@ -1325,7 +1325,7 @@ define_t *PC_DefineFromString(char *string)
 
 	PC_InitTokenHeap();
 
-	script = LoadScriptMemory(string, strlen(string), "*extern");
+	script = LoadScriptMemory(string, (int) strlen(string), "*extern");
 	//create a new source
 	Com_Memset(&src, 0, sizeof(source_t));
 	strncpy(src.filename, "*extern", MAX_PATH);

@@ -173,7 +173,7 @@ static void G_LoadArenas( void ) {
 	numdirs = trap_FS_GetFileList("scripts", ".arena", dirlist, 1024 );
 	dirptr  = dirlist;
 	for (i = 0; i < numdirs; i++, dirptr += dirlen+1) {
-		dirlen = strlen(dirptr);
+		dirlen = (int) strlen(dirptr);
 		strcpy(filename, "scripts/");
 		strcat(filename, dirptr);
 		G_LoadArenasFromFile(filename);
@@ -911,7 +911,7 @@ static void G_LoadBots( void ) {
 	numdirs = trap_FS_GetFileList("scripts", ".bot", dirlist, 1024 );
 	dirptr  = dirlist;
 	for (i = 0; i < numdirs; i++, dirptr += dirlen+1) {
-		dirlen = strlen(dirptr);
+		dirlen = (int) strlen(dirptr);
 		strcpy(filename, "scripts/");
 		strcat(filename, dirptr);
 		G_LoadBotsFromFile(filename);

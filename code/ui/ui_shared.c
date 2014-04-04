@@ -184,7 +184,7 @@ const char *String_Alloc(const char *p) {
 		str = str->next;
 	}
 
-	len = strlen(p);
+	len = (int) strlen(p);
 	if (len + strPoolIndex + 1 < STRING_POOL_SIZE) {
 		int ph = strPoolIndex;
 		strcpy(&strPool[strPoolIndex], p);
@@ -2036,7 +2036,7 @@ qboolean Item_TextField_HandleKey(itemDef_t *item, int key) {
 
 		memset(buff, 0, sizeof(buff));
 		DC->getCVarString(item->cvar, buff, sizeof(buff));
-		len = strlen(buff);
+		len = (int) strlen(buff);
 		if (editPtr->maxChars && len > editPtr->maxChars) {
 			len = editPtr->maxChars;
 		}

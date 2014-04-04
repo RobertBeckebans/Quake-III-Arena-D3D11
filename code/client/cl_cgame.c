@@ -234,7 +234,7 @@ void CL_ConfigstringModified( void ) {
 			continue;		// leave with the default empty string
 		}
 
-		len = strlen( dup );
+		len = (int) strlen( dup );
 
 		if ( len + 1 + cl.gameState.dataCount > MAX_GAMESTATE_CHARS ) {
 			Com_Error( ERR_DROP, "MAX_GAMESTATE_CHARS exceeded" );
@@ -603,7 +603,7 @@ int CL_CgameSystemCalls( int *args ) {
 		CL_SetUserCmdValue( args[1], VMF(2) );
 		return 0;
 	case CG_MEMORY_REMAINING:
-		return Hunk_MemoryRemaining();
+		return (int) Hunk_MemoryRemaining();
   case CG_KEY_ISDOWN:
 		return Key_IsDown( args[1] );
   case CG_KEY_GETCATCHER:

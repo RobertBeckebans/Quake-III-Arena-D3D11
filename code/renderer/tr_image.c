@@ -1657,7 +1657,7 @@ jpeg_write_scanlines (j_compress_ptr cinfo, JSAMPARRAY scanlines,
  * for error exit.
  */
 
-static int hackSize;
+static size_t hackSize;
 
 void term_destination (j_compress_ptr cinfo)
 {
@@ -1790,7 +1790,7 @@ void SaveJPG(char * filename, int quality, int image_width, int image_height, un
 
   jpeg_finish_compress(&cinfo);
   /* After finish_compress, we can close the output file. */
-  ri.FS_WriteFile( filename, out, hackSize );
+  ri.FS_WriteFile( filename, out, (int) hackSize );
 
   ri.Hunk_FreeTempMemory(out);
 
@@ -1819,7 +1819,7 @@ void R_LoadImage( const char *name, byte **pic, int *width, int *height ) {
 	*width = 0;
 	*height = 0;
 
-	len = strlen(name);
+	len = (int) strlen(name);
 	if (len<5) {
 		return;
 	}
@@ -1829,7 +1829,7 @@ void R_LoadImage( const char *name, byte **pic, int *width, int *height ) {
     if (!*pic) {                                    //
 		  char altname[MAX_QPATH];                      // try jpg in place of tga 
       strcpy( altname, name );                      
-      len = strlen( altname );                  
+      len = (int) strlen( altname );                  
       altname[len-3] = 'j';
       altname[len-2] = 'p';
       altname[len-1] = 'g';
@@ -1894,7 +1894,7 @@ image_t	*R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmi
 	  char altname[MAX_QPATH];                              // copy the name
     int len;                                              //  
     strcpy( altname, name );                              //
-    len = strlen( altname );                              // 
+    len = (int) strlen( altname );                              // 
     altname[len-3] = toupper(altname[len-3]);             // and try upper case extension for unix systems
     altname[len-2] = toupper(altname[len-2]);             //
     altname[len-1] = toupper(altname[len-1]);             //
