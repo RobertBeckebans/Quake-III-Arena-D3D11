@@ -36,13 +36,15 @@ private:
 
     void HandleMessagesFromGame();
     void CaptureMouse();
+    void ReleaseMouse();
 
     std::atomic<bool> m_windowClosed;
 	std::atomic<bool> m_windowVisible;
     Windows::Foundation::Size m_logicalSize;
     Concurrency::task<void> m_gameThread;
     std::atomic<bool> m_gameIsDone;
-
+    
+    Windows::Foundation::EventRegistrationToken m_mouseCaptureHandle;
     Windows::Foundation::IAsyncOperation<Windows::UI::Popups::IUICommand^>^ m_currentMsgDlg;
 };
 

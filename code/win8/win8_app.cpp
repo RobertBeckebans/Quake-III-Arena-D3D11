@@ -257,8 +257,6 @@ void Quake3Win8App::SetWindow(CoreWindow^ window)
 
 	window->PointerCursor = nullptr;
 
-    CaptureMouse();
-
 	// Disable all pointer visual feedback for better performance when touching.
 	auto pointerVisualizationSettings = Windows::UI::Input::PointerVisualizationSettings::GetForCurrentView();
 	pointerVisualizationSettings->IsContactFeedbackEnabled = false; 
@@ -343,6 +341,7 @@ void Quake3Win8App::Run()
 
 void Quake3Win8App::Uninitialize()
 {
+    ReleaseMouse();
 }
 
 void Quake3Win8App::OnWindowSizeChanged(CoreWindow^ window, WindowSizeChangedEventArgs^ args)
@@ -494,6 +493,8 @@ void Quake3Win8App::OnSuspending(Platform::Object^ sender, SuspendingEventArgs^ 
     msg.TimeStamp = Sys_Milliseconds();
     g_gameMsgs.Post( &msg );
 
+    ReleaseMouse();
+
 	create_task([this, deferral]()
 	{
         // Wait for game to shut down
@@ -514,8 +515,13 @@ void Quake3Win8App::OnResuming(Platform::Object^ sender, Platform::Object^ args)
 
 void Quake3Win8App::CaptureMouse()
 {
-	MouseDevice::GetForCurrentView()->MouseMoved +=
+	m_mouseCaptureHandle = MouseDevice::GetForCurrentView()->MouseMoved +=
 		ref new TypedEventHandler<MouseDevice^, MouseEventArgs^>(this, &Quake3Win8App::OnPointerMoved);
+}
+
+void Quake3Win8App::ReleaseMouse()
+{
+	MouseDevice::GetForCurrentView()->MouseMoved -= m_mouseCaptureHandle;
 }
 
 IFrameworkView^ Quake3Win8ApplicationSource::CreateView()
