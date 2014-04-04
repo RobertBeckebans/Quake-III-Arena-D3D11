@@ -770,6 +770,10 @@ The ui module is making a system call
 */
 int CL_UISystemCalls( int *args ) {
 	switch( args[0] ) {
+
+#include "cl_ui-syscalls.autogen.h"
+
+/*
 	case UI_ERROR:
 		Com_Error( ERR_DROP, "%s", VMA(1) );
 		return 0;
@@ -1108,7 +1112,7 @@ int CL_UISystemCalls( int *args ) {
 
 	case UI_VERIFY_CDKEY:
 		return CL_CDKeyValidate(VMA(1), VMA(2));
-
+*/
 
 		
 	default:
