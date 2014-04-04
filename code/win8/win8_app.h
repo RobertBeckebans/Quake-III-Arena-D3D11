@@ -27,10 +27,13 @@ protected:
 private:
 
     void HandleException( Platform::Exception^ ex );
+    bool DisplayException( Platform::Exception^ ex );
 
-    bool m_windowClosed;
-	bool m_windowVisible;
-    bool m_appQuitting;
+    std::atomic<bool> m_windowClosed;
+	std::atomic<bool> m_windowVisible;
+    std::atomic<bool> m_appQuitting;
+    std::atomic<bool> m_errorDialogClosed;
+    Platform::Exception^ m_exception;
 };
 
 ref class Quake3Win8ApplicationSource sealed : Windows::ApplicationModel::Core::IFrameworkViewSource

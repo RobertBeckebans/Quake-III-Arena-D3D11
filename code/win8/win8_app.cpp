@@ -18,36 +18,51 @@ using namespace Windows::Foundation;
 using namespace Windows::Graphics::Display;
 using namespace concurrency;
 
-void Win8_DisplayFatalException( Platform::Exception^ ex )
-{
-    // Throw up a dialog box!
-    try
-    {
-        Windows::UI::Popups::MessageDialog^ dlg = ref new Windows::UI::Popups::MessageDialog(ex->Message);
-        auto asyncOp = concurrency::create_task( dlg->ShowAsync() );
-        asyncOp.wait();
-    }
-    catch ( Platform::Exception^ ex )
-    {
-        OutputDebugStringW( ex->Message->Data() );
-    }
-}
-
 #define WIN8_SAFE( x )      try { x; } catch ( Platform::Exception^ ex ) { HandleException( ex ); }
 
 Quake3Win8App::Quake3Win8App() :
 	m_windowClosed(false),
 	m_windowVisible(true),
+    m_exception(nullptr),
     m_appQuitting(false)
 {
 }
 
 void Quake3Win8App::HandleException( Platform::Exception^ ex )
 {
-    if ( ex->HResult != S_OK )
-        Win8_DisplayFatalException( ex );
-
+    m_exception = ex;
     m_appQuitting = true;
+}
+
+bool Quake3Win8App::DisplayException( Platform::Exception^ ex )
+{
+    m_errorDialogClosed = false;
+
+    // Throw up a dialog box!
+    try
+    {
+        Windows::UI::Popups::MessageDialog^ dlg = ref new Windows::UI::Popups::MessageDialog(ex->Message);
+        concurrency::create_task( dlg->ShowAsync() )
+        .then([this] ( Windows::UI::Popups::IUICommand^ ) 
+        {
+            m_errorDialogClosed = true;
+        });
+
+        return true;
+    }
+    catch ( Platform::AccessDeniedException^ )
+    {
+        return false;
+    }
+    catch ( Platform::Exception^ ex )
+    {
+        OutputDebugStringW( ex->Message->Data() );
+        return false;
+    }
+    catch ( ... )
+    {
+        return false;
+    }
 }
 
 void Quake3Win8App::Initialize(CoreApplicationView^ applicationView)
@@ -125,6 +140,21 @@ void Quake3Win8App::Run()
 			CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessOneAndAllPending);
 		}
 	});
+
+    bool hasShownError = false;
+    for ( ; m_exception != nullptr; )
+    {
+        // Wait for window to become visible
+        if ( m_windowVisible && m_exception != nullptr && !hasShownError )
+        {
+            hasShownError = DisplayException( m_exception );
+        }
+
+        if ( m_errorDialogClosed )
+            break;   
+
+		CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessOneAndAllPending);
+    }
 }
 
 void Quake3Win8App::Uninitialize()
@@ -218,8 +248,6 @@ int main( Platform::Array<Platform::String^>^ args )
     }
     catch ( Platform::Exception^ ex )
     {
-        if ( ex->HResult != S_OK )
-            Win8_DisplayFatalException( ex );
     }
 
 	return 0;

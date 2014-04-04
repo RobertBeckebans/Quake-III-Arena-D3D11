@@ -199,7 +199,7 @@ WIN8_EXPORT void QDECL Sys_Error( const char *error, ... ) {
     OutputDebugStringA( text );
 
     Platform::String^ textObj = Win8_CopyString( text );
-    Win8_Throw( S_OK, textObj );
+    Win8_Throw( E_FAIL, textObj );
 }
 
 /*
