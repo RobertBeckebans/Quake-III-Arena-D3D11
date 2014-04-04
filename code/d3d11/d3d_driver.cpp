@@ -129,10 +129,10 @@ void D3DDrv_GetModelView( float* modelViewMatrix )
 void D3DDrv_SetViewport( int left, int top, int width, int height )
 {
     D3D11_VIEWPORT viewport;
-    viewport.TopLeftX = left;
-    viewport.TopLeftY = g_BufferState.backBufferDesc.Height - top - height;
-    viewport.Width = width;
-    viewport.Height = height;
+    viewport.TopLeftX = max( 0, left );
+    viewport.TopLeftY = max( 0, (int)g_BufferState.backBufferDesc.Height - top - height );
+    viewport.Width = min( (int)g_BufferState.backBufferDesc.Width - viewport.TopLeftX, width );
+    viewport.Height = min( (int)g_BufferState.backBufferDesc.Height - viewport.TopLeftY, height );
     viewport.MinDepth = 0;
     viewport.MaxDepth = 1;
     g_pImmediateContext->RSSetViewports( 1, &viewport );

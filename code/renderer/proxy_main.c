@@ -73,6 +73,7 @@ void PROXY_Shutdown( void )
 void PROXY_ShutdownOne( void )
 {
     d3dDriver.Shutdown();
+    glDriver.Shutdown();
 }
 
 void PROXY_UnbindResources( void )
