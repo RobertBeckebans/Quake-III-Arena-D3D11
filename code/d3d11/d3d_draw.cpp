@@ -268,7 +268,10 @@ static void IterateStagesGeneric( const shaderCommands_t *input )
 
 void D3DDrv_DrawStageGeneric( const shaderCommands_t *input )
 {
-    SetCullMode( input->shader->cullType );
+    UpdateDirtyView();
+
+    //SetCullMode( input->shader->cullType );
+    SetCullMode( CT_TWO_SIDED );
     
     // todo: polygon offset
     if ( input->shader->polygonOffset )
@@ -287,11 +290,13 @@ void D3DDrv_DrawStageGeneric( const shaderCommands_t *input )
 
 void D3DDrv_DrawStageVertexLitTexture( const shaderCommands_t *input )
 {
+    UpdateDirtyView();
 
 }
 
 void D3DDrv_DrawStageLightmappedMultitexture( const shaderCommands_t *input )
 {
+    UpdateDirtyView();
 
 }
 
