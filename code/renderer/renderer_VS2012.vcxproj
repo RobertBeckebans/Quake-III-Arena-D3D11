@@ -2026,14 +2026,6 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\baseq3\d3d11\skybox_ps.hlsl">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="..\..\baseq3\d3d11\skybox_vs.hlsl">
-      <FileType>Document</FileType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <FxCompile Include="..\d3d11\hlsl\fsq_ps.hlsl">
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">4.0_level_9_1</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">4.0_level_9_1</ShaderModel>

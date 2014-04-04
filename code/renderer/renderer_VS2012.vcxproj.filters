@@ -643,8 +643,6 @@
     <None Include="ref_trin.def">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="..\..\baseq3\d3d11\skybox_ps.hlsl" />
-    <None Include="..\..\baseq3\d3d11\skybox_vs.hlsl" />
     <None Include="..\d3d11\hlsl\pscommon.h">
       <Filter>Public Header Files</Filter>
     </None>
