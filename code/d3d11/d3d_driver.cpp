@@ -146,7 +146,7 @@ void D3DDrv_ResetState2D( void )
 			  GLS_SRCBLEND_SRC_ALPHA |
 			  GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
 
-    g_pImmediateContext->RSSetState( g_DrawState.rasterStates.cullNone );
+    SetCullMode( CT_TWO_SIDED );
 
     D3DDrv_SetPortalRendering( qfalse, NULL, NULL );
 }
@@ -155,8 +155,6 @@ void D3DDrv_ResetState3D( void )
 {
     D3DDrv_SetModelView( s_identityMatrix );
     D3DDrv_SetState( GLS_DEFAULT );
-
-    g_pImmediateContext->RSSetState( g_DrawState.rasterStates.cullBack );
 }
 
 void D3DDrv_SetPortalRendering( qboolean enabled, const float* flipMatrix, const float* plane )

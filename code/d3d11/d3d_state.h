@@ -64,9 +64,15 @@ struct d3dQuadRenderData_t
 // @pjb: for the generic stage rendering
 struct d3dGenericStageRenderData_t 
 {
-    ID3D11VertexShader* vertexShader;
-    ID3D11PixelShader* pixelShader;
-    ID3D11InputLayout* inputLayout;
+    // Single-texture
+    ID3D11VertexShader* vertexShaderST;
+    ID3D11PixelShader* pixelShaderST;
+    ID3D11InputLayout* inputLayoutST;
+
+    // Multi-texture
+    ID3D11VertexShader* vertexShaderMT;
+    ID3D11PixelShader* pixelShaderMT;
+    ID3D11InputLayout* inputLayoutMT;
 };
 
 // @pjb: represents the GPU caches for stageVars_t
@@ -161,6 +167,8 @@ void DrawQuad(
     const float* texcoords, 
     const float* color );
 
+void SetCullMode( int cullMode );
+
 //----------------------------------------------------------------------------
 // Driver entry points
 //----------------------------------------------------------------------------
@@ -196,11 +204,11 @@ void D3DDrv_DrawBeam( const image_t* image, const float* color, const vec3_t sta
 void D3DDrv_DrawStageGeneric( const shaderCommands_t *input );
 void D3DDrv_DrawStageVertexLitTexture( const shaderCommands_t *input );
 void D3DDrv_DrawStageLightmappedMultitexture( const shaderCommands_t *input );
-void D3DDrv_BeginTessellate( shaderCommands_t* input );
-void D3DDrv_EndTessellate( shaderCommands_t* input );
+void D3DDrv_BeginTessellate( const shaderCommands_t* input );
+void D3DDrv_EndTessellate( const shaderCommands_t* input );
 void D3DDrv_DebugDrawAxis( void );
-void D3DDrv_DebugDrawTris( shaderCommands_t *input );
-void D3DDrv_DebugDrawNormals( shaderCommands_t *input );
+void D3DDrv_DebugDrawTris( const shaderCommands_t *input );
+void D3DDrv_DebugDrawNormals( const shaderCommands_t *input );
 void D3DDrv_DebugSetOverdrawMeasureEnabled( qboolean enabled );
 void D3DDrv_DebugSetTextureMode( const char* mode );
 void D3DDrv_DebugDrawPolygon( int color, int numPoints, const float* points );

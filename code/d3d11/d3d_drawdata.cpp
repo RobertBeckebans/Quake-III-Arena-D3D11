@@ -12,7 +12,7 @@ static void CreateVertexLayoutAndShader(
     ID3D11InputLayout** layout )
 {
     ID3DBlob* vsByteCode = nullptr;
-    *vshader = CompileVertexShader( "fsq_vs", &vsByteCode );
+    *vshader = CompileVertexShader( shaderName, &vsByteCode );
 
     HRESULT hr = g_pDevice->CreateInputLayout(
         elements,
@@ -88,22 +88,33 @@ void InitGenericStageRenderData( d3dGenericStageRenderData_t* rd )
     
     static_assert( NUM_TEXTURE_BUNDLES == 2, "Need to munge this code for anything but 2 texture bundles" );
 
-    D3D11_INPUT_ELEMENT_DESC elements[] = { 
+    D3D11_INPUT_ELEMENT_DESC elementsST[] = { 
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,  0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,     1, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM,   2, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+    };
+
+    D3D11_INPUT_ELEMENT_DESC elementsMT[] = { 
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,  0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
         { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,     1, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
         { "TEXCOORD", 1, DXGI_FORMAT_R32G32_FLOAT,     2, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
         { "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM,   3, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
     };
 
-    CreateVertexLayoutAndShader( "generic_vs", elements, _countof(elements), &rd->vertexShader, &rd->inputLayout );
-    rd->pixelShader = CompilePixelShader( "generic_ps" );
+    CreateVertexLayoutAndShader( "genericmt_vs", elementsMT, _countof(elementsMT), &rd->vertexShaderMT, &rd->inputLayoutMT );
+    //CreateVertexLayoutAndShader( "genericst_vs", elementsST, _countof(elementsST), &rd->vertexShaderST, &rd->inputLayoutST );
+    rd->pixelShaderMT = CompilePixelShader( "genericmt_ps" );
+    //rd->pixelShaderST = CompilePixelShader( "genericst_ps" );
 }
 
 void DestroyGenericStageRenderData( d3dGenericStageRenderData_t* rd )
 {
-    SAFE_RELEASE( rd->inputLayout );
-    SAFE_RELEASE( rd->vertexShader );
-    SAFE_RELEASE( rd->pixelShader );
+    SAFE_RELEASE( rd->inputLayoutST );
+    SAFE_RELEASE( rd->vertexShaderST );
+    SAFE_RELEASE( rd->pixelShaderST );
+    SAFE_RELEASE( rd->inputLayoutMT );
+    SAFE_RELEASE( rd->vertexShaderMT );
+    SAFE_RELEASE( rd->pixelShaderMT );
 
     Com_Memset( rd, 0, sizeof( *rd ) );
 }
@@ -213,7 +224,7 @@ static ID3D11Buffer* CreateTessIndexBuffer()
 
     // @pjb: todo: glIndex_t is apparently 32 bit :(
 	bd.Usage = D3D11_USAGE_DYNAMIC;
-	bd.ByteWidth = (UINT)sizeof(glIndex_t) * SHADER_MAX_VERTEXES;
+	bd.ByteWidth = (UINT)sizeof(glIndex_t) * SHADER_MAX_INDEXES;
 	bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	

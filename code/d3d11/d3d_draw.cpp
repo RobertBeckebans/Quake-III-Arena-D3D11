@@ -29,6 +29,82 @@ __forceinline void UpdateViewState()
 
 }
 
+static void SetTessVertexBuffersST( const d3dTessBuffers_t* tess, const d3dTessStageBuffers_t* stage )
+{
+    ID3D11Buffer* vbufs[3] = {
+        tess->xyz,
+        stage->texCoords[0],
+        stage->colors,
+    };
+
+    UINT strides[3] = {
+        sizeof(vec4_t),
+        sizeof(vec2_t),
+        sizeof(color4ub_t)
+    };
+
+    UINT offsets[3] = {
+        0, 0, 0
+    };
+
+    g_pImmediateContext->IASetVertexBuffers( 0, 3, vbufs, strides, offsets );
+}
+
+static void SetTessVertexBuffersMT( const d3dTessBuffers_t* tess, const d3dTessStageBuffers_t* stage )
+{
+    ID3D11Buffer* vbufs[4] = {
+        tess->xyz,
+        stage->texCoords[0],
+        stage->texCoords[1],
+        stage->colors,
+    };
+
+    UINT strides[4] = {
+        sizeof(vec4_t),
+        sizeof(vec2_t),
+        sizeof(vec2_t),
+        sizeof(color4ub_t)
+    };
+
+    UINT offsets[4] = {
+        0, 0, 0, 0
+    };
+
+    g_pImmediateContext->IASetVertexBuffers( 0, 4, vbufs, strides, offsets );
+}
+
+static const d3dImage_t* GetAnimatedImage( textureBundle_t *bundle, float shaderTime ) {
+	int		index;
+
+	if ( bundle->isVideoMap ) {
+		ri.CIN_RunCinematic(bundle->videoMapHandle);
+		ri.CIN_UploadCinematic(bundle->videoMapHandle);
+		return GetImageRenderInfo( tr.scratchImage[bundle->videoMapHandle] );
+	}
+
+	if ( bundle->numImageAnimations <= 1 ) {
+		return GetImageRenderInfo( bundle->image[0] );
+	}
+
+	// it is necessary to do this messy calc to make sure animations line up
+	// exactly with waveforms of the same frequency
+	index = myftol( shaderTime * bundle->imageAnimationSpeed * FUNCTABLE_SIZE );
+	index >>= FUNCTABLE_SIZE2;
+
+	if ( index < 0 ) {
+		index = 0;	// may happen with shader time offsets
+	}
+	index %= bundle->numImageAnimations;
+
+    return GetImageRenderInfo( bundle->image[index] );
+}
+
+
+
+
+
+
+
 void DrawQuad( 
     const d3dQuadRenderData_t* qrd,
     const d3dImage_t* image,
@@ -92,32 +168,6 @@ void DrawQuad(
     g_pImmediateContext->DrawIndexed( 6, 0, 0 );
 }
 
-static const d3dImage_t* D3DR_GetAnimatedImage( textureBundle_t *bundle, float shaderTime ) {
-	int		index;
-
-	if ( bundle->isVideoMap ) {
-		ri.CIN_RunCinematic(bundle->videoMapHandle);
-		ri.CIN_UploadCinematic(bundle->videoMapHandle);
-		return GetImageRenderInfo( tr.scratchImage[bundle->videoMapHandle] );
-	}
-
-	if ( bundle->numImageAnimations <= 1 ) {
-		return GetImageRenderInfo( bundle->image[0] );
-	}
-
-	// it is necessary to do this messy calc to make sure animations line up
-	// exactly with waveforms of the same frequency
-	index = myftol( shaderTime * bundle->imageAnimationSpeed * FUNCTABLE_SIZE );
-	index >>= FUNCTABLE_SIZE2;
-
-	if ( index < 0 ) {
-		index = 0;	// may happen with shader time offsets
-	}
-	index %= bundle->numImageAnimations;
-
-    return GetImageRenderInfo( bundle->image[index] );
-}
-
 void D3DDrv_ShadowSilhouette( const float* edges, int edgeCount )
 {
 
@@ -138,11 +188,42 @@ void D3DDrv_DrawBeam( const image_t* image, const float* color, const vec3_t sta
 
 }
 
-void D3DDrv_DrawStageGeneric( const shaderCommands_t *input )
+static void TessDrawMultitextured( const shaderCommands_t* input, int stage )
 {
-    // todo: set input layout
+    const d3dTessBuffers_t* buffers = &g_DrawState.tessBufs;
+    const d3dGenericStageRenderData_t* resources = &g_DrawState.genericStage;
 
-	for ( int stage = 0; stage < MAX_SHADER_STAGES; stage++ )
+    shaderStage_t	*pStage = input->xstages[stage];
+
+    D3DDrv_SetState( pStage->stateBits );
+
+    const d3dImage_t* tex0 = GetAnimatedImage( &pStage->bundle[0], input->shaderTime );
+    const d3dImage_t* tex1 = GetAnimatedImage( &pStage->bundle[1], input->shaderTime );
+
+    ASSERT( tex0 );
+    ASSERT( tex1 );
+
+    ID3D11ShaderResourceView* psResources[2] = {
+        tex0->pSRV,
+        tex1->pSRV
+    };
+
+    g_pImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+    g_pImmediateContext->IASetIndexBuffer( buffers->indexes, DXGI_FORMAT_R32_UINT, 0 );
+    g_pImmediateContext->IASetInputLayout( resources->inputLayoutMT );
+    g_pImmediateContext->VSSetShader( resources->vertexShaderMT, nullptr, 0 );
+    g_pImmediateContext->VSSetConstantBuffers( 0, 1, &g_DrawState.viewRenderData.constantBuffer );
+    g_pImmediateContext->PSSetShader( resources->pixelShaderMT, nullptr, 0 );
+    g_pImmediateContext->PSSetShaderResources( 0, 2, psResources );
+
+    SetTessVertexBuffersMT( buffers, &buffers->stages[stage] );
+
+    g_pImmediateContext->DrawIndexed( input->numIndexes, 0, 0 );
+}
+
+static void IterateStagesGeneric( const shaderCommands_t *input )
+{
+    for ( int stage = 0; stage < MAX_SHADER_STAGES; stage++ )
 	{
 		shaderStage_t *pStage = input->xstages[stage];
 
@@ -151,14 +232,12 @@ void D3DDrv_DrawStageGeneric( const shaderCommands_t *input )
 			break;
 		}
 
-        // todo: bind color data in input->svars[stage].colors
-
  		//
 		// do multitexture
 		//
 		if ( pStage->bundle[1].image[0] != 0 )
 		{
-            // todo: Draw MT
+            TessDrawMultitextured( input, stage );
         }
         else
         {
@@ -171,7 +250,7 @@ void D3DDrv_DrawStageGeneric( const shaderCommands_t *input )
 			}
 			else 
             {
-                texture = D3DR_GetAnimatedImage( &pStage->bundle[0], input->shaderTime );
+                texture = GetAnimatedImage( &pStage->bundle[0], input->shaderTime );
             }
 
 			D3DDrv_SetState( pStage->stateBits );
@@ -187,6 +266,25 @@ void D3DDrv_DrawStageGeneric( const shaderCommands_t *input )
     }
 }
 
+void D3DDrv_DrawStageGeneric( const shaderCommands_t *input )
+{
+    SetCullMode( input->shader->cullType );
+    
+    // todo: polygon offset
+    if ( input->shader->polygonOffset )
+    {
+        // TODO
+    }
+
+    IterateStagesGeneric( input );
+
+    // TODO: dynamic lighting
+
+    // TODO: fog
+
+    // TODO: revert polygon offset?
+}
+
 void D3DDrv_DrawStageVertexLitTexture( const shaderCommands_t *input )
 {
 
@@ -197,7 +295,7 @@ void D3DDrv_DrawStageLightmappedMultitexture( const shaderCommands_t *input )
 
 }
 
-void D3DDrv_BeginTessellate( shaderCommands_t* input )
+void D3DDrv_BeginTessellate( const shaderCommands_t* input )
 {
     // Do nothing.
 }
@@ -210,7 +308,7 @@ template<class _Type> void UpdateTessBuffer( ID3D11Buffer* gpuBuf, const _Type* 
     g_pImmediateContext->Unmap( gpuBuf, 0 );
 }
 
-void D3DDrv_EndTessellate( shaderCommands_t* input )
+void D3DDrv_EndTessellate( const shaderCommands_t* input )
 {
     // Lock down the buffers
     UpdateTessBuffer( g_DrawState.tessBufs.indexes, input->indexes, sizeof(glIndex_t) * tess.numIndexes );
@@ -237,12 +335,12 @@ void D3DDrv_DebugDrawAxis( void )
 
 }
 
-void D3DDrv_DebugDrawTris( shaderCommands_t *input )
+void D3DDrv_DebugDrawTris( const shaderCommands_t *input )
 {
 
 }
 
-void D3DDrv_DebugDrawNormals( shaderCommands_t *input )
+void D3DDrv_DebugDrawNormals( const shaderCommands_t *input )
 {
 
 }

@@ -61,6 +61,44 @@ void DestroyBuffers()
 }
 
 //----------------------------------------------------------------------------
+// Set the culling mode depending on whether it's a mirror or not
+//----------------------------------------------------------------------------
+void SetCullMode( int cullType )
+{
+    int maskBits = ( backEnd.viewParms.isMirror << 3 ) | cullType;
+
+	if ( cullType == CT_TWO_SIDED ) 
+	{
+        g_pImmediateContext->RSSetState( g_DrawState.rasterStates.cullNone );
+	} 
+	else 
+	{
+		if ( cullType == CT_BACK_SIDED )
+		{
+			if ( backEnd.viewParms.isMirror )
+			{
+                g_pImmediateContext->RSSetState( g_DrawState.rasterStates.cullFront );
+			}
+			else
+			{
+                g_pImmediateContext->RSSetState( g_DrawState.rasterStates.cullBack );
+			}
+		}
+		else
+		{
+			if ( backEnd.viewParms.isMirror )
+			{
+                g_pImmediateContext->RSSetState( g_DrawState.rasterStates.cullBack );
+			}
+			else
+			{
+                g_pImmediateContext->RSSetState( g_DrawState.rasterStates.cullFront );
+			}
+		}
+	}
+}
+
+//----------------------------------------------------------------------------
 //
 // ENTRY POINTS
 //

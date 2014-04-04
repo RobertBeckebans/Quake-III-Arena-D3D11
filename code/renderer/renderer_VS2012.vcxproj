@@ -868,10 +868,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\baseq3\d3d11\generic_ps.hlsl">
+    <None Include="..\..\baseq3\d3d11\genericmt_ps.hlsl">
       <FileType>Document</FileType>
     </None>
-    <None Include="..\..\baseq3\d3d11\generic_vs.hlsl">
+    <None Include="..\..\baseq3\d3d11\genericmt_vs.hlsl">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

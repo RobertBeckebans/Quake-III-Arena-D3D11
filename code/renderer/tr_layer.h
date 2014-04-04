@@ -46,12 +46,12 @@ typedef struct graphicsApiLayer_s {
     void            (* DrawStageGeneric)( const shaderCommands_t *input );
     void            (* DrawStageVertexLitTexture)( const shaderCommands_t *input );
     void            (* DrawStageLightmappedMultitexture)( const shaderCommands_t *input );
-    void            (* BeginTessellate)( shaderCommands_t* input );
-    void            (* EndTessellate)( shaderCommands_t* input );
+    void            (* BeginTessellate)( const shaderCommands_t* input );
+    void            (* EndTessellate)( const shaderCommands_t* input );
 
     void            (* DebugDrawAxis)( void );
-    void            (* DebugDrawNormals)( shaderCommands_t *input );
-    void            (* DebugDrawTris)( shaderCommands_t *input );
+    void            (* DebugDrawNormals)( const shaderCommands_t *input );
+    void            (* DebugDrawTris)( const shaderCommands_t *input );
     void            (* DebugSetOverdrawMeasureEnabled)( qboolean enabled );
     void            (* DebugSetTextureMode)( const char* mode );
     void            (* DebugDrawPolygon)( int color, int numPoints, const float* points );

@@ -268,13 +268,13 @@ void PROXY_DebugDrawAxis( void )
     glDriver.DebugDrawAxis();
 }
 
-void PROXY_DebugDrawTris( shaderCommands_t *input )
+void PROXY_DebugDrawTris( const shaderCommands_t *input )
 {
     d3dDriver.DebugDrawTris( input );
     glDriver.DebugDrawTris( input );
 }
 
-void PROXY_DebugDrawNormals( shaderCommands_t *input )
+void PROXY_DebugDrawNormals( const shaderCommands_t *input )
 {
     d3dDriver.DebugDrawNormals( input );
     glDriver.DebugDrawNormals( input );
@@ -298,12 +298,16 @@ void PROXY_DebugDrawPolygon( int color, int numPoints, const float* points )
     glDriver.DebugDrawPolygon( color, numPoints, points );
 }
 
-void PROXY_BeginTessellate( shaderCommands_t* tess )
+void PROXY_BeginTessellate( const shaderCommands_t* tess )
 {
+    d3dDriver.BeginTessellate( tess );
+    glDriver.BeginTessellate( tess );
 }
 
-void PROXY_EndTessellate( shaderCommands_t* tess )
+void PROXY_EndTessellate( const shaderCommands_t* tess )
 {
+    d3dDriver.EndTessellate( tess );
+    glDriver.EndTessellate( tess );
 }
 
 static void PositionOpenGLWindowRightOfD3D( void )

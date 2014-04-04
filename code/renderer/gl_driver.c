@@ -433,11 +433,11 @@ void GLRB_SurfaceAxis( void ) {
 	qglLineWidth( 1 );
 }
 
-void GLRB_BeginTessellate( shaderCommands_t* input )
+void GLRB_BeginTessellate( const shaderCommands_t* input )
 {
 }
 
-void GLRB_EndTessellate( shaderCommands_t* input )
+void GLRB_EndTessellate( const shaderCommands_t* input )
 {
 }
 
