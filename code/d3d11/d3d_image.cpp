@@ -93,6 +93,8 @@ void CreateImageCustom(
     D3D11_SAMPLER_DESC samplerDesc;
     Com_Memset( &samplerDesc, 0, sizeof( samplerDesc ) );
 
+    samplerDesc.MaxLOD = mipLevels - 1;
+
     switch ( image->wrapClampMode )
     {
     case WRAPMODE_CLAMP:
