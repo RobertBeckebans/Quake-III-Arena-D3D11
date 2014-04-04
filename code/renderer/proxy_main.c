@@ -1,5 +1,6 @@
 #include "tr_local.h"
 #include "proxy_main.h"
+#include "d3d_public.h"
 
 // called before the library is unloaded
 // if the system is just reconfiguring, pass destroyWindow = qfalse,

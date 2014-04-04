@@ -815,6 +815,7 @@
     <ClInclude Include="..\game\q_shared.h" />
     <ClInclude Include="..\qcommon\qcommon.h" />
     <ClInclude Include="..\qcommon\qfiles.h" />
+    <ClInclude Include="d3d_public.h" />
     <ClInclude Include="proxy_main.h" />
     <ClInclude Include="qgl.h" />
     <ClInclude Include="..\game\surfaceflags.h" />

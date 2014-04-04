@@ -35,6 +35,9 @@
     <Filter Include="Proxy Implementation">
       <UniqueIdentifier>{0df7970c-b649-4abc-8ddf-0c5e91effa6c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Direct3D Implementation">
+      <UniqueIdentifier>{2b25e489-e498-4b92-a0a8-56707ecebd98}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="tr_animation.c">
@@ -395,6 +398,9 @@
     </ClInclude>
     <ClInclude Include="proxy_main.h">
       <Filter>Proxy Implementation</Filter>
+    </ClInclude>
+    <ClInclude Include="d3d_public.h">
+      <Filter>Direct3D Implementation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
