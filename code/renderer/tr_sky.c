@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // tr_sky.c
 #include "tr_local.h"
 #include "tr_layer.h"
-#include "gl_common.h" // @pjb: todo: remove
 
 #define HALF_SKY_SUBDIVISIONS	(SKY_SUBDIVISIONS/2)
 
@@ -744,6 +743,8 @@ void RB_DrawSun( void ) {
 	float		dist;
 	vec3_t		origin, vec1, vec2;
 	vec3_t		temp;
+    float cachedModelView[16];
+    float newModelView[16];
 
 	if ( !backEnd.skyRenderedThisView ) {
 		return;
@@ -751,8 +752,14 @@ void RB_DrawSun( void ) {
 	if ( !r_drawSun->integer ) {
 		return;
 	}
-	qglLoadMatrixf( backEnd.viewParms.world.modelMatrix );
-	qglTranslatef (backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2]);
+
+    graphicsDriver.GetModelViewMatrix( cachedModelView );
+    
+    memcpy( newModelView, backEnd.viewParms.world.modelMatrix, sizeof(float) * 16 );
+    newModelView[12] += backEnd.viewParms.or.origin[0];
+    newModelView[13] += backEnd.viewParms.or.origin[1];
+    newModelView[14] += backEnd.viewParms.or.origin[2];
+    graphicsDriver.SetModelViewMatrix( newModelView );
 
 	dist = 	backEnd.viewParms.zFar / 1.75;		// div sqrt(3)
 	size = dist * 0.4;
@@ -824,6 +831,7 @@ void RB_DrawSun( void ) {
 
 	// back to normal depth range
 	graphicsDriver.SetDepthRange( 0.0, 1.0 );
+    graphicsDriver.SetModelViewMatrix( cachedModelView );
 }
 
 
