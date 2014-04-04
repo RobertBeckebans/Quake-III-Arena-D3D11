@@ -1128,7 +1128,9 @@ static qboolean GLW_CheckOSVersion( void )
 
 	glw_state.allowdisplaydepthchange = qfalse;
 
+#pragma warning( disable : 4996 )
 	if ( GetVersionEx( &vinfo) )
+#pragma warning( default : 4996 )
 	{
 		if ( vinfo.dwMajorVersion > 4 )
 		{

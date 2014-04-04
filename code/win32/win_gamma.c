@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "glw_win.h"
 #include "win_local.h"
 
+#include <VersionHelpers.h>
+
 static unsigned short s_oldHardwareGamma[3][256];
 
 /*
@@ -134,7 +136,6 @@ void GLimp_SetGamma( unsigned char red[256], unsigned char green[256], unsigned 
 	unsigned short table[3][256];
 	int		i, j;
 	int		ret;
-	OSVERSIONINFO	vinfo;
 
 	if ( !glConfig.deviceSupportsGamma || r_ignorehwgamma->integer || !glw_state.hDC ) {
 		return;
@@ -149,9 +150,8 @@ void GLimp_SetGamma( unsigned char red[256], unsigned char green[256], unsigned 
 	}
 
 	// Win2K puts this odd restriction on gamma ramps...
-	vinfo.dwOSVersionInfoSize = sizeof(vinfo);
-	GetVersionEx( &vinfo );
-	if ( vinfo.dwMajorVersion == 5 && vinfo.dwPlatformId == VER_PLATFORM_WIN32_NT ) {
+    // @pjb: new APIs for this
+	if ( IsWindowsVersionOrGreater(5, 0, 0) ) {
 		Com_DPrintf( "performing W2K gamma clamp.\n" );
 		for ( j = 0 ; j < 3 ; j++ ) {
 			for ( i = 0 ; i < 128 ; i++ ) {

@@ -58,7 +58,8 @@ int fh = 0;
 
 void Spk_Open(char *name)
 {
-  fh = open( name, O_TRUNC | O_CREAT | O_WRONLY, S_IREAD | S_IWRITE );
+  // @pjb: standards compliance
+  fh = _open( name, O_TRUNC | O_CREAT | O_WRONLY, S_IREAD | S_IWRITE );
 };
 
 void Spk_Close()
@@ -66,7 +67,8 @@ void Spk_Close()
   if (!fh)
     return;
 
-  close( fh );
+  // @pjb: standards compliance
+  _close( fh ); 
   fh = 0;
 }
 
@@ -80,7 +82,8 @@ void Spk_Printf (const char *text, ...)
 
   va_start (argptr,text);
   vsprintf (buf, text, argptr);
-  write(fh, buf, (int) strlen(buf));
+  // @pjb: standards compliance
+  _write(fh, buf, (int) strlen(buf));
   _commit(fh);
   va_end (argptr);
 
@@ -1065,8 +1068,10 @@ void Sys_Init( void ) {
 
 	g_wv.osversion.dwOSVersionInfoSize = sizeof( g_wv.osversion );
 
+#pragma warning( disable : 4996 )
 	if (!GetVersionEx (&g_wv.osversion))
 		Sys_Error ("Couldn't get OS info");
+#pragma warning( default : 4996 )
 
 	if (g_wv.osversion.dwMajorVersion < 4)
 		Sys_Error ("Quake3 requires Windows version 4 or greater");

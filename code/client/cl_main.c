@@ -977,7 +977,8 @@ void CL_Setenv_f( void ) {
 			strcat( buffer, " " );
 		}
 
-		putenv( buffer );
+		// @pjb: standards compliance
+        _putenv( buffer );
 	} else if ( argc == 2 ) {
 		char *env = getenv( Cmd_Argv(1) );
 
