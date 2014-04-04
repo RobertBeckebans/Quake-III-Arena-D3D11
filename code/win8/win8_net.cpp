@@ -412,8 +412,10 @@ HRESULT NET_StartListeningOnPort( HostName^ localHost, int port )
     HANDLE bindEndPointComplete = CreateEventEx( nullptr, nullptr, 0, EVENT_ALL_ACCESS );
     HRESULT status = E_FAIL;
 
+#ifdef _WIN32_WINNT_WINBLUE
     g_Socket->Control->DontFragment = true;
     g_Socket->Control->InboundBufferSizeInBytes = 2048;
+#endif
 
     // Listen on socket
     g_Socket->MessageReceived += ref new TypedEventHandler<DatagramSocket^, DatagramSocketMessageReceivedEventArgs^>( 
