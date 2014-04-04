@@ -86,8 +86,6 @@ void InitSkyBoxRenderData( d3dSkyBoxRenderData_t* rd )
 {
     Com_Memset( rd, 0, sizeof( d3dSkyBoxRenderData_t ) );
 
-    assert(0);
-
     D3D11_INPUT_ELEMENT_DESC elements[] = { 
         { "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
         { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 }
