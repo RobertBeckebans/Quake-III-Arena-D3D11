@@ -213,9 +213,10 @@ void XAudio_BeginPainting( int reserve )
             WaitForSingleObject( g_Context.hBufferEndEvent, INFINITE );
             QueryPerformanceCounter( &endTime );
 
-            if ( xaudio_blockWarning->integer > 0 )
+            int msBlock = (endTime.QuadPart - startTime.QuadPart) * g_Freq;
+            if ( xaudio_blockWarning->integer > 0 && msBlock >= xaudio_blockWarning->integer )
             {
-                Com_Printf( "(Prep) Blocked on XAudio buffers for %0.0fms!\n", (endTime.QuadPart - startTime.QuadPart) * g_Freq );
+                Com_Printf( "(Prep) Blocked on XAudio buffers for %0dms!\n", msBlock );
             }
         }
 
@@ -262,9 +263,10 @@ void XAudio_Submit( int offset, int length )
         WaitForSingleObject( g_Context.hBufferEndEvent, INFINITE );
         QueryPerformanceCounter( &endTime );
 
-        if ( xaudio_blockWarning->integer > 0 )
+        int msBlock = (endTime.QuadPart - startTime.QuadPart) * g_Freq;
+        if ( xaudio_blockWarning->integer > 0 && msBlock >= xaudio_blockWarning->integer )
         {
-            Com_Printf( "(Sub) Blocked on XAudio buffers for %0.0fms!\n", (endTime.QuadPart - startTime.QuadPart) * g_Freq );
+            Com_Printf( "(Sub) Blocked on XAudio buffers for %dms!\n", msBlock );
         }
     }
 
