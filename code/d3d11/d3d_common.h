@@ -84,6 +84,12 @@ template<class T> __forceinline void SAFE_SWAP(T*& ptr, T* other)
 namespace QD3D
 {
 	//----------------------------------------------------------------------------
+	// Returns true if the debug layers are available
+	//----------------------------------------------------------------------------
+    BOOL
+    IsSdkDebugLayerAvailable();
+
+	//----------------------------------------------------------------------------
 	// Creates a device with the default settings and returns the maximum feature 
 	// level
 	//----------------------------------------------------------------------------

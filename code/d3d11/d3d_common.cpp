@@ -3,6 +3,29 @@
 namespace QD3D
 {
 	//----------------------------------------------------------------------------
+	// Returns true if the debug layers are available
+	//----------------------------------------------------------------------------
+    BOOL
+    IsSdkDebugLayerAvailable()
+    {
+        // Test by trying to create a null device with debug enabled.
+		HRESULT hr = D3D11CreateDevice(
+			nullptr,
+			D3D_DRIVER_TYPE_NULL,
+			0,
+			D3D11_CREATE_DEVICE_DEBUG,
+			nullptr,
+			0,
+			D3D11_SDK_VERSION,
+			nullptr,
+			nullptr,
+			nullptr
+			);
+
+		return SUCCEEDED(hr);
+    }
+
+	//----------------------------------------------------------------------------
 	// Creates a device with the default settings and returns the maximum feature 
 	// level
 	//----------------------------------------------------------------------------
@@ -18,7 +41,10 @@ namespace QD3D
 
 		UINT flags = 0;
 #ifdef _DEBUG
-		flags |= D3D11_CREATE_DEVICE_DEBUG;
+        if ( IsSdkDebugLayerAvailable() )
+        {
+		    flags |= D3D11_CREATE_DEVICE_DEBUG;
+        }
 #endif
 
 		return D3D11CreateDevice(
