@@ -3,8 +3,8 @@ cbuffer ViewData : register(b0)
 {
     float4x4 Projection;
     float4x4 View;
-    // x: DepthRangeMin, y: DepthRange
-    float2 DepthRange; 
+    float4 ClipPlane;
+    float2 DepthRange; // x: DepthRangeMin, y: DepthRange
 };
 
 float4 DepthRangeHack(float4 vpos)
