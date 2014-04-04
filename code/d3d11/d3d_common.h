@@ -83,163 +83,6 @@ template<class T> __forceinline void SAFE_SWAP(T*& ptr, T* other)
 namespace QD3D
 {
 	//----------------------------------------------------------------------------
-	// 
-	//----------------------------------------------------------------------------
-	class SavedRasterizerState
-	{
-	private:
-
-		ID3D11DeviceContext* m_Context;
-		ID3D11RasterizerState* m_PrevState;
-		
-	public:
-
-		inline SavedRasterizerState(
-			_In_ ID3D11DeviceContext* context)
-			: m_Context(SAFE_ADDREF(context))
-		{
-			m_Context->RSGetState(&m_PrevState);
-		}
-
-		inline ~SavedRasterizerState()
-		{
-			m_Context->RSSetState(m_PrevState);
-			SAFE_RELEASE(m_PrevState);
-			SAFE_RELEASE(m_Context);
-		}
-	};
-
-	//----------------------------------------------------------------------------
-	// 
-	//----------------------------------------------------------------------------
-	class ScopedRasterizerState
-	{
-	private:
-
-		SavedRasterizerState m_PrevState;
-		
-	public:
-
-		inline ScopedRasterizerState(
-			_In_ ID3D11DeviceContext* context, 
-			_In_opt_ ID3D11RasterizerState* state)
-			: m_PrevState(context)
-		{
-			context->RSSetState(state);
-		}
-	};
-
-	//----------------------------------------------------------------------------
-	// 
-	//----------------------------------------------------------------------------
-	class SavedBlendState
-	{
-	private:
-
-		ID3D11DeviceContext* m_Context;
-		ID3D11BlendState* m_PrevState;
-		float m_PrevBlendFactor[4];
-		UINT m_PrevMask;
-		
-	public:
-
-		inline SavedBlendState(
-			_In_ ID3D11DeviceContext* context)
-			: m_Context(SAFE_ADDREF(context))
-		{
-			m_Context->OMGetBlendState(&m_PrevState, m_PrevBlendFactor, &m_PrevMask);
-		}
-
-		inline ~SavedBlendState()
-		{
-			m_Context->OMSetBlendState(m_PrevState, m_PrevBlendFactor, m_PrevMask);
-			SAFE_RELEASE(m_PrevState);
-			SAFE_RELEASE(m_Context);
-		}
-	};
-
-	//----------------------------------------------------------------------------
-	// 
-	//----------------------------------------------------------------------------
-	class ScopedBlendState
-	{
-	private:
-
-		SavedBlendState m_PrevState;
-		
-	public:
-
-		inline ScopedBlendState(
-			_In_ ID3D11DeviceContext* context, 
-			_In_opt_ ID3D11BlendState* state, 
-			_In_opt_ const FLOAT* blendFactors, 
-			_In_ UINT sampleMask)
-			: m_PrevState(SAFE_ADDREF(context))
-		{
-			context->OMSetBlendState(state, blendFactors, sampleMask);
-		}
-
-		inline ScopedBlendState(
-			_In_ ID3D11DeviceContext* context, 
-			_In_opt_ ID3D11BlendState* state)
-			: m_PrevState(SAFE_ADDREF(context))
-		{
-			const FLOAT blendFactors[] = {1, 1, 1, 1};
-			const UINT sampleMask = 0xFFFFFFFF;
-			context->OMSetBlendState(state, blendFactors, sampleMask);
-		}
-	};
-
-	//----------------------------------------------------------------------------
-	// 
-	//----------------------------------------------------------------------------
-	class SavedDepthStencilState
-	{
-	private:
-
-		ID3D11DeviceContext* m_Context;
-		ID3D11DepthStencilState* m_PrevState;
-		UINT m_PrevMask;
-		
-	public:
-
-		inline SavedDepthStencilState(
-			_In_ ID3D11DeviceContext* context)
-			: m_Context(SAFE_ADDREF(context))
-		{
-			m_Context->OMGetDepthStencilState(&m_PrevState, &m_PrevMask);
-		}
-
-		inline ~SavedDepthStencilState()
-		{
-			m_Context->OMSetDepthStencilState(m_PrevState, m_PrevMask);
-			SAFE_RELEASE(m_PrevState);
-			SAFE_RELEASE(m_Context);
-		}
-	};
-
-	//----------------------------------------------------------------------------
-	// 
-	//----------------------------------------------------------------------------
-	class ScopedDepthStencilState
-	{
-	private:
-
-		SavedDepthStencilState m_PrevState;
-		
-	public:
-
-		inline ScopedDepthStencilState(
-			_In_ ID3D11DeviceContext* context, 
-			_In_opt_ ID3D11DepthStencilState* state, 
-			_In_ UINT stencilRef)
-			: m_PrevState(SAFE_ADDREF(context))
-		{
-			context->OMSetDepthStencilState(state, stencilRef);
-		}
-	};
-
-	//----------------------------------------------------------------------------
 	// Creates a device with the default settings and returns the maximum feature 
 	// level
 	//----------------------------------------------------------------------------
@@ -408,6 +251,164 @@ namespace QD3D
         _In_ ID3D11Device* device, 
         _In_ ID3D11Texture2D* texture, 
         _In_ DXGI_FORMAT srv_format);
+
+	//----------------------------------------------------------------------------
+	// 
+	//----------------------------------------------------------------------------
+	class SavedRasterizerState
+	{
+	private:
+
+		ID3D11DeviceContext* m_Context;
+		ID3D11RasterizerState* m_PrevState;
+		
+	public:
+
+		inline SavedRasterizerState(
+			_In_ ID3D11DeviceContext* context)
+			: m_Context(SAFE_ADDREF(context))
+		{
+			m_Context->RSGetState(&m_PrevState);
+		}
+
+		inline ~SavedRasterizerState()
+		{
+			m_Context->RSSetState(m_PrevState);
+			SAFE_RELEASE(m_PrevState);
+			SAFE_RELEASE(m_Context);
+		}
+	};
+
+	//----------------------------------------------------------------------------
+	// 
+	//----------------------------------------------------------------------------
+	class ScopedRasterizerState
+	{
+	private:
+
+		SavedRasterizerState m_PrevState;
+		
+	public:
+
+		inline ScopedRasterizerState(
+			_In_ ID3D11DeviceContext* context, 
+			_In_opt_ ID3D11RasterizerState* state)
+			: m_PrevState(context)
+		{
+			context->RSSetState(state);
+		}
+	};
+
+	//----------------------------------------------------------------------------
+	// 
+	//----------------------------------------------------------------------------
+	class SavedBlendState
+	{
+	private:
+
+		ID3D11DeviceContext* m_Context;
+		ID3D11BlendState* m_PrevState;
+		float m_PrevBlendFactor[4];
+		UINT m_PrevMask;
+		
+	public:
+
+		inline SavedBlendState(
+			_In_ ID3D11DeviceContext* context)
+			: m_Context(SAFE_ADDREF(context))
+		{
+			m_Context->OMGetBlendState(&m_PrevState, m_PrevBlendFactor, &m_PrevMask);
+		}
+
+		inline ~SavedBlendState()
+		{
+			m_Context->OMSetBlendState(m_PrevState, m_PrevBlendFactor, m_PrevMask);
+			SAFE_RELEASE(m_PrevState);
+			SAFE_RELEASE(m_Context);
+		}
+	};
+
+	//----------------------------------------------------------------------------
+	// 
+	//----------------------------------------------------------------------------
+	class ScopedBlendState
+	{
+	private:
+
+		SavedBlendState m_PrevState;
+		
+	public:
+
+		inline ScopedBlendState(
+			_In_ ID3D11DeviceContext* context, 
+			_In_opt_ ID3D11BlendState* state, 
+			_In_opt_ const FLOAT* blendFactors, 
+			_In_ UINT sampleMask)
+			: m_PrevState(SAFE_ADDREF(context))
+		{
+			context->OMSetBlendState(state, blendFactors, sampleMask);
+		}
+
+		inline ScopedBlendState(
+			_In_ ID3D11DeviceContext* context, 
+			_In_opt_ ID3D11BlendState* state)
+			: m_PrevState(SAFE_ADDREF(context))
+		{
+			const FLOAT blendFactors[] = {1, 1, 1, 1};
+			const UINT sampleMask = 0xFFFFFFFF;
+			context->OMSetBlendState(state, blendFactors, sampleMask);
+		}
+	};
+
+	//----------------------------------------------------------------------------
+	// 
+	//----------------------------------------------------------------------------
+	class SavedDepthStencilState
+	{
+	private:
+
+		ID3D11DeviceContext* m_Context;
+		ID3D11DepthStencilState* m_PrevState;
+		UINT m_PrevMask;
+		
+	public:
+
+		inline SavedDepthStencilState(
+			_In_ ID3D11DeviceContext* context)
+			: m_Context(SAFE_ADDREF(context))
+		{
+			m_Context->OMGetDepthStencilState(&m_PrevState, &m_PrevMask);
+		}
+
+		inline ~SavedDepthStencilState()
+		{
+			m_Context->OMSetDepthStencilState(m_PrevState, m_PrevMask);
+			SAFE_RELEASE(m_PrevState);
+			SAFE_RELEASE(m_Context);
+		}
+	};
+
+	//----------------------------------------------------------------------------
+	// 
+	//----------------------------------------------------------------------------
+	class ScopedDepthStencilState
+	{
+	private:
+
+		SavedDepthStencilState m_PrevState;
+		
+	public:
+
+		inline ScopedDepthStencilState(
+			_In_ ID3D11DeviceContext* context, 
+			_In_opt_ ID3D11DepthStencilState* state, 
+			_In_ UINT stencilRef)
+			: m_PrevState(SAFE_ADDREF(context))
+		{
+			context->OMSetDepthStencilState(state, stencilRef);
+		}
+	};
+
 }
 
 #endif

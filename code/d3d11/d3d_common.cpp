@@ -640,5 +640,4 @@ namespace QD3D
 		device->CreateShaderResourceView(texture, &srvd, &view);
 		return view;
 	}
-
 }
