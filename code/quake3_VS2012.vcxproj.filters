@@ -347,7 +347,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <AppxManifest Include="win8\Package.appxmanifest">
+    <AppxManifest Include="win8\Package_VS2012.appxmanifest">
       <Filter>Windows\Win8</Filter>
     </AppxManifest>
   </ItemGroup>
