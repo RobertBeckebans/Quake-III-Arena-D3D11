@@ -39,7 +39,7 @@
       <UniqueIdentifier>{2b25e489-e498-4b92-a0a8-56707ecebd98}</UniqueIdentifier>
     </Filter>
     <Filter Include="Direct3D Implementation\Shaders">
-      <UniqueIdentifier>{c76fef90-4fab-4c74-b8d9-ddaff5c3d843}</UniqueIdentifier>
+      <UniqueIdentifier>{212d50ea-fa3c-4822-8549-17b9f9837e42}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -361,9 +361,6 @@
     <ClCompile Include="..\d3d11\d3d_image.cpp">
       <Filter>Direct3D Implementation</Filter>
     </ClCompile>
-    <ClCompile Include="..\d3d11\d3d_compiler.cpp">
-      <Filter>Direct3D Implementation</Filter>
-    </ClCompile>
     <ClCompile Include="..\d3d11\d3d_shaders.cpp">
       <Filter>Direct3D Implementation</Filter>
     </ClCompile>
@@ -478,9 +475,6 @@
       <Filter>Direct3D Implementation</Filter>
     </ClInclude>
     <ClInclude Include="..\d3d11\d3d_image.h">
-      <Filter>Direct3D Implementation</Filter>
-    </ClInclude>
-    <ClInclude Include="..\d3d11\d3d_compiler.h">
       <Filter>Direct3D Implementation</Filter>
     </ClInclude>
     <ClInclude Include="..\d3d11\d3d_shaders.h">
@@ -649,33 +643,39 @@
     <None Include="ref_trin.def">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="..\..\baseq3\d3d11\fsq_ps.hlsl">
-      <Filter>Direct3D Implementation\Shaders</Filter>
-    </None>
-    <None Include="..\..\baseq3\d3d11\fsq_vs.hlsl">
-      <Filter>Direct3D Implementation\Shaders</Filter>
-    </None>
-    <None Include="..\..\baseq3\d3d11\genericmt_ps.hlsl">
-      <Filter>Direct3D Implementation\Shaders</Filter>
-    </None>
-    <None Include="..\..\baseq3\d3d11\genericmt_vs.hlsl">
-      <Filter>Direct3D Implementation\Shaders</Filter>
-    </None>
-    <None Include="..\..\baseq3\d3d11\vscommon.hlsl">
-      <Filter>Direct3D Implementation\Shaders</Filter>
-    </None>
     <None Include="..\..\baseq3\d3d11\skybox_ps.hlsl" />
     <None Include="..\..\baseq3\d3d11\skybox_vs.hlsl" />
+    <None Include="..\d3d11\hlsl\pscommon.h">
+      <Filter>Public Header Files</Filter>
+    </None>
+    <None Include="..\d3d11\hlsl\vscommon.h">
+      <Filter>Public Header Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\baseq3\d3d11\genericst_ps.hlsl">
+    <FxCompile Include="..\d3d11\hlsl\genericmt_vs.hlsl">
       <Filter>Direct3D Implementation\Shaders</Filter>
-    </None>
-    <None Include="..\..\baseq3\d3d11\genericst_vs.hlsl">
+    </FxCompile>
+    <FxCompile Include="..\d3d11\hlsl\genericst_ps.hlsl">
       <Filter>Direct3D Implementation\Shaders</Filter>
-    </None>
-    <None Include="..\..\baseq3\d3d11\pscommon.hlsl">
+    </FxCompile>
+    <FxCompile Include="..\d3d11\hlsl\genericst_vs.hlsl">
       <Filter>Direct3D Implementation\Shaders</Filter>
-    </None>
+    </FxCompile>
+    <FxCompile Include="..\d3d11\hlsl\skybox_ps.hlsl">
+      <Filter>Direct3D Implementation\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\d3d11\hlsl\skybox_vs.hlsl">
+      <Filter>Direct3D Implementation\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\d3d11\hlsl\fsq_ps.hlsl">
+      <Filter>Direct3D Implementation\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\d3d11\hlsl\fsq_vs.hlsl">
+      <Filter>Direct3D Implementation\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\d3d11\hlsl\genericmt_ps.hlsl">
+      <Filter>Direct3D Implementation\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

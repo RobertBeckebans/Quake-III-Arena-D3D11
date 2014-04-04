@@ -176,7 +176,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateMapFile>true</GenerateMapFile>
       <SubSystem>Windows</SubSystem>
@@ -220,7 +220,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateMapFile>true</GenerateMapFile>
       <SubSystem>Windows</SubSystem>
@@ -260,7 +260,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
@@ -305,7 +305,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
@@ -348,7 +348,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
@@ -388,7 +388,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
@@ -425,7 +425,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
@@ -470,7 +470,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;xaudio2.lib;xinput.lib;winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>

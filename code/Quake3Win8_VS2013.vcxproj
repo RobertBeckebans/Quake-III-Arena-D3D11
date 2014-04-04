@@ -287,7 +287,7 @@
       <CompileAsWinRT>true</CompileAsWinRT>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;vccorlib.lib;user32.lib;xaudio2.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;vccorlib.lib;user32.lib;xaudio2.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateMapFile>true</GenerateMapFile>
       <SubSystem>Windows</SubSystem>
@@ -305,7 +305,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" "Release TA" "$(TargetDir)\AppX"</Command>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" "Release TA" "$(TargetDir)"</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -332,7 +332,7 @@
       <CompileAsWinRT>true</CompileAsWinRT>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;vccorlib.lib;user32.lib;xaudio2.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;vccorlib.lib;user32.lib;xaudio2.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateMapFile>true</GenerateMapFile>
       <SubSystem>Windows</SubSystem>
@@ -348,7 +348,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" "Release TA" "$(TargetDir)\AppX"</Command>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" "Release TA" "$(TargetDir)"</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -375,7 +375,7 @@
       <CompileAsWinRT>true</CompileAsWinRT>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;vccorlib.lib;user32.lib;xaudio2.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;vccorlib.lib;user32.lib;xaudio2.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories); $(VCInstallDir)\lib\store\arm; $(VCInstallDir)\lib\arm</AdditionalLibraryDirectories>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateMapFile>true</GenerateMapFile>
@@ -392,7 +392,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" "Release TA" "$(TargetDir)\AppX"</Command>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" "Release TA" "$(TargetDir)"</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -417,7 +417,7 @@
       <CompileAsWinRT>true</CompileAsWinRT>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;vccorlib.lib;user32.lib;xaudio2.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;vccorlib.lib;user32.lib;xaudio2.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
@@ -436,7 +436,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" Debug "$(TargetDir)\AppX"</Command>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" Debug "$(TargetDir)"</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -463,7 +463,7 @@
       <CompileAsWinRT>true</CompileAsWinRT>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;vccorlib.lib;user32.lib;xaudio2.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;vccorlib.lib;user32.lib;xaudio2.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
@@ -480,7 +480,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" Debug "$(TargetDir)\AppX"</Command>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" Debug "$(TargetDir)"</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -507,7 +507,7 @@
       <CompileAsWinRT>true</CompileAsWinRT>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;vccorlib.lib;user32.lib;xaudio2.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;vccorlib.lib;user32.lib;xaudio2.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories); $(VCInstallDir)\lib\store\arm; $(VCInstallDir)\lib\arm</AdditionalLibraryDirectories>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -525,7 +525,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" Debug "$(TargetDir)\AppX"</Command>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" Debug "$(TargetDir)"</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -552,7 +552,7 @@
       <CompileAsWinRT>true</CompileAsWinRT>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;vccorlib.lib;user32.lib;xaudio2.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;vccorlib.lib;user32.lib;xaudio2.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
@@ -577,7 +577,7 @@
       <PreserveSbr>true</PreserveSbr>
     </Bscmake>
     <PostBuildEvent>
-      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" Release "$(TargetDir)\AppX"</Command>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" Release "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">
@@ -596,7 +596,7 @@
       <CompileAsWinRT>true</CompileAsWinRT>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;vccorlib.lib;user32.lib;xaudio2.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;vccorlib.lib;user32.lib;xaudio2.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
@@ -619,7 +619,7 @@
       <PreserveSbr>true</PreserveSbr>
     </Bscmake>
     <PostBuildEvent>
-      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" Release "$(TargetDir)\AppX"</Command>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" Release "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">
@@ -638,7 +638,7 @@
       <CompileAsWinRT>true</CompileAsWinRT>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;vccorlib.lib;user32.lib;xaudio2.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;vccorlib.lib;user32.lib;xaudio2.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories); $(VCInstallDir)\lib\store\arm; $(VCInstallDir)\lib\arm</AdditionalLibraryDirectories>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -662,7 +662,7 @@
       <PreserveSbr>true</PreserveSbr>
     </Bscmake>
     <PostBuildEvent>
-      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" Release "$(TargetDir)\AppX"</Command>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" Release "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|Win32'">
@@ -680,7 +680,7 @@
       <CompileAsWinRT>true</CompileAsWinRT>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;vccorlib.lib;user32.lib;xaudio2.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;vccorlib.lib;user32.lib;xaudio2.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
@@ -699,7 +699,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" "Debug TA" "$(TargetDir)\AppX"</Command>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" "Debug TA" "$(TargetDir)"</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -726,7 +726,7 @@
       <CompileAsWinRT>true</CompileAsWinRT>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;vccorlib.lib;user32.lib;xaudio2.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;vccorlib.lib;user32.lib;xaudio2.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
@@ -743,7 +743,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" "Debug TA" "$(TargetDir)\AppX"</Command>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" "Debug TA" "$(TargetDir)"</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -770,7 +770,7 @@
       <CompileAsWinRT>true</CompileAsWinRT>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;vccorlib.lib;user32.lib;xaudio2.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;vccorlib.lib;user32.lib;xaudio2.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories); $(VCInstallDir)\lib\store\arm; $(VCInstallDir)\lib\arm</AdditionalLibraryDirectories>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -788,7 +788,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" "Debug TA" "$(TargetDir)\AppX"</Command>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" "Debug TA" "$(TargetDir)"</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -982,7 +982,148 @@
     <ClInclude Include="win8\win8_utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\baseq3\autoexec.cfg">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">true</DeploymentContent>
+    </None>
+    <None Include="..\baseq3\pak0.pk3">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">true</DeploymentContent>
+    </None>
+    <None Include="..\baseq3\pak1.pk3">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">true</DeploymentContent>
+    </None>
+    <None Include="..\baseq3\pak2.pk3">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">true</DeploymentContent>
+    </None>
+    <None Include="..\baseq3\pak3.pk3">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">true</DeploymentContent>
+    </None>
+    <None Include="..\baseq3\pak4.pk3">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">true</DeploymentContent>
+    </None>
+    <None Include="..\baseq3\pak5.pk3">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">true</DeploymentContent>
+    </None>
+    <None Include="..\baseq3\pak6.pk3">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">true</DeploymentContent>
+    </None>
+    <None Include="..\baseq3\pak7.pk3">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">true</DeploymentContent>
+    </None>
+    <None Include="..\baseq3\pak8.pk3">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|ARM'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">true</DeploymentContent>
+    </None>
     <None Include="win8\deployvmdlls.bat" />
+    <None Include="win8\Quake3Win8_VS2012.build.appxrecipe" />
     <None Include="win8\Quake3_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
