@@ -96,20 +96,36 @@ void InitRasterStates( d3dRasterStates_t* rs )
 {
     Com_Memset( rs, 0, sizeof( d3dRasterStates_t ) );
 
-    // 
-    // No culling
-    //
     D3D11_RASTERIZER_DESC rd;
     ZeroMemory( &rd, sizeof( rd ) );
     rd.FillMode = D3D11_FILL_SOLID;
-    rd.CullMode = D3D11_CULL_NONE;
     rd.FrontCounterClockwise = TRUE;
+
+    // 
+    // No culling
+    //
+    rd.CullMode = D3D11_CULL_NONE;
     g_pDevice->CreateRasterizerState( &rd, &rs->cullNone );
+
+    // 
+    // Backface culling
+    //
+    ZeroMemory( &rd, sizeof( rd ) );
+    rd.CullMode = D3D11_CULL_BACK;
+    g_pDevice->CreateRasterizerState( &rd, &rs->cullBack );
+
+    // 
+    // Frontface culling
+    //
+    rd.CullMode = D3D11_CULL_FRONT;
+    g_pDevice->CreateRasterizerState( &rd, &rs->cullFront );
 }
 
 void DestroyRasterStates( d3dRasterStates_t* rs )
 {
     SAFE_RELEASE( rs->cullNone );
+    SAFE_RELEASE( rs->cullBack );
+    SAFE_RELEASE( rs->cullFront );
 
     Com_Memset( rs, 0, sizeof( d3dRasterStates_t ) );
 }

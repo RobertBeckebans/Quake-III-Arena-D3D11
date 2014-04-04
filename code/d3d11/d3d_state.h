@@ -74,6 +74,8 @@ struct d3dBackBufferState_t {
 struct d3dRasterStates_t
 {
     ID3D11RasterizerState* cullNone;
+    ID3D11RasterizerState* cullBack;
+    ID3D11RasterizerState* cullFront;
 };
 
 // @pjb: stores common depth states
