@@ -411,9 +411,12 @@ static void GLR_DrawMultitextured( shaderCommands_t *input, int stage ) {
 ProjectDlightTexture
 
 Perform dynamic lighting with another rendering pass
+
+@pjb: todo: split the bulk of this out into a helper function and then 
+do the GL calls right at the end.
 ===================
 */
-static void ProjectDlightTexture( void ) {
+static void GLR_ProjectDlightTexture( void ) {
 	int		i, l;
 #if idppc_altivec
 	vec_t	origin0, origin1, origin2;
@@ -627,10 +630,12 @@ static void ProjectDlightTexture( void ) {
 ===================
 RB_FogPass
 
+@pjb: OpenGL internal
+
 Blends a fog texture on top of everything else
 ===================
 */
-static void RB_FogPass( void ) {
+static void GLRB_FogPass( void ) {
 	fog_t		*fog;
 	int			i;
 
@@ -956,8 +961,11 @@ static void ComputeTexCoords( shaderStage_t *pStage ) {
 
 /*
 ** RB_IterateStagesGeneric
+
+
+@pjb: OpenGL internal
 */
-static void RB_IterateStagesGeneric( shaderCommands_t *input )
+static void GLRB_IterateStagesGeneric( shaderCommands_t *input )
 {
 	int stage;
 
@@ -1097,21 +1105,21 @@ void RB_StageIteratorGeneric( void )
 	//
 	// call shader function
 	//
-	RB_IterateStagesGeneric( input );
+	GLRB_IterateStagesGeneric( input );
 
 	// 
 	// now do any dynamic lighting needed
 	//
 	if ( tess.dlightBits && tess.shader->sort <= SS_OPAQUE
 		&& !(tess.shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY) ) ) {
-		ProjectDlightTexture();
+		GLR_ProjectDlightTexture();
 	}
 
 	//
 	// now do fog
 	//
 	if ( tess.fogNum && tess.shader->fogPass ) {
-		RB_FogPass();
+		GLRB_FogPass();
 	}
 
 	// 
@@ -1192,14 +1200,14 @@ void RB_StageIteratorVertexLitTexture( void )
 	// now do any dynamic lighting needed
 	//
 	if ( tess.dlightBits && tess.shader->sort <= SS_OPAQUE ) {
-		ProjectDlightTexture();
+		GLR_ProjectDlightTexture();
 	}
 
 	//
 	// now do fog
 	//
 	if ( tess.fogNum && tess.shader->fogPass ) {
-		RB_FogPass();
+		GLRB_FogPass();
 	}
 
 	// 
@@ -1297,14 +1305,14 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 	// now do any dynamic lighting needed
 	//
 	if ( tess.dlightBits && tess.shader->sort <= SS_OPAQUE ) {
-		ProjectDlightTexture();
+		GLR_ProjectDlightTexture();
 	}
 
 	//
 	// now do fog
 	//
 	if ( tess.fogNum && tess.shader->fogPass ) {
-		RB_FogPass();
+		GLRB_FogPass();
 	}
 
 	//
