@@ -33,7 +33,7 @@ void InitQuadRenderData( d3dQuadRenderData_t* qrd )
     static const USHORT indices[] = 
     {
 	    0, 2, 1,
-	    1, 2, 3
+	    2, 3, 0
     };
 
     qrd->indexBuffer = QD3D::CreateImmutableBuffer( 
@@ -90,5 +90,27 @@ void DestroyViewRenderData( d3dViewRenderData_t* vrd )
     SAFE_RELEASE( vrd->constantBuffer );
 
     Com_Memset( vrd, 0, sizeof( d3dViewRenderData_t ) );
+}
+
+void InitRasterStates( d3dRasterStates_t* rs )
+{
+    Com_Memset( rs, 0, sizeof( d3dRasterStates_t ) );
+
+    // 
+    // No culling
+    //
+    D3D11_RASTERIZER_DESC rd;
+    ZeroMemory( &rd, sizeof( rd ) );
+    rd.FillMode = D3D11_FILL_SOLID;
+    rd.CullMode = D3D11_CULL_NONE;
+    rd.FrontCounterClockwise = TRUE;
+    g_pDevice->CreateRasterizerState( &rd, &rs->cullNone );
+}
+
+void DestroyRasterStates( d3dRasterStates_t* rs )
+{
+    SAFE_RELEASE( rs->cullNone );
+
+    Com_Memset( rs, 0, sizeof( d3dRasterStates_t ) );
 }
 

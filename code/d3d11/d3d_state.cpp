@@ -81,16 +81,7 @@ void InitDrawState()
 
     InitQuadRenderData( &g_DrawState.quadRenderData );
     InitViewRenderData( &g_DrawState.viewRenderData );
-
-    // @pjb: todo: move me
-    D3D11_RASTERIZER_DESC rd;
-    ZeroMemory( &rd, sizeof( rd ) );
-    rd.FillMode = D3D11_FILL_SOLID;
-    rd.CullMode = D3D11_CULL_NONE;
-    rd.FrontCounterClockwise = FALSE;
-
-    g_pDevice->CreateRasterizerState( &rd, &g_DrawState.rasterStates.cullNone );
-    
+    InitRasterStates( &g_DrawState.rasterStates );
 
     // Set up some default state
     g_pImmediateContext->RSSetState( g_DrawState.rasterStates.cullNone );
@@ -99,9 +90,7 @@ void InitDrawState()
 
 void DestroyDrawState()
 {
-    // @pjb: todo: move me
-    SAFE_RELEASE( g_DrawState.rasterStates.cullNone );
-
+    DestroyRasterStates( &g_DrawState.rasterStates );
     DestroyQuadRenderData( &g_DrawState.quadRenderData );
     DestroyViewRenderData( &g_DrawState.viewRenderData );
     DestroyShaders();

@@ -7,3 +7,6 @@ void DestroyQuadRenderData( d3dQuadRenderData_t* qrd );
 
 void InitViewRenderData( d3dViewRenderData_t* vrd );
 void DestroyViewRenderData( d3dViewRenderData_t* vrd );
+
+void InitRasterStates( d3dRasterStates_t* rs );
+void DestroyRasterStates( d3dRasterStates_t* rs );
