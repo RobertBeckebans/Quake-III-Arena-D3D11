@@ -29,8 +29,6 @@ void Quake3Win8App::Initialize(CoreApplicationView^ applicationView)
 
 	CoreApplication::Resuming +=
         ref new EventHandler<Platform::Object^>(this, &Quake3Win8App::OnResuming);
-
-	// @pjb: init game, but not graphics yet
 }
 
 void Quake3Win8App::SetWindow(CoreWindow^ window)
@@ -52,13 +50,19 @@ void Quake3Win8App::SetWindow(CoreWindow^ window)
 	window->PointerMoved +=
 		ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &Quake3Win8App::OnPointerMoved);
 
+	// Disable all pointer visual feedback for better performance when touching.
+	auto pointerVisualizationSettings = Windows::UI::Input::PointerVisualizationSettings::GetForCurrentView();
+	pointerVisualizationSettings->IsContactFeedbackEnabled = false; 
+	pointerVisualizationSettings->IsBarrelButtonFeedbackEnabled = false;
+
     // @pjb: todo: initialize renderer here
-	//m_renderer->Initialize(CoreWindow::GetForCurrentThread());
+	//m_window = window;
+	//m_logicalSize = Windows::Foundation::Size(window->Bounds.Width, window->Bounds.Height);
 }
 
 void Quake3Win8App::Load(Platform::String^ entryPoint)
 {
-    // @pjb: todo: ???
+    // @pjb: todo: initializes the game
 }
 
 void Quake3Win8App::Run()
@@ -149,7 +153,6 @@ IFrameworkView^ Quake3Win8ApplicationSource::CreateView()
     return ref new Quake3Win8App();
 }
 
-
 /*
 ==================
 main
@@ -159,6 +162,7 @@ main
 [Platform::MTAThread]
 int main( Platform::Array<Platform::String^>^ args )
 {
+    Win8_SetCommandLine( args );
 	auto q3ApplicationSource = ref new Quake3Win8ApplicationSource();
 	CoreApplication::Run(q3ApplicationSource);
 	return 0;

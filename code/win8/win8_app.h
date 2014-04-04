@@ -35,3 +35,5 @@ ref class Quake3Win8ApplicationSource sealed : Windows::ApplicationModel::Core::
 public:
 	virtual Windows::ApplicationModel::Core::IFrameworkView^ CreateView();
 };
+
+void Win8_SetCommandLine( Platform::Array<Platform::String^>^ args );

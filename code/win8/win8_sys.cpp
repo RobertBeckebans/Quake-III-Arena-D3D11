@@ -27,13 +27,14 @@ int Win8_GetTime()
     return (int)( i.QuadPart * g_Freq );
 }
 
-void Win8_CopyString( Platform::String^ str, char* dst, size_t dstLen )
+size_t Win8_CopyString( Platform::String^ str, char* dst, size_t dstLen )
 {
     size_t numConverted = 0;
     errno_t err = wcstombs_s(
         &numConverted,
         dst, dstLen,
         str->Data(), dstLen);
+    return numConverted;
 }
 
 
@@ -70,6 +71,27 @@ size_t Win8_MultiByteToWide(
         src, strlen( src ) );
 
     return numConverted;
+}
+
+void Win8_SetCommandLine( Platform::Array<Platform::String^>^ args )
+{
+    // Set the command line string
+    size_t offset = 0;
+    for each (Platform::String^ arg in args)
+    {
+        if ( offset + 2 + arg->Length() >= MAX_STRING_CHARS )
+            break;
+
+        sys_cmdline[offset++] = '\"';
+        offset += Win8_CopyString( arg, sys_cmdline, MAX_STRING_CHARS - offset - 2 );
+        sys_cmdline[offset++] = '\"';
+
+        if ( offset < MAX_STRING_CHARS - 1 )
+        {
+            sys_cmdline[offset++] = ' ';
+            sys_cmdline[offset] = 0;
+        }
+    }
 }
 
 //============================================
@@ -341,6 +363,8 @@ WIN8_EXPORT sysEvent_t Sys_GetEvent( void ) {
 		return eventQue[ ( eventTail - 1 ) & MASK_QUED_EVENTS ];
 	}
 
+    assert(0); // @pjb: todo: retrieve messages from the custom win8 pump
+
 	// check for network packets
 	MSG_Init( &netmsg, sys_packetReceived, sizeof( sys_packetReceived ) );
 	if ( Sys_GetPacket ( &adr, &netmsg ) ) {
@@ -379,91 +403,20 @@ are initialized
 ================
 */
 WIN8_EXPORT void Sys_Init( void ) {
-	int cpuid;
 
 	Cmd_AddCommand ("in_restart", Sys_In_Restart_f);
 	Cmd_AddCommand ("net_restart", Sys_Net_Restart_f);
 
 	Cvar_Set( "arch", "win8" );
 
-	//
-	// figure out our CPU
-	//
-	Cvar_Get( "sys_cpustring", "detect", 0 );
-	if ( !Q_stricmp( Cvar_VariableString( "sys_cpustring"), "detect" ) )
-	{
-		Com_Printf( "...detecting CPU, found " );
-
-		cpuid = Sys_GetProcessorId();
-
-		switch ( cpuid )
-		{
-		case CPUID_GENERIC:
-			Cvar_Set( "sys_cpustring", "generic" );
-			break;
-		case CPUID_INTEL_UNSUPPORTED:
-			Cvar_Set( "sys_cpustring", "x86 (pre-Pentium)" );
-			break;
-		case CPUID_INTEL_PENTIUM:
-			Cvar_Set( "sys_cpustring", "x86 (P5/PPro, non-MMX)" );
-			break;
-		case CPUID_INTEL_MMX:
-			Cvar_Set( "sys_cpustring", "x86 (P5/Pentium2, MMX)" );
-			break;
-		case CPUID_INTEL_KATMAI:
-			Cvar_Set( "sys_cpustring", "Intel Pentium III" );
-			break;
-		case CPUID_AMD_3DNOW:
-			Cvar_Set( "sys_cpustring", "AMD w/ 3DNow!" );
-			break;
-		case CPUID_AXP:
-			Cvar_Set( "sys_cpustring", "Alpha AXP" );
-			break;
-		default:
-			Com_Error( ERR_FATAL, "Unknown cpu type %d\n", cpuid );
-			break;
-		}
-	}
-	else
-	{
-		Com_Printf( "...forcing CPU type to " );
-		if ( !Q_stricmp( Cvar_VariableString( "sys_cpustring" ), "generic" ) )
-		{
-			cpuid = CPUID_GENERIC;
-		}
-		else if ( !Q_stricmp( Cvar_VariableString( "sys_cpustring" ), "x87" ) )
-		{
-			cpuid = CPUID_INTEL_PENTIUM;
-		}
-		else if ( !Q_stricmp( Cvar_VariableString( "sys_cpustring" ), "mmx" ) )
-		{
-			cpuid = CPUID_INTEL_MMX;
-		}
-		else if ( !Q_stricmp( Cvar_VariableString( "sys_cpustring" ), "3dnow" ) )
-		{
-			cpuid = CPUID_AMD_3DNOW;
-		}
-		else if ( !Q_stricmp( Cvar_VariableString( "sys_cpustring" ), "PentiumIII" ) )
-		{
-			cpuid = CPUID_INTEL_KATMAI;
-		}
-		else if ( !Q_stricmp( Cvar_VariableString( "sys_cpustring" ), "axp" ) )
-		{
-			cpuid = CPUID_AXP;
-		}
-		else
-		{
-			Com_Printf( "WARNING: unknown sys_cpustring '%s'\n", Cvar_VariableString( "sys_cpustring" ) );
-			cpuid = CPUID_GENERIC;
-		}
-	}
-	Cvar_SetValue( "sys_cpuid", cpuid );
-	Com_Printf( "%s\n", Cvar_VariableString( "sys_cpustring" ) );
+    Sys_DetectCPU();
 
 	Cvar_Set( "username", Sys_GetCurrentUser() );
 
 	IN_Init();		// FIXME: not in dedicated?
 }
+
+
 /*
 //=======================================================================
 
