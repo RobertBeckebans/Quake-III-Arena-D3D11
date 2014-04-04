@@ -5,6 +5,7 @@ ipch
 *.suo
 *.pdb
 baseq3
+missionpack
 *.res
 botlib.log
 Build
