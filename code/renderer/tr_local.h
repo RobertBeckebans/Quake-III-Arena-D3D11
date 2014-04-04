@@ -1501,6 +1501,14 @@ typedef enum {
 } renderCommand_t;
 
 
+// @pjb: no access to the GL buffer constants any more, so these replace those
+typedef enum {
+    DRAW_BUFFER_BACK,
+    DRAW_BUFFER_FRONT,
+    DRAW_BUFFER_BACK_LEFT,
+    DRAW_BUFFER_BACK_RIGHT
+};
+
 // these are sort of arbitrary limits.
 // the limits apply to the sum of all scenes in a frame --
 // the main view, all the 3D icons, etc

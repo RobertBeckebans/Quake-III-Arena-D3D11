@@ -293,6 +293,25 @@ void GLRB_DrawImage( const image_t* image, const float* coords, const float* tex
 	qglEnd ();
 }
 
+void GLRB_SetDrawBuffer( int buffer )
+{
+    switch (buffer)
+    {
+    case DRAW_BUFFER_BACK:
+        qglDrawBuffer( GL_BACK );
+        break;
+    case DRAW_BUFFER_FRONT:
+        qglDrawBuffer( GL_FRONT );
+        break;
+    case DRAW_BUFFER_BACK_LEFT:
+        qglDrawBuffer( GL_BACK_LEFT );
+        break;
+    case DRAW_BUFFER_BACK_RIGHT:
+        qglDrawBuffer( GL_BACK_RIGHT );
+        break;
+    }
+}
+
 /*
 @@@@@@@@@@@@@@@@@@@@@
 
@@ -324,6 +343,7 @@ void GLRB_DriverInit( graphicsApiLayer_t* layer )
     layer->SetMirroredRendering = GLRB_SetMirroredRendering;
     layer->SetModelViewMatrix = GLRB_SetModelViewMatrix;
     layer->SetDepthRange = GLRB_SetDepthRange;
+    layer->SetDrawBuffer = GLRB_SetDrawBuffer;
 
     InitOpenGL();
 

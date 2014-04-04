@@ -135,7 +135,7 @@ void RB_BeginDrawingView (void) {
 
 	// glState.faceCulling = -1;		// force face culling to set next time
     // @pjb: this should be guaranteed to be valid now that the shadowing code 
-    // doesn't call qglCullFace directly.
+    // doesn't call CullFace directly.
 
 	// we will only draw a sun if there was sky rendered in this view
 	backEnd.skyRenderedThisView = qfalse;
@@ -427,7 +427,7 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 
 	if ( r_speeds->integer ) {
 		end = ri.Milliseconds();
-		ri.Printf( PRINT_ALL, "qglTexSubImage2D %i, %i: %i msec\n", cols, rows, end - start );
+		ri.Printf( PRINT_ALL, "UploadCinematic %i, %i: %i msec\n", cols, rows, end - start );
 	}
 
 	Set2DProjection();
@@ -587,7 +587,7 @@ const void	*RB_DrawBuffer( const void *data ) {
 
 	cmd = (const drawBufferCommand_t *)data;
 
-	qglDrawBuffer( cmd->buffer );
+    graphicsDriver.SetDrawBuffer( cmd->buffer );
 
 	// clear screen for debugging
 	if ( r_clear->integer ) {
@@ -638,17 +638,11 @@ void RB_ShowImages( void ) {
 			h *= image->height / 512.0f;
 		}
 
-		GL_Bind( image );
-		qglBegin (GL_QUADS);
-		qglTexCoord2f( 0, 0 );
-		qglVertex2f( x, y );
-		qglTexCoord2f( 1, 0 );
-		qglVertex2f( x + w, y );
-		qglTexCoord2f( 1, 1 );
-		qglVertex2f( x + w, y + h );
-		qglTexCoord2f( 0, 1 );
-		qglVertex2f( x, y + h );
-		qglEnd();
+        {
+            float coords[] = { x, y, x + w, y + h };
+            float texcoords[] = { 0, 0, 1, 1 };   
+            graphicsDriver.DrawImage( image, coords, texcoords, NULL );
+        }
 	}
 
 	graphicsDriver.Flush();

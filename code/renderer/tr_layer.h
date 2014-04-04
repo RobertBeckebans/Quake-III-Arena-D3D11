@@ -30,6 +30,7 @@ typedef struct graphicsApiLayer_s {
     void            (* SetMirroredRendering)( qboolean enabled, const float* flipMatrix, const float* plane );
     void            (* SetModelViewMatrix)( const float* modelViewMatrix );
     void            (* SetDepthRange)( float minRange, float maxRange );
+    void            (* SetDrawBuffer)( int buffer );
 } graphicsApiLayer_t;
 
 extern graphicsApiLayer_t      graphicsDriver;
