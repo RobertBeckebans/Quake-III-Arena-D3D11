@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // tr_init.c -- functions that are not called every frame
 
 #include "tr_local.h"
+#include "tr_layer.h"
 
 // @pjb proxy driver declarations
 #include "proxy_main.h"
@@ -31,7 +32,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 vdconfig_t	vdConfig;
 
-graphicsLayer_t vdLayer = { 0 };
+graphicsApiLayer_t vdLayer = { 0 };
 
 cvar_t	*r_flareSize;
 cvar_t	*r_flareFade;
@@ -228,9 +229,9 @@ void ValidateDriverLayerMemory( size_t* memory, size_t size )
 /*
     @pjb: Expose the validation API to other areas of the game
 */
-void R_ValidateGraphicsLayer( graphicsLayer_t* layer )
+void R_ValidateGraphicsLayer( graphicsApiLayer_t* layer )
 {
-    ValidateDriverLayerMemory( (size_t*) layer, sizeof( graphicsLayer_t ) );
+    ValidateDriverLayerMemory( (size_t*) layer, sizeof( graphicsApiLayer_t ) );
 }
 
 /*

@@ -7,15 +7,18 @@
 typedef struct image_s image_t;
 
 
-void	GL_Bind( const image_t *image );
-void	GL_SetDefaultState (void);
-void	GL_SelectTexture( int unit );
-void	GL_TextureMode( const char *string );
-void	GL_CheckErrors( void );
-void	GL_State( unsigned long stateVector );
-void	GL_TexEnv( int env );
-void	GL_Cull( int cullType );
-void    GL_Clear( float r, float g, float b, float a );
+void GL_Bind( const image_t *image );
+void GL_SetDefaultState (void);
+void GL_SelectTexture( int unit );
+void GL_TextureMode( const char *string );
+void GL_CheckErrors( void );
+void GL_State( unsigned long stateVector );
+void GL_TexEnv( int env );
+void GL_Cull( int cullType );
+void GL_Clear( float r, float g, float b, float a );
+void GL_SetProjection( const float* projMatrix );
+void GL_SetViewport( int left, int top, int width, int height );
+void GL_Finish( void );
 
 #define GLS_SRCBLEND_ZERO						0x00000001
 #define GLS_SRCBLEND_ONE						0x00000002
@@ -87,7 +90,7 @@ RENDER BACKEND
 ====================================================================
 */
 
-void GLRB_DriverInit( graphicsLayer_t* layer );
+void GLRB_DriverInit( graphicsApiLayer_t* layer );
 void GLRB_RestoreTextureState( void );
 void GLRB_SetGamma( unsigned char red[256], unsigned char green[256], unsigned char blue[256] );
 void GLRB_GfxInfo_f( void );

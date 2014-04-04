@@ -420,6 +420,9 @@
     <ClInclude Include="gl_image.h">
       <Filter>OpenGL Implementation</Filter>
     </ClInclude>
+    <ClInclude Include="tr_layer.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\ft2\ahangles.h">

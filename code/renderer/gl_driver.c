@@ -1,4 +1,5 @@
 #include "tr_local.h"
+#include "tr_layer.h"
 #include "qgl.h"
 #include "gl_common.h"
 #include "gl_image.h"
@@ -204,7 +205,7 @@ Returns the opengl graphics driver and sets up global state
 
 @@@@@@@@@@@@@@@@@@@@@
 */
-void GLRB_DriverInit( graphicsLayer_t* layer )
+void GLRB_DriverInit( graphicsApiLayer_t* layer )
 {
     layer->CreateImage = GL_CreateImage;
     layer->DeleteImage = GL_DeleteImage;
@@ -213,6 +214,9 @@ void GLRB_DriverInit( graphicsLayer_t* layer )
     layer->GetFrameImageMemoryUsage = GL_SumOfUsedImages;
     layer->GraphicsInfo = GLRB_GfxInfo_f;
     layer->Clear = GL_Clear;
+    layer->SetProjection = GL_SetProjection;
+    layer->SetViewport = GL_SetViewport;
+    layer->Flush = GL_Finish;
 
     InitOpenGL();
 

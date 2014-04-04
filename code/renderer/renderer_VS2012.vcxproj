@@ -825,6 +825,7 @@
     <ClInclude Include="proxy_main.h" />
     <ClInclude Include="qgl.h" />
     <ClInclude Include="..\game\surfaceflags.h" />
+    <ClInclude Include="tr_layer.h" />
     <ClInclude Include="tr_local.h" />
     <ClInclude Include="tr_public.h" />
     <ClInclude Include="..\cgame\tr_types.h" />

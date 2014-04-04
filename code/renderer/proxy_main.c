@@ -1,4 +1,5 @@
 #include "tr_local.h"
+#include "tr_layer.h"
 #include "proxy_main.h"
 
 // D3D headers
@@ -11,7 +12,7 @@
 // @pjb: this is just here to deliberately fuck the build if driver is used in here
 #define driver #driver_disallowed
 
-static graphicsLayer_t openglDriver;
+static graphicsApiLayer_t openglDriver;
 
 
 
@@ -60,7 +61,7 @@ void PROXY_Clear( float r, float g, float b, float a )
     // @pjb: todo
 }
 
-void PROXY_DriverInit( graphicsLayer_t* layer )
+void PROXY_DriverInit( graphicsApiLayer_t* layer )
 {
     layer->CreateImage = PROXY_CreateImage;
     layer->DeleteImage = PROXY_DeleteImage;

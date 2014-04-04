@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "tr_local.h"
 #include "gl_common.h"
-
+#include "tr_layer.h"
 
 backEndData_t	*backEndData[SMP_FRAMES];
 backEndState_t	backEnd;
@@ -59,14 +59,12 @@ static void RB_Hyperspace( void ) {
 
 
 static void SetViewportAndScissor( void ) {
-	qglMatrixMode(GL_PROJECTION);
-	qglLoadMatrixf( backEnd.viewParms.projectionMatrix );
-	qglMatrixMode(GL_MODELVIEW);
+
+	vdLayer.SetProjection( backEnd.viewParms.projectionMatrix );
 
 	// set the window clipping
-	qglViewport( backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, 
-		backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight );
-	qglScissor( backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, 
+	vdLayer.SetViewport( 
+        backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, 
 		backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight );
 }
 
@@ -83,7 +81,7 @@ void RB_BeginDrawingView (void) {
 
 	// sync with gl if needed
 	if ( r_finish->integer == 1 && !glState.finishCalled ) {
-		qglFinish ();
+		vdLayer.Flush();
 		glState.finishCalled = qtrue;
 	}
 	if ( r_finish->integer == 0 ) {
@@ -378,7 +376,7 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 	R_SyncRenderThread();
 
 	// we definately want to sync every frame for the cinematics
-	qglFinish();
+	vdLayer.Flush();
 
 	start = end = 0;
 	if ( r_speeds->integer ) {
@@ -621,7 +619,7 @@ void RB_ShowImages( void ) {
 
 	qglClear( GL_COLOR_BUFFER_BIT );
 
-	qglFinish();
+	vdLayer.Flush();
 
 	start = ri.Milliseconds();
 
@@ -653,7 +651,7 @@ void RB_ShowImages( void ) {
 		qglEnd();
 	}
 
-	qglFinish();
+	vdLayer.Flush();
 
 	end = ri.Milliseconds();
 	ri.Printf( PRINT_ALL, "%i msec to draw all images\n", end - start );
@@ -702,7 +700,7 @@ const void	*RB_SwapBuffers( const void *data ) {
 
 
 	if ( !glState.finishCalled ) {
-		qglFinish();
+		vdLayer.Flush();
 	}
 
 	GLimp_LogComment( "***************** RB_SwapBuffers *****************\n\n\n" );

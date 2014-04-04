@@ -26,6 +26,25 @@ void GL_Clear( float r, float g, float b, float a )
 	qglClear( GL_COLOR_BUFFER_BIT );
 }
 
+void GL_SetProjection( const float* projMatrix )
+{
+	qglMatrixMode(GL_PROJECTION);
+	qglLoadMatrixf( projMatrix );
+	qglMatrixMode(GL_MODELVIEW);
+}
+
+void GL_SetViewport( int left, int top, int width, int height )
+{
+    qglViewport( left, top, width, height );
+    qglScissor( left, top, width, height );
+}
+
+void GL_Finish( void )
+{
+    qglFinish();
+}
+
+
 /*
 ===============
 GL_TextureMode

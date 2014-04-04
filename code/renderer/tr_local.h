@@ -868,18 +868,6 @@ typedef struct {
 	trRefEntity_t	entity2D;	// currentEntity will point at this when doing 2D rendering
 } backEndState_t;
 
-// @pjb: whichever graphics driver the user chooses, it'll have pointers to its
-// specific utilities
-typedef struct {
-    void            (* CreateImage)( const image_t* image, const byte *pic, qboolean isLightmap );
-    void            (* DeleteImage)( const image_t* image );
-    imageFormat_t   (* GetImageFormat)( const image_t* image );
-    void            (* SetGamma)( unsigned char red[256], unsigned char green[256], unsigned char blue[256] );
-    int             (* GetFrameImageMemoryUsage)( void );
-    void            (* GraphicsInfo)( void );
-    void            (* Clear)( float r, float g, float b, float a );
-} graphicsLayer_t;
-
 /*
 ** trGlobals_t 
 **
@@ -979,7 +967,6 @@ typedef struct {
 extern backEndState_t	    backEnd;
 extern trGlobals_t	        tr;
 extern vdconfig_t	        vdConfig;		// outside of TR since it shouldn't be cleared during ref re-init
-extern graphicsLayer_t      vdLayer;        // @pjb: which driver are we using?
 
 //
 // cvars
@@ -1103,8 +1090,8 @@ extern	cvar_t	*r_saveFontData;
 
 //====================================================================
 
-// @pjb: proxy uses this to validate the proxied drivers
-void R_ValidateGraphicsLayer( graphicsLayer_t* layer );
+// @pjb: forward declare this but don't use
+typedef struct graphicsApiLayer_s graphicsApiLayer_t;
 
 float R_NoiseGet4f( float x, float y, float z, float t );
 void  R_NoiseInit( void );
