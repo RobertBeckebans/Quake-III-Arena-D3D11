@@ -560,9 +560,11 @@ static void ComputeTexCoords( shaderCommands_t* input, int stage, shaderStage_t 
 */
 void RB_StageIteratorGeneric( void )
 {
+    int stage;
+
 	RB_DeformTessGeometry();
 
-	for ( int stage = 0; stage < MAX_SHADER_STAGES; stage++ )
+	for ( stage = 0; stage < MAX_SHADER_STAGES; stage++ )
 	{
 		shaderStage_t *pStage = tess.xstages[stage];
 
