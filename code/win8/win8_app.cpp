@@ -30,7 +30,9 @@ Quake3Win8App::Quake3Win8App() :
 
 void Quake3Win8App::HandleException( Platform::Exception^ ex )
 {
-    m_exception = ex;
+    if ( ex->HResult != S_OK )
+        m_exception = ex;
+
     m_appQuitting = true;
 }
 
