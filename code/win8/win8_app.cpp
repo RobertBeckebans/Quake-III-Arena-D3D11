@@ -357,8 +357,6 @@ void Quake3Win8App::Run()
 			CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
 			
             HandleMessagesFromGame();
-
-		    // @pjb: todo: Notify the game that there's a new frame
 		}
 		else
 		{
