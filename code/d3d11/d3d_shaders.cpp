@@ -10,6 +10,7 @@ cvar_t* d3d_compileStrict = nullptr;
 cvar_t* d3d_compileOptLevel = nullptr;
 cvar_t* d3d_compileSkipValidation = nullptr;
 cvar_t* d3d_compileWarningsAsErrors = nullptr;
+cvar_t* d3d_compileMatrixMajor = nullptr;
 cvar_t* d3d_vsTarget = nullptr;
 cvar_t* d3d_psTarget = nullptr;
 
@@ -69,6 +70,12 @@ ID3DBlob* CompileShader( const char* filename, const char* target )
 
     if ( d3d_compileStrict->integer ) {
         flags |= D3DCOMPILE_IEEE_STRICTNESS | D3DCOMPILE_ENABLE_STRICTNESS;
+    }
+
+    if ( d3d_compileMatrixMajor->integer == 1 ) {
+        flags |= D3DCOMPILE_PACK_MATRIX_COLUMN_MAJOR;
+    } else if ( d3d_compileMatrixMajor->integer == 2 ) {
+        flags |= D3DCOMPILE_PACK_MATRIX_ROW_MAJOR;
     }
 
     switch ( d3d_compileOptLevel->integer )
@@ -172,6 +179,7 @@ void InitShaders()
     d3d_compileStrict = Cvar_Get( "d3d_compileStrict", "0", CVAR_ARCHIVE | CVAR_LATCH );
     d3d_compileOptLevel = Cvar_Get( "d3d_compileOptLevel", "3", CVAR_ARCHIVE | CVAR_LATCH );
     d3d_compileSkipValidation = Cvar_Get( "d3d_compileSkipValidation", "0", CVAR_ARCHIVE | CVAR_LATCH );
+    d3d_compileMatrixMajor = Cvar_Get( "d3d_compileMatrixMajor", "0", CVAR_ARCHIVE | CVAR_LATCH );
     d3d_vsTarget = Cvar_Get( "d3d_vsTarget", "vs_5_0", CVAR_ARCHIVE | CVAR_LATCH );
     d3d_psTarget = Cvar_Get( "d3d_psTarget", "ps_5_0", CVAR_ARCHIVE | CVAR_LATCH );
 }
