@@ -2003,7 +2003,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <AppxManifest Include="win8\Package.appxmanifest">
+    <AppxManifest Include="win8\Package_VS2013.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
   </ItemGroup>
