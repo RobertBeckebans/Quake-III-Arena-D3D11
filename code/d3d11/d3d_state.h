@@ -108,7 +108,7 @@ struct d3dRasterStates_t
 // @pjb: stores common depth states
 struct d3dDepthStates_t
 {
-    ID3D11DepthStencilState* none;
+    ID3D11DepthStencilState* states[8];
 };
 
 // @pjb: stores common blend states
@@ -135,6 +135,8 @@ struct d3dDrawState_t
 struct d3dRunState_t {
     d3dViewConstantBuffer_t constants;
     unsigned long stateMask; // combination of GLS_* flags
+    int cullMode; // CT_ flag
+    unsigned long depthStateMask;
     qboolean dirtyConstants;
 };
 
@@ -167,7 +169,16 @@ void DrawQuad(
     const float* texcoords, 
     const float* color );
 
-void SetCullMode( int cullMode );
+void SetCullMode( int cullMode ); // CT_ flags
+
+enum 
+{
+    DEPTHSTATE_FLAG_TEST = 1,
+    DEPTHSTATE_FLAG_MASK = 2,
+    DEPTHSTATE_FLAG_EQUAL = 4 // as opposed to the default, LEq.
+};
+
+ID3D11DepthStencilState* GetDepthState( unsigned long mask ); // DEPTHSTATE_FLAG_ enum
 
 //----------------------------------------------------------------------------
 // Driver entry points

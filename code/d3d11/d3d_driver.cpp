@@ -134,11 +134,6 @@ void D3DDrv_Flush( void )
     g_pImmediateContext->Flush();
 }
 
-void D3DDrv_SetState( unsigned long stateMask )
-{
-    g_RunState.stateMask = stateMask;
-}
-
 void D3DDrv_ResetState2D( void )
 {
     D3DDrv_SetModelView( s_identityMatrix );

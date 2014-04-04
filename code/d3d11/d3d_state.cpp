@@ -67,6 +67,12 @@ void SetCullMode( int cullType )
 {
     int maskBits = ( backEnd.viewParms.isMirror << 3 ) | cullType;
 
+	if ( g_RunState.cullMode == maskBits ) {
+		return;
+	}
+
+	g_RunState.cullMode = maskBits;
+
 	if ( cullType == CT_TWO_SIDED ) 
 	{
         g_pImmediateContext->RSSetState( g_DrawState.rasterStates.cullNone );
@@ -99,6 +105,55 @@ void SetCullMode( int cullType )
 }
 
 //----------------------------------------------------------------------------
+// Set the culling mode depending on whether it's a mirror or not
+//----------------------------------------------------------------------------
+void D3DDrv_SetState( unsigned long stateBits )
+{
+	unsigned long diff = stateBits ^ g_RunState.stateMask;
+
+	if ( !diff )
+	{
+		return;
+	}
+
+    //float blendFactor[4] = {0, 0, 0, 0};
+    //g_pImmediateContext->OMSetDepthStencilState( g_DrawState.depthStates.none, 0 );
+    //g_pImmediateContext->RSSetState( g_DrawState.rasterStates.cullNone );
+    //g_pImmediateContext->OMSetBlendState( g_DrawState.blendStates.opaque, blendFactor, ~0U );
+
+    unsigned long newDepthStateMask = 0;
+	if ( stateBits & GLS_DEPTHFUNC_EQUAL )
+	{
+        newDepthStateMask |= DEPTHSTATE_FLAG_EQUAL;
+    }
+    if ( stateBits & GLS_DEPTHMASK_TRUE )
+    {
+        newDepthStateMask |= DEPTHSTATE_FLAG_MASK;
+    }
+    if ( !( stateBits & GLS_DEPTHTEST_DISABLE ) )
+    {
+        newDepthStateMask |= DEPTHSTATE_FLAG_TEST;
+    }
+
+    if ( newDepthStateMask != g_RunState.depthStateMask )
+    {
+        g_pImmediateContext->OMSetDepthStencilState( GetDepthState( newDepthStateMask ), 0 );
+        g_RunState.depthStateMask = newDepthStateMask;
+    }
+
+    g_RunState.stateMask = stateBits;
+}
+
+//----------------------------------------------------------------------------
+// Get the depth stencil state based on a mask
+//----------------------------------------------------------------------------
+ID3D11DepthStencilState* GetDepthState( unsigned long mask )
+{
+    ASSERT( mask < 8 );
+    return g_DrawState.depthStates.states[mask];
+}
+
+//----------------------------------------------------------------------------
 //
 // ENTRY POINTS
 //
@@ -115,8 +170,9 @@ void InitDrawState()
     Com_Memcpy( g_RunState.constants.projectionMatrix, s_identityMatrix, sizeof(float) * 16 );
     g_RunState.constants.depthRange[0] = 0;
     g_RunState.constants.depthRange[1] = 1;
-    g_RunState.stateMask = GLS_DEFAULT;
+    g_RunState.stateMask = 0;
     g_RunState.dirtyConstants = qtrue;
+    g_RunState.cullMode = -1;
     
     // Create D3D objects
     DestroyBuffers();
@@ -133,12 +189,9 @@ void InitDrawState()
     InitBlendStates( &g_DrawState.blendStates );
 
     // Set up some default state
-    float blendFactor[4] = {0, 0, 0, 0};
-    g_pImmediateContext->OMSetDepthStencilState( g_DrawState.depthStates.none, 0 );
-    g_pImmediateContext->RSSetState( g_DrawState.rasterStates.cullNone );
-    g_pImmediateContext->OMSetBlendState( g_DrawState.blendStates.opaque, blendFactor, ~0U );
     g_pImmediateContext->OMSetRenderTargets( 1, &g_BufferState.backBufferView, g_BufferState.depthBufferView );
     D3DDrv_SetViewport( 0, 0, g_BufferState.backBufferDesc.Width, g_BufferState.backBufferDesc.Height );
+    D3DDrv_SetState( GLS_DEFAULT );
 
     // Clear the targets
     FLOAT clearCol[4] = { 0, 0, 0, 0 };

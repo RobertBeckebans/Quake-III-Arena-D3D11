@@ -175,23 +175,49 @@ void DestroyRasterStates( d3dRasterStates_t* rs )
     Com_Memset( rs, 0, sizeof( d3dRasterStates_t ) );
 }
 
+static ID3D11DepthStencilState* CreateDepthStencilStateFromMask( unsigned long mask )
+{
+    ID3D11DepthStencilState* state = nullptr;
+
+    D3D11_DEPTH_STENCIL_DESC dsd;
+    ZeroMemory( &dsd, sizeof( dsd ) );
+
+    if ( mask & DEPTHSTATE_FLAG_TEST ) {
+        dsd.DepthEnable = TRUE;
+    }
+    if ( mask & DEPTHSTATE_FLAG_MASK ) {
+        dsd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+    }
+    if ( mask & DEPTHSTATE_FLAG_EQUAL ) {
+        dsd.DepthFunc = D3D11_COMPARISON_EQUAL;
+    } else {
+        dsd.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+    }
+
+    g_pDevice->CreateDepthStencilState( &dsd, &state );
+    if ( !state ) {
+        ri.Error( ERR_FATAL, "Failed to create DepthStencilState of mask %x\n", mask );
+    }
+
+    return state;
+}
+
 void InitDepthStates( d3dDepthStates_t* ds )
 {
     Com_Memset( ds, 0, sizeof( d3dDepthStates_t ) );
 
-    // 
-    // No depth write or test
-    //
-    D3D11_DEPTH_STENCIL_DESC dsd;
-    ZeroMemory( &dsd, sizeof( dsd ) );
-    dsd.DepthEnable = FALSE;
-    dsd.StencilEnable = FALSE;
-    g_pDevice->CreateDepthStencilState( &dsd, &ds->none );
+    for ( int i = 0; i < _countof( ds->states ); ++i )
+    {
+        ds->states[i] = CreateDepthStencilStateFromMask( i );
+    }
 }
 
 void DestroyDepthStates( d3dDepthStates_t* ds )
 {
-    SAFE_RELEASE( ds->none );
+    for ( int i = 0; i < _countof( ds->states ); ++i )
+    {
+        SAFE_RELEASE( ds->states[i] );
+    }
 
     Com_Memset( ds, 0, sizeof( d3dDepthStates_t ) );
 }
