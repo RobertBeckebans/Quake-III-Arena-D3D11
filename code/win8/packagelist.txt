@@ -1,0 +1,4 @@
+..\..\baseq3\autoexec.cfg           -> baseq3
+..\..\baseq3\*.pk3                  -> baseq3
+%OUTDIR%\*.dll                      -> 
+%OUTDIR%\*.cso                      -> baseq3\hlsl

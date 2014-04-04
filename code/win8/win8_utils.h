@@ -14,7 +14,7 @@ namespace Win8
     Windows::Foundation::IAsyncOperation<Windows::UI::Popups::IUICommand^>^ DisplayException( Platform::Exception^ ex );
     void SetCommandLine( Platform::Array<Platform::String^>^ args );
     void PostQuitMessage();
-
+   
     template<class Type> IUnknown* GetPointer( Type^ obj )
     {
         Platform::Agile<Type> agile( obj );
