@@ -123,6 +123,10 @@ cvar_t  *in_gamepad;
 cvar_t  *in_gamepadCheckDelay;
 cvar_t  *in_gamepadLDeadZone;
 cvar_t  *in_gamepadRDeadZone;
+cvar_t  *in_gamepadXLookSensitivity;
+cvar_t  *in_gamepadYLookSensitivity;
+cvar_t  *in_gamepadInvertX;
+cvar_t  *in_gamepadInvertY;
 // @pjb: /gamepad stuff
 
 
@@ -765,6 +769,10 @@ void IN_Init( void ) {
     in_gamepadCheckDelay    = Cvar_Get ("in_gamepadCheckDelay",     "200",      CVAR_ARCHIVE);
     in_gamepadLDeadZone     = Cvar_Get ("in_gamepadLDeadZone",      "7849",     CVAR_ARCHIVE);
     in_gamepadRDeadZone     = Cvar_Get ("in_gamepadRDeadZone",      "8689",     CVAR_ARCHIVE);
+    in_gamepadXLookSensitivity = Cvar_Get ("in_gamepadXLookSensitivity",      "0.02",     CVAR_ARCHIVE);
+    in_gamepadYLookSensitivity = Cvar_Get ("in_gamepadYLookSensitivity",      "0.02",     CVAR_ARCHIVE);
+    in_gamepadInvertX       = Cvar_Get ("in_gamepadInvertX",        "0",     CVAR_ARCHIVE);
+    in_gamepadInvertY       = Cvar_Get ("in_gamepadInvertY",        "0",     CVAR_ARCHIVE);
 
 	IN_Startup();
 }
@@ -987,9 +995,9 @@ static const gamepadButtonMapping_t gamepadButtonMappings[] = {
 
 void IN_ApplyGamepad( const gamepadInfo_t* gamepad )
 {
-    // HACK: need to map these in a context sensitive way. 
-    // e.g. A = enter on menus, A = jump in game
-
+    //
+    // Handle buttons
+    //
     const int buttonBase = K_GAMEPAD_DPAD_UP;
     for ( int i = 0; i < _countof(gamepadButtonMappings); ++i )
     {
@@ -1001,6 +1009,9 @@ void IN_ApplyGamepad( const gamepadInfo_t* gamepad )
             Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, button->quake, qfalse, 0, NULL );
     }
     
+    //
+    // Handle triggers
+    //
     if ( gamepad->pressedRightTrigger )
         Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_GAMEPAD_RTRIGGER, qtrue, 0, NULL );
     else if ( gamepad->releasedRightTrigger )
@@ -1010,6 +1021,37 @@ void IN_ApplyGamepad( const gamepadInfo_t* gamepad )
         Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_GAMEPAD_LTRIGGER, qtrue, 0, NULL );
     else if ( gamepad->releasedLeftTrigger )
         Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_GAMEPAD_LTRIGGER, qfalse, 0, NULL );
+
+    //
+    // Handle left stick as keys
+    //
+    int ldeadzone = in_gamepadLDeadZone->integer;
+
+
+    //
+    // Handle right stick as a mouse
+    //
+    int rdeadzone = in_gamepadRDeadZone->integer;
+
+    if ( abs( gamepad->state.sThumbRX ) > rdeadzone || 
+         abs( gamepad->state.sThumbRY ) > rdeadzone ) 
+    {
+        int invertlookx = in_gamepadInvertX->integer ? -1 : 1;
+        int invertlooky = in_gamepadInvertY->integer ? 1 : -1;
+
+        float sensitivityX = in_gamepadXLookSensitivity->value;
+        float sensitivityY = in_gamepadYLookSensitivity->value;
+
+        int x = (gamepad->state.sThumbRX - rdeadzone) * invertlookx * sensitivityX;
+        int y = (gamepad->state.sThumbRY - rdeadzone) * invertlooky * sensitivityY;
+
+        Sys_QueEvent( g_wv.sysMsgTime, SE_MOUSE, x, y, 0, NULL );
+    }
+
+    //
+    // Also emit UI-specific events for thumbsticks
+    //
+    // TODO
 }
 
 void IN_GamepadMove(void)
