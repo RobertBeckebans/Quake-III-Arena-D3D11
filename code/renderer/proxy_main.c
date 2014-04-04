@@ -76,5 +76,7 @@ graphicsDriver_t* PROXY_DriverInit( void )
     Q_strncpyz( vdConfig.vendor_string, "@pjb", sizeof( vdConfig.vendor_string ) );
     Q_strncpyz( vdConfig.version_string, "1.0", sizeof( vdConfig.version_string ) );
     
+    // todo: arbitrate conflicting vdConfig settings
+
     return &proxyDriver;
 }
