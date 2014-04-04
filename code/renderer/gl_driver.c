@@ -214,6 +214,16 @@ void GLRB_ReadPixels( int x, int y, int width, int height, imageFormat_t request
     qglReadPixels( x, y, width, height, glFmt, GL_UNSIGNED_BYTE, dest );
 }
 
+void GLRB_ReadDepth( int x, int y, int width, int height, float* dest )
+{
+	qglReadPixels( x, y, width, height, GL_DEPTH_COMPONENT, GL_FLOAT, dest );
+}
+
+void GLRB_ReadStencil( int x, int y, int width, int height, byte* dest )
+{
+	qglReadPixels( x, y, width, height, GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, dest );
+}
+
 void GLRB_Shutdown( void )
 {
     GLimp_Shutdown();
@@ -315,6 +325,8 @@ void GLRB_DriverInit( graphicsApiLayer_t* layer )
     layer->UnbindResources = GLRB_RestoreTextureState;
     layer->LastError = GLRB_LastError;
     layer->ReadPixels = GLRB_ReadPixels;
+    layer->ReadDepth = GLRB_ReadDepth;
+    layer->ReadStencil = GLRB_ReadStencil;
     layer->CreateImage = GL_CreateImage;
     layer->DeleteImage = GL_DeleteImage;
     layer->UpdateCinematic = GL_UpdateCinematic;
@@ -334,6 +346,8 @@ void GLRB_DriverInit( graphicsApiLayer_t* layer )
     layer->SetModelViewMatrix = GL_SetModelViewMatrix;
     layer->SetDepthRange = GL_SetDepthRange;
     layer->SetDrawBuffer = GLRB_SetDrawBuffer;
+    layer->EndFrame = GLimp_EndFrame;
+    layer->Sleep = GLimp_RendererSleep;
 
     InitOpenGL();
 

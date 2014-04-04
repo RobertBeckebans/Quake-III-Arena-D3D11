@@ -20,7 +20,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 #include "tr_local.h"
-#include "gl_common.h"
 #include "tr_layer.h"
 
 backEndData_t	*backEndData[SMP_FRAMES];
@@ -682,7 +681,7 @@ const void	*RB_SwapBuffers( const void *data ) {
 		unsigned char *stencilReadback;
 
 		stencilReadback = ri.Hunk_AllocateTempMemory( vdConfig.vidWidth * vdConfig.vidHeight );
-		qglReadPixels( 0, 0, vdConfig.vidWidth, vdConfig.vidHeight, GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback );
+        graphicsDriver.ReadStencil( 0, 0, vdConfig.vidWidth, vdConfig.vidHeight, stencilReadback );
 
 		for ( i = 0; i < vdConfig.vidWidth * vdConfig.vidHeight; i++ ) {
 			sum += stencilReadback[i];
@@ -699,7 +698,7 @@ const void	*RB_SwapBuffers( const void *data ) {
 
 	GLimp_LogComment( "***************** RB_SwapBuffers *****************\n\n\n" );
 
-	GLimp_EndFrame();
+    graphicsDriver.EndFrame();
 
 	backEnd.projection2D = qfalse;
 
@@ -868,7 +867,8 @@ void RB_RenderThread( void ) {
 	// wait for either a rendering command or a quit command
 	while ( 1 ) {
 		// sleep until we have work to do
-		data = GLimp_RendererSleep();
+        // @pjb: todo, may have to refactor this
+		data = graphicsDriver.Sleep();
 
 		if ( !data ) {
 			return;	// all done, renderer is shutting down

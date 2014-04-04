@@ -22,8 +22,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // tr_flares.c
 
 #include "tr_local.h"
+#include "tr_layer.h"
 
-#include "gl_common.h" // @pjb: todo: remove
+#include "gl_common.h" // @pjb: remove!
 
 /*
 =============================================================================
@@ -255,7 +256,7 @@ void RB_TestFlare( flare_t *f ) {
 	backEnd.finishCalled = qfalse;
 
 	// read back the z buffer contents
-	qglReadPixels( f->windowX, f->windowY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth );
+    graphicsDriver.ReadDepth( f->windowX, f->windowY, 1, 1, &depth );
 
 	screenZ = backEnd.viewParms.projectionMatrix[14] / 
 		( ( 2*depth - 1 ) * backEnd.viewParms.projectionMatrix[11] - backEnd.viewParms.projectionMatrix[10] );

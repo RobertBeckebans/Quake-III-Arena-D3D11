@@ -12,6 +12,8 @@ typedef struct graphicsApiLayer_s {
     void            (* UnbindResources)( void );
     size_t          (* LastError)( void );
     void            (* ReadPixels)( int x, int y, int width, int height, imageFormat_t requestedFmt, void* dest );
+    void            (* ReadDepth)( int x, int y, int width, int height, float* dest );
+    void            (* ReadStencil)( int x, int y, int width, int height, byte* dest );
     void            (* CreateImage)( const image_t* image, const byte *pic, qboolean isLightmap );
     void            (* DeleteImage)( const image_t* image );
     void            (* UpdateCinematic)( image_t* image, const byte* pic, int cols, int rows, qboolean dirty );
@@ -31,6 +33,8 @@ typedef struct graphicsApiLayer_s {
     void            (* SetModelViewMatrix)( const float* modelViewMatrix );
     void            (* SetDepthRange)( float minRange, float maxRange );
     void            (* SetDrawBuffer)( int buffer );
+    void            (* EndFrame)( void );
+    void*           (* Sleep)( void );
 } graphicsApiLayer_t;
 
 extern graphicsApiLayer_t      graphicsDriver;
