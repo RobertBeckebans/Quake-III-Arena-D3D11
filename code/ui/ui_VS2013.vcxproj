@@ -209,6 +209,7 @@
       <GenerateMapFile>true</GenerateMapFile>
       <BaseAddress>0x40000000</BaseAddress>
       <TargetMachine>MachineX86</TargetMachine>
+      <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
     </Link>
     <Midl>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -243,6 +244,7 @@
       <GenerateMapFile>true</GenerateMapFile>
       <BaseAddress>0x40000000</BaseAddress>
       <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
+      <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
     </Link>
     <Midl>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -276,6 +278,7 @@
       <GenerateMapFile>true</GenerateMapFile>
       <BaseAddress>0x40000000</BaseAddress>
       <TargetMachine>MachineX86</TargetMachine>
+      <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
     </Link>
     <Midl>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -310,6 +313,7 @@
       <GenerateMapFile>true</GenerateMapFile>
       <BaseAddress>0x40000000</BaseAddress>
       <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
+      <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
     </Link>
     <Midl>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -343,6 +347,7 @@
       <GenerateMapFile>true</GenerateMapFile>
       <BaseAddress>0x40000000</BaseAddress>
       <TargetMachine>MachineX86</TargetMachine>
+      <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
     </Link>
     <Midl>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -377,6 +382,7 @@
       <GenerateMapFile>true</GenerateMapFile>
       <BaseAddress>0x40000000</BaseAddress>
       <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
+      <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
     </Link>
     <Midl>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -409,6 +415,7 @@
       <GenerateMapFile>true</GenerateMapFile>
       <BaseAddress>0x40000000</BaseAddress>
       <TargetMachine>MachineX86</TargetMachine>
+      <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
     </Link>
     <Midl>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -442,6 +449,7 @@
       <GenerateMapFile>true</GenerateMapFile>
       <BaseAddress>0x40000000</BaseAddress>
       <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
+      <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
     </Link>
     <Midl>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -476,6 +484,7 @@
       <GenerateMapFile>true</GenerateMapFile>
       <BaseAddress>0x40000000</BaseAddress>
       <TargetMachine>MachineX86</TargetMachine>
+      <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
     </Link>
     <Midl>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -511,6 +520,7 @@
       <GenerateMapFile>true</GenerateMapFile>
       <BaseAddress>0x40000000</BaseAddress>
       <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
+      <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
     </Link>
     <Midl>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
