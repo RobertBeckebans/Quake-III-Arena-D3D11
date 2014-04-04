@@ -242,10 +242,8 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
             // @pjb: release the mouse so we can debug
             extern void IN_DeactivateMouse(void);
             IN_DeactivateMouse();
-#if !defined(WIN8)
             // @pjb: canonical way of breaking
 			DebugBreak();
-#endif
 		}
 	}
 #endif
