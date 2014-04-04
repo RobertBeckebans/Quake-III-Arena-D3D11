@@ -276,7 +276,7 @@ void SetupVideoConfig()
 	DEVMODE dm;
     memset( &dm, 0, sizeof( dm ) );
 	dm.dmSize = sizeof( dm );
-	if ( EnumDisplaySettings( NULL, ENUM_CURRENT_SETTINGS, &dm ) )
+	if ( EnumDisplaySettingsEx( NULL, ENUM_CURRENT_SETTINGS, &dm, 0 ) )
 	{
 		vdConfig.displayFrequency = dm.dmDisplayFrequency;
 	}
