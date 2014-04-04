@@ -123,9 +123,10 @@ void D3DDrv_SetViewport( int left, int top, int width, int height )
     viewport.TopLeftY = top;
     viewport.Width = width;
     viewport.Height = height;
-    viewport.MinDepth = 0;
-    viewport.MaxDepth = 0;
+    viewport.MinDepth = -1;
+    viewport.MaxDepth = 1;
     g_pImmediateContext->RSSetViewports( 1, &viewport );
+    g_pImmediateContext->RSSetScissorRects( 0, NULL );
 }
 
 void D3DDrv_Flush( void )

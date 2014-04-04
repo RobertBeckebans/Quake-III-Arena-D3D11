@@ -33,7 +33,7 @@ ID3DBlob* CompileShader( const char* filename, const char* target )
     if ( d3d_compileDebug->integer ) {
         macros[0].Name = "DEBUG";
         macros[0].Definition = "1";
-        flags |= D3DCOMPILE_DEBUG;
+        flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
     }
 
     if ( d3d_compileAvoidFlowControl->integer ) {

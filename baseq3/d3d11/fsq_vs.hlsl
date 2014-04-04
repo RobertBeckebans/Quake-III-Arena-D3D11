@@ -22,8 +22,8 @@ VS_PS_Data Main(VS_Data input)
 	VS_PS_Data output;
 
 	float4 viewPos = mul(View, float4(input.Position, 0, 1));
-
-	output.Position = mul(Projection, viewPos);
+    float4 sPos = mul(Projection, viewPos);
+	output.Position = float4(sPos.xy, 0, 1);
 	output.TexCoord = input.TexCoord;
 
 	return output;
