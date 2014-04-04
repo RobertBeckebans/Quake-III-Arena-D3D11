@@ -25,14 +25,16 @@ done
 
 
 # upgrade the solution file
-sln=quake3_VS2012.sln
-newsln=$(echo $sln | sed -e "s/VS2012/VS2013/g")
-echo Upgrading $sln ... $newsln
+for sln in $(find . -name '*VS2012.sln'); do
+	newsln=$(echo $sln | sed -e "s/VS2012/VS2013/g")
+	echo Upgrading $sln ... $newsln
 
-cp -f $sln $newsln
+	cp -f $sln $newsln
 
-# replace any mention of 2012 with 2013	
-sed -i -e "s/2012/2013/g" $newsln
+	# replace any mention of 2012 with 2013	
+	sed -i -e "s/2012/2013/g" $newsln
+done
+
 
 
 

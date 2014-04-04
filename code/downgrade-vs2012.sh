@@ -4,7 +4,7 @@ for proj in $(find . -name '*VS2013.vcxproj'); do
 
 # get the new filename
 	newproj=$(echo $proj | sed -e "s/VS2013/VS2012/g")
-	echo Upgrading $proj ... $newproj
+	echo Downgrading $proj ... $newproj
 
 # copy the contents
 	cp -f $proj $newproj
@@ -25,14 +25,16 @@ done
 
 
 # upgrade the solution file
-sln=quake3_VS2013.sln
-newsln=$(echo $sln | sed -e "s/VS2013/VS2012/g")
-echo Upgrading $sln ... $newsln
+for sln in $(find . -name '*VS2013.sln'); do
+	newsln=$(echo $sln | sed -e "s/VS2013/VS2012/g")
+	echo Downgrading $sln ... $newsln
 
-cp -f $sln $newsln
+	cp -f $sln $newsln
 
-# replace any mention of 2013 with 2012
-sed -i -e "s/2013/2012/g" $newsln
+	# replace any mention of 2013 with 2012
+	sed -i -e "s/2013/2012/g" $newsln
+done
+
 
 
 
