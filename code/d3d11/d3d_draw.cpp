@@ -278,7 +278,7 @@ static void DrawSkyBox(
     //
     // Draw
     //
-    UINT stride = sizeof(d3dSkyBoxVertex_t);
+    UINT stride = sizeof(float) * 5;
     UINT offset = 0;
     ID3D11Buffer* vsBuffers[] = {
         g_DrawState.viewRenderData.vsConstantBuffer,
@@ -291,35 +291,29 @@ static void DrawSkyBox(
     g_pImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
     g_pImmediateContext->IASetVertexBuffers( 0, 1, &sbrd->vertexBuffer, &stride, &offset );
     g_pImmediateContext->IASetInputLayout( sbrd->inputLayout );
-    g_pImmediateContext->IASetIndexBuffer( sbrd->indexBuffer, DXGI_FORMAT_R16_UINT, 0 );
     g_pImmediateContext->VSSetShader( sbrd->vertexShader, nullptr, 0 );
     g_pImmediateContext->VSSetConstantBuffers( 0, _countof( vsBuffers ), vsBuffers );
     g_pImmediateContext->PSSetShader( sbrd->pixelShader, nullptr, 0 );
     g_pImmediateContext->PSSetConstantBuffers( 0, _countof( psBuffers ), psBuffers );
 
-    cvar_t* sky_offset = Cvar_Get( "sky_offset", "0", CVAR_ARCHIVE );
-    cvar_t* sky_count = Cvar_Get( "sky_count", "6", CVAR_ARCHIVE );
-
-    for ( int u = 0; u < sky_count->integer; ++u ) // 6
+    for ( int i = 0; i < 6; ++i )
     {
-        int i = ( u + sky_offset->integer ) % 6;
-
         const skyboxSideDrawInfo_t* side = &skybox->sides[i];
         
-        //if ( !side->image )
-        //    continue;
+        if ( !side->image )
+            continue;
 
-        //const d3dImage_t* image = GetImageRenderInfo( side->image );
+        const d3dImage_t* image = GetImageRenderInfo( side->image );
 
-        const d3dImage_t* image = nullptr;
+        //const d3dImage_t* image = nullptr;
         //if ( side->image )
         //    image = GetImageRenderInfo( side->image );
         //else
-            image = GetImageRenderInfo( tr.whiteImage );
+        //    image = GetImageRenderInfo( tr.whiteImage );
 
         g_pImmediateContext->PSSetShaderResources( 0, 1, &image->pSRV );
         g_pImmediateContext->PSSetSamplers( 0, 1, &image->pSampler );
-        g_pImmediateContext->DrawIndexed( 6, i * 6, 0 );
+        g_pImmediateContext->Draw( 6, i * 6 );
     }
 }
 

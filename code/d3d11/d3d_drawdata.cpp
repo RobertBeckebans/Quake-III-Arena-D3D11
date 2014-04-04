@@ -87,23 +87,24 @@ void InitSkyBoxRenderData( d3dSkyBoxRenderData_t* rd )
     Com_Memset( rd, 0, sizeof( d3dSkyBoxRenderData_t ) );
 
     D3D11_INPUT_ELEMENT_DESC elements[] = { 
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
     };
 
     CreateVertexLayoutAndShader( "skybox_vs", elements, _countof(elements), &rd->vertexShader, &rd->inputLayout );
     rd->pixelShader = CompilePixelShader( "skybox_ps" );
 
-    static const d3dSkyBoxVertex_t vertices[] = 
+    /*
+    static const float vertices[] = 
     {
-        -1, -1, -1, 0, 0, 0,
-         1, -1, -1, 0, 0, 0,
-        -1,  1, -1, 0, 0, 0,
-         1,  1, -1, 0, 0, 0,
-        -1, -1,  1, 0, 0, 0,
-         1, -1,  1, 0, 0, 0,
-        -1,  1,  1, 0, 0, 0,
-         1,  1,  1, 0, 0, 0,
+        -1, -1, -1, // 0
+         1, -1, -1, // 1
+        -1,  1, -1, // 2
+         1,  1, -1, // 3
+        -1, -1,  1, // 4
+         1, -1,  1, // 5
+        -1,  1,  1, // 6
+         1,  1,  1, // 7
     };
 
     static const USHORT indices[] = 
@@ -115,21 +116,73 @@ void InitSkyBoxRenderData( d3dSkyBoxRenderData_t* rd )
         5, 4, 6, 5, 6, 7, // Up     
         0, 1, 3, 0, 3, 2, // Down
     };
+    */
 
-    rd->indexBuffer = QD3D::CreateImmutableBuffer( 
-        g_pDevice, 
-        D3D11_BIND_INDEX_BUFFER, 
-        indices,
-        sizeof( indices ) );
-    if ( !rd->indexBuffer ) {
-        ri.Error( ERR_FATAL, "Could not create SkyBox index buffer.\n" );
-    }
+    static const float skyboxVertexData[] = 
+    {
+        // Right
+        -1, -1,  1, 0, 0, // 4
+        -1, -1, -1, 0, 1, // 0
+        -1,  1, -1, 1, 1, // 2
+        -1, -1,  1, 0, 0, // 4
+        -1,  1, -1, 1, 1, // 2
+        -1,  1,  1, 1, 0, // 6
+                     
+        // Left      
+         1, -1, -1, 0, 1, // 1
+         1, -1,  1, 0, 0, // 5
+         1,  1,  1, 1, 0, // 7
+         1, -1, -1, 0, 1, // 1
+         1,  1,  1, 1, 0, // 7
+         1,  1, -1, 1, 1, // 3
+                    
+        // Back     
+        -1,  1,  1, 0, 0, // 6
+        -1,  1, -1, 0, 1, // 2
+         1,  1, -1, 1, 1, // 3
+        -1,  1,  1, 0, 0, // 6
+         1,  1, -1, 1, 1, // 3
+         1,  1,  1, 1, 0, // 7
+                     
+        // Front     
+         1, -1,  1, 1, 0, // 5
+         1, -1, -1, 1, 1, // 1
+        -1, -1, -1, 0, 1, // 0
+         1, -1,  1, 1, 0, // 5
+        -1, -1, -1, 0, 1, // 0
+        -1, -1,  1, 0, 0, // 4
+                     
+        // Up        
+         1, -1,  1, 1, 1, // 5
+        -1, -1,  1, 0, 1, // 4
+        -1,  1,  1, 0, 0, // 6
+         1, -1,  1, 1, 1, // 5
+        -1,  1,  1, 0, 0, // 6
+         1,  1,  1, 1, 0, // 7
+                     
+        // Down      
+        -1, -1, -1, 0, 1, // 0
+         1, -1, -1, 1, 1, // 1
+         1,  1, -1, 1, 0, // 3
+        -1, -1, -1, 0, 1, // 0
+         1,  1, -1, 1, 0, // 3
+        -1,  1, -1, 0, 0, // 2
+    };
+
+    //rd->indexBuffer = QD3D::CreateImmutableBuffer( 
+    //    g_pDevice, 
+    //    D3D11_BIND_INDEX_BUFFER, 
+    //    indices,
+    //    sizeof( indices ) );
+    //if ( !rd->indexBuffer ) {
+    //    ri.Error( ERR_FATAL, "Could not create SkyBox index buffer.\n" );
+    //}
 
     rd->vertexBuffer = QD3D::CreateImmutableBuffer(
         g_pDevice, 
         D3D11_BIND_VERTEX_BUFFER,
-        vertices,
-        sizeof(vertices) );
+        skyboxVertexData,
+        sizeof(skyboxVertexData) );
     if ( !rd->vertexBuffer ) {
         ri.Error( ERR_FATAL, "Could not create SkyBox vertex buffer.\n" );
     }
@@ -155,7 +208,6 @@ void DestroySkyBoxRenderData( d3dSkyBoxRenderData_t* rd )
     SAFE_RELEASE( rd->vertexShader );
     SAFE_RELEASE( rd->pixelShader );
     SAFE_RELEASE( rd->vertexBuffer );
-    SAFE_RELEASE( rd->indexBuffer );
     SAFE_RELEASE( rd->vsConstantBuffer );
     SAFE_RELEASE( rd->psConstantBuffer );
 

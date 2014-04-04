@@ -15,5 +15,5 @@ struct VS_PS_Data
 
 float4 Main(VS_PS_Data input) : SV_TARGET
 {
-    return ColorTint * Diffuse.Sample(Sampler, input.AlbedoTC);
+    return ColorTint * Diffuse.Sample(Sampler, input.AlbedoTC );
 }

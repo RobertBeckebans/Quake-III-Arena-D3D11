@@ -5,10 +5,9 @@ cbuffer SkyBoxDataVS : register(b1)
     float3 EyePos;
 };
 
-
 struct VS_Data
 {
-	float4 Position : POSITION;
+	float3 Position : POSITION;
 	float2 AlbedoTC : TEXCOORD0;
 };
 
@@ -22,9 +21,9 @@ VS_PS_Data Main(VS_Data input)
 {
 	VS_PS_Data output;
 
-	float4 viewPos = mul(View, float4( input.Position.xyz + EyePos, 1 ));
-    float4 sPos = mul(Projection, viewPos);
-	output.Position = sPos;
+	float4 viewPos = mul( View, float4( input.Position + EyePos, 1 ) );
+    float4 sPos = mul( Projection, viewPos );
+	output.Position = DepthRangeHack( sPos );
     output.AlbedoTC = input.AlbedoTC;
 
    	return output;

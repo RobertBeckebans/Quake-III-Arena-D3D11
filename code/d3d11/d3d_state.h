@@ -106,12 +106,6 @@ struct d3dQuadRenderData_t
     ID3D11Buffer* constantBuffer;
 };
 
-struct d3dSkyBoxVertex_t 
-{
-    float position[4];
-    float texcoord[2];
-};
-
 struct d3dSkyBoxRenderData_t
 {
     // Shaders
@@ -120,7 +114,6 @@ struct d3dSkyBoxRenderData_t
 
     // Vertex buffers
     ID3D11InputLayout* inputLayout;
-    ID3D11Buffer* indexBuffer;
     ID3D11Buffer* vertexBuffer;
 
     // Constant buffers
