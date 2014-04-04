@@ -760,6 +760,11 @@ typedef struct {
 
 typedef struct {
 	displayContextDef_t uiDC;
+
+    // @pjb: a good a place as any?
+    int lthumbstickX;
+    int lthumbstickY;
+
 	int newHighScoreTime;
 	int newBestTime;
 	int showPostGameTime;

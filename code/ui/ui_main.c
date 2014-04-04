@@ -163,6 +163,7 @@ void _UI_Init( qboolean );
 void _UI_Shutdown( void );
 void _UI_KeyEvent( int key, qboolean down );
 void _UI_MouseEvent( int dx, int dy );
+void _UI_GamepadEvent( int dx, int dy ); // @pjb: gamepad for menu nav
 void _UI_Refresh( int realtime );
 qboolean _UI_IsFullscreen( void );
 int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
@@ -5231,6 +5232,34 @@ void _UI_MouseEvent( int dx, int dy )
 		Display_MouseMove(NULL, uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory);
   }
 
+}
+
+/*
+=================
+@pjbL UI_GamepadEvent
+=================
+*/
+void _UI_GamepadEvent( int axis, int value )
+{
+    // @pjb: TODO: only tracking the vertical axis for now
+    if ( axis == 1 )
+    {
+        int threshold = ui_thumbstickThreshold.value;
+
+        if ( value >= threshold && uiInfo.lthumbstickY < threshold )
+            _UI_KeyEvent( K_UPARROW, qtrue );
+        if ( value < threshold && uiInfo.lthumbstickY >= threshold )
+            _UI_KeyEvent( K_UPARROW, qfalse );
+        if ( value <= -threshold && uiInfo.lthumbstickY > -threshold )
+            _UI_KeyEvent( K_DOWNARROW, qtrue );
+        if ( value > -threshold && uiInfo.lthumbstickY <= -threshold )
+            _UI_KeyEvent( K_DOWNARROW, qfalse );
+        uiInfo.lthumbstickY = value;
+    }
+    else if ( axis == 0 )
+    {
+        uiInfo.lthumbstickX = value;
+    }
 }
 
 void UI_LoadNonIngame() {
