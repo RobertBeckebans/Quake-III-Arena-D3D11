@@ -564,7 +564,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>rem bash -c "perl ./unix/cons -- release-TA"</Command>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" "Release TA" "$(TargetDir)\AppX"</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -650,7 +650,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>rem bash -c "perl ./unix/cons -- release-TA"</Command>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" "Release TA" "$(TargetDir)\AppX"</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -738,7 +738,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>rem bash -c "perl ./unix/cons -- release-TA"</Command>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" "Release TA" "$(TargetDir)\AppX"</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -825,7 +825,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>rem bash -c "perl ./unix/cons -- debug"</Command>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" Debug "$(TargetDir)\AppX"</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -913,7 +913,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>rem bash -c "perl ./unix/cons -- debug"</Command>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" Debug "$(TargetDir)\AppX"</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -1003,7 +1003,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>rem bash -c "perl ./unix/cons -- debug"</Command>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" Debug "$(TargetDir)\AppX"</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -1093,6 +1093,9 @@
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
     </Bscmake>
+    <PostBuildEvent>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" Release "$(TargetDir)\AppX"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -1171,6 +1174,9 @@
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
     </Bscmake>
+    <PostBuildEvent>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" Release "$(TargetDir)\AppX"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <ClCompile>
@@ -1251,6 +1257,9 @@
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
     </Bscmake>
+    <PostBuildEvent>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" Release "$(TargetDir)\AppX"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">
     <ClCompile>
@@ -1329,7 +1338,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>rem bash -c "perl ./unix/cons -- debug-TA"</Command>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" "Debug TA" "$(TargetDir)\AppX"</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -1417,7 +1426,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>rem bash -c "perl ./unix/cons -- debug-TA"</Command>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" "Debug TA" "$(TargetDir)\AppX"</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -1507,7 +1516,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>rem bash -c "perl ./unix/cons -- debug-TA"</Command>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" "Debug TA" "$(TargetDir)\AppX"</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
