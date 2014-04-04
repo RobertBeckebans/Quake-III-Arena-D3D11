@@ -66,9 +66,10 @@ void DestroyBuffers()
 void CommitRasterizerState( int cullType, qboolean polyOffset, qboolean outline )
 {
     int maskBits = 
-        ( polyOffset << 4 ) |
-        ( backEnd.viewParms.isMirror << 3 ) | 
-        cullType;
+        ( ( outline & 1 ) << 5 ) |
+        ( ( polyOffset & 1 ) << 4 ) |
+        ( ( backEnd.viewParms.isMirror & 1 ) << 3 ) | 
+        ( cullType & 3 );
 
 	if ( g_RunState.cullMode == maskBits ) {
 		return;
