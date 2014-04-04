@@ -234,11 +234,34 @@ void InitBlendStates( d3dBlendStates_t* bs )
     bsd.RenderTarget[0].BlendEnable = FALSE;
     bsd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
     g_pDevice->CreateBlendState( &bsd, &bs->opaque );
+
+    //
+    // Blend-mode matrix
+    //
+    bsd.RenderTarget[0].BlendEnable = TRUE;
+    bsd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+    for ( int src = 0; src < D3D_BLEND_SRC_COUNT; ++src )
+    {
+        for ( int dst = 0; dst < D3D_BLEND_DST_COUNT; ++dst )
+        {
+            bsd.RenderTarget[0].SrcBlend = GetSrcBlendConstant( src + 1 );
+            bsd.RenderTarget[0].DestBlend = GetDestBlendConstant( (dst + 1) << 4 );
+            g_pDevice->CreateBlendState( &bsd, &bs->states[src][dst] );
+        }
+    }
 }
 
 void DestroyBlendStates( d3dBlendStates_t* bs )
 {
     SAFE_RELEASE( bs->opaque );
+
+    for ( int src = 0; src < D3D_BLEND_SRC_COUNT; ++src )
+    {
+        for ( int dst = 0; dst < D3D_BLEND_DST_COUNT; ++dst )
+        {
+            SAFE_RELEASE( bs->states[src][dst] );
+        }
+    }
 
     Com_Memset( bs, 0, sizeof( d3dBlendStates_t ) );
 }

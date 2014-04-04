@@ -112,9 +112,12 @@ struct d3dDepthStates_t
 };
 
 // @pjb: stores common blend states
+#define D3D_BLEND_SRC_COUNT 9
+#define D3D_BLEND_DST_COUNT 8
 struct d3dBlendStates_t
 {
     ID3D11BlendState* opaque;
+    ID3D11BlendState* states[D3D_BLEND_SRC_COUNT][D3D_BLEND_DST_COUNT];
 };
 
 // @pjb: stores draw info like samplers and buffers
@@ -179,6 +182,9 @@ enum
 };
 
 ID3D11DepthStencilState* GetDepthState( unsigned long mask ); // DEPTHSTATE_FLAG_ enum
+ID3D11BlendState* GetBlendState( int src, int dst );
+D3D11_BLEND GetSrcBlendConstant( int qConstant );
+D3D11_BLEND GetDestBlendConstant( int qConstant );
 
 //----------------------------------------------------------------------------
 // Driver entry points

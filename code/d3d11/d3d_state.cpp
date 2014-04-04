@@ -116,6 +116,8 @@ void D3DDrv_SetState( unsigned long stateBits )
 		return;
 	}
 
+    // TODO: polymode: line
+    
     //float blendFactor[4] = {0, 0, 0, 0};
     //g_pImmediateContext->OMSetDepthStencilState( g_DrawState.depthStates.none, 0 );
     //g_pImmediateContext->RSSetState( g_DrawState.rasterStates.cullNone );
@@ -141,6 +143,18 @@ void D3DDrv_SetState( unsigned long stateBits )
         g_RunState.depthStateMask = newDepthStateMask;
     }
 
+	if ( diff & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS ) )
+	{
+		int srcFactor = stateBits & GLS_SRCBLEND_BITS;
+        int dstFactor = stateBits & GLS_DSTBLEND_BITS; 
+
+        float blendFactor[4] = {0, 0, 0, 0};
+        g_pImmediateContext->OMSetBlendState( 
+            GetBlendState( srcFactor, dstFactor ),
+            blendFactor,
+            ~0U );
+    }
+
     g_RunState.stateMask = stateBits;
 }
 
@@ -151,6 +165,81 @@ ID3D11DepthStencilState* GetDepthState( unsigned long mask )
 {
     ASSERT( mask < 8 );
     return g_DrawState.depthStates.states[mask];
+}
+
+//----------------------------------------------------------------------------
+// Get the blend state based on a mask
+//----------------------------------------------------------------------------
+ID3D11BlendState* GetBlendState( int src, int dst )
+{
+    // Special-case zero
+    if ( src == 0 && dst == 0 )
+        return g_DrawState.blendStates.opaque;
+    else 
+    {
+        src--;
+        dst = (dst >> 4) - 1;
+        ASSERT( src < D3D_BLEND_SRC_COUNT );
+        ASSERT( dst < D3D_BLEND_DST_COUNT );
+        return g_DrawState.blendStates.states[src][dst];
+    }
+}
+
+//----------------------------------------------------------------------------
+// Get the blend constants
+//----------------------------------------------------------------------------
+D3D11_BLEND GetSrcBlendConstant( int qConstant )
+{
+	switch ( qConstant )
+	{
+	case GLS_SRCBLEND_ZERO:
+		return D3D11_BLEND_ZERO;
+	case GLS_SRCBLEND_ONE:
+		return D3D11_BLEND_ONE;
+	case GLS_SRCBLEND_DST_COLOR:
+		return D3D11_BLEND_DEST_COLOR;
+	case GLS_SRCBLEND_ONE_MINUS_DST_COLOR:
+		return D3D11_BLEND_INV_DEST_COLOR;
+	case GLS_SRCBLEND_SRC_ALPHA:
+		return D3D11_BLEND_SRC_ALPHA;
+	case GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA:
+		return D3D11_BLEND_INV_SRC_ALPHA;
+	case GLS_SRCBLEND_DST_ALPHA:
+		return D3D11_BLEND_DEST_ALPHA;
+	case GLS_SRCBLEND_ONE_MINUS_DST_ALPHA:
+		return D3D11_BLEND_INV_DEST_ALPHA;
+	case GLS_SRCBLEND_ALPHA_SATURATE:
+		return D3D11_BLEND_SRC_ALPHA_SAT;
+    default:
+        ASSERT(0);
+        return D3D11_BLEND_ONE;
+	}
+}
+
+D3D11_BLEND GetDestBlendConstant( int qConstant )
+{
+	switch ( qConstant )
+	{
+	case GLS_DSTBLEND_ZERO:
+		return D3D11_BLEND_ZERO;
+	case GLS_DSTBLEND_ONE:
+		return D3D11_BLEND_ONE;
+	case GLS_DSTBLEND_SRC_COLOR:
+		return D3D11_BLEND_SRC_COLOR;
+	case GLS_DSTBLEND_ONE_MINUS_SRC_COLOR:
+		return D3D11_BLEND_INV_SRC_COLOR;
+	case GLS_DSTBLEND_SRC_ALPHA:
+		return D3D11_BLEND_SRC_ALPHA;
+	case GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA:
+		return D3D11_BLEND_INV_SRC_ALPHA;
+	case GLS_DSTBLEND_DST_ALPHA:
+		return D3D11_BLEND_DEST_ALPHA;
+	case GLS_DSTBLEND_ONE_MINUS_DST_ALPHA:
+		return D3D11_BLEND_INV_DEST_ALPHA;
+    default:
+        ASSERT(0);
+        return D3D11_BLEND_ONE;
+	}
 }
 
 //----------------------------------------------------------------------------
