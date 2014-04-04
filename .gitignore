@@ -6,6 +6,6 @@ Release
 ipch
 *.suo
 *.pdb
-
+baseq3
 *.res
 Debug_TA
