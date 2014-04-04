@@ -75,7 +75,7 @@ size_t Win8_MultiByteToWide(
 //============================================
 // Quake APIs
 
-char *Sys_GetCurrentUser( void )
+WIN8_EXPORT char *Sys_GetCurrentUser( void )
 {
 	static char s_userName[1024];
 	unsigned long size = sizeof( s_userName );
@@ -107,7 +107,7 @@ Sys_Milliseconds
 ================
 */
 int			sys_timeBase;
-void  Sys_InitTimer (void)
+WIN8_EXPORT void  Sys_InitTimer (void)
 {
 	static qboolean	initialized = qfalse;
 
@@ -118,7 +118,7 @@ void  Sys_InitTimer (void)
 	}
 }
 
-int Sys_Milliseconds (void)
+WIN8_EXPORT int Sys_Milliseconds (void)
 {
 	return Win8_GetTime() - sys_timeBase;
 }
@@ -129,9 +129,23 @@ Sys_LowPhysicalMemory()
 ==================
 */
 
-qboolean Sys_LowPhysicalMemory() {
+WIN8_EXPORT qboolean Sys_LowPhysicalMemory() {
 	// @pjb: TODO: I don't know what the equivalent is here
     return qfalse;
+}
+
+/*
+==================
+Sys_ShowConsole()
+==================
+*/
+WIN8_EXPORT void Sys_ShowConsole( int visLevel, qboolean quitOnClose )
+{
+    (void)( visLevel );
+    (void)( quitOnClose );
+
+    // @pjb: I've made sure no other code calls this with
+    // quitOnClose.
 }
 
 /*
@@ -141,7 +155,7 @@ Sys_Error
 Show the early console as an error dialog
 =============
 */
-void QDECL Sys_Error( const char *error, ... ) {
+WIN8_EXPORT void QDECL Sys_Error( const char *error, ... ) {
 	va_list		argptr;
 	char		text[4096];
 
@@ -169,7 +183,7 @@ void QDECL Sys_Error( const char *error, ... ) {
 Sys_Quit
 ==============
 */
-void Sys_Quit( void ) {
+WIN8_EXPORT void Sys_Quit( void ) {
 
     IN_Shutdown();
 	
@@ -181,7 +195,7 @@ void Sys_Quit( void ) {
 Sys_Print
 ==============
 */
-void Sys_Print( const char *msg ) {
+WIN8_EXPORT void Sys_Print( const char *msg ) {
 	OutputDebugStringA( msg );
 }
 
@@ -192,7 +206,7 @@ Sys_Cwd
 Win8: return the installation directory (read-only)
 ==============
 */
-char *Sys_Cwd( void ) {
+WIN8_EXPORT char *Sys_Cwd( void ) {
 	static char cwd[MAX_OSPATH];
 
 	Windows::ApplicationModel::Package^ pkg = Windows::ApplicationModel::Package::Current;
@@ -209,7 +223,7 @@ Sys_GetClipboardData
 
 ================
 */
-char *Sys_GetClipboardData( void ) {
+WIN8_EXPORT char *Sys_GetClipboardData( void ) {
 
     static char clipBuf[4096];
 
@@ -243,7 +257,7 @@ Sys_UnloadDll
 
 =================
 */
-void Sys_UnloadDll( void *dllHandle ) {
+WIN8_EXPORT void Sys_UnloadDll( void *dllHandle ) {
 	if ( !dllHandle ) {
 		return;
 	}
@@ -261,12 +275,12 @@ Used to load a development dll instead of a virtual machine
 TTimo: added some verbosity in debug
 =================
 */
-extern char		*FS_BuildOSPath( const char *base, const char *game, const char *qpath );
+WIN8_EXPORT extern char		*FS_BuildOSPath( const char *base, const char *game, const char *qpath );
 
 // fqpath param added 7/20/02 by T.Ray - Sys_LoadDll is only called in vm.c at this time
 // fqpath will be empty if dll not loaded, otherwise will hold fully qualified path of dll module loaded
 // fqpath buffersize must be at least MAX_QPATH+1 bytes long
-void * QDECL Sys_LoadDll( const char *name, char *fqpath , int (QDECL **entryPoint)(size_t, ...),
+WIN8_EXPORT void * QDECL Sys_LoadDll( const char *name, char *fqpath , int (QDECL **entryPoint)(size_t, ...),
 				  int (QDECL *systemcalls)(size_t, ...) ) {
 	static int	lastWarning = 0;
 	HINSTANCE	libHandle;
@@ -316,7 +330,7 @@ Sys_GetEvent
 
 ================
 */
-sysEvent_t Sys_GetEvent( void ) {
+WIN8_EXPORT sysEvent_t Sys_GetEvent( void ) {
 	sysEvent_t	ev;
 	msg_t		netmsg;
 	netadr_t	adr;
@@ -364,10 +378,7 @@ Called after the common systems (cvars, files, etc)
 are initialized
 ================
 */
-#define OSR2_BUILD_NUMBER 1111
-#define WIN98_BUILD_NUMBER 1998
-
-void Sys_Init( void ) {
+WIN8_EXPORT void Sys_Init( void ) {
 	int cpuid;
 
 	Cmd_AddCommand ("in_restart", Sys_In_Restart_f);

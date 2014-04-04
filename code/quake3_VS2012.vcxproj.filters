@@ -199,6 +199,12 @@
     <ClCompile Include="win8\win8_app.cpp">
       <Filter>Windows\Win8</Filter>
     </ClCompile>
+    <ClCompile Include="win8\win8_net.cpp">
+      <Filter>Windows\Win8</Filter>
+    </ClCompile>
+    <ClCompile Include="win8\win8_input.cpp">
+      <Filter>Windows\Win8</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="win32\win_snd.h">
