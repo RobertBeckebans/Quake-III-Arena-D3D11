@@ -12,6 +12,9 @@ for proj in $(find . -name '*VS2013.vcxproj'); do
 # copy the filters file
 	cp -f $proj.filters $newproj.filters
 
+# remove references to the 2013-only FxCompile option
+	sed -i -e "s/FxCompile/None/g" $newproj.filters
+
 # replace any mention of other projects with the new project
 	sed -i -e "s/VS2013.vcxproj/VS2012.vcxproj/g" $newproj
 
