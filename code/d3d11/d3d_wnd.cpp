@@ -129,8 +129,8 @@ D3D_PUBLIC void D3DWnd_Init( void )
 
     if ( !RegisterWindowClass() )
     {
-        ri.Error( ERR_FATAL, "Failed to register D3D11 window class.\n" );
-        return;
+        //ri.Error( ERR_FATAL, "Failed to register D3D11 window class.\n" );
+        //return;
     }
 
     Com_Memset( &g_BufferState, 0, sizeof( g_BufferState ) );
@@ -192,6 +192,9 @@ D3D_PUBLIC void D3DWnd_Shutdown( void )
     SAFE_RELEASE(g_pSwapChain);
     SAFE_RELEASE(g_pImmediateContext);
     SAFE_RELEASE(g_pDevice);
+
+    ::UnregisterClass( WINDOW_CLASS_NAME, g_wv.hInstance );
+    ::DestroyWindow( g_hWnd );
 
     Com_Memset( &g_BufferState, 0, sizeof( g_BufferState ) );
     g_hWnd = NULL;
