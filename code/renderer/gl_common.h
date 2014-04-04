@@ -22,6 +22,9 @@ void GL_Clear( unsigned long bits, const float* clearCol, unsigned long stencil,
 void GL_SetProjection( const float* projMatrix );
 void GL_SetViewport( int left, int top, int width, int height );
 void GL_Finish( void );
+void GL_SetModelViewMatrix( const float* modelViewMatrix );
+void GL_SetDepthRange( float minRange, float maxRange );
+
 
 #define GL_INDEX_TYPE		GL_UNSIGNED_INT
 

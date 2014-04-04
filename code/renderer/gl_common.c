@@ -499,6 +499,16 @@ void GL_SetDefaultState( void )
 	qglDisable( GL_BLEND );
 }
 
+void GL_SetModelViewMatrix( const float* modelViewMatrix )
+{
+    qglLoadMatrixf( modelViewMatrix );
+}
+
+void GL_SetDepthRange( float minRange, float maxRange )
+{
+    qglDepthRange( minRange, maxRange );
+}
+
 
 
 

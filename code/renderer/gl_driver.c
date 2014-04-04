@@ -262,16 +262,6 @@ void GLRB_SetPortalRendering( qboolean enabled, const float* flipMatrix, const f
     }
 }
 
-void GLRB_SetModelViewMatrix( const float* modelViewMatrix )
-{
-    qglLoadMatrixf( modelViewMatrix );
-}
-
-void GLRB_SetDepthRange( float minRange, float maxRange )
-{
-    qglDepthRange( minRange, maxRange );
-}
-
 void GLRB_DrawImage( const image_t* image, const float* coords, const float* texcoords, const float* color )
 {
     GL_Bind( image );
@@ -341,8 +331,8 @@ void GLRB_DriverInit( graphicsApiLayer_t* layer )
     layer->ResetState2D = GLRB_ResetState2D;
     layer->ResetState3D = GLRB_ResetState3D;
     layer->SetPortalRendering = GLRB_SetPortalRendering;
-    layer->SetModelViewMatrix = GLRB_SetModelViewMatrix;
-    layer->SetDepthRange = GLRB_SetDepthRange;
+    layer->SetModelViewMatrix = GL_SetModelViewMatrix;
+    layer->SetDepthRange = GL_SetDepthRange;
     layer->SetDrawBuffer = GLRB_SetDrawBuffer;
 
     InitOpenGL();
