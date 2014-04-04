@@ -34,7 +34,7 @@ size_t Win8_CopyString( Platform::String^ str, char* dst, size_t dstLen )
         &numConverted,
         dst, dstLen,
         str->Data(), dstLen);
-    return numConverted;
+    return numConverted > 0 ? numConverted-1 : 0;
 }
 
 
@@ -70,7 +70,7 @@ size_t Win8_MultiByteToWide(
         dst, dstLen,
         src, strlen( src ) );
 
-    return numConverted;
+    return numConverted > 0 ? numConverted-1 : 0;
 }
 
 void Win8_SetCommandLine( Platform::Array<Platform::String^>^ args )
@@ -83,7 +83,7 @@ void Win8_SetCommandLine( Platform::Array<Platform::String^>^ args )
             break;
 
         sys_cmdline[offset++] = '\"';
-        offset += Win8_CopyString( arg, sys_cmdline, MAX_STRING_CHARS - offset - 2 );
+        offset += Win8_CopyString( arg, sys_cmdline + offset, MAX_STRING_CHARS - offset - 2 );
         sys_cmdline[offset++] = '\"';
 
         if ( offset < MAX_STRING_CHARS - 1 )
@@ -415,69 +415,6 @@ WIN8_EXPORT void Sys_Init( void ) {
 
 	IN_Init();		// FIXME: not in dedicated?
 }
-
-
-/*
-//=======================================================================
-
-int	totalMsec, countMsec;
-
-int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-	char		cwd[MAX_OSPATH];
-	int			startTime, endTime;
-
-    // should never get a previous instance in Win32
-    if ( hPrevInstance ) {
-        return 0;
-	}
-
-	Q_strncpyz( sys_cmdline, lpCmdLine, sizeof( sys_cmdline ) );
-
-	// no abort/retry/fail errors
-	SetErrorMode( SEM_FAILCRITICALERRORS );
-
-	// get the initial time base
-	Sys_InitTimer();
-    Sys_InitStreamThread();
-
-	Com_Init( sys_cmdline );
-	NET_Init();
-
-	Com_Printf( "Working directory: %s\n", Sys_GetCwd() );
-
-    // main game loop
-	while( 1 ) {
-		// if not running as a game client, sleep a bit
-		if ( g_wv.isMinimized || ( com_dedicated && com_dedicated->integer ) ) {
-			Sleep( 5 );
-		}
-
-		// set low precision every frame, because some system calls
-		// reset it arbitrarily
-//		_controlfp( _PC_24, _MCW_PC );
-//    _controlfp( -1, _MCW_EM  ); // no exceptions, even if some crappy
-                                // syscall turns them back on!
-
-		startTime = Sys_Milliseconds();
-
-		// make sure mouse and joystick are only called once a frame
-		IN_Frame();
-
-		// run the game
-		Com_Frame();
-
-		endTime = Sys_Milliseconds();
-		totalMsec += endTime - startTime;
-		countMsec++;
-	}
-
-	// never gets here
-}
-
-
-
-
-*/
 
 
 

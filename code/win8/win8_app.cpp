@@ -3,6 +3,11 @@
 #include <assert.h>
 #include "win8_app.h"
 
+extern "C" {
+#   include "../client/client.h"
+#   include "../qcommon/qcommon.h"
+#   include "../win32/win_shared.h"
+}
 
 using namespace Windows::ApplicationModel;
 using namespace Windows::ApplicationModel::Core;
@@ -62,7 +67,16 @@ void Quake3Win8App::SetWindow(CoreWindow^ window)
 
 void Quake3Win8App::Load(Platform::String^ entryPoint)
 {
-    // @pjb: todo: initializes the game
+	Sys_InitTimer();
+    Sys_InitStreamThread();
+
+	Com_Init( sys_cmdline );
+	NET_Init();
+
+	Com_Printf( "Working directory: %s\n", Sys_Cwd() );
+
+
+
 }
 
 void Quake3Win8App::Run()
@@ -73,7 +87,11 @@ void Quake3Win8App::Run()
 		{
 			CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
 			
-            // @pjb: todo: do a frame
+		    // make sure mouse and joystick are only called once a frame
+		    IN_Frame();
+
+		    // run the game
+		    Com_Frame();
 		}
 		else
 		{
@@ -85,6 +103,7 @@ void Quake3Win8App::Run()
 void Quake3Win8App::Uninitialize()
 {
     // @pjb: todo
+    NET_Shutdown();
 }
 
 void Quake3Win8App::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEventArgs^ args)
@@ -163,7 +182,8 @@ main
 int main( Platform::Array<Platform::String^>^ args )
 {
     Win8_SetCommandLine( args );
-	auto q3ApplicationSource = ref new Quake3Win8ApplicationSource();
+    
+    auto q3ApplicationSource = ref new Quake3Win8ApplicationSource();
 	CoreApplication::Run(q3ApplicationSource);
 	return 0;
 }

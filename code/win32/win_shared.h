@@ -57,6 +57,7 @@ void Sys_Net_Restart_f( void );
 void Sys_InitStreamThread( void );
 void Sys_QueEvent( int time, sysEventType_t type, int value, int value2, int ptrLength, void *ptr );
 void Sys_DetectCPU( void );
+void Sys_InitTimer( void );
 
 qboolean	Sys_GetPacket ( netadr_t *net_from, msg_t *net_message );
 

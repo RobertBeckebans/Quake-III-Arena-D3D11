@@ -36,4 +36,13 @@ WIN8_EXPORT void IN_Shutdown( void ) {
     // @pjb: todo
 }
 
+/*
+==================
+IN_Frame
 
+Called every frame, even if not generating commands
+==================
+*/
+WIN8_EXPORT void IN_Frame (void) {
+    // @pjb: todo
+}

@@ -75,6 +75,24 @@ WIN8_EXPORT void Sys_ShowIP(void) {
 
 /*
 ====================
+NET_Init
+====================
+*/
+WIN8_EXPORT void NET_Init( void ) {
+    // @pjb: todo
+}
+
+/*
+====================
+NET_Shutdown
+====================
+*/
+WIN8_EXPORT void NET_Shutdown( void ) {
+    // @pjb: todo
+}
+
+/*
+====================
 NET_Sleep
 
 sleeps msec or until net socket is ready
