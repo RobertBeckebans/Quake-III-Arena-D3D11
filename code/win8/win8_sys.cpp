@@ -124,6 +124,17 @@ int Sys_Milliseconds (void)
 }
 
 /*
+==================
+Sys_LowPhysicalMemory()
+==================
+*/
+
+qboolean Sys_LowPhysicalMemory() {
+	// @pjb: TODO: I don't know what the equivalent is here
+    return qfalse;
+}
+
+/*
 =============
 Sys_Error
 
