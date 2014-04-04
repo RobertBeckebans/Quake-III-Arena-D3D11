@@ -4,7 +4,9 @@
 #include <agile.h>
 
 #include "win8_app.h"
+#include "win8_msgq.h"
 #include "win8_msgs.h"
+#include "win8_utils.h"
 #include "../d3d11/d3d_win8.h"
 
 extern "C" {
@@ -23,10 +25,9 @@ using namespace Windows::Graphics::Display;
 using namespace Windows::Devices::Input;
 using namespace concurrency;
 
-Q3Win8::MessageQueue g_gameMsgs;
-Q3Win8::MessageQueue g_sysMsgs;
-
 #define NUM_MOUSE_BUTTONS 3
+
+void Sys_SetFrameTime( int time );
 
 int ConvertDipsToPixels(float dips)
 {
@@ -39,8 +40,11 @@ int ConvertDipsToPixels(float dips)
 #endif
 }
 
-namespace Q3Win8
+namespace Win8
 {
+    MessageQueue g_gameMsgs;
+    MessageQueue g_sysMsgs;
+
     void HandleMessage( const MSG* msg )
     {
         switch (msg->Message)
@@ -155,10 +159,10 @@ namespace Q3Win8
         }
         catch ( Platform::Exception^ ex )
         {
-            Q3Win8::MSG msg;
+            Win8::MSG msg;
             ZeroMemory( &msg, sizeof(msg) );
             msg.Message = SYS_MSG_EXCEPTION;
-            msg.Param0 = (size_t) Win8_GetPointer( ex );
+            msg.Param0 = (size_t) Win8::GetPointer( ex );
             msg.TimeStamp = Sys_Milliseconds();
             g_sysMsgs.Post( &msg );
         }
@@ -175,16 +179,16 @@ namespace Q3Win8
     }
 }
 
-void Win8_PostQuitMessage()
+void Win8::PostQuitMessage()
 {
-    Q3Win8::MSG msg;
+    Win8::MSG msg;
     ZeroMemory( &msg, sizeof(msg) );
     msg.Message = GAME_MSG_QUIT;
     msg.TimeStamp = Sys_Milliseconds();
     g_gameMsgs.Post(&msg);
 }
 
-Quake3Win8App::Quake3Win8App() :
+Win8::Quake3App::Quake3App() :
 	m_windowClosed(false),
 	m_windowVisible(true),
     m_currentMsgDlg(nullptr),
@@ -192,55 +196,55 @@ Quake3Win8App::Quake3Win8App() :
 {
 }
 
-void Quake3Win8App::Initialize(CoreApplicationView^ applicationView)
+void Win8::Quake3App::Initialize(CoreApplicationView^ applicationView)
 {
     // @pjb: Todo: on Blue this is way better: poll m_gameThread.is_done()
     m_gameThread = Concurrency::create_task( [] ()
     {
-        Q3Win8::GameThread();
+        Win8::GameThread();
     } ).then( [this] () 
     {
         m_gameIsDone = true;
     } );
 
 	applicationView->Activated +=
-        ref new TypedEventHandler<CoreApplicationView^, IActivatedEventArgs^>(this, &Quake3Win8App::OnActivated);
+        ref new TypedEventHandler<CoreApplicationView^, IActivatedEventArgs^>(this, &Quake3App::OnActivated);
 
 	CoreApplication::Suspending +=
-        ref new EventHandler<SuspendingEventArgs^>(this, &Quake3Win8App::OnSuspending);
+        ref new EventHandler<SuspendingEventArgs^>(this, &Quake3App::OnSuspending);
 
 	CoreApplication::Resuming +=
-        ref new EventHandler<Platform::Object^>(this, &Quake3Win8App::OnResuming);
+        ref new EventHandler<Platform::Object^>(this, &Quake3App::OnResuming);
 }
 
-void Quake3Win8App::SetWindow(CoreWindow^ window)
+void Win8::Quake3App::SetWindow(CoreWindow^ window)
 {
 	window->SizeChanged += 
-        ref new TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(this, &Quake3Win8App::OnWindowSizeChanged);
+        ref new TypedEventHandler<CoreWindow^, WindowSizeChangedEventArgs^>(this, &Quake3App::OnWindowSizeChanged);
 
 	window->VisibilityChanged +=
-		ref new TypedEventHandler<CoreWindow^, VisibilityChangedEventArgs^>(this, &Quake3Win8App::OnVisibilityChanged);
+		ref new TypedEventHandler<CoreWindow^, VisibilityChangedEventArgs^>(this, &Quake3App::OnVisibilityChanged);
 
 	window->Closed += 
-        ref new TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &Quake3Win8App::OnWindowClosed);
+        ref new TypedEventHandler<CoreWindow^, CoreWindowEventArgs^>(this, &Quake3App::OnWindowClosed);
 
 	window->PointerPressed +=
-		ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &Quake3Win8App::OnPointerPressed);
+		ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &Quake3App::OnPointerPressed);
 
 	window->PointerReleased +=
-		ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &Quake3Win8App::OnPointerReleased);
+		ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &Quake3App::OnPointerReleased);
 
     window->PointerWheelChanged +=
-        ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &Quake3Win8App::OnPointerWheelChanged);
+        ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &Quake3App::OnPointerWheelChanged);
 
 	window->CharacterReceived +=
-		ref new TypedEventHandler<CoreWindow^, CharacterReceivedEventArgs^>(this, &Quake3Win8App::OnCharacterReceived);
+		ref new TypedEventHandler<CoreWindow^, CharacterReceivedEventArgs^>(this, &Quake3App::OnCharacterReceived);
 
 	window->KeyDown +=
-		ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &Quake3Win8App::OnKeyDown);
+		ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &Quake3App::OnKeyDown);
 
 	window->KeyUp +=
-		ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &Quake3Win8App::OnKeyUp);
+		ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &Quake3App::OnKeyUp);
 
 	window->PointerCursor = nullptr;
 
@@ -250,26 +254,26 @@ void Quake3Win8App::SetWindow(CoreWindow^ window)
 	pointerVisualizationSettings->IsBarrelButtonFeedbackEnabled = false;
 	m_logicalSize = Windows::Foundation::Size(window->Bounds.Width, window->Bounds.Height);
 
-    IUnknown* windowPtr = Win8_GetPointer( window );
+    IUnknown* windowPtr = Win8::GetPointer( window );
     D3DWin8_NotifyNewWindow( 
         windowPtr, 
         ConvertDipsToPixels( m_logicalSize.Width ), 
         ConvertDipsToPixels( m_logicalSize.Height ) );
 }
 
-void Quake3Win8App::Load(Platform::String^ entryPoint)
+void Win8::Quake3App::Load(Platform::String^ entryPoint)
 {
 }
 
-void Quake3Win8App::HandleExceptionMessage( const Q3Win8::MSG* msg )
+void Win8::Quake3App::HandleExceptionMessage( const MSG* msg )
 {
     assert( msg->Message == SYS_MSG_EXCEPTION );
-    m_currentMsgDlg = Win8_DisplayException( Win8_GetType<Platform::Exception>( (IUnknown*) msg->Param0 ) );
+    m_currentMsgDlg = Win8::DisplayException( Win8::GetType<Platform::Exception>( (IUnknown*) msg->Param0 ) );
 }
 
-void Quake3Win8App::WaitForGameReady()
+void Win8::Quake3App::WaitForGameReady()
 {
-    Q3Win8::MSG msg;
+    Win8::MSG msg;
 
     // Get new messages
     while ( !g_sysMsgs.Pop( &msg ) ) {}
@@ -277,9 +281,9 @@ void Quake3Win8App::WaitForGameReady()
     HandleMessageFromGame( &msg );
 }
 
-void Quake3Win8App::HandleMessagesFromGame()
+void Win8::Quake3App::HandleMessagesFromGame()
 {
-    Q3Win8::MSG msg;
+    Win8::MSG msg;
 
     // Get new messages
     while ( g_sysMsgs.Pop( &msg ) )
@@ -288,7 +292,7 @@ void Quake3Win8App::HandleMessagesFromGame()
     }
 }
 
-void Quake3Win8App::HandleMessageFromGame( const Q3Win8::MSG* msg )
+void Win8::Quake3App::HandleMessageFromGame( const MSG* msg )
 {
     switch ( msg->Message )
     {
@@ -304,7 +308,7 @@ void Quake3Win8App::HandleMessageFromGame( const Q3Win8::MSG* msg )
     }
 }
 
-void Quake3Win8App::Run()
+void Win8::Quake3App::Run()
 {
     // Stall until the game is ready
     // WaitForGameReady(); // @pjb: commented out because it's not really a problem
@@ -343,16 +347,16 @@ void Quake3Win8App::Run()
     }
 }
 
-void Quake3Win8App::Uninitialize()
+void Win8::Quake3App::Uninitialize()
 {
     ReleaseMouse();
 }
 
-void Quake3Win8App::OnWindowSizeChanged(CoreWindow^ window, WindowSizeChangedEventArgs^ args)
+void Win8::Quake3App::OnWindowSizeChanged(CoreWindow^ window, WindowSizeChangedEventArgs^ args)
 {
 	m_logicalSize = Windows::Foundation::Size(window->Bounds.Width, window->Bounds.Height);
     
-    Q3Win8::MSG msg;
+    Win8::MSG msg;
     ZeroMemory( &msg, sizeof(msg) );
     msg.Message = GAME_MSG_VIDEO_CHANGE;
     msg.Param0 = ConvertDipsToPixels( m_logicalSize.Width );
@@ -361,16 +365,16 @@ void Quake3Win8App::OnWindowSizeChanged(CoreWindow^ window, WindowSizeChangedEve
     g_gameMsgs.Post( &msg );
 }
 
-void Quake3Win8App::OnVisibilityChanged(CoreWindow^ sender, VisibilityChangedEventArgs^ args)
+void Win8::Quake3App::OnVisibilityChanged(CoreWindow^ sender, VisibilityChangedEventArgs^ args)
 {
 	m_windowVisible = args->Visible;
 }
 
-void Quake3Win8App::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args)
+void Win8::Quake3App::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args)
 {
 	m_windowClosed = true;
 
-    Q3Win8::MSG msg;
+    Win8::MSG msg;
     ZeroMemory( &msg, sizeof(msg) );
     msg.Message = GAME_MSG_QUIT;
     msg.TimeStamp = Sys_Milliseconds();
@@ -400,9 +404,9 @@ static size_t PackMouseButtons( Windows::UI::Input::PointerPointProperties^ prop
     return packed;
 }
 
-void Quake3Win8App::OnPointerPressed(CoreWindow^ sender, PointerEventArgs^ args)
+void Win8::Quake3App::OnPointerPressed(CoreWindow^ sender, PointerEventArgs^ args)
 {
-    Q3Win8::MSG msg;
+    Win8::MSG msg;
     ZeroMemory( &msg, sizeof(msg) );
     msg.Message = GAME_MSG_MOUSE_DOWN;
     msg.Param0 = PackMouseButtons( args->CurrentPoint->Properties );
@@ -410,9 +414,9 @@ void Quake3Win8App::OnPointerPressed(CoreWindow^ sender, PointerEventArgs^ args)
     g_gameMsgs.Post( &msg );
 }
 
-void Quake3Win8App::OnPointerReleased(CoreWindow^ sender, PointerEventArgs^ args)
+void Win8::Quake3App::OnPointerReleased(CoreWindow^ sender, PointerEventArgs^ args)
 {
-    Q3Win8::MSG msg;
+    Win8::MSG msg;
     ZeroMemory( &msg, sizeof(msg) );
     msg.Message = GAME_MSG_MOUSE_UP;
     msg.Param0 = ~PackMouseButtons( args->CurrentPoint->Properties );
@@ -420,9 +424,9 @@ void Quake3Win8App::OnPointerReleased(CoreWindow^ sender, PointerEventArgs^ args
     g_gameMsgs.Post( &msg );
 }
 
-void Quake3Win8App::OnPointerMoved(MouseDevice^ mouse, MouseEventArgs^ args)
+void Win8::Quake3App::OnPointerMoved(MouseDevice^ mouse, MouseEventArgs^ args)
 {
-    Q3Win8::MSG msg;
+    Win8::MSG msg;
     ZeroMemory( &msg, sizeof(msg) );
     msg.Message = GAME_MSG_MOUSE_MOVE;
     msg.Param0 = args->MouseDelta.X;
@@ -431,9 +435,9 @@ void Quake3Win8App::OnPointerMoved(MouseDevice^ mouse, MouseEventArgs^ args)
     g_gameMsgs.Post( &msg );
 }
 
-void Quake3Win8App::OnPointerWheelChanged(CoreWindow^ sender, PointerEventArgs^ args)
+void Win8::Quake3App::OnPointerWheelChanged(CoreWindow^ sender, PointerEventArgs^ args)
 {
-    Q3Win8::MSG msg;
+    Win8::MSG msg;
     ZeroMemory( &msg, sizeof(msg) );
     msg.Message = GAME_MSG_MOUSE_WHEEL;
     msg.Param0 = args->CurrentPoint->Properties->MouseWheelDelta;
@@ -441,9 +445,9 @@ void Quake3Win8App::OnPointerWheelChanged(CoreWindow^ sender, PointerEventArgs^ 
     g_gameMsgs.Post( &msg );
 }
 
-void Quake3Win8App::OnCharacterReceived(CoreWindow^ sender, CharacterReceivedEventArgs^ args)
+void Win8::Quake3App::OnCharacterReceived(CoreWindow^ sender, CharacterReceivedEventArgs^ args)
 {
-    Q3Win8::MSG msg;
+    Win8::MSG msg;
     ZeroMemory( &msg, sizeof(msg) );
     msg.Message = GAME_MSG_KEY_CHAR;
     msg.Param0 = (size_t) args->KeyCode;
@@ -452,9 +456,9 @@ void Quake3Win8App::OnCharacterReceived(CoreWindow^ sender, CharacterReceivedEve
     g_gameMsgs.Post( &msg );
 }
 
-void Quake3Win8App::OnKeyDown(CoreWindow^ sender, KeyEventArgs^ args)
+void Win8::Quake3App::OnKeyDown(CoreWindow^ sender, KeyEventArgs^ args)
 {
-    Q3Win8::MSG msg;
+    Win8::MSG msg;
     ZeroMemory( &msg, sizeof(msg) );
     msg.Message = GAME_MSG_KEY_DOWN;
     msg.Param0 = (size_t) args->VirtualKey;
@@ -463,9 +467,9 @@ void Quake3Win8App::OnKeyDown(CoreWindow^ sender, KeyEventArgs^ args)
     g_gameMsgs.Post( &msg );
 }
 
-void Quake3Win8App::OnKeyUp(CoreWindow^ sender, KeyEventArgs^ args)
+void Win8::Quake3App::OnKeyUp(CoreWindow^ sender, KeyEventArgs^ args)
 {
-    Q3Win8::MSG msg;
+    Win8::MSG msg;
     ZeroMemory( &msg, sizeof(msg) );
     msg.Message = GAME_MSG_KEY_UP;
     msg.Param0 = (size_t) args->VirtualKey;
@@ -474,7 +478,7 @@ void Quake3Win8App::OnKeyUp(CoreWindow^ sender, KeyEventArgs^ args)
     g_gameMsgs.Post( &msg );
 }
 
-void Quake3Win8App::OnActivated(CoreApplicationView^ applicationView, IActivatedEventArgs^ args)
+void Win8::Quake3App::OnActivated(CoreApplicationView^ applicationView, IActivatedEventArgs^ args)
 {
     auto window = CoreWindow::GetForCurrentThread();
     window->Activate();
@@ -482,7 +486,7 @@ void Quake3Win8App::OnActivated(CoreApplicationView^ applicationView, IActivated
     CaptureMouse();
 }
 
-void Quake3Win8App::OnSuspending(Platform::Object^ sender, SuspendingEventArgs^ args)
+void Win8::Quake3App::OnSuspending(Platform::Object^ sender, SuspendingEventArgs^ args)
 {
 	// Save app state asynchronously after requesting a deferral. Holding a deferral
 	// indicates that the application is busy performing suspending operations. Be
@@ -491,7 +495,7 @@ void Quake3Win8App::OnSuspending(Platform::Object^ sender, SuspendingEventArgs^ 
 	SuspendingDeferral^ deferral = args->SuspendingOperation->GetDeferral();
 
     // Quickly quit!
-    Q3Win8::MSG msg;
+    Win8::MSG msg;
     ZeroMemory( &msg, sizeof(msg) );
     msg.Message = GAME_MSG_QUIT;
     msg.TimeStamp = Sys_Milliseconds();
@@ -508,7 +512,7 @@ void Quake3Win8App::OnSuspending(Platform::Object^ sender, SuspendingEventArgs^ 
 	});
 }
  
-void Quake3Win8App::OnResuming(Platform::Object^ sender, Platform::Object^ args)
+void Win8::Quake3App::OnResuming(Platform::Object^ sender, Platform::Object^ args)
 {
 	// Restore any data or state that was unloaded on suspend. By default, data
 	// and state are persisted when resuming from suspend. Note that this event
@@ -517,20 +521,20 @@ void Quake3Win8App::OnResuming(Platform::Object^ sender, Platform::Object^ args)
     // @pjb: todo: do we need to handle this or will simply loading the game cover it?
 }
 
-void Quake3Win8App::CaptureMouse()
+void Win8::Quake3App::CaptureMouse()
 {
 	m_mouseCaptureHandle = MouseDevice::GetForCurrentView()->MouseMoved +=
-		ref new TypedEventHandler<MouseDevice^, MouseEventArgs^>(this, &Quake3Win8App::OnPointerMoved);
+		ref new TypedEventHandler<MouseDevice^, MouseEventArgs^>(this, &Quake3App::OnPointerMoved);
 }
 
-void Quake3Win8App::ReleaseMouse()
+void Win8::Quake3App::ReleaseMouse()
 {
 	MouseDevice::GetForCurrentView()->MouseMoved -= m_mouseCaptureHandle;
 }
 
-IFrameworkView^ Quake3Win8ApplicationSource::CreateView()
+IFrameworkView^ Win8::Quake3ApplicationSource::CreateView()
 {
-    return ref new Quake3Win8App();
+    return ref new Quake3App();
 }
 
 /*
@@ -542,12 +546,12 @@ main
 [Platform::MTAThread]
 int main( Platform::Array<Platform::String^>^ args )
 {
-    Win8_SetCommandLine( args );
+    Win8::SetCommandLine( args );
 
     // Force the graphics layer to wait for window bringup
     D3DWin8_InitDeferral();
     
-    auto q3ApplicationSource = ref new Quake3Win8ApplicationSource();
+    auto q3ApplicationSource = ref new Win8::Quake3ApplicationSource();
 
     try
     {

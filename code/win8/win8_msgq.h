@@ -1,13 +1,12 @@
 #pragma once
 
 #include <stdint.h>
-#include <atomic>
 #include <concurrent_queue.h>
 
 // Convenience macro for setting up a message
 #define INIT_MSG( msg )        { ZeroMemory( &(msg), sizeof( msg ) ); (msg).TimeStamp = Sys_Milliseconds(); }
 
-namespace Q3Win8
+namespace Win8
 {
 
 struct MSG

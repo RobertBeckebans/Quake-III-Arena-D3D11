@@ -8,28 +8,28 @@ extern "C" {
 #include <ppltasks.h>
 #include <assert.h>
 
-#include "win8_app.h"
+#include "win8_utils.h"
 
 //============================================
 // Win8 stuff
 
 static double g_Freq = 0;
 
-void Win8_InitTimer()
+void Win8::InitTimer()
 {
     LARGE_INTEGER i;
     QueryPerformanceFrequency( &i );
     g_Freq = 1000.0 / i.QuadPart;
 }
 
-int Win8_GetTime()
+int Win8::GetTime()
 {
     LARGE_INTEGER i;
     QueryPerformanceCounter( &i );
     return (int)( i.QuadPart * g_Freq );
 }
 
-size_t Win8_CopyString( Platform::String^ str, char* dst, size_t dstLen )
+size_t Win8::CopyString( Platform::String^ str, char* dst, size_t dstLen )
 {
     size_t numConverted = 0;
     wcstombs_s(
@@ -40,7 +40,7 @@ size_t Win8_CopyString( Platform::String^ str, char* dst, size_t dstLen )
 }
 
 
-Platform::String^ Win8_CopyString( const char* src )
+Platform::String^ Win8::CopyString( const char* src )
 {
     size_t len = strlen( src );
 
@@ -61,7 +61,7 @@ Platform::String^ Win8_CopyString( const char* src )
     return dst;
 }
 
-size_t Win8_MultiByteToWide( 
+size_t Win8::MultiByteToWide( 
     const char* src, 
     wchar_t* dst,
     size_t dstLen )
@@ -75,7 +75,7 @@ size_t Win8_MultiByteToWide(
     return numConverted > 0 ? numConverted-1 : 0;
 }
 
-void Win8_SetCommandLine( Platform::Array<Platform::String^>^ args )
+void Win8::SetCommandLine( Platform::Array<Platform::String^>^ args )
 {
     // Set the command line string
     size_t offset = 0;
@@ -90,7 +90,7 @@ void Win8_SetCommandLine( Platform::Array<Platform::String^>^ args )
             continue;
 
         sys_cmdline[offset++] = '\"';
-        offset += Win8_CopyString( args[i], sys_cmdline + offset, MAX_STRING_CHARS - offset - 2 );
+        offset += Win8::CopyString( args[i], sys_cmdline + offset, MAX_STRING_CHARS - offset - 2 );
         sys_cmdline[offset++] = '\"';
 
         if ( offset < MAX_STRING_CHARS - 1 )
@@ -101,7 +101,7 @@ void Win8_SetCommandLine( Platform::Array<Platform::String^>^ args )
     }
 }
 
-void Win8_Throw( HRESULT hr, Platform::String^ str )
+void Win8::Throw( HRESULT hr, Platform::String^ str )
 {
     if ( str == nullptr )
         throw ref new Platform::Exception( hr );
@@ -110,7 +110,7 @@ void Win8_Throw( HRESULT hr, Platform::String^ str )
 }
 
 Windows::Foundation::IAsyncOperation<Windows::UI::Popups::IUICommand^>^
-    Win8_DisplayException( Platform::Exception^ ex )
+    Win8::DisplayException( Platform::Exception^ ex )
 {
     // Throw up a dialog box!
     try

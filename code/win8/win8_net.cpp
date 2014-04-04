@@ -9,8 +9,11 @@ extern "C" {
 #include <assert.h>
 
 #include "win8_msgq.h"
-#include "win8_app.h"
+#include "win8_msgs.h"
+#include "win8_utils.h"
+#include "win8_net.h"
 
+using namespace Windows::Foundation;
 using namespace Windows::Networking;
 using namespace Windows::Networking::Connectivity;
 using namespace Windows::Networking::Sockets;
@@ -19,6 +22,8 @@ static qboolean networkingEnabled = qfalse;
 
 static cvar_t	*net_noudp;
 
+StreamSocketListener^ g_Listener = nullptr;
+Win8::MessageQueue g_NetMsgQueue;
 
 /*
 =============
@@ -41,8 +46,27 @@ Never called by the game logic, just the system event queing
 ==================
 */
 WIN8_EXPORT qboolean Sys_GetPacket( netadr_t *net_from, msg_t *net_message ) {
-    // @pjb: todo
-    return qfalse;
+    
+    qboolean hasPacket = qfalse;
+
+    // Pump messages
+    Win8::MSG msg;
+    while ( g_NetMsgQueue.Pop( &msg ) )
+    {
+        switch (msg.Message)
+        {
+        case NET_MSG_CLIENT_CONNECT:
+            // @pjb: Todo
+            break;
+        default:
+            assert(0);
+            break;
+        }
+    }
+
+    // @pjb: Todo
+
+    return hasPacket;
 }
 
 /*
@@ -80,9 +104,63 @@ WIN8_EXPORT void Sys_ShowIP(void) {
 NET_StartListeningOnPort
 =====================
 */
-qboolean NET_StartListeningOnPort( HostName^ localHost, int port )
+HRESULT NET_StartListeningOnPort( HostName^ localHost, int port, bool bindToAny )
 {
-    return qfalse;
+    Platform::String^ serviceName = port.ToString();
+
+    // Sync primitives
+    HANDLE bindEndPointComplete = CreateEventEx( nullptr, nullptr, 0, EVENT_ALL_ACCESS );
+    HRESULT status = E_FAIL;
+
+    // @pjb: todo: on Blue we can do .wait()
+
+    if ( bindToAny )
+    {
+        // Try to bind to a specific address.
+        concurrency::create_task( g_Listener->BindEndpointAsync( localHost, serviceName ) ).then(
+            [bindEndPointComplete, &status] ( concurrency::task<void> previousTask )
+        {
+            try
+            {
+                // Try getting an exception.
+                previousTask.get();
+                status = S_OK;
+            }
+            catch ( Platform::Exception^ exception )
+            {
+                Com_Printf( "Couldn't not bind: %S\n", exception->Message->Data() );
+                status = exception->HResult;
+            }
+
+            SetEvent( bindEndPointComplete );
+        });
+    }
+    else
+    {
+        // Try to bind to a specific address.
+        concurrency::create_task( g_Listener->BindEndpointAsync( localHost, serviceName ) ).then(
+            [bindEndPointComplete, &status] ( concurrency::task<void> previousTask)
+        {
+            try
+            {
+                // Try getting an exception.
+                previousTask.get();
+                status = S_OK;
+            }
+            catch ( Platform::Exception^ exception )
+            {
+                Com_Printf( "Couldn't not bind: %S\n", exception->Message->Data() );
+                status = exception->HResult;
+            }
+
+            SetEvent( bindEndPointComplete );
+        });
+    }
+
+    WaitForSingleObjectEx( bindEndPointComplete, INFINITE, FALSE );
+    CloseHandle( bindEndPointComplete );
+
+    return status;
 }
 
 /*
@@ -96,6 +174,8 @@ void NET_StartListening( void ) {
 	int port = Cvar_Get( "net_port", va( "%i", PORT_SERVER ), CVAR_LATCH )->integer;
 
     HostName^ localHost = nullptr;
+
+    bool bindToAny = !( *ip->string );
 
     auto hostNames = NetworkInformation::GetHostNames();
     if ( !hostNames->Size )
@@ -111,7 +191,7 @@ void NET_StartListening( void ) {
         auto localHostInfo = hostNames->GetAt(i);
         if ( localHostInfo->IPInformation != nullptr )
         {
-            Win8_CopyString( localHostInfo->DisplayName, hostNameTmp, sizeof( hostNameTmp ) );
+            Win8::CopyString( localHostInfo->DisplayName, hostNameTmp, sizeof( hostNameTmp ) );
             if ( Q_strncmp( ip->string, hostNameTmp, sizeof(hostNameTmp) ) == 0 )
             {
                 localHost = localHostInfo;
@@ -136,16 +216,21 @@ void NET_StartListening( void ) {
         return;
     }
 
-    Win8_CopyString( localHost->DisplayName, hostNameTmp, sizeof( hostNameTmp ) );
+    Win8::CopyString( localHost->DisplayName, hostNameTmp, sizeof( hostNameTmp ) );
     Com_Printf( "Found localHost %s.\n", hostNameTmp );
 
     Cvar_Set( "net_ip", hostNameTmp );
 
+    g_Listener = ref new StreamSocketListener();
+    g_Listener->ConnectionReceived += 
+        ref new TypedEventHandler<StreamSocketListener^, StreamSocketListenerConnectionReceivedEventArgs^>( 
+            NET_OnConnectionReceivedAsync);
+    
 	// automatically scan for a valid port, so multiple
 	// dedicated servers can be started without requiring
 	// a different net_port for each one
 	for( int i = 0 ; i < 10 ; i++ ) {
-		if ( NET_StartListeningOnPort( localHost, port + i ) ) {
+		if ( SUCCEEDED( NET_StartListeningOnPort( localHost, port + i, bindToAny ) ) ) {
 			Cvar_SetValue( "net_port", port + i );
 			return;
 		}
@@ -263,8 +348,8 @@ WIN8_EXPORT void NET_Init( void ) {
         auto localHostInfo = hostNames->GetAt(i);
         if ( localHostInfo->IPInformation != nullptr )
         {
-            Win8_CopyString( localHostInfo->DisplayName, hostnameTmp, sizeof( hostnameTmp ) );
-            Win8_CopyString( localHostInfo->IPInformation->NetworkAdapter->NetworkAdapterId.ToString(), adapterIdTmp, sizeof( adapterIdTmp ) );
+            Win8::CopyString( localHostInfo->DisplayName, hostnameTmp, sizeof( hostnameTmp ) );
+            Win8::CopyString( localHostInfo->IPInformation->NetworkAdapter->NetworkAdapterId.ToString(), adapterIdTmp, sizeof( adapterIdTmp ) );
 
             Com_Printf( "... Address: %s / Adapter: %s\n", hostnameTmp, adapterIdTmp );
 

@@ -1,6 +1,8 @@
 #include "win8_msgq.h"
 
-namespace Q3Win8
+#include <assert.h>
+
+namespace Win8
 {
     MessageQueue::MessageQueue()
     {

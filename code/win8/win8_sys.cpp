@@ -8,7 +8,7 @@ extern "C" {
 #include <ppltasks.h>
 #include <assert.h>
 
-#include "win8_app.h"
+#include "win8_utils.h"
 
 //============================================
 // Quake APIs
@@ -24,7 +24,7 @@ WIN8_EXPORT char *Sys_GetCurrentUser( void )
         auto t = concurrency::create_task( 
             Windows::System::UserProfile::UserInformation::GetDisplayNameAsync() );
     
-        Win8_CopyString( t.get(), s_userName, sizeof( s_userName ) );
+        Win8::CopyString( t.get(), s_userName, sizeof( s_userName ) );
     }
     catch ( Platform::Exception^ ex )
     {
@@ -50,15 +50,15 @@ WIN8_EXPORT void  Sys_InitTimer (void)
 	static qboolean	initialized = qfalse;
 
 	if (!initialized) {
-        Win8_InitTimer();
-		sys_timeBase = Win8_GetTime();
+        Win8::InitTimer();
+		sys_timeBase = Win8::GetTime();
 		initialized = qtrue;
 	}
 }
 
 WIN8_EXPORT int Sys_Milliseconds (void)
 {
-	return Win8_GetTime() - sys_timeBase;
+	return Win8::GetTime() - sys_timeBase;
 }
 
 // @pjb I hate this
@@ -94,7 +94,7 @@ WIN8_EXPORT void Sys_ShowConsole( int visLevel, qboolean quitOnClose )
     (void)( quitOnClose );
 
     if (quitOnClose)
-        Win8_PostQuitMessage();
+        Win8::PostQuitMessage();
 }
 
 /*
@@ -114,8 +114,8 @@ WIN8_EXPORT void QDECL Sys_Error( const char *error, ... ) {
 
     OutputDebugStringA( text );
 
-    Platform::String^ textObj = Win8_CopyString( text );
-    Win8_Throw( E_FAIL, textObj );
+    Platform::String^ textObj = Win8::CopyString( text );
+    Win8::Throw( E_FAIL, textObj );
 }
 
 /*
@@ -124,7 +124,7 @@ Sys_Quit
 ==============
 */
 WIN8_EXPORT void Sys_Quit( void ) {
-    Win8_PostQuitMessage();
+    Win8::PostQuitMessage();
 }
 
 /*
@@ -149,7 +149,7 @@ WIN8_EXPORT char *Sys_Cwd( void ) {
 	Windows::ApplicationModel::Package^ pkg = Windows::ApplicationModel::Package::Current;
     Windows::Storage::StorageFolder^ installDir = pkg->InstalledLocation;
 
-    Win8_CopyString( installDir->Path, cwd, sizeof(cwd) );
+    Win8::CopyString( installDir->Path, cwd, sizeof(cwd) );
 
 	return cwd;
 }
@@ -166,7 +166,7 @@ WIN8_EXPORT char *Sys_UserDir( void ) {
 
 	auto localFolder = Windows::Storage::ApplicationData::Current->LocalFolder;
 
-    Win8_CopyString( localFolder->Path, cwd, sizeof(cwd) );
+    Win8::CopyString( localFolder->Path, cwd, sizeof(cwd) );
 
 	return cwd;
 }
@@ -186,7 +186,7 @@ WIN8_EXPORT char *Sys_GetClipboardData( void ) {
     {
         auto t = concurrency::create_task( data->GetTextAsync() );
 
-        Win8_CopyString( t.get(), clipBuf, sizeof( clipBuf ) );
+        Win8::CopyString( t.get(), clipBuf, sizeof( clipBuf ) );
         return clipBuf;
     }
     else
@@ -252,7 +252,7 @@ WIN8_EXPORT void * QDECL Sys_LoadDll( const char *name, char *fqpath , int (QDEC
     Com_sprintf(filename, sizeof(filename), "%sx86.dll", name);
 #endif
 
-    Win8_MultiByteToWide( filename, wfilename, _countof( wfilename ) );
+    Win8::MultiByteToWide( filename, wfilename, _countof( wfilename ) );
     
     // There's a lot of logic here in the original game (dealing with overloaded
     // paths etc), but WinRT simplifies that for us. It can only ever be in the root 

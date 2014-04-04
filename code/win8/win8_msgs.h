@@ -2,6 +2,9 @@
 
 #include "win8_msgq.h"
 
+namespace Win8
+{
+
 enum GAME_MSG
 {
     GAME_MSG_QUIT,
@@ -21,5 +24,7 @@ enum SYS_MSG
     SYS_MSG_GAME_READY
 };
 
-extern Q3Win8::MessageQueue g_gameMsgs;
-extern Q3Win8::MessageQueue g_sysMsgs;
+extern MessageQueue g_gameMsgs;
+extern MessageQueue g_sysMsgs;
+
+}
