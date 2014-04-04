@@ -155,9 +155,9 @@ void RB_BeginDrawingView (void) {
 		plane2[2] = DotProduct (backEnd.viewParms.or.axis[2], plane);
 		plane2[3] = DotProduct (plane, backEnd.viewParms.or.origin) - plane[3];
 
-		graphicsDriver.SetMirroredRendering( qtrue, s_flipMatrix, plane2 );
+		graphicsDriver.SetPortalRendering( qtrue, s_flipMatrix, plane2 );
 	} else {
-		graphicsDriver.SetMirroredRendering( qfalse, NULL, NULL );
+		graphicsDriver.SetPortalRendering( qfalse, NULL, NULL );
 	}
 }
 

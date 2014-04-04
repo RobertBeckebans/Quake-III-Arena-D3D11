@@ -242,7 +242,7 @@ void GLRB_ResetState3D( void )
 }
 
 // This could be two functions, but I want to keep the number of different API calls to a minimum
-void GLRB_SetMirroredRendering( qboolean enabled, const float* flipMatrix, const float* plane )
+void GLRB_SetPortalRendering( qboolean enabled, const float* flipMatrix, const float* plane )
 {
     if ( enabled )
     {
@@ -340,7 +340,7 @@ void GLRB_DriverInit( graphicsApiLayer_t* layer )
     layer->SetState = GL_State;
     layer->ResetState2D = GLRB_ResetState2D;
     layer->ResetState3D = GLRB_ResetState3D;
-    layer->SetMirroredRendering = GLRB_SetMirroredRendering;
+    layer->SetPortalRendering = GLRB_SetPortalRendering;
     layer->SetModelViewMatrix = GLRB_SetModelViewMatrix;
     layer->SetDepthRange = GLRB_SetDepthRange;
     layer->SetDrawBuffer = GLRB_SetDrawBuffer;
