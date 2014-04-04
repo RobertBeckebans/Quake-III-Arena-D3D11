@@ -1637,10 +1637,10 @@ void *GLimp_RendererSleep( void ) {
 		wglErrors++;
 	}
 
-	ResetEvent( renderActiveEvent );
-
 	// after this, the front end can exit GLimp_FrontEndSleep
 	SetEvent( renderCompletedEvent );
+
+	ResetEvent( renderActiveEvent );
 
 	WaitForSingleObject( renderCommandsEvent, INFINITE );
 
