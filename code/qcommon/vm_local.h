@@ -135,7 +135,7 @@ struct vm_s {
 
 	// for dynamic linked modules
 	void		*dllHandle;
-	int			(QDECL *entryPoint)( int callNum, ... );
+	int			(QDECL *entryPoint)( size_t callNum, ... );
 
 	// for interpreted modules
 	qboolean	currentlyInterpreting;
