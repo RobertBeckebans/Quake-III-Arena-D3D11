@@ -100,7 +100,7 @@
     </ClCompile>
     <Lib>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalDependencies>d3d11.lib</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib</AdditionalDependencies>
     </Lib>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -126,7 +126,7 @@
     </ClCompile>
     <Lib>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalDependencies>d3d11.lib</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib</AdditionalDependencies>
     </Lib>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -151,7 +151,7 @@
     </ClCompile>
     <Lib>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalDependencies>d3d11.lib</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib</AdditionalDependencies>
     </Lib>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -177,7 +177,7 @@
     </ClCompile>
     <Lib>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalDependencies>d3d11.lib</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib</AdditionalDependencies>
     </Lib>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -193,8 +193,10 @@
   <ItemGroup>
     <ClCompile Include="..\d3d11\d3d_common.cpp" />
     <ClCompile Include="..\d3d11\d3d_compiler.cpp" />
+    <ClCompile Include="..\d3d11\d3d_draw.cpp" />
     <ClCompile Include="..\d3d11\d3d_driver.cpp" />
     <ClCompile Include="..\d3d11\d3d_image.cpp" />
+    <ClCompile Include="..\d3d11\d3d_shaders.cpp" />
     <ClCompile Include="..\d3d11\d3d_state.cpp" />
     <ClCompile Include="..\d3d11\d3d_wnd.cpp" />
     <ClCompile Include="gl_common.c" />
@@ -529,6 +531,7 @@
   <ItemGroup>
     <ClInclude Include="..\d3d11\d3d_common.h" />
     <ClInclude Include="..\d3d11\d3d_compiler.h" />
+    <ClInclude Include="..\d3d11\d3d_draw.h" />
     <ClInclude Include="..\d3d11\d3d_driver.h" />
     <ClInclude Include="..\d3d11\d3d_image.h" />
     <ClInclude Include="..\d3d11\d3d_shaders.h" />
@@ -848,6 +851,14 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\baseq3\d3d11\fsq_ps.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\baseq3\d3d11\fsq_vs.hlsl">
+      <FileType>Document</FileType>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

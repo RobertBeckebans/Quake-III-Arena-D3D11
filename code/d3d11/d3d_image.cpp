@@ -16,7 +16,13 @@ struct d3dImage_t
 
 static d3dImage_t s_d3dImages[MAX_DRAWIMAGES];
 
-void D3DDrv_CreateImage( const image_t* image, const byte *pic, qboolean isLightmap )
+void CreateImageCustom( 
+    const image_t* image, 
+    const int width, 
+    const int height, 
+    const int mipLevels,
+    const byte *pic, 
+    qboolean isLightmap )
 {
     d3dImage_t* d3dImage = &s_d3dImages[image->index];
 
@@ -30,34 +36,16 @@ void D3DDrv_CreateImage( const image_t* image, const byte *pic, qboolean isLight
     if ( Q_strncmp( image->imgName, "*scratch", sizeof(image->imgName) ) == 0 )
         d3dImage->dynamic = qtrue;
 
-    // Count the number of miplevels for this image
-    int mipLevels = 1;
-    if ( image->mipmap )
-    {
-        int mipWidth = image->width;
-        int mipHeight = image->height;
-        mipLevels = 0;
-        while ( mipWidth > 0 || mipHeight > 0 )
-        {
-            mipWidth >>= 1;
-            mipHeight >>= 1;
-            mipLevels++;
-        }
-
-        // Don't allow zero mips
-        mipLevels = max( 1, mipLevels );
-    }
-
     // Re-allocate space for the image and light scale it
     // @pjb: I wish I didn't have to do this, but there we are.
-    size_t imageSizeBytes = image->width * image->height * sizeof( UINT );
+    size_t imageSizeBytes = width * height * sizeof( UINT );
     void* lightscaledCopy = ri.Hunk_AllocateTempMemory( (int) imageSizeBytes );
     memcpy( lightscaledCopy, pic, imageSizeBytes );
-    R_LightScaleTexture( (unsigned int*) lightscaledCopy, image->width, image->height, (qboolean)(mipLevels == 1) );
+    R_LightScaleTexture( (unsigned int*) lightscaledCopy, width, height, (qboolean)(mipLevels == 1) );
 
     // Now generate the mip levels
-    int mipWidth = image->width;
-    int mipHeight = image->height;
+    int mipWidth = width;
+    int mipHeight = height;
     D3D11_SUBRESOURCE_DATA* subres = (D3D11_SUBRESOURCE_DATA*) ri.Hunk_AllocateTempMemory( (int) sizeof( D3D11_SUBRESOURCE_DATA ) * mipLevels );
     for ( int mip = 0; mip < mipLevels; ++mip )
     {
@@ -82,21 +70,14 @@ void D3DDrv_CreateImage( const image_t* image, const byte *pic, qboolean isLight
     // Create the texture
 	D3D11_TEXTURE2D_DESC dsd;
 	ZeroMemory(&dsd, sizeof(dsd));
-	dsd.Width = image->width;
-	dsd.Height = image->height;
+	dsd.Width = width;
+	dsd.Height = height;
 	dsd.MipLevels = mipLevels;
 	dsd.ArraySize = 1;
 	dsd.Format = d3dImage->internalFormat;
 	dsd.SampleDesc.Count = 1;
 	dsd.SampleDesc.Quality = 0;
 	dsd.BindFlags = D3D11_BIND_SHADER_RESOURCE;		
-	g_pDevice->CreateTexture2D( &dsd, subres, &d3dImage->pTexture );
-
-    for ( int mip = mipLevels - 1; mip >= 0; --mip )
-        ri.Hunk_FreeTempMemory( (void*) subres[mip].pSysMem );
-    
-    ri.Hunk_FreeTempMemory( subres );
-    ri.Hunk_FreeTempMemory( lightscaledCopy );
 
     // For cinematics we'll need to upload new texture data to this texture
     if ( d3dImage->dynamic ) {
@@ -105,6 +86,14 @@ void D3DDrv_CreateImage( const image_t* image, const byte *pic, qboolean isLight
     } else {
         dsd.Usage = D3D11_USAGE_IMMUTABLE;
     }
+
+	g_pDevice->CreateTexture2D( &dsd, subres, &d3dImage->pTexture );
+
+    for ( int mip = mipLevels - 1; mip >= 0; --mip )
+        ri.Hunk_FreeTempMemory( (void*) subres[mip].pSysMem );
+    
+    ri.Hunk_FreeTempMemory( subres );
+    ri.Hunk_FreeTempMemory( lightscaledCopy );
 
     // Create a shader resource view
     d3dImage->pSRV = QD3D::CreateTexture2DShaderResourceView( 
@@ -130,8 +119,37 @@ void D3DDrv_CreateImage( const image_t* image, const byte *pic, qboolean isLight
     else
         d3dImage->samplerDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
 
-    d3dImage->width = image->width;
-    d3dImage->height = image->height;
+    d3dImage->width = width;
+    d3dImage->height = height;
+}
+
+void D3DDrv_CreateImage( const image_t* image, const byte *pic, qboolean isLightmap )
+{
+    // Count the number of miplevels for this image
+    int mipLevels = 1;
+    if ( image->mipmap )
+    {
+        int mipWidth = image->width;
+        int mipHeight = image->height;
+        mipLevels = 0;
+        while ( mipWidth > 0 || mipHeight > 0 )
+        {
+            mipWidth >>= 1;
+            mipHeight >>= 1;
+            mipLevels++;
+        }
+
+        // Don't allow zero mips
+        mipLevels = max( 1, mipLevels );
+    }
+
+    CreateImageCustom( 
+        image,
+        image->width,
+        image->height,
+        mipLevels,
+        pic,
+        isLightmap );
 }
 
 void D3DDrv_DeleteImage( const image_t* image )
@@ -144,15 +162,19 @@ void D3DDrv_DeleteImage( const image_t* image )
     Com_Memset( d3dImage, 0, sizeof( d3dImage_t ) );
 }
 
-void D3DDrv_UpdateCinematic( image_t* image, const byte* pic, int cols, int rows, qboolean dirty )
+void D3DDrv_UpdateCinematic( const image_t* image, const byte* pic, int cols, int rows, qboolean dirty )
 {
-	if ( cols != image->width || rows != image->height ) {
-		image->width = cols;
-		image->height = rows;
+    if ( cols != image->width || rows != image->height ) {
+        D3DDrv_DeleteImage( image );
 
         // Regenerate the texture
-        D3DDrv_DeleteImage( image );
-        D3DDrv_CreateImage( image, pic, qfalse );
+        CreateImageCustom( 
+            image,
+            cols,
+            rows,
+            1,
+            pic, 
+            qfalse );
     } else {
         if (dirty) {
 

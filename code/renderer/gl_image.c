@@ -331,7 +331,7 @@ void GL_DeleteImage( const image_t* image )
     Com_Memset( &glimages[image->index], 0, sizeof( glimage_t ) );
 }
 
-void GL_UpdateCinematic( image_t* image, const byte* pic, int cols, int rows, qboolean dirty )
+void GL_UpdateCinematic( const image_t* image, const byte* pic, int cols, int rows, qboolean dirty )
 {
     assert( image->mipmap == qfalse );
 
@@ -339,8 +339,6 @@ void GL_UpdateCinematic( image_t* image, const byte* pic, int cols, int rows, qb
 
 	// if the scratchImage isn't in the format we want, specify it as a new texture
 	if ( cols != image->width || rows != image->height ) {
-		image->width = cols;
-		image->height = rows;
 		qglTexImage2D( GL_TEXTURE_2D, 0, GL_RGB8, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, pic );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );

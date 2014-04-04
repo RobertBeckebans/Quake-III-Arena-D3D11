@@ -458,6 +458,8 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 
 void RE_UploadCinematic (int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty) {
     graphicsDriver.UpdateCinematic( tr.scratchImage[client], data, cols, rows, dirty );
+    tr.scratchImage[client]->width = cols;
+    tr.scratchImage[client]->height = rows;
 }
 
 

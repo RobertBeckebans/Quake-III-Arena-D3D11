@@ -4,6 +4,7 @@
 #include "d3d_wnd.h"
 #include "d3d_state.h"
 #include "d3d_image.h"
+#include "d3d_shaders.h"
 
 // @pjb: this is just here to deliberately fuck the build if driver is used in here
 #define driver #driver_disallowed
@@ -38,6 +39,7 @@ void DestroyBuffers();
 //----------------------------------------------------------------------------
 void D3DDrv_Shutdown( void )
 {
+    DestroyShaders();
     DestroyBuffers();
     D3DWnd_Shutdown();
 }
@@ -359,10 +361,15 @@ D3D_PUBLIC void D3DDrv_DriverInit( graphicsApiLayer_t* layer )
         D3DWnd_Init();
     }
     
+    // Create the back buffers
     DestroyBuffers();
     CreateBuffers();
 
+    // Set up vdConfig global
     SetupVideoConfig();
+
+    // Load shaders
+    InitShaders();
 }
 
 //----------------------------------------------------------------------------

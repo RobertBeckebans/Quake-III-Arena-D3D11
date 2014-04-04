@@ -76,7 +76,7 @@ void PROXY_DeleteImage( const image_t* image )
     glDriver.DeleteImage( image );
 }
 
-void PROXY_UpdateCinematic( image_t* image, const byte* pic, int cols, int rows, qboolean dirty )
+void PROXY_UpdateCinematic( const image_t* image, const byte* pic, int cols, int rows, qboolean dirty )
 {
     d3dDriver.UpdateCinematic( image, pic, cols, rows, dirty );
     glDriver.UpdateCinematic( image, pic, cols, rows, dirty );
