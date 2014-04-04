@@ -54,26 +54,26 @@ The Windows 8 build is always Direct3D 11, XAudio2, XInput enabled. Networking r
 
 ## FAQ ##
 
-Q: I'm seeing `VM_Create on UI failed`. Help!
-A: This means the UI DLL didn't copy to the right deploy directory. It should be in the same directory as your exe, or in _baseq3_.
+- Q: I'm seeing `VM_Create on UI failed`. Help!
+- A: This means the UI DLL didn't copy to the right deploy directory. It should be in the same directory as your exe, or in _baseq3_.
 
-Q: How do I run the game in widescreen?
-A: `r_mode -1; r_customwidth 1920; r_customheight 1080`
+- Q: How do I run the game in widescreen?
+- A: `r_mode -1; r_customwidth 1920; r_customheight 1080`
 
-Q: I'm seeing `Cannot find ui/hud.txt`.
-A: This means you're running normal Q3A with the Team Arena ui.dll. Swap it out for the proper one.
+- Q: I'm seeing `Cannot find ui/hud.txt`.
+- A: This means you're running normal Q3A with the Team Arena ui.dll. Swap it out for the proper one.
 
-Q: Is this a huge graphical improvement?
-A: It's still the same art, so no. Theoretically it can support textures up to 16K square now though!
+- Q: Is this a huge graphical improvement?
+- A: It's still the same art, so no. Theoretically it can support textures up to 16K square now though!
 
-Q: Is this a huge speed improvement?
-A: Not yet. 15 years ago games built their graphics command buffers on the CPU and drip-fed them to the GPU. Nowadays we batch up on the GPU as possible up-front to save bandwidth at run-time. In order to be as nonivasive as possible I have emulated the former approach, but this approach doesn't work as well in this day and age. It's a priority for me to fix that, however.
+- Q: Is this a huge speed improvement?
+- A: Not yet. 15 years ago games built their graphics command buffers on the CPU and drip-fed them to the GPU. Nowadays we batch up on the GPU as possible up-front to save bandwidth at run-time. In order to be as nonivasive as possible I have emulated the former approach, but this approach doesn't work as well in this day and age. It's a priority for me to fix that, however.
 
-Q: How do I know what code you've changed?
-A: Apart from the Git diffs, you can look for `@pjb` in the source code.
+- Q: How do I know what code you've changed?
+- A: Apart from the Git diffs, you can look for `@pjb` in the source code.
 
-Q: Why?
-A: Because I love Quake and I love code.
+- Q: Why?
+- A: Because I love Quake and I love code.
 
 ## ".plan" ##
 
