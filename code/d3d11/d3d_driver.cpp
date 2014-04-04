@@ -190,7 +190,14 @@ void D3DDrv_SetDrawBuffer( int buffer )
 
 void D3DDrv_EndFrame( void )
 {
-    switch (vdConfig.displayFrequency)
+    int frequency = vdConfig.displayFrequency;
+
+	if ( r_swapInterval->integer > 0 ) 
+    {
+		frequency = min( vdConfig.displayFrequency, 60 / r_swapInterval->integer );
+    }
+
+    switch (frequency)
     {
     case 60: g_pSwapChain->Present( 1, 0 ); break; 
     case 30: g_pSwapChain->Present( 2, 0 ); break;
