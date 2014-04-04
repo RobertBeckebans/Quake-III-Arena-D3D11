@@ -286,36 +286,6 @@
     <ClCompile Include="..\ft2\ttsbit.c">
       <Filter>FreeType2</Filter>
     </ClCompile>
-    <ClCompile Include="tr_backend.c">
-      <Filter>OpenGL Implementation</Filter>
-    </ClCompile>
-    <ClCompile Include="tr_cmds.c">
-      <Filter>OpenGL Implementation</Filter>
-    </ClCompile>
-    <ClCompile Include="tr_flares.c">
-      <Filter>OpenGL Implementation</Filter>
-    </ClCompile>
-    <ClCompile Include="tr_image.c">
-      <Filter>OpenGL Implementation</Filter>
-    </ClCompile>
-    <ClCompile Include="tr_init.c">
-      <Filter>OpenGL Implementation</Filter>
-    </ClCompile>
-    <ClCompile Include="tr_main.c">
-      <Filter>OpenGL Implementation</Filter>
-    </ClCompile>
-    <ClCompile Include="tr_shade.c">
-      <Filter>OpenGL Implementation</Filter>
-    </ClCompile>
-    <ClCompile Include="tr_shadows.c">
-      <Filter>OpenGL Implementation</Filter>
-    </ClCompile>
-    <ClCompile Include="tr_surface.c">
-      <Filter>OpenGL Implementation</Filter>
-    </ClCompile>
-    <ClCompile Include="tr_sky.c">
-      <Filter>OpenGL Implementation</Filter>
-    </ClCompile>
     <ClCompile Include="..\win32\win_qgl.c">
       <Filter>OpenGL Implementation</Filter>
     </ClCompile>
@@ -327,6 +297,45 @@
     </ClCompile>
     <ClCompile Include="proxy_main.c">
       <Filter>Proxy Implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="tr_cmds.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tr_flares.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tr_image.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tr_init.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tr_main.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tr_shade.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tr_shadows.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tr_sky.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tr_surface.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gl_common.c">
+      <Filter>OpenGL Implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="gl_backend.c">
+      <Filter>OpenGL Implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="gl_image.c">
+      <Filter>OpenGL Implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="gl_driver.c">
+      <Filter>OpenGL Implementation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -366,9 +375,6 @@
     <ClInclude Include="..\jpeg-6\jversion.h">
       <Filter>jpeg\Header Files No. 1</Filter>
     </ClInclude>
-    <ClInclude Include="tr_local.h">
-      <Filter>OpenGL Implementation</Filter>
-    </ClInclude>
     <ClInclude Include="..\win32\glw_win.h">
       <Filter>OpenGL Implementation</Filter>
     </ClInclude>
@@ -401,6 +407,15 @@
     </ClInclude>
     <ClInclude Include="d3d_public.h">
       <Filter>Direct3D Implementation</Filter>
+    </ClInclude>
+    <ClInclude Include="tr_local.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gl_common.h">
+      <Filter>OpenGL Implementation</Filter>
+    </ClInclude>
+    <ClInclude Include="gl_image.h">
+      <Filter>OpenGL Implementation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

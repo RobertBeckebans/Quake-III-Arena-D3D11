@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <float.h>
 #include "../renderer/tr_local.h"
+#include "../renderer/gl_common.h"
 #include "glw_win.h"
 
 void QGL_EnableLogging( qboolean enable );

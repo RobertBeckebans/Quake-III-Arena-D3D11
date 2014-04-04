@@ -353,10 +353,13 @@
     <None Include="ref_trin.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="gl_common.c" />
+    <ClCompile Include="gl_driver.c" />
+    <ClCompile Include="gl_image.c" />
     <ClCompile Include="proxy_main.c" />
     <ClCompile Include="tr_animation.c">
     </ClCompile>
-    <ClCompile Include="tr_backend.c">
+    <ClCompile Include="gl_backend.c">
     </ClCompile>
     <ClCompile Include="tr_bsp.c">
     </ClCompile>
@@ -816,6 +819,8 @@
     <ClInclude Include="..\qcommon\qcommon.h" />
     <ClInclude Include="..\qcommon\qfiles.h" />
     <ClInclude Include="d3d_public.h" />
+    <ClInclude Include="gl_common.h" />
+    <ClInclude Include="gl_image.h" />
     <ClInclude Include="proxy_main.h" />
     <ClInclude Include="qgl.h" />
     <ClInclude Include="..\game\surfaceflags.h" />

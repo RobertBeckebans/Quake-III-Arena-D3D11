@@ -27,10 +27,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "proxy_main.h"
 #include "d3d_public.h"
 
-glconfig_t	glConfig;
-glstate_t	glState;
+#include "gl_common.h"
 
 static void GfxInfo_f( void );
+
+graphicsDriver_t* driver = NULL;
 
 cvar_t	*r_flareSize;
 cvar_t	*r_flareFade;
@@ -152,13 +153,6 @@ int		max_polys;
 cvar_t	*r_maxpolyverts;
 int		max_polyverts;
 
-void ( APIENTRY * qglMultiTexCoord2fARB )( GLenum texture, GLfloat s, GLfloat t );
-void ( APIENTRY * qglActiveTextureARB )( GLenum texture );
-void ( APIENTRY * qglClientActiveTextureARB )( GLenum texture );
-
-void ( APIENTRY * qglLockArraysEXT)( GLint, GLint);
-void ( APIENTRY * qglUnlockArraysEXT) ( void );
-
 static void AssertCvarRange( cvar_t *cv, float minVal, float maxVal, qboolean shouldBeIntegral )
 {
 	if ( shouldBeIntegral )
@@ -238,50 +232,6 @@ static void InitOpenGL( void )
 }
 
 /*
-==================
-GL_CheckErrors
-==================
-*/
-void GL_CheckErrors( void ) {
-    int		err;
-    char	s[64];
-
-    err = qglGetError();
-    if ( err == GL_NO_ERROR ) {
-        return;
-    }
-    if ( r_ignoreGLErrors->integer ) {
-        return;
-    }
-    switch( err ) {
-        case GL_INVALID_ENUM:
-            strcpy( s, "GL_INVALID_ENUM" );
-            break;
-        case GL_INVALID_VALUE:
-            strcpy( s, "GL_INVALID_VALUE" );
-            break;
-        case GL_INVALID_OPERATION:
-            strcpy( s, "GL_INVALID_OPERATION" );
-            break;
-        case GL_STACK_OVERFLOW:
-            strcpy( s, "GL_STACK_OVERFLOW" );
-            break;
-        case GL_STACK_UNDERFLOW:
-            strcpy( s, "GL_STACK_UNDERFLOW" );
-            break;
-        case GL_OUT_OF_MEMORY:
-            strcpy( s, "GL_OUT_OF_MEMORY" );
-            break;
-        default:
-            Com_sprintf( s, sizeof(s), "%i", err);
-            break;
-    }
-
-    ri.Error( ERR_FATAL, "GL_CheckErrors: %s", s );
-}
-
-
-/*
 ** R_GetModeInfo
 */
 typedef struct vidmode_s
@@ -347,106 +297,6 @@ static void R_ModeList_f( void )
 		ri.Printf( PRINT_ALL, "%s\n", r_vidModes[i].description );
 	}
 	ri.Printf( PRINT_ALL, "\n" );
-}
-
-
-/* 
-============================================================================== 
- 
-						SCREEN SHOTS 
-
-NOTE TTimo
-some thoughts about the screenshots system:
-screenshots get written in fs_homepath + fs_gamedir
-vanilla q3 .. baseq3/screenshots/ *.tga
-team arena .. missionpack/screenshots/ *.tga
-
-two commands: "screenshot" and "screenshotJPEG"
-we use statics to store a count and start writing the first screenshot/screenshot????.tga (.jpg) available
-(with FS_FileExists / FS_FOpenFileWrite calls)
-FIXME: the statics don't get a reinit between fs_game changes
-
-============================================================================== 
-*/ 
-
-/* 
-================== 
-RB_TakeScreenshot
-================== 
-*/  
-void RB_TakeScreenshot( int x, int y, int width, int height, char *fileName ) {
-	byte		*buffer;
-	int			i, c, temp;
-		
-	buffer = ri.Hunk_AllocateTempMemory(glConfig.vidWidth*glConfig.vidHeight*3+18);
-
-	Com_Memset (buffer, 0, 18);
-	buffer[2] = 2;		// uncompressed type
-	buffer[12] = width & 255;
-	buffer[13] = width >> 8;
-	buffer[14] = height & 255;
-	buffer[15] = height >> 8;
-	buffer[16] = 24;	// pixel size
-
-	qglReadPixels( x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer+18 ); 
-
-	// swap rgb to bgr
-	c = 18 + width * height * 3;
-	for (i=18 ; i<c ; i+=3) {
-		temp = buffer[i];
-		buffer[i] = buffer[i+2];
-		buffer[i+2] = temp;
-	}
-
-	// gamma correct
-	if ( ( tr.overbrightBits > 0 ) && glConfig.deviceSupportsGamma ) {
-		R_GammaCorrect( buffer + 18, glConfig.vidWidth * glConfig.vidHeight * 3 );
-	}
-
-	ri.FS_WriteFile( fileName, buffer, c );
-
-	ri.Hunk_FreeTempMemory( buffer );
-}
-
-/* 
-================== 
-RB_TakeScreenshotJPEG
-================== 
-*/  
-void RB_TakeScreenshotJPEG( int x, int y, int width, int height, char *fileName ) {
-	byte		*buffer;
-
-	buffer = ri.Hunk_AllocateTempMemory(glConfig.vidWidth*glConfig.vidHeight*4);
-
-	qglReadPixels( x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer ); 
-
-	// gamma correct
-	if ( ( tr.overbrightBits > 0 ) && glConfig.deviceSupportsGamma ) {
-		R_GammaCorrect( buffer, glConfig.vidWidth * glConfig.vidHeight * 4 );
-	}
-
-	ri.FS_WriteFile( fileName, buffer, 1 );		// create path
-	SaveJPG( fileName, 95, glConfig.vidWidth, glConfig.vidHeight, buffer);
-
-	ri.Hunk_FreeTempMemory( buffer );
-}
-
-/*
-==================
-RB_TakeScreenshotCmd
-==================
-*/
-const void *RB_TakeScreenshotCmd( const void *data ) {
-	const screenshotCommand_t	*cmd;
-	
-	cmd = (const screenshotCommand_t *)data;
-	
-	if (cmd->jpeg)
-		RB_TakeScreenshotJPEG( cmd->x, cmd->y, cmd->width, cmd->height, cmd->fileName);
-	else
-		RB_TakeScreenshot( cmd->x, cmd->y, cmd->width, cmd->height, cmd->fileName);
-	
-	return (const void *)(cmd + 1);	
 }
 
 /*
@@ -707,52 +557,6 @@ void R_ScreenShotJPEG_f (void) {
 } 
 
 //============================================================================
-
-/*
-** GL_SetDefaultState
-*/
-void GL_SetDefaultState( void )
-{
-	qglClearDepth( 1.0f );
-
-	qglCullFace(GL_FRONT);
-
-	qglColor4f (1,1,1,1);
-
-	// initialize downstream texture unit if we're running
-	// in a multitexture environment
-	if ( qglActiveTextureARB ) {
-		GL_SelectTexture( 1 );
-		GL_TextureMode( r_textureMode->string );
-		GL_TexEnv( GL_MODULATE );
-		qglDisable( GL_TEXTURE_2D );
-		GL_SelectTexture( 0 );
-	}
-
-	qglEnable(GL_TEXTURE_2D);
-	GL_TextureMode( r_textureMode->string );
-	GL_TexEnv( GL_MODULATE );
-
-	qglShadeModel( GL_SMOOTH );
-	qglDepthFunc( GL_LEQUAL );
-
-	// the vertex array is always enabled, but the color and texture
-	// arrays are enabled and disabled around the compiled vertex array call
-	qglEnableClientState (GL_VERTEX_ARRAY);
-
-	//
-	// make sure our GL state vector is set correctly
-	//
-	glState.glStateBits = GLS_DEPTHTEST_DISABLE | GLS_DEPTHMASK_TRUE;
-
-	qglPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-	qglDepthMask( GL_TRUE );
-	qglDisable( GL_DEPTH_TEST );
-	qglEnable( GL_SCISSOR_TEST );
-	qglDisable( GL_CULL_FACE );
-	qglDisable( GL_BLEND );
-}
-
 
 /*
 ================
@@ -1132,6 +936,8 @@ void RE_Shutdown( qboolean destroyWindow ) {
 		R_SyncRenderThread();
 		R_ShutdownCommandBuffers();
 		R_DeleteTextures();
+
+        GLRB_RestoreTextureState();
 	}
 
 	R_DoneFreeType();
@@ -1145,20 +951,6 @@ void RE_Shutdown( qboolean destroyWindow ) {
 }
 
 
-/*
-=============
-RE_EndRegistration
-
-Touch all images to make sure they are resident
-=============
-*/
-void RE_EndRegistration( void ) {
-	R_SyncRenderThread();
-	if (!Sys_LowPhysicalMemory()) {
-		RB_ShowImages();
-	}
-}
-
 
 /*
 @@@@@@@@@@@@@@@@@@@@@
@@ -1166,7 +958,7 @@ GetRefAPI
 
 @@@@@@@@@@@@@@@@@@@@@
 */
-refexport_t *GetRefAPI ( int apiVersion, int driver, refimport_t *rimp ) {
+refexport_t *GetRefAPI ( int apiVersion, int driverReq, refimport_t *rimp ) {
 	static refexport_t	re;
 
 	ri = *rimp;
@@ -1181,90 +973,26 @@ refexport_t *GetRefAPI ( int apiVersion, int driver, refimport_t *rimp ) {
 
     // @pjb: based on whichever renderer is requested, return different entry points
 	// the RE_ functions are Renderer Entry points
-    if ( driver == REF_API_OPENGL )
+    if ( driverReq == REF_API_OPENGL )
     {
-	    re.Shutdown = RE_Shutdown;
-
-	    re.BeginRegistration = RE_BeginRegistration;
-	    re.RegisterModel = RE_RegisterModel;
-	    re.RegisterSkin = RE_RegisterSkin;
-	    re.RegisterShader = RE_RegisterShader;
-	    re.RegisterShaderNoMip = RE_RegisterShaderNoMip;
-	    re.LoadWorld = RE_LoadWorldMap;
-	    re.SetWorldVisData = RE_SetWorldVisData;
-	    re.EndRegistration = RE_EndRegistration;
-
-	    re.BeginFrame = RE_BeginFrame;
-	    re.EndFrame = RE_EndFrame;
-
-	    re.MarkFragments = R_MarkFragments;
-	    re.LerpTag = R_LerpTag;
-	    re.ModelBounds = R_ModelBounds;
-
-	    re.ClearScene = RE_ClearScene;
-	    re.AddRefEntityToScene = RE_AddRefEntityToScene;
-	    re.AddPolyToScene = RE_AddPolyToScene;
-	    re.LightForPoint = R_LightForPoint;
-	    re.AddLightToScene = RE_AddLightToScene;
-	    re.AddAdditiveLightToScene = RE_AddAdditiveLightToScene;
-	    re.RenderScene = RE_RenderScene;
-
-	    re.SetColor = RE_SetColor;
-	    re.DrawStretchPic = RE_StretchPic;
-	    re.DrawStretchRaw = RE_StretchRaw;
-	    re.UploadCinematic = RE_UploadCinematic;
-
-	    re.RegisterFont = RE_RegisterFont;
-	    re.RemapShader = R_RemapShader;
-	    re.GetEntityToken = R_GetEntityToken;
-	    re.inPVS = R_inPVS;
+        driver = GLRB_DriverInit();
+        GLRB_GetExports( &re );
     }
     // @pjb: todo
-    //else if ( driver == REF_API_DIRECT3D_11 )
+    //else if ( driverReq == REF_API_DIRECT3D_11 )
     //{
+    //  driver = D3D_DriverInit();
+    //  D3D_GetExports( &re );
     //}
-    else if ( driver == REF_API_PROXY )
+    else if ( driverReq == REF_API_PROXY )
     {
-	    re.Shutdown = PROXY_Shutdown;
-
-	    re.BeginRegistration = PROXY_BeginRegistration;
-	    re.RegisterModel = PROXY_RegisterModel;
-	    re.RegisterSkin = PROXY_RegisterSkin;
-	    re.RegisterShader = PROXY_RegisterShader;
-	    re.RegisterShaderNoMip = PROXY_RegisterShaderNoMip;
-	    re.LoadWorld = PROXY_LoadWorld;
-	    re.SetWorldVisData = PROXY_SetWorldVisData;
-	    re.EndRegistration = PROXY_EndRegistration;
-
-	    re.BeginFrame = PROXY_BeginFrame;
-	    re.EndFrame = PROXY_EndFrame;
-
-	    re.MarkFragments = R_MarkFragments;
-	    re.LerpTag = R_LerpTag;
-	    re.ModelBounds = R_ModelBounds;
-
-	    re.ClearScene = PROXY_ClearScene;
-	    re.AddRefEntityToScene = PROXY_AddRefEntityToScene;
-	    re.AddPolyToScene = PROXY_AddPolyToScene;
-	    re.LightForPoint = R_LightForPoint;
-	    re.AddLightToScene = PROXY_AddLightToScene;
-	    re.AddAdditiveLightToScene = PROXY_AddAdditiveLightToScene;
-	    re.RenderScene = PROXY_RenderScene;
-
-	    re.SetColor = PROXY_SetColor;
-	    re.DrawStretchPic = PROXY_DrawStretchPic;
-	    re.DrawStretchRaw = PROXY_DrawStretchRaw;
-	    re.UploadCinematic = PROXY_UploadCinematic;
-
-	    re.RegisterFont = PROXY_RegisterFont;
-	    re.RemapShader = R_RemapShader;          // @pjb: TODO - check these?
-	    re.GetEntityToken = R_GetEntityToken;    // @pjb: TODO - check these?
-	    re.inPVS = R_inPVS;                      // @pjb: TODO - check these?
+        driver = PROXY_DriverInit();
+        PROXY_GetExports( &re );
     }
     else
     {
         // Invalid driver
-		ri.Printf(PRINT_ALL, "Invalid REF_API_DRIVER: %i\n", driver );
+		ri.Printf(PRINT_ALL, "Invalid REF_API_DRIVER: %i\n", driverReq );
         return NULL;
     }
 

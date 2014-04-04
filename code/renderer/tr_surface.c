@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // tr_surf.c
 #include "tr_local.h"
 
+#include "gl_common.h" // @pjb: todo: remove
+
 /*
 
   THIS ENTIRE FILE IS BACK END

@@ -21,6 +21,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "tr_local.h"
 
+#include "gl_common.h" // @pjb: todo: remove
+
 volatile renderCommandList_t	*renderCommandList;
 
 volatile qboolean	renderThreadActive;
@@ -43,7 +45,7 @@ void R_PerformanceCounters( void ) {
 		ri.Printf (PRINT_ALL, "%i/%i shaders/surfs %i leafs %i verts %i/%i tris %.2f mtex %.2f dc\n",
 			backEnd.pc.c_shaders, backEnd.pc.c_surfaces, tr.pc.c_leafs, backEnd.pc.c_vertexes, 
 			backEnd.pc.c_indexes/3, backEnd.pc.c_totalIndexes/3, 
-			R_SumOfUsedImages()/(1000000.0f), backEnd.pc.c_overDraw / (float)(glConfig.vidWidth * glConfig.vidHeight) ); 
+			driver->GetFrameImageMemoryUsage()/(1000000.0f), backEnd.pc.c_overDraw / (float)(glConfig.vidWidth * glConfig.vidHeight) ); 
 	} else if (r_speeds->integer == 2) {
 		ri.Printf (PRINT_ALL, "(patch) %i sin %i sclip  %i sout %i bin %i bclip %i bout\n",
 			tr.pc.c_sphere_cull_patch_in, tr.pc.c_sphere_cull_patch_clip, tr.pc.c_sphere_cull_patch_out, 
@@ -84,7 +86,7 @@ void R_InitCommandBuffers( void ) {
 	glConfig.smpActive = qfalse;
 	if ( r_smp->integer ) {
 		ri.Printf( PRINT_ALL, "Trying SMP acceleration...\n" );
-		if ( GLimp_SpawnRenderThread( RB_RenderThread ) ) {
+		if ( GLimp_SpawnRenderThread( GLRB_RenderThread ) ) {
 			ri.Printf( PRINT_ALL, "...succeeded.\n" );
 			glConfig.smpActive = qtrue;
 		} else {
@@ -153,7 +155,7 @@ void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
 	if ( !r_skipBackEnd->integer ) {
 		// let it start on the new batch
 		if ( !glConfig.smpActive ) {
-			RB_ExecuteRenderCommands( cmdList->cmds );
+			GLRB_ExecuteRenderCommands( cmdList->cmds );
 		} else {
 			GLimp_WakeRenderer( cmdList );
 		}

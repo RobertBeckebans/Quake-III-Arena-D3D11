@@ -1,6 +1,12 @@
 #include "tr_local.h"
 #include "proxy_main.h"
+
+// D3D headers
 #include "d3d_public.h"
+
+// GL headers
+#include "gl_common.h"
+#include "gl_image.h"
 
 // called before the library is unloaded
 // if the system is just reconfiguring, pass destroyWindow = qfalse,
@@ -204,4 +210,86 @@ void	PROXY_RegisterFont(const char *fontName, int pointSize, fontInfo_t *font) {
 
     RE_RegisterFont( fontName, pointSize, font );
     // @pjb todo
+}
+
+void PROXY_CreateImage( const image_t* image, const byte *pic, qboolean isLightmap )
+{
+    GL_CreateImage( image, pic, isLightmap );
+    // @pjb todo
+}
+
+void PROXY_DeleteImage( const image_t* image )
+{
+    GL_DeleteImage( image );
+    // @pjb todo
+}
+
+imageFormat_t PROXY_GetImageFormat( const image_t* image )
+{
+    // Just do the GL one
+    return GL_GetImageFormat( image );
+}
+
+void PROXY_SetGamma( unsigned char red[256], unsigned char green[256], unsigned char blue[256] )
+{
+    GLRB_SetGamma( red, green, blue );
+    // @pjb: todo
+}
+
+int PROXY_SumOfUsedImages( void )
+{
+    return GL_SumOfUsedImages(); 
+    // @pjb: todo
+}
+
+void PROXY_GetExports( refexport_t* re )
+{
+	re->Shutdown = PROXY_Shutdown;
+
+	re->BeginRegistration = PROXY_BeginRegistration;
+	re->RegisterModel = PROXY_RegisterModel;
+	re->RegisterSkin = PROXY_RegisterSkin;
+	re->RegisterShader = PROXY_RegisterShader;
+	re->RegisterShaderNoMip = PROXY_RegisterShaderNoMip;
+	re->LoadWorld = PROXY_LoadWorld;
+	re->SetWorldVisData = PROXY_SetWorldVisData;
+	re->EndRegistration = PROXY_EndRegistration;
+
+	re->BeginFrame = PROXY_BeginFrame;
+	re->EndFrame = PROXY_EndFrame;
+
+	re->MarkFragments = R_MarkFragments;
+	re->LerpTag = R_LerpTag;
+	re->ModelBounds = R_ModelBounds;
+
+	re->ClearScene = PROXY_ClearScene;
+	re->AddRefEntityToScene = PROXY_AddRefEntityToScene;
+	re->AddPolyToScene = PROXY_AddPolyToScene;
+	re->LightForPoint = R_LightForPoint;
+	re->AddLightToScene = PROXY_AddLightToScene;
+	re->AddAdditiveLightToScene = PROXY_AddAdditiveLightToScene;
+	re->RenderScene = PROXY_RenderScene;
+
+	re->SetColor = PROXY_SetColor;
+	re->DrawStretchPic = PROXY_DrawStretchPic;
+	re->DrawStretchRaw = PROXY_DrawStretchRaw;
+	re->UploadCinematic = PROXY_UploadCinematic;
+
+	re->RegisterFont = PROXY_RegisterFont;
+	re->RemapShader = R_RemapShader;          // @pjb: TODO - check these?
+	re->GetEntityToken = R_GetEntityToken;    // @pjb: TODO - check these?
+	re->inPVS = R_inPVS;                      // @pjb: TODO - check these?
+}
+
+graphicsDriver_t* PROXY_DriverInit( void )
+{
+    static graphicsDriver_t proxyDriver = {
+        PROXY_CreateImage,
+        PROXY_DeleteImage,
+        PROXY_GetImageFormat,
+        PROXY_SetGamma,
+        PROXY_SumOfUsedImages
+    };
+
+    return &proxyDriver;
 }

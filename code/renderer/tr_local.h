@@ -28,10 +28,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/qfiles.h"
 #include "../qcommon/qcommon.h"
 #include "tr_public.h"
-#include "qgl.h"
 
-#define GL_INDEX_TYPE		GL_UNSIGNED_INT
-typedef unsigned int glIndex_t;
+typedef unsigned int        glIndex_t;
 
 // fast float to int conversion
 #if id386 && !( (defined __linux__ || defined __FreeBSD__ ) && (defined __i386__ ) ) // rb010123
@@ -90,20 +88,36 @@ typedef struct {
 	float		modelMatrix[16];
 } orientationr_t;
 
+// @pjb: need to make R_CreateImage's interface platform agnostic
+typedef enum {
+    WRAPMODE_CLAMP,
+    WRAPMODE_REPEAT
+} wrapClampMode_t;
+
+// @pjb: we can't use GL internal formats any more: here's some common ground
+typedef enum {
+    IMAGEFORMAT_UNKNOWN,
+    IMAGEFORMAT_I,
+    IMAGEFORMAT_IA,
+    IMAGEFORMAT_RGB,
+    IMAGEFORMAT_RGBA,
+    IMAGEFORMAT_RGBA8,
+    IMAGEFORMAT_RGB8,
+    IMAGEFORMAT_S3TC,
+    IMAGEFORMAT_RGBA4,
+    IMAGEFORMAT_RGB5
+} imageFormat_t;
+
 typedef struct image_s {
-	char		imgName[MAX_QPATH];		// game path, including extension
-	int			width, height;				// source image
-	int			uploadWidth, uploadHeight;	// after power of two and picmip but not including clamp to MAX_TEXTURE_SIZE
-	GLuint		texnum;					// gl texture binding
+	char		    imgName[MAX_QPATH];		// game path, including extension
+	int			    width, height;				// source image
+	unsigned int    index;					// unique index for the image
 
-	int			frameUsed;			// for texture usage in frame statistics
+    imageFormat_t   format;
 
-	int			internalFormat;
-	int			TMU;				// only needed for voodoo2
-
-	qboolean	mipmap;
-	qboolean	allowPicmip;
-	int			wrapClampMode;		// GL_CLAMP or GL_REPEAT
+	qboolean	    mipmap;
+	qboolean	    allowPicmip;
+	wrapClampMode_t wrapClampMode;		// WRAPMODE_CLAMP or WRAPMODE_REPEAT
 
 	struct image_s*	next;
 } image_t;
@@ -864,6 +878,16 @@ typedef struct {
 	trRefEntity_t	entity2D;	// currentEntity will point at this when doing 2D rendering
 } backEndState_t;
 
+// @pjb: whichever graphics driver the user chooses, it'll have pointers to its
+// specific utilities
+typedef struct {
+    void            (* CreateImage)( const image_t* image, const byte *pic, qboolean isLightmap );
+    void            (* DeleteImage)( const image_t* image );
+    imageFormat_t   (* GetImageFormat)( const image_t* image );
+    void            (* SetGamma)( unsigned char red[256], unsigned char green[256], unsigned char blue[256] );
+    int             (* GetFrameImageMemoryUsage)( void );
+} graphicsDriver_t;
+
 /*
 ** trGlobals_t 
 **
@@ -960,11 +984,11 @@ typedef struct {
 	float					fogTable[FOG_TABLE_SIZE];
 } trGlobals_t;
 
-extern backEndState_t	backEnd;
-extern trGlobals_t	tr;
-extern glconfig_t	glConfig;		// outside of TR since it shouldn't be cleared during ref re-init
-extern glstate_t	glState;		// outside of TR since it shouldn't be cleared during ref re-init
-
+extern backEndState_t	    backEnd;
+extern trGlobals_t	        tr;
+extern glconfig_t	        glConfig;		// outside of TR since it shouldn't be cleared during ref re-init
+extern glstate_t	        glState;		// outside of TR since it shouldn't be cleared during ref re-init
+extern graphicsDriver_t*    driver;         // @pjb: which driver are we using?
 
 //
 // cvars
@@ -1120,52 +1144,6 @@ int R_CullLocalPointAndRadius( vec3_t origin, float radius );
 
 void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms, orientationr_t *or );
 
-/*
-** GL wrapper/helper functions
-*/
-void	GL_Bind( image_t *image );
-void	GL_SetDefaultState (void);
-void	GL_SelectTexture( int unit );
-void	GL_TextureMode( const char *string );
-void	GL_CheckErrors( void );
-void	GL_State( unsigned long stateVector );
-void	GL_TexEnv( int env );
-void	GL_Cull( int cullType );
-
-#define GLS_SRCBLEND_ZERO						0x00000001
-#define GLS_SRCBLEND_ONE						0x00000002
-#define GLS_SRCBLEND_DST_COLOR					0x00000003
-#define GLS_SRCBLEND_ONE_MINUS_DST_COLOR		0x00000004
-#define GLS_SRCBLEND_SRC_ALPHA					0x00000005
-#define GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA		0x00000006
-#define GLS_SRCBLEND_DST_ALPHA					0x00000007
-#define GLS_SRCBLEND_ONE_MINUS_DST_ALPHA		0x00000008
-#define GLS_SRCBLEND_ALPHA_SATURATE				0x00000009
-#define		GLS_SRCBLEND_BITS					0x0000000f
-
-#define GLS_DSTBLEND_ZERO						0x00000010
-#define GLS_DSTBLEND_ONE						0x00000020
-#define GLS_DSTBLEND_SRC_COLOR					0x00000030
-#define GLS_DSTBLEND_ONE_MINUS_SRC_COLOR		0x00000040
-#define GLS_DSTBLEND_SRC_ALPHA					0x00000050
-#define GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA		0x00000060
-#define GLS_DSTBLEND_DST_ALPHA					0x00000070
-#define GLS_DSTBLEND_ONE_MINUS_DST_ALPHA		0x00000080
-#define		GLS_DSTBLEND_BITS					0x000000f0
-
-#define GLS_DEPTHMASK_TRUE						0x00000100
-
-#define GLS_POLYMODE_LINE						0x00001000
-
-#define GLS_DEPTHTEST_DISABLE					0x00010000
-#define GLS_DEPTHFUNC_EQUAL						0x00020000
-
-#define GLS_ATEST_GT_0							0x10000000
-#define GLS_ATEST_LT_80							0x20000000
-#define GLS_ATEST_GE_80							0x40000000
-#define		GLS_ATEST_BITS						0x70000000
-
-#define GLS_DEFAULT			GLS_DEPTHMASK_TRUE
 
 void	RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty);
 void	RE_UploadCinematic (int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty);
@@ -1185,8 +1163,11 @@ model_t		*R_AllocModel( void );
 void    	R_Init( void );
 image_t		*R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmip, int glWrapClampMode );
 
+// @pjb: need to make R_CreateImage's interface platform agnostic
 image_t		*R_CreateImage( const char *name, const byte *pic, int width, int height, qboolean mipmap
-					, qboolean allowPicmip, int wrapClampMode );
+					, qboolean allowPicmip, wrapClampMode_t wrapClampMode );
+
+
 qboolean	R_GetModeInfo( int *width, int *height, float *windowAspect, int mode );
 
 void		R_SetColorMappings( void );
@@ -1202,10 +1183,18 @@ void	R_InitFogTable( void );
 float	R_FogFactor( float s, float t );
 void	R_InitImages( void );
 void	R_DeleteTextures( void );
-int		R_SumOfUsedImages( void );
 void	R_InitSkins( void );
 skin_t	*R_GetSkinByHandle( qhandle_t hSkin );
 
+// @pjb: todo: find a better home for this
+void R_MipMap (byte *in, int width, int height);
+void R_MipMap2( unsigned *in, int inWidth, int inHeight );
+void R_ResampleTexture( unsigned *in, int inwidth, int inheight, unsigned *out, int outwidth, int outheight );
+void R_LightScaleTexture (unsigned *in, int inwidth, int inheight, qboolean only_gamma );
+void R_BlendOverTexture( byte *data, int pixelCount, byte blend[4] );
+
+// @pjb: rename this and find a better home for it
+void GLimp_LogComment( char *comment );
 
 //
 // tr_shader.c
@@ -1222,32 +1211,6 @@ shader_t *R_FindShaderByName( const char *name );
 void		R_InitShaders( void );
 void		R_ShaderList_f( void );
 void    R_RemapShader(const char *oldShader, const char *newShader, const char *timeOffset);
-
-/*
-====================================================================
-
-IMPLEMENTATION SPECIFIC FUNCTIONS
-
-====================================================================
-*/
-
-void		GLimp_Init( void );
-void		GLimp_Shutdown( void );
-void		GLimp_EndFrame( void );
-
-qboolean	GLimp_SpawnRenderThread( void (*function)( void ) );
-void		*GLimp_RendererSleep( void );
-void		GLimp_FrontEndSleep( void );
-void		GLimp_WakeRenderer( void *data );
-
-void		GLimp_LogComment( char *comment );
-
-// NOTE TTimo linux works with float gamma value, not the gamma table
-//   the params won't be used, getting the r_gamma cvar directly
-void		GLimp_SetGamma( unsigned char red[256], 
-						    unsigned char green[256],
-							unsigned char blue[256] );
-
 
 /*
 ====================================================================
@@ -1307,7 +1270,6 @@ void RB_StageIteratorLightmappedMultitexture( void );
 void RB_AddQuadStamp( vec3_t origin, vec3_t left, vec3_t up, byte *color );
 void RB_AddQuadStampExt( vec3_t origin, vec3_t left, vec3_t up, byte *color, float s1, float t1, float s2, float t2 );
 
-void RB_ShowImages( void );
 
 
 /*
@@ -1464,16 +1426,6 @@ void	RB_CalcColorFromOneMinusEntity( unsigned char *dstColors );
 void	RB_CalcSpecularAlpha( unsigned char *alphas );
 void	RB_CalcDiffuseColor( unsigned char *colors );
 
-/*
-=============================================================
-
-RENDERER BACK END FUNCTIONS
-
-=============================================================
-*/
-
-void RB_RenderThread( void );
-void RB_ExecuteRenderCommands( const void *data );
 
 /*
 =============================================================
@@ -1585,7 +1537,6 @@ extern	volatile qboolean	renderThreadActive;
 
 
 void *R_GetCommandBuffer( int bytes );
-void RB_ExecuteRenderCommands( const void *data );
 
 void R_InitCommandBuffers( void );
 void R_ShutdownCommandBuffers( void );

@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // tr_image.c
 #include "tr_local.h"
+#include "gl_image.h"
 
 /*
  * Include file for users of JPEG library.
@@ -41,9 +42,6 @@ static void LoadJPG( const char *name, byte **pic, int *width, int *height );
 static byte			 s_intensitytable[256];
 static unsigned char s_gammatable[256];
 
-int		gl_filter_min = GL_LINEAR_MIPMAP_NEAREST;
-int		gl_filter_max = GL_LINEAR;
-
 #define FILE_HASH_SIZE		1024
 static	image_t*		hashTable[FILE_HASH_SIZE];
 
@@ -57,20 +55,6 @@ void R_GammaCorrect( byte *buffer, int bufSize ) {
 		buffer[i] = s_gammatable[buffer[i]];
 	}
 }
-
-typedef struct {
-	char *name;
-	int	minimize, maximize;
-} textureMode_t;
-
-textureMode_t modes[] = {
-	{"GL_NEAREST", GL_NEAREST, GL_NEAREST},
-	{"GL_LINEAR", GL_LINEAR, GL_LINEAR},
-	{"GL_NEAREST_MIPMAP_NEAREST", GL_NEAREST_MIPMAP_NEAREST, GL_NEAREST},
-	{"GL_LINEAR_MIPMAP_NEAREST", GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR},
-	{"GL_NEAREST_MIPMAP_LINEAR", GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST},
-	{"GL_LINEAR_MIPMAP_LINEAR", GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR}
-};
 
 /*
 ================
@@ -97,67 +81,6 @@ static long generateHashValue( const char *fname ) {
 
 /*
 ===============
-GL_TextureMode
-===============
-*/
-void GL_TextureMode( const char *string ) {
-	int		i;
-	image_t	*glt;
-
-	for ( i=0 ; i< 6 ; i++ ) {
-		if ( !Q_stricmp( modes[i].name, string ) ) {
-			break;
-		}
-	}
-
-	// hack to prevent trilinear from being set on voodoo,
-	// because their driver freaks...
-	if ( i == 5 && glConfig.hardwareType == GLHW_3DFX_2D3D ) {
-		ri.Printf( PRINT_ALL, "Refusing to set trilinear on a voodoo.\n" );
-		i = 3;
-	}
-
-
-	if ( i == 6 ) {
-		ri.Printf (PRINT_ALL, "bad filter name\n");
-		return;
-	}
-
-	gl_filter_min = modes[i].minimize;
-	gl_filter_max = modes[i].maximize;
-
-	// change all the existing mipmap texture objects
-	for ( i = 0 ; i < tr.numImages ; i++ ) {
-		glt = tr.images[ i ];
-		if ( glt->mipmap ) {
-			GL_Bind (glt);
-			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
-			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
-		}
-	}
-}
-
-/*
-===============
-R_SumOfUsedImages
-===============
-*/
-int R_SumOfUsedImages( void ) {
-	int	total;
-	int i;
-
-	total = 0;
-	for ( i = 0; i < tr.numImages; i++ ) {
-		if ( tr.images[i]->frameUsed == tr.frameCount ) {
-			total += tr.images[i]->uploadWidth * tr.images[i]->uploadHeight;
-		}
-	}
-
-	return total;
-}
-
-/*
-===============
 R_ImageList_f
 ===============
 */
@@ -169,41 +92,42 @@ void R_ImageList_f( void ) {
 		"no ", "yes"
 	};
 
-	ri.Printf (PRINT_ALL, "\n      -w-- -h-- -mm- -TMU- -if-- wrap --name-------\n");
+	ri.Printf (PRINT_ALL, "\n      -w-- -h-- -mm- -if-- wrap --name-------\n");
 	texels = 0;
 
 	for ( i = 0 ; i < tr.numImages ; i++ ) {
 		image = tr.images[ i ];
 
-		texels += image->uploadWidth*image->uploadHeight;
-		ri.Printf (PRINT_ALL,  "%4i: %4i %4i  %s   %d   ",
-			i, image->uploadWidth, image->uploadHeight, yesno[image->mipmap], image->TMU );
-		switch ( image->internalFormat ) {
-		case 1:
+        // @pjb: todo: all this reports incorrectly for non-pow2 textures
+		texels += image->width*image->height;
+		ri.Printf (PRINT_ALL,  "%4i: %4i %4i  %s   ",
+			i, image->width, image->height, yesno[image->mipmap] );
+		switch ( image->format ) {
+		case IMAGEFORMAT_I:
 			ri.Printf( PRINT_ALL, "I    " );
 			break;
-		case 2:
+		case IMAGEFORMAT_IA:
 			ri.Printf( PRINT_ALL, "IA   " );
 			break;
-		case 3:
+		case IMAGEFORMAT_RGB:
 			ri.Printf( PRINT_ALL, "RGB  " );
 			break;
-		case 4:
+		case IMAGEFORMAT_RGBA:
 			ri.Printf( PRINT_ALL, "RGBA " );
 			break;
-		case GL_RGBA8:
+		case IMAGEFORMAT_RGBA8:
 			ri.Printf( PRINT_ALL, "RGBA8" );
 			break;
-		case GL_RGB8:
+		case IMAGEFORMAT_RGB8:
 			ri.Printf( PRINT_ALL, "RGB8" );
 			break;
-		case GL_RGB4_S3TC:
+		case IMAGEFORMAT_S3TC:
 			ri.Printf( PRINT_ALL, "S3TC " );
 			break;
-		case GL_RGBA4:
+		case IMAGEFORMAT_RGBA4:
 			ri.Printf( PRINT_ALL, "RGBA4" );
 			break;
-		case GL_RGB5:
+		case IMAGEFORMAT_RGB5:
 			ri.Printf( PRINT_ALL, "RGB5 " );
 			break;
 		default:
@@ -211,10 +135,10 @@ void R_ImageList_f( void ) {
 		}
 
 		switch ( image->wrapClampMode ) {
-		case GL_REPEAT:
+		case WRAPMODE_REPEAT:
 			ri.Printf( PRINT_ALL, "rept " );
 			break;
-		case GL_CLAMP:
+		case WRAPMODE_CLAMP:
 			ri.Printf( PRINT_ALL, "clmp " );
 			break;
 		default:
@@ -244,8 +168,7 @@ If a larger shrinking is needed, use the mipmap function
 before or after.
 ================
 */
-static void ResampleTexture( unsigned *in, int inwidth, int inheight, unsigned *out,  
-							int outwidth, int outheight ) {
+void R_ResampleTexture( unsigned *in, int inwidth, int inheight, unsigned *out, int outwidth, int outheight ) {
 	int		i, j;
 	unsigned	*inrow, *inrow2;
 	unsigned	frac, fracstep;
@@ -352,7 +275,7 @@ Operates in place, quartering the size of the texture
 Proper linear filter
 ================
 */
-static void R_MipMap2( unsigned *in, int inWidth, int inHeight ) {
+void R_MipMap2( unsigned *in, int inWidth, int inHeight ) {
 	int			i, j, k;
 	byte		*outpix;
 	int			inWidthMask, inHeightMask;
@@ -407,7 +330,7 @@ R_MipMap
 Operates in place, quartering the size of the texture
 ================
 */
-static void R_MipMap (byte *in, int width, int height) {
+void R_MipMap (byte *in, int width, int height) {
 	int		i, j;
 	byte	*out;
 	int		row;
@@ -455,7 +378,7 @@ R_BlendOverTexture
 Apply a color blend over a set of pixels
 ==================
 */
-static void R_BlendOverTexture( byte *data, int pixelCount, byte blend[4] ) {
+void R_BlendOverTexture( byte *data, int pixelCount, byte blend[4] ) {
 	int		i;
 	int		inverseAlpha;
 	int		premult[3];
@@ -472,250 +395,6 @@ static void R_BlendOverTexture( byte *data, int pixelCount, byte blend[4] ) {
 	}
 }
 
-byte	mipBlendColors[16][4] = {
-	{0,0,0,0},
-	{255,0,0,128},
-	{0,255,0,128},
-	{0,0,255,128},
-	{255,0,0,128},
-	{0,255,0,128},
-	{0,0,255,128},
-	{255,0,0,128},
-	{0,255,0,128},
-	{0,0,255,128},
-	{255,0,0,128},
-	{0,255,0,128},
-	{0,0,255,128},
-	{255,0,0,128},
-	{0,255,0,128},
-	{0,0,255,128},
-};
-
-
-/*
-===============
-Upload32
-
-===============
-*/
-extern qboolean charSet;
-static void Upload32( unsigned *data, 
-						  int width, int height, 
-						  qboolean mipmap, 
-						  qboolean picmip, 
-							qboolean lightMap,
-						  int *format, 
-						  int *pUploadWidth, int *pUploadHeight )
-{
-	int			samples;
-	unsigned	*scaledBuffer = NULL;
-	unsigned	*resampledBuffer = NULL;
-	int			scaled_width, scaled_height;
-	int			i, c;
-	byte		*scan;
-	GLenum		internalFormat = GL_RGB;
-	float		rMax = 0, gMax = 0, bMax = 0;
-
-	//
-	// convert to exact power of 2 sizes
-	//
-	for (scaled_width = 1 ; scaled_width < width ; scaled_width<<=1)
-		;
-	for (scaled_height = 1 ; scaled_height < height ; scaled_height<<=1)
-		;
-	if ( r_roundImagesDown->integer && scaled_width > width )
-		scaled_width >>= 1;
-	if ( r_roundImagesDown->integer && scaled_height > height )
-		scaled_height >>= 1;
-
-	if ( scaled_width != width || scaled_height != height ) {
-		resampledBuffer = ri.Hunk_AllocateTempMemory( scaled_width * scaled_height * 4 );
-		ResampleTexture (data, width, height, resampledBuffer, scaled_width, scaled_height);
-		data = resampledBuffer;
-		width = scaled_width;
-		height = scaled_height;
-	}
-
-	//
-	// perform optional picmip operation
-	//
-	if ( picmip ) {
-		scaled_width >>= r_picmip->integer;
-		scaled_height >>= r_picmip->integer;
-	}
-
-	//
-	// clamp to minimum size
-	//
-	if (scaled_width < 1) {
-		scaled_width = 1;
-	}
-	if (scaled_height < 1) {
-		scaled_height = 1;
-	}
-
-	//
-	// clamp to the current upper OpenGL limit
-	// scale both axis down equally so we don't have to
-	// deal with a half mip resampling
-	//
-	while ( scaled_width > glConfig.maxTextureSize
-		|| scaled_height > glConfig.maxTextureSize ) {
-		scaled_width >>= 1;
-		scaled_height >>= 1;
-	}
-
-	scaledBuffer = ri.Hunk_AllocateTempMemory( sizeof( unsigned ) * scaled_width * scaled_height );
-
-	//
-	// scan the texture for each channel's max values
-	// and verify if the alpha channel is being used or not
-	//
-	c = width*height;
-	scan = ((byte *)data);
-	samples = 3;
-	if (!lightMap) {
-		for ( i = 0; i < c; i++ )
-		{
-			if ( scan[i*4+0] > rMax )
-			{
-				rMax = scan[i*4+0];
-			}
-			if ( scan[i*4+1] > gMax )
-			{
-				gMax = scan[i*4+1];
-			}
-			if ( scan[i*4+2] > bMax )
-			{
-				bMax = scan[i*4+2];
-			}
-			if ( scan[i*4 + 3] != 255 ) 
-			{
-				samples = 4;
-				break;
-			}
-		}
-		// select proper internal format
-		if ( samples == 3 )
-		{
-			if ( glConfig.textureCompression == TC_S3TC )
-			{
-				internalFormat = GL_RGB4_S3TC;
-			}
-			else if ( r_texturebits->integer == 16 )
-			{
-				internalFormat = GL_RGB5;
-			}
-			else if ( r_texturebits->integer == 32 )
-			{
-				internalFormat = GL_RGB8;
-			}
-			else
-			{
-				internalFormat = 3;
-			}
-		}
-		else if ( samples == 4 )
-		{
-			if ( r_texturebits->integer == 16 )
-			{
-				internalFormat = GL_RGBA4;
-			}
-			else if ( r_texturebits->integer == 32 )
-			{
-				internalFormat = GL_RGBA8;
-			}
-			else
-			{
-				internalFormat = 4;
-			}
-		}
-	} else {
-		internalFormat = 3;
-	}
-	// copy or resample data as appropriate for first MIP level
-	if ( ( scaled_width == width ) && 
-		( scaled_height == height ) ) {
-		if (!mipmap)
-		{
-			qglTexImage2D (GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-			*pUploadWidth = scaled_width;
-			*pUploadHeight = scaled_height;
-			*format = internalFormat;
-
-			goto done;
-		}
-		Com_Memcpy (scaledBuffer, data, width*height*4);
-	}
-	else
-	{
-		// use the normal mip-mapping function to go down from here
-		while ( width > scaled_width || height > scaled_height ) {
-			R_MipMap( (byte *)data, width, height );
-			width >>= 1;
-			height >>= 1;
-			if ( width < 1 ) {
-				width = 1;
-			}
-			if ( height < 1 ) {
-				height = 1;
-			}
-		}
-		Com_Memcpy( scaledBuffer, data, width * height * 4 );
-	}
-
-	R_LightScaleTexture (scaledBuffer, scaled_width, scaled_height, !mipmap );
-
-	*pUploadWidth = scaled_width;
-	*pUploadHeight = scaled_height;
-	*format = internalFormat;
-
-	qglTexImage2D (GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer );
-
-	if (mipmap)
-	{
-		int		miplevel;
-
-		miplevel = 0;
-		while (scaled_width > 1 || scaled_height > 1)
-		{
-			R_MipMap( (byte *)scaledBuffer, scaled_width, scaled_height );
-			scaled_width >>= 1;
-			scaled_height >>= 1;
-			if (scaled_width < 1)
-				scaled_width = 1;
-			if (scaled_height < 1)
-				scaled_height = 1;
-			miplevel++;
-
-			if ( r_colorMipLevels->integer ) {
-				R_BlendOverTexture( (byte *)scaledBuffer, scaled_width * scaled_height, mipBlendColors[miplevel] );
-			}
-
-			qglTexImage2D (GL_TEXTURE_2D, miplevel, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer );
-		}
-	}
-done:
-
-	if (mipmap)
-	{
-		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
-		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
-	}
-	else
-	{
-		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-	}
-
-	GL_CheckErrors();
-
-	if ( scaledBuffer != 0 )
-		ri.Hunk_FreeTempMemory( scaledBuffer );
-	if ( resampledBuffer != 0 )
-		ri.Hunk_FreeTempMemory( resampledBuffer );
-}
-
 
 /*
 ================
@@ -725,7 +404,7 @@ This is the only way any image_t are created
 ================
 */
 image_t *R_CreateImage( const char *name, const byte *pic, int width, int height, 
-					   qboolean mipmap, qboolean allowPicmip, int glWrapClampMode ) {
+					   qboolean mipmap, qboolean allowPicmip, wrapClampMode_t wrapClampMode ) {
 	image_t		*image;
 	qboolean	isLightmap = qfalse;
 	long		hash;
@@ -742,8 +421,7 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 	}
 
 	image = tr.images[tr.numImages] = ri.Hunk_Alloc( sizeof( image_t ), h_low );
-	image->texnum = 1024 + tr.numImages;
-	tr.numImages++;
+    image->index = tr.numImages++;
 
 	image->mipmap = mipmap;
 	image->allowPicmip = allowPicmip;
@@ -752,37 +430,12 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 
 	image->width = width;
 	image->height = height;
-	image->wrapClampMode = glWrapClampMode;
+    image->wrapClampMode = wrapClampMode;
 
-	// lightmaps are always allocated on TMU 1
-	if ( qglActiveTextureARB && isLightmap ) {
-		image->TMU = 1;
-	} else {
-		image->TMU = 0;
-	}
-
-	if ( qglActiveTextureARB ) {
-		GL_SelectTexture( image->TMU );
-	}
-
-	GL_Bind(image);
-
-	Upload32( (unsigned *)pic, image->width, image->height, 
-								image->mipmap,
-								allowPicmip,
-								isLightmap,
-								&image->internalFormat,
-								&image->uploadWidth,
-								&image->uploadHeight );
-
-	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrapClampMode );
-	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glWrapClampMode );
-
-	qglBindTexture( GL_TEXTURE_2D, 0 );
-
-	if ( image->TMU == 1 ) {
-		GL_SelectTexture( 0 );
-	}
+    // Prepare the driver-specific image info
+    driver->CreateImage( image, pic, isLightmap );
+    
+    image->format = driver->GetImageFormat( image );
 
 	hash = generateHashValue(name);
 	image->next = hashTable[hash];
@@ -1853,7 +1506,7 @@ Finds or loads the given image.
 Returns NULL if it fails, not a default image.
 ==============
 */
-image_t	*R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmip, int glWrapClampMode ) {
+image_t	*R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmip, wrapClampMode_t wrapClampMode ) {
 	image_t	*image;
 	int		width, height;
 	byte	*pic;
@@ -1878,8 +1531,8 @@ image_t	*R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmi
 				if ( image->allowPicmip != allowPicmip ) {
 					ri.Printf( PRINT_DEVELOPER, "WARNING: reused image %s with mixed allowPicmip parm\n", name );
 				}
-				if ( image->wrapClampMode != glWrapClampMode ) {
-					ri.Printf( PRINT_ALL, "WARNING: reused image %s with mixed glWrapClampMode parm\n", name );
+				if ( image->wrapClampMode != wrapClampMode ) {
+					ri.Printf( PRINT_ALL, "WARNING: reused image %s with mixed wrapClampMode parm\n", name );
 				}
 			}
 			return image;
@@ -1905,7 +1558,7 @@ image_t	*R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmi
     }
 	}
 
-	image = R_CreateImage( ( char * ) name, pic, width, height, mipmap, allowPicmip, glWrapClampMode );
+	image = R_CreateImage( ( char * ) name, pic, width, height, mipmap, allowPicmip, wrapClampMode );
 	ri.Free( pic );
 	return image;
 }
@@ -1941,7 +1594,7 @@ static void R_CreateDlightImage( void ) {
 			data[y][x][3] = 255;			
 		}
 	}
-	tr.dlightImage = R_CreateImage("*dlight", (byte *)data, DLIGHT_SIZE, DLIGHT_SIZE, qfalse, qfalse, GL_CLAMP );
+	tr.dlightImage = R_CreateImage("*dlight", (byte *)data, DLIGHT_SIZE, DLIGHT_SIZE, qfalse, qfalse, WRAPMODE_CLAMP );
 }
 
 
@@ -2031,7 +1684,7 @@ static void R_CreateFogImage( void ) {
 	// standard openGL clamping doesn't really do what we want -- it includes
 	// the border color at the edges.  OpenGL 1.2 has clamp-to-edge, which does
 	// what we want.
-	tr.fogImage = R_CreateImage("*fog", (byte *)data, FOG_S, FOG_T, qfalse, qfalse, GL_CLAMP );
+	tr.fogImage = R_CreateImage("*fog", (byte *)data, FOG_S, FOG_T, qfalse, qfalse, WRAPMODE_CLAMP );
 	ri.Hunk_FreeTempMemory( data );
 
 	borderColor[0] = 1.0;
@@ -2039,7 +1692,8 @@ static void R_CreateFogImage( void ) {
 	borderColor[2] = 1.0;
 	borderColor[3] = 1;
 
-	qglTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor );
+    // @pjb : GL-specific hack to add a white border - TODO: truly necessary?
+	GL_SetImageBorderColor( tr.fogImage, borderColor );
 }
 
 /*
@@ -2075,7 +1729,7 @@ static void R_CreateDefaultImage( void ) {
 		data[x][DEFAULT_SIZE-1][2] =
 		data[x][DEFAULT_SIZE-1][3] = 255;
 	}
-	tr.defaultImage = R_CreateImage("*default", (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, qtrue, qfalse, GL_REPEAT );
+	tr.defaultImage = R_CreateImage("*default", (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, qtrue, qfalse, WRAPMODE_REPEAT );
 }
 
 /*
@@ -2091,7 +1745,7 @@ void R_CreateBuiltinImages( void ) {
 
 	// we use a solid white image instead of disabling texturing
 	Com_Memset( data, 255, sizeof( data ) );
-	tr.whiteImage = R_CreateImage("*white", (byte *)data, 8, 8, qfalse, qfalse, GL_REPEAT );
+	tr.whiteImage = R_CreateImage("*white", (byte *)data, 8, 8, qfalse, qfalse, WRAPMODE_REPEAT );
 
 	// with overbright bits active, we need an image which is some fraction of full color,
 	// for default lightmaps, etc
@@ -2104,12 +1758,12 @@ void R_CreateBuiltinImages( void ) {
 		}
 	}
 
-	tr.identityLightImage = R_CreateImage("*identityLight", (byte *)data, 8, 8, qfalse, qfalse, GL_REPEAT );
+	tr.identityLightImage = R_CreateImage("*identityLight", (byte *)data, 8, 8, qfalse, qfalse, WRAPMODE_REPEAT );
 
 
 	for(x=0;x<32;x++) {
 		// scratchimage is usually used for cinematic drawing
-		tr.scratchImage[x] = R_CreateImage("*scratch", (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, qfalse, qtrue, GL_CLAMP );
+		tr.scratchImage[x] = R_CreateImage("*scratch", (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, qfalse, qtrue, WRAPMODE_CLAMP );
 	}
 
 	R_CreateDlightImage();
@@ -2196,10 +1850,7 @@ void R_SetColorMappings( void ) {
 		s_intensitytable[i] = j;
 	}
 
-	if ( glConfig.deviceSupportsGamma )
-	{
-		GLimp_SetGamma( s_gammatable, s_gammatable, s_gammatable );
-	}
+	driver->SetGamma( s_gammatable, s_gammatable, s_gammatable );
 }
 
 /*
@@ -2225,23 +1876,11 @@ void R_DeleteTextures( void ) {
 	int		i;
 
 	for ( i=0; i<tr.numImages ; i++ ) {
-		qglDeleteTextures( 1, &tr.images[i]->texnum );
+		driver->DeleteImage( tr.images[i] );
 	}
 	Com_Memset( tr.images, 0, sizeof( tr.images ) );
 
 	tr.numImages = 0;
-
-	Com_Memset( glState.currenttextures, 0, sizeof( glState.currenttextures ) );
-	if ( qglBindTexture ) {
-		if ( qglActiveTextureARB ) {
-			GL_SelectTexture( 1 );
-			qglBindTexture( GL_TEXTURE_2D, 0 );
-			GL_SelectTexture( 0 );
-			qglBindTexture( GL_TEXTURE_2D, 0 );
-		} else {
-			qglBindTexture( GL_TEXTURE_2D, 0 );
-		}
-	}
 }
 
 /*
