@@ -1,6 +1,7 @@
 #include "d3d_common.h"
 #include "d3d_state.h"
 #include "d3d_image.h"
+#include <float.h>
 
 static d3dImage_t s_d3dImages[MAX_DRAWIMAGES];
 
@@ -93,7 +94,11 @@ void CreateImageCustom(
     D3D11_SAMPLER_DESC samplerDesc;
     Com_Memset( &samplerDesc, 0, sizeof( samplerDesc ) );
 
+#ifdef _ARM_
+    samplerDesc.MaxLOD = FLT_MAX;
+#else
     samplerDesc.MaxLOD = mipLevels - 1;
+#endif
 
     switch ( image->wrapClampMode )
     {

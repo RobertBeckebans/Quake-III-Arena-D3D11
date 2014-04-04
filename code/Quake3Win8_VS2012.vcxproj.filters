@@ -7,9 +7,6 @@
     <Filter Include="baseq3">
       <UniqueIdentifier>{06615729-c3f1-4983-a7ba-b2b2272bcfa3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="HLSL">
-      <UniqueIdentifier>{e85184cf-693a-4bef-9356-908f85e81056}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win32\win_shared.c" />
@@ -27,12 +24,6 @@
     <ClInclude Include="win8\win8_msgs.h" />
     <ClInclude Include="win8\win8_net.h" />
     <ClInclude Include="win8\win8_utils.h" />
-    <ClInclude Include="d3d11\hlsl\pscommon.h">
-      <Filter>HLSL</Filter>
-    </ClInclude>
-    <ClInclude Include="d3d11\hlsl\vscommon.h">
-      <Filter>HLSL</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="win8\deployvmdlls.bat" />
@@ -67,6 +58,7 @@
     <None Include="..\baseq3\pak7.pk3">
       <Filter>baseq3</Filter>
     </None>
+    <None Include="win8\Quake3Win8_VS2012.build.appxrecipe" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="win8\Package_VS2012.appxmanifest" />
@@ -93,31 +85,5 @@
     <Image Include="win8\Assets\logo300wide.png">
       <Filter>Assets</Filter>
     </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="d3d11\hlsl\genericmt_vs.hlsl">
-      <Filter>HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="d3d11\hlsl\genericst_ps.hlsl">
-      <Filter>HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="d3d11\hlsl\genericst_vs.hlsl">
-      <Filter>HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="d3d11\hlsl\skybox_ps.hlsl">
-      <Filter>HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="d3d11\hlsl\skybox_vs.hlsl">
-      <Filter>HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="d3d11\hlsl\fsq_ps.hlsl">
-      <Filter>HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="d3d11\hlsl\fsq_vs.hlsl">
-      <Filter>HLSL</Filter>
-    </FxCompile>
-    <FxCompile Include="d3d11\hlsl\genericmt_ps.hlsl">
-      <Filter>HLSL</Filter>
-    </FxCompile>
   </ItemGroup>
 </Project>

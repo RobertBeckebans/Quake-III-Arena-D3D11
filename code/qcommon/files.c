@@ -2831,9 +2831,6 @@ static void FS_Startup( const char *gameName ) {
 
     // @pjb: don't add the directory if it's the base directory or the home directory
 #ifdef WIN8
-	if (fs_basepath->string[0]) {
-		FS_AddGameDirectory( fs_basepath->string, "." );
-	}
 	if (fs_basepath->string[0] && 
         Q_stricmp(fs_userpath->string,fs_basepath->string) &&
         Q_stricmp(fs_userpath->string,fs_homepath->string)) {
