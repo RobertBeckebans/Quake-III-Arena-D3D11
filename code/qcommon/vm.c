@@ -33,6 +33,8 @@ and one exported function: Perform
 
 */
 
+#define VM_ONLY_LOAD_DLLS 1
+
 #include "vm_local.h"
 
 
@@ -472,7 +474,7 @@ vm_t *VM_Create( const char *module, int (*systemCalls)(int *),
 	vm->systemCall = systemCalls;
 
 // @pjb: Force loading of DLLs until we get an X64 build of the QVM compiler and VM.
-#if 1
+#if VM_ONLY_LOAD_DLLS
 	Com_Printf( "Loading dll file %s.\n", vm->name );
 	vm->dllHandle = Sys_LoadDll( module, vm->fqpath , &vm->entryPoint, VM_DllSyscall );
 	if ( vm->dllHandle ) {
@@ -710,11 +712,18 @@ int	QDECL VM_Call( vm_t *vm, int callnum, ... ) {
                             args[4],  args[5],  args[6], args[7],
                             args[8],  args[9], args[10], args[11],
                             args[12], args[13], args[14], args[15]);
+
+#if !VM_ONLY_LOAD_DLLS
 	} else if ( vm->compiled ) {
 		r = VM_CallCompiled( vm, &callnum );
 	} else {
 		r = VM_CallInterpreted( vm, &callnum );
 	}
+#else
+    } else {
+        Sys_Error( "Invalid DLL function call" );
+    }
+#endif
 
 	if ( oldVM != NULL ) // bk001220 - assert(currentVM!=NULL) for oldVM==NULL
 	  currentVM = oldVM;
