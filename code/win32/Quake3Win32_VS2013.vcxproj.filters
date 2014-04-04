@@ -7,36 +7,34 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="win32\win_input.c" />
-    <ClCompile Include="win32\win_main.c" />
-    <ClCompile Include="win32\win_net.c" />
-    <ClCompile Include="win32\win_snd.c" />
-    <ClCompile Include="win32\win_syscon.c" />
-    <ClCompile Include="win32\win_wndproc.c" />
-    <ClCompile Include="win32\win_shared.c" />
+    <ClCompile Include="win_input.c" />
+    <ClCompile Include="win_main.c" />
+    <ClCompile Include="win_net.c" />
+    <ClCompile Include="win_shared.c" />
+    <ClCompile Include="win_snd.c" />
+    <ClCompile Include="win_syscon.c" />
+    <ClCompile Include="win_wndproc.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="win32\resource.h" />
-    <ClInclude Include="win32\win_local.h" />
-    <ClInclude Include="win32\win_snd.h" />
-    <ClInclude Include="win32\win_shared.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="win_local.h" />
+    <ClInclude Include="win_shared.h" />
+    <ClInclude Include="win_snd.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="win32\cursor2.cur">
+    <None Include="cursor2.cur">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="win32\cursor3.cur">
+    <None Include="cursor3.cur">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="win32\qe3.ico">
+    <Image Include="qe3.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="win32\winquake.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
+    <ResourceCompile Include="winquake.rc" />
   </ItemGroup>
 </Project>

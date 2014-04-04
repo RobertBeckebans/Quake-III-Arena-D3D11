@@ -27,9 +27,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\client\cl_ui.c">
-      <Filter>.Game\Client</Filter>
-    </ClCompile>
     <ClCompile Include="..\client\cl_cgame.c">
       <Filter>Game\Client</Filter>
     </ClCompile>
@@ -165,12 +162,10 @@
     <ClCompile Include="..\xinput\xinput_main.c">
       <Filter>XInput</Filter>
     </ClCompile>
+    <ClCompile Include="..\client\cl_ui.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\game\bg_public.h">
-      <Filter>Game\Client</Filter>
-    </ClInclude>
-    <ClInclude Include="c..\game\cg_public.h">
       <Filter>Game\Client</Filter>
     </ClInclude>
     <ClInclude Include="..\client\client.h">
@@ -183,15 +178,6 @@
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="..\game\surfaceflags.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\tr_local.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\tr_public.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="..\game\tr_types.h">
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="..\ui\ui_public.h">
@@ -245,5 +231,9 @@
     <ClInclude Include="..\xinput\xinput_public.h">
       <Filter>XInput</Filter>
     </ClInclude>
+    <ClInclude Include="..\cgame\cg_public.h" />
+    <ClInclude Include="..\renderer\tr_local.h" />
+    <ClInclude Include="..\renderer\tr_public.h" />
+    <ClInclude Include="..\cgame\tr_types.h" />
   </ItemGroup>
 </Project>
