@@ -57,7 +57,6 @@ typedef struct {
 
 } gamepadInfo_t;
 
-void IN_RegisterGamepadCvars( void );
 void IN_StartupGamepad( void );
 void IN_GamepadMove( void );
 

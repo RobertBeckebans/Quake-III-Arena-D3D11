@@ -4,7 +4,7 @@
 #include <agile.h>
 
 #include "win8_app.h"
-#include "win8_msgq.h"
+#include "win8_msgs.h"
 #include "../d3d11/d3d_win8.h"
 
 extern "C" {
@@ -27,24 +27,6 @@ Q3Win8::MessageQueue g_gameMsgs;
 Q3Win8::MessageQueue g_sysMsgs;
 
 #define NUM_MOUSE_BUTTONS 3
-
-enum GAME_MSG
-{
-    GAME_MSG_QUIT,
-    GAME_MSG_VIDEO_CHANGE,
-    GAME_MSG_MOUSE_MOVE,
-    GAME_MSG_MOUSE_WHEEL,
-    GAME_MSG_MOUSE_DOWN,
-    GAME_MSG_MOUSE_UP,
-    GAME_MSG_KEY_DOWN,
-    GAME_MSG_KEY_UP,
-    GAME_MSG_KEY_CHAR
-};
-
-enum SYS_MSG
-{
-    SYS_MSG_EXCEPTION
-};
 
 Windows::Foundation::IAsyncOperation<Windows::UI::Popups::IUICommand^>^
     Win8_DisplayException( Platform::Exception^ ex )
@@ -186,6 +168,7 @@ namespace Q3Win8
 
 	        Com_Init( sys_cmdline );
 	        NET_Init();
+            IN_Init();
 
 	        Com_Printf( "Working directory: %s\n", Sys_Cwd() );
 
@@ -274,8 +257,7 @@ void Quake3Win8App::SetWindow(CoreWindow^ window)
 
 	window->PointerCursor = nullptr;
 
-	MouseDevice::GetForCurrentView()->MouseMoved +=
-		ref new TypedEventHandler<MouseDevice^, MouseEventArgs^>(this, &Quake3Win8App::OnPointerMoved);
+    CaptureMouse();
 
 	// Disable all pointer visual feedback for better performance when touching.
 	auto pointerVisualizationSettings = Windows::UI::Input::PointerVisualizationSettings::GetForCurrentView();
@@ -493,6 +475,8 @@ void Quake3Win8App::OnActivated(CoreApplicationView^ applicationView, IActivated
 {
     auto window = CoreWindow::GetForCurrentThread();
     window->Activate();
+
+    CaptureMouse();
 }
 
 void Quake3Win8App::OnSuspending(Platform::Object^ sender, SuspendingEventArgs^ args)
@@ -526,6 +510,12 @@ void Quake3Win8App::OnResuming(Platform::Object^ sender, Platform::Object^ args)
 	// does not occur if the app was previously terminated.
 
     // @pjb: todo: do we need to handle this or will simply loading the game cover it?
+}
+
+void Quake3Win8App::CaptureMouse()
+{
+	MouseDevice::GetForCurrentView()->MouseMoved +=
+		ref new TypedEventHandler<MouseDevice^, MouseEventArgs^>(this, &Quake3Win8App::OnPointerMoved);
 }
 
 IFrameworkView^ Quake3Win8ApplicationSource::CreateView()

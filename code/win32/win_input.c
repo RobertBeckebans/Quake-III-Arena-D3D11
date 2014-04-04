@@ -708,9 +708,6 @@ void IN_Init( void ) {
 
 	joy_threshold			= Cvar_Get ("joy_threshold",			"0.15",		CVAR_ARCHIVE);
 
-    // @pjb: gamepad variables
-    IN_RegisterGamepadCvars();
-
 	IN_Startup();
 }
 

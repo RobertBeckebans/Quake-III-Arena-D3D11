@@ -35,6 +35,7 @@ protected:
 private:
 
     void HandleMessagesFromGame();
+    void CaptureMouse();
 
     std::atomic<bool> m_windowClosed;
 	std::atomic<bool> m_windowVisible;

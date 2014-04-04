@@ -2,11 +2,14 @@ extern "C" {
 #   include "../game/q_shared.h"
 #   include "../qcommon/qcommon.h"
 #   include "../win32/win_shared.h"
+#   include "../xinput/xinput_public.h"
 }
 
 #include <ppl.h>
 #include <ppltasks.h>
 #include <assert.h>
+
+#include "win8_msgs.h"
 
 /*
 ================
@@ -15,7 +18,7 @@ IN_DeactivateMouse
 */
 WIN8_EXPORT void IN_DeactivateMouse( void ) 
 {
-    // @pjb: TODO
+    // @pjb: handled automatically by Win8 (alt-tab)
 }
 
 /*
@@ -24,7 +27,7 @@ IN_Init
 ===========
 */
 WIN8_EXPORT void IN_Init( void ) {
-    // @pjb: todo
+    IN_StartupGamepad();
 }
 
 /*
@@ -33,7 +36,7 @@ IN_Shutdown
 ===========
 */
 WIN8_EXPORT void IN_Shutdown( void ) {
-    // @pjb: todo
+    // Nothing.
 }
 
 /*
@@ -44,5 +47,5 @@ Called every frame, even if not generating commands
 ==================
 */
 WIN8_EXPORT void IN_Frame (void) {
-    // @pjb: todo
+    IN_GamepadMove();
 }

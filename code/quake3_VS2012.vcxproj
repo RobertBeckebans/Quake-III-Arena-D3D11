@@ -1942,6 +1942,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release TA|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug TA|x64'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="win8\win8_msgs.h" />
     <ClInclude Include="xaudio\xaudio_local.h" />
     <ClInclude Include="xaudio\xaudio_public.h" />
     <ClInclude Include="xinput\xinput_public.h" />

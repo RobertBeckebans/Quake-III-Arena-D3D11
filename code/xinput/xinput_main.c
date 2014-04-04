@@ -37,6 +37,8 @@ void IN_StartupGamepad(void) {
     int checkTime;
     int i;
 
+    IN_RegisterGamepadCvars();
+    
     if (! in_gamepad->integer ) {
         Com_Printf("Gamepad is not active.\n");
         return;
@@ -50,7 +52,7 @@ void IN_StartupGamepad(void) {
     {
         gamepads[i].checkTimer = i * checkTime / XUSER_MAX_COUNT;
     }
-    
+
     in_gamepad->modified = qfalse;
 }
 

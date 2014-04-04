@@ -318,6 +318,9 @@
     <ClInclude Include="xinput\xinput_public.h">
       <Filter>XInput</Filter>
     </ClInclude>
+    <ClInclude Include="win8\win8_msgs.h">
+      <Filter>Windows\Win8</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="win32\cursor2.cur">
