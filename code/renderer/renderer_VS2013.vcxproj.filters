@@ -376,6 +376,9 @@
     <ClCompile Include="..\d3d11\d3d_draw.cpp">
       <Filter>Direct3D Implementation</Filter>
     </ClCompile>
+    <ClCompile Include="tr_layer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tr_public.h">
