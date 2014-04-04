@@ -23,6 +23,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tr_local.h"
 
+// @pjb proxy driver declarations
+#include "proxy_main.h"
+
 glconfig_t	glConfig;
 glstate_t	glState;
 
@@ -1162,7 +1165,7 @@ GetRefAPI
 
 @@@@@@@@@@@@@@@@@@@@@
 */
-refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
+refexport_t *GetRefAPI ( int apiVersion, int driver, refimport_t *rimp ) {
 	static refexport_t	re;
 
 	ri = *rimp;
@@ -1175,43 +1178,94 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 		return NULL;
 	}
 
+    // @pjb: based on whichever renderer is requested, return different entry points
 	// the RE_ functions are Renderer Entry points
+    if ( driver == REF_API_OPENGL )
+    {
+	    re.Shutdown = RE_Shutdown;
 
-	re.Shutdown = RE_Shutdown;
+	    re.BeginRegistration = RE_BeginRegistration;
+	    re.RegisterModel = RE_RegisterModel;
+	    re.RegisterSkin = RE_RegisterSkin;
+	    re.RegisterShader = RE_RegisterShader;
+	    re.RegisterShaderNoMip = RE_RegisterShaderNoMip;
+	    re.LoadWorld = RE_LoadWorldMap;
+	    re.SetWorldVisData = RE_SetWorldVisData;
+	    re.EndRegistration = RE_EndRegistration;
 
-	re.BeginRegistration = RE_BeginRegistration;
-	re.RegisterModel = RE_RegisterModel;
-	re.RegisterSkin = RE_RegisterSkin;
-	re.RegisterShader = RE_RegisterShader;
-	re.RegisterShaderNoMip = RE_RegisterShaderNoMip;
-	re.LoadWorld = RE_LoadWorldMap;
-	re.SetWorldVisData = RE_SetWorldVisData;
-	re.EndRegistration = RE_EndRegistration;
+	    re.BeginFrame = RE_BeginFrame;
+	    re.EndFrame = RE_EndFrame;
 
-	re.BeginFrame = RE_BeginFrame;
-	re.EndFrame = RE_EndFrame;
+	    re.MarkFragments = R_MarkFragments;
+	    re.LerpTag = R_LerpTag;
+	    re.ModelBounds = R_ModelBounds;
 
-	re.MarkFragments = R_MarkFragments;
-	re.LerpTag = R_LerpTag;
-	re.ModelBounds = R_ModelBounds;
+	    re.ClearScene = RE_ClearScene;
+	    re.AddRefEntityToScene = RE_AddRefEntityToScene;
+	    re.AddPolyToScene = RE_AddPolyToScene;
+	    re.LightForPoint = R_LightForPoint;
+	    re.AddLightToScene = RE_AddLightToScene;
+	    re.AddAdditiveLightToScene = RE_AddAdditiveLightToScene;
+	    re.RenderScene = RE_RenderScene;
 
-	re.ClearScene = RE_ClearScene;
-	re.AddRefEntityToScene = RE_AddRefEntityToScene;
-	re.AddPolyToScene = RE_AddPolyToScene;
-	re.LightForPoint = R_LightForPoint;
-	re.AddLightToScene = RE_AddLightToScene;
-	re.AddAdditiveLightToScene = RE_AddAdditiveLightToScene;
-	re.RenderScene = RE_RenderScene;
+	    re.SetColor = RE_SetColor;
+	    re.DrawStretchPic = RE_StretchPic;
+	    re.DrawStretchRaw = RE_StretchRaw;
+	    re.UploadCinematic = RE_UploadCinematic;
 
-	re.SetColor = RE_SetColor;
-	re.DrawStretchPic = RE_StretchPic;
-	re.DrawStretchRaw = RE_StretchRaw;
-	re.UploadCinematic = RE_UploadCinematic;
+	    re.RegisterFont = RE_RegisterFont;
+	    re.RemapShader = R_RemapShader;
+	    re.GetEntityToken = R_GetEntityToken;
+	    re.inPVS = R_inPVS;
+    }
+    // @pjb: todo
+    //else if ( driver == REF_API_DIRECT3D_11 )
+    //{
+    //}
+    else if ( driver == REF_API_PROXY )
+    {
+	    re.Shutdown = PROXY_Shutdown;
 
-	re.RegisterFont = RE_RegisterFont;
-	re.RemapShader = R_RemapShader;
-	re.GetEntityToken = R_GetEntityToken;
-	re.inPVS = R_inPVS;
+	    re.BeginRegistration = PROXY_BeginRegistration;
+	    re.RegisterModel = PROXY_RegisterModel;
+	    re.RegisterSkin = PROXY_RegisterSkin;
+	    re.RegisterShader = PROXY_RegisterShader;
+	    re.RegisterShaderNoMip = PROXY_RegisterShaderNoMip;
+	    re.LoadWorld = PROXY_LoadWorld;
+	    re.SetWorldVisData = PROXY_SetWorldVisData;
+	    re.EndRegistration = PROXY_EndRegistration;
+
+	    re.BeginFrame = PROXY_BeginFrame;
+	    re.EndFrame = PROXY_EndFrame;
+
+	    re.MarkFragments = R_MarkFragments;
+	    re.LerpTag = R_LerpTag;
+	    re.ModelBounds = R_ModelBounds;
+
+	    re.ClearScene = PROXY_ClearScene;
+	    re.AddRefEntityToScene = PROXY_AddRefEntityToScene;
+	    re.AddPolyToScene = PROXY_AddPolyToScene;
+	    re.LightForPoint = R_LightForPoint;
+	    re.AddLightToScene = PROXY_AddLightToScene;
+	    re.AddAdditiveLightToScene = PROXY_AddAdditiveLightToScene;
+	    re.RenderScene = PROXY_RenderScene;
+
+	    re.SetColor = PROXY_SetColor;
+	    re.DrawStretchPic = PROXY_DrawStretchPic;
+	    re.DrawStretchRaw = PROXY_DrawStretchRaw;
+	    re.UploadCinematic = PROXY_UploadCinematic;
+
+	    re.RegisterFont = PROXY_RegisterFont;
+	    re.RemapShader = R_RemapShader;          // @pjb: TODO - check these?
+	    re.GetEntityToken = R_GetEntityToken;    // @pjb: TODO - check these?
+	    re.inPVS = R_inPVS;                      // @pjb: TODO - check these?
+    }
+    else
+    {
+        // Invalid driver
+		ri.Printf(PRINT_ALL, "Invalid REF_API_DRIVER: %i\n", driver );
+        return NULL;
+    }
 
 	return &re;
 }

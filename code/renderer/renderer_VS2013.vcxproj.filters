@@ -32,6 +32,9 @@
     <Filter Include="Common Header Files">
       <UniqueIdentifier>{8e33f841-a871-40d6-88be-e0308b72be90}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Proxy Implementation">
+      <UniqueIdentifier>{0df7970c-b649-4abc-8ddf-0c5e91effa6c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="tr_animation.c">
@@ -319,6 +322,9 @@
     <ClCompile Include="..\win32\win_glimp.c">
       <Filter>OpenGL Implementation</Filter>
     </ClCompile>
+    <ClCompile Include="proxy_main.c">
+      <Filter>Proxy Implementation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tr_public.h">
@@ -386,6 +392,9 @@
     </ClInclude>
     <ClInclude Include="..\win32\win_local.h">
       <Filter>Common Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="proxy_main.h">
+      <Filter>Proxy Implementation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

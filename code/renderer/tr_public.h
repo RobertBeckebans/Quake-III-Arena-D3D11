@@ -24,7 +24,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../cgame/tr_types.h"
 
-#define	REF_API_VERSION		8
+#define	REF_API_VERSION		9 // @pjb : bumped
+
+// @pjb: distinguish between the API you want with these constants
+#define REF_API_OPENGL      1
+#define REF_API_DIRECT3D_11 2
+#define REF_API_PROXY       3 // does both opengl and directx side-by-side
 
 //
 // these are the functions exported by the refresh module
@@ -162,6 +167,6 @@ typedef struct {
 // this is the only function actually exported at the linker level
 // If the module can't init to a valid rendering state, NULL will be
 // returned.
-refexport_t*GetRefAPI( int apiVersion, refimport_t *rimp );
+refexport_t*GetRefAPI( int apiVersion, int driver, refimport_t *rimp );
 
 #endif	// __TR_PUBLIC_H

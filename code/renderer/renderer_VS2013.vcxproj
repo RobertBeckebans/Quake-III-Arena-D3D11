@@ -353,6 +353,7 @@
     <None Include="ref_trin.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="proxy_main.c" />
     <ClCompile Include="tr_animation.c">
     </ClCompile>
     <ClCompile Include="tr_backend.c">
@@ -814,6 +815,7 @@
     <ClInclude Include="..\game\q_shared.h" />
     <ClInclude Include="..\qcommon\qcommon.h" />
     <ClInclude Include="..\qcommon\qfiles.h" />
+    <ClInclude Include="proxy_main.h" />
     <ClInclude Include="qgl.h" />
     <ClInclude Include="..\game\surfaceflags.h" />
     <ClInclude Include="tr_local.h" />

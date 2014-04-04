@@ -2183,6 +2183,9 @@ CL_InitRef
 ============
 */
 void CL_InitRef( void ) {
+
+    cvar_t* vid_driver = Cvar_Get( "vid_driver", "0", CVAR_INIT | CVAR_LATCH );
+
 	refimport_t	ri;
 	refexport_t	*ret;
 
@@ -2222,7 +2225,13 @@ void CL_InitRef( void ) {
 	ri.CIN_PlayCinematic = CIN_PlayCinematic;
 	ri.CIN_RunCinematic = CIN_RunCinematic;
 
-	ret = GetRefAPI( REF_API_VERSION, &ri );
+
+    // @pjb - cull bad driver modes
+    if ( vid_driver->integer == 0 ) {
+        vid_driver->integer = REF_API_OPENGL;
+    }
+    
+	ret = GetRefAPI( REF_API_VERSION, vid_driver->integer, &ri );
 
 #if defined __USEA3D && defined __A3D_GEOM
 	hA3Dg_ExportRenderGeom (ret);
