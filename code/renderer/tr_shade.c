@@ -219,9 +219,10 @@ static qboolean	setArraysOnce;
 =================
 R_BindAnimatedImage
 
+@pjb: OpenGL internal
 =================
 */
-static void R_BindAnimatedImage( textureBundle_t *bundle ) {
+static void GLR_BindAnimatedImage( textureBundle_t *bundle ) {
 	int		index;
 
 	if ( bundle->isVideoMap ) {
@@ -373,7 +374,7 @@ static void GLR_DrawMultitextured( shaderCommands_t *input, int stage ) {
 	//
 	GL_SelectTexture( 0 );
 	qglTexCoordPointer( 2, GL_FLOAT, 0, input->svars.texcoords[0] );
-	R_BindAnimatedImage( &pStage->bundle[0] );
+	GLR_BindAnimatedImage( &pStage->bundle[0] );
 
 	//
 	// lightmap/secondary pass
@@ -390,7 +391,7 @@ static void GLR_DrawMultitextured( shaderCommands_t *input, int stage ) {
 
 	qglTexCoordPointer( 2, GL_FLOAT, 0, input->svars.texcoords[1] );
 
-	R_BindAnimatedImage( &pStage->bundle[1] );
+	GLR_BindAnimatedImage( &pStage->bundle[1] );
 
 	GLR_DrawElements( input->numIndexes, input->indexes );
 
@@ -1000,7 +1001,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 				GL_Bind( tr.whiteImage );
 			}
 			else 
-				R_BindAnimatedImage( &pStage->bundle[0] );
+				GLR_BindAnimatedImage( &pStage->bundle[0] );
 
 			GL_State( pStage->stateBits );
 
@@ -1183,7 +1184,7 @@ void RB_StageIteratorVertexLitTexture( void )
 	//
 	// call special shade routine
 	//
-	R_BindAnimatedImage( &tess.xstages[0]->bundle[0] );
+	GLR_BindAnimatedImage( &tess.xstages[0]->bundle[0] );
 	GL_State( tess.xstages[0]->stateBits );
 	GLR_DrawElements( input->numIndexes, input->indexes );
 
@@ -1253,7 +1254,7 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 	GL_SelectTexture( 0 );
 
 	qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
-	R_BindAnimatedImage( &tess.xstages[0]->bundle[0] );
+	GLR_BindAnimatedImage( &tess.xstages[0]->bundle[0] );
 	qglTexCoordPointer( 2, GL_FLOAT, 16, tess.texCoords[0][0] );
 
 	//
@@ -1266,7 +1267,7 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 	} else {
 		GL_TexEnv( GL_MODULATE );
 	}
-	R_BindAnimatedImage( &tess.xstages[0]->bundle[1] );
+	GLR_BindAnimatedImage( &tess.xstages[0]->bundle[1] );
 	qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
 	qglTexCoordPointer( 2, GL_FLOAT, 16, tess.texCoords[0][1] );
 
