@@ -32,7 +32,7 @@ void InitQuadRenderData( d3dQuadRenderData_t* qrd )
 
     static const USHORT indices[] = 
     {
-	    0, 2, 1,
+	    1, 2, 0,
 	    2, 3, 0
     };
 
@@ -145,6 +145,7 @@ void InitBlendStates( d3dBlendStates_t* bs )
     D3D11_BLEND_DESC bsd;
     ZeroMemory( &bsd, sizeof( bsd ) );
     bsd.RenderTarget[0].BlendEnable = FALSE;
+    bsd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
     g_pDevice->CreateBlendState( &bsd, &bs->opaque );
 }
 

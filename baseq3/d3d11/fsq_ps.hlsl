@@ -16,5 +16,5 @@ struct VS_PS_Data
 
 float4 Main(VS_PS_Data input) : SV_TARGET
 {
-	return float4(Color, 1);// * Diffuse.Sample(Sampler, input.TexCoord);
+    return float4(Color, 1) * Diffuse.Sample(Sampler, input.TexCoord);
 }

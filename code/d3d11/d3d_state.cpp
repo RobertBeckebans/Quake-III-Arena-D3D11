@@ -12,7 +12,6 @@
 //----------------------------------------------------------------------------
 // Globals
 //----------------------------------------------------------------------------
-d3dState_t g_State;
 d3dRunState_t g_RunState;
 d3dDrawState_t g_DrawState;
 
@@ -36,20 +35,20 @@ static const DXGI_FORMAT DEPTH_SHADER_VIEW_FORMAT = DXGI_FORMAT_R24_UNORM_X8_TYP
 //----------------------------------------------------------------------------
 void CreateBuffers()
 {
-    g_State.backBufferView = QD3D::CreateBackBufferView(g_pSwapChain, g_pDevice, &g_State.backBufferDesc);
-    ASSERT(g_State.backBufferView);
+    g_BufferState.backBufferView = QD3D::CreateBackBufferView(g_pSwapChain, g_pDevice, &g_BufferState.backBufferDesc);
+    ASSERT(g_BufferState.backBufferView);
 
-    g_State.depthBufferView = QD3D::CreateDepthBufferView(
+    g_BufferState.depthBufferView = QD3D::CreateDepthBufferView(
         g_pDevice,
-        g_State.backBufferDesc.Width,
-        g_State.backBufferDesc.Height,
+        g_BufferState.backBufferDesc.Width,
+        g_BufferState.backBufferDesc.Height,
         // @pjb: todo: make these dependent on Cvars
         DEPTH_TEXTURE_FORMAT,
         DEPTH_DEPTH_VIEW_FORMAT,
-        g_State.backBufferDesc.SampleDesc.Count,
-        g_State.backBufferDesc.SampleDesc.Quality,
+        g_BufferState.backBufferDesc.SampleDesc.Count,
+        g_BufferState.backBufferDesc.SampleDesc.Quality,
         D3D11_BIND_SHADER_RESOURCE);
-    ASSERT(g_State.depthBufferView);
+    ASSERT(g_BufferState.depthBufferView);
 }
 
 //----------------------------------------------------------------------------
@@ -57,8 +56,8 @@ void CreateBuffers()
 //----------------------------------------------------------------------------
 void DestroyBuffers()
 {
-    SAFE_RELEASE(g_State.backBufferView);
-    SAFE_RELEASE(g_State.depthBufferView);
+    SAFE_RELEASE(g_BufferState.backBufferView);
+    SAFE_RELEASE(g_BufferState.depthBufferView);
 }
 
 //----------------------------------------------------------------------------
@@ -69,7 +68,7 @@ void DestroyBuffers()
 
 void InitDrawState()
 {
-    // Don't memset g_State here.
+    // Don't memset g_BufferState here.
 
     Com_Memset( &g_RunState, 0, sizeof( g_RunState ) );
     Com_Memset( &g_DrawState, 0, sizeof( g_DrawState ) );
@@ -89,8 +88,14 @@ void InitDrawState()
     float blendFactor[4] = {0, 0, 0, 0};
     g_pImmediateContext->OMSetDepthStencilState( g_DrawState.depthStates.none, 0 );
     g_pImmediateContext->RSSetState( g_DrawState.rasterStates.cullNone );
-    g_pImmediateContext->OMSetBlendState( g_DrawState.blendStates.opaque, blendFactor, 0 );
-    g_pImmediateContext->OMSetRenderTargets( 1, &g_State.backBufferView, g_State.depthBufferView );
+    g_pImmediateContext->OMSetBlendState( g_DrawState.blendStates.opaque, blendFactor, ~0U );
+    g_pImmediateContext->OMSetRenderTargets( 1, &g_BufferState.backBufferView, g_BufferState.depthBufferView );
+    D3DDrv_SetViewport( 0, 0, g_BufferState.backBufferDesc.Width, g_BufferState.backBufferDesc.Height );
+
+    // Clear the targets
+    FLOAT clearCol[4] = { 0, 0, 0, 0 };
+    g_pImmediateContext->ClearRenderTargetView( g_BufferState.backBufferView, clearCol );
+    g_pImmediateContext->ClearDepthStencilView( g_BufferState.depthBufferView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0 );
 }
 
 void DestroyDrawState()
@@ -140,8 +145,12 @@ void DrawQuad(
         g_pImmediateContext, 
         qrd->constantBuffer );
 
-    memcpy( cb->color, color, sizeof(float) * 3 );
-    cb->color[3] = 1;
+    if ( color ) {
+        memcpy( cb->color, color, sizeof(float) * 3 );
+        cb->color[3] = 1;
+    } else {
+        cb->color[0] = 1; cb->color[1] = 1; cb->color[2] = 1; cb->color[3] = 1; 
+    }
 
     g_pImmediateContext->Unmap( qrd->constantBuffer, 0 );
 
@@ -167,7 +176,7 @@ void DrawQuad(
     //
     // Draw
     //
-    UINT stride = sizeof(float) * 2;
+    UINT stride = sizeof(float) * 4;
     UINT offset = 0;
 
     g_pImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );

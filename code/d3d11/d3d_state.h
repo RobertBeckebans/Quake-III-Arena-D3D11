@@ -35,8 +35,8 @@ struct d3dQuadRenderData_t
     ID3D11Buffer* constantBuffer;
 };
 
-// @pjb: stores the D3D state
-struct d3dState_t {
+// @pjb: stores the D3D state and only changes every WndInit
+struct d3dBackBufferState_t {
     D3D11_TEXTURE2D_DESC backBufferDesc;
     ID3D11RenderTargetView* backBufferView;
     ID3D11DepthStencilView* depthBufferView;
@@ -104,7 +104,7 @@ struct d3dViewConstantBuffer_t
 // Imports from d3d_device.cpp
 //----------------------------------------------------------------------------
 extern HRESULT g_hrLastError;
-extern d3dState_t g_State;
+extern d3dBackBufferState_t g_BufferState;
 extern d3dRunState_t g_RunState;
 extern d3dDrawState_t g_DrawState;
 

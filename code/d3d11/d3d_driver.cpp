@@ -82,7 +82,7 @@ void D3DDrv_Clear( unsigned long bits, const float* clearCol, unsigned long sten
         static float defaultCol[] = { 0, 0, 0, 0 };
         if ( !clearCol ) { clearCol = defaultCol; }
 
-        g_pImmediateContext->ClearRenderTargetView( g_State.backBufferView, clearCol );
+        g_pImmediateContext->ClearRenderTargetView( g_BufferState.backBufferView, clearCol );
     }
 
     if ( bits & ( CLEAR_DEPTH | CLEAR_STENCIL ) )
@@ -90,7 +90,7 @@ void D3DDrv_Clear( unsigned long bits, const float* clearCol, unsigned long sten
         DWORD clearBits = 0;
         if ( bits & CLEAR_DEPTH ) { clearBits |= D3D11_CLEAR_DEPTH; }
         if ( bits & CLEAR_STENCIL ) { clearBits |= D3D11_CLEAR_STENCIL; }
-        g_pImmediateContext->ClearDepthStencilView( g_State.depthBufferView, clearBits, depth, (UINT8) stencil );
+        g_pImmediateContext->ClearDepthStencilView( g_BufferState.depthBufferView, clearBits, depth, (UINT8) stencil );
     }
 }
 
@@ -123,7 +123,7 @@ void D3DDrv_SetViewport( int left, int top, int width, int height )
     viewport.TopLeftY = top;
     viewport.Width = width;
     viewport.Height = height;
-    viewport.MinDepth = -1;
+    viewport.MinDepth = 0;
     viewport.MaxDepth = 1;
     g_pImmediateContext->RSSetViewports( 1, &viewport );
     g_pImmediateContext->RSSetScissorRects( 0, NULL );
@@ -256,7 +256,7 @@ void SetupVideoConfig()
 {
     // Set up a bunch of default state
     const char* d3dVersionStr = "Direct3D 11";
-    switch ( g_State.featureLevel )
+    switch ( g_BufferState.featureLevel )
     {
     case D3D_FEATURE_LEVEL_9_1 : d3dVersionStr = "v9.1 (Compatibility)"; break;
     case D3D_FEATURE_LEVEL_9_2 : d3dVersionStr = "v9.2 (Compatibility)"; break;
@@ -271,11 +271,11 @@ void SetupVideoConfig()
     Q_strncpyz( vdConfig.vendor_string, "Microsoft Corporation", sizeof( vdConfig.vendor_string ) );
 
     D3D11_DEPTH_STENCIL_VIEW_DESC depthBufferViewDesc;
-    g_State.depthBufferView->GetDesc( &depthBufferViewDesc );
+    g_BufferState.depthBufferView->GetDesc( &depthBufferViewDesc );
 
     DWORD colorDepth = 0, depthDepth = 0, stencilDepth = 0;
-    if ( FAILED( QD3D::GetBitDepthForFormat( g_State.swapChainDesc.BufferDesc.Format, &colorDepth ) ) )
-        ri.Error( ERR_FATAL, "Bad bit depth supplied for color channel (%x)\n", g_State.swapChainDesc.BufferDesc.Format );
+    if ( FAILED( QD3D::GetBitDepthForFormat( g_BufferState.swapChainDesc.BufferDesc.Format, &colorDepth ) ) )
+        ri.Error( ERR_FATAL, "Bad bit depth supplied for color channel (%x)\n", g_BufferState.swapChainDesc.BufferDesc.Format );
 
     if ( FAILED( QD3D::GetBitDepthForDepthStencilFormat( depthBufferViewDesc.Format, &depthDepth, &stencilDepth ) ) )
         ri.Error( ERR_FATAL, "Bad bit depth supplied for depth-stencil (%x)\n", depthBufferViewDesc.Format );
@@ -348,8 +348,6 @@ D3D_PUBLIC void D3DDrv_DriverInit( graphicsApiLayer_t* layer )
     layer->DebugSetOverdrawMeasureEnabled = D3DDrv_DebugSetOverdrawMeasureEnabled;
     layer->DebugSetTextureMode = D3DDrv_DebugSetTextureMode;
     layer->DebugDrawPolygon = D3DDrv_DebugDrawPolygon;
-
-    Com_Memset( &g_State, 0, sizeof( g_State ) );
 
     // This, weirdly, can be called multiple times. Catch that if that's the case.
     if ( g_pDevice == nullptr )

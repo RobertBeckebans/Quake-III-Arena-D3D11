@@ -13,6 +13,8 @@ ID3D11Device* g_pDevice = nullptr;
 ID3D11DeviceContext* g_pImmediateContext = nullptr;
 IDXGISwapChain* g_pSwapChain = nullptr;
 
+d3dBackBufferState_t g_BufferState;
+
 //----------------------------------------------------------------------------
 // WndProc: Intercepts window events before passing them on to the game.
 //----------------------------------------------------------------------------
@@ -131,6 +133,8 @@ D3D_PUBLIC void D3DWnd_Init( void )
         return;
     }
 
+    Com_Memset( &g_BufferState, 0, sizeof( g_BufferState ) );
+
     // @pjb: todo: fullscreen stuff
     bool fullscreen = r_fullscreen->integer != 0;
 
@@ -149,24 +153,24 @@ D3D_PUBLIC void D3DWnd_Init( void )
         return;
     }
 
-	g_State.featureLevel = D3D_FEATURE_LEVEL_11_0; 
+	g_BufferState.featureLevel = D3D_FEATURE_LEVEL_11_0; 
 	HRESULT hr = QD3D::CreateDefaultDevice(
 		D3D_DRIVER_TYPE_HARDWARE, 
 		&g_pDevice, 
 		&g_pImmediateContext, 
-		&g_State.featureLevel);
+		&g_BufferState.featureLevel);
     if (FAILED(hr) || !g_pDevice || !g_pImmediateContext)
 	{
         ri.Error( ERR_FATAL, "Failed to create Direct3D 11 device: 0x%08x.\n", hr );
         return;
 	}
 
-    ri.Printf( PRINT_ALL, "... feature level %d\n", g_State.featureLevel );
+    ri.Printf( PRINT_ALL, "... feature level %d\n", g_BufferState.featureLevel );
 
     // @pjb: todo: do these based on cvars (or if not set, pick the best one)
-    QD3D::GetBestQualitySwapChainDesc(g_hWnd, g_pDevice, &g_State.swapChainDesc);
+    QD3D::GetBestQualitySwapChainDesc(g_hWnd, g_pDevice, &g_BufferState.swapChainDesc);
 
-    hr = QD3D::CreateSwapChain(g_pDevice, &g_State.swapChainDesc, &g_pSwapChain);
+    hr = QD3D::CreateSwapChain(g_pDevice, &g_BufferState.swapChainDesc, &g_pSwapChain);
     if (FAILED(hr))
     {
         // @pjb: todo: if swapchain desc is too fancy, fall back
@@ -189,6 +193,7 @@ D3D_PUBLIC void D3DWnd_Shutdown( void )
     SAFE_RELEASE(g_pImmediateContext);
     SAFE_RELEASE(g_pDevice);
 
+    Com_Memset( &g_BufferState, 0, sizeof( g_BufferState ) );
     g_hWnd = NULL;
 }
 
