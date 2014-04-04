@@ -334,6 +334,35 @@ RENDER BACK END THREAD FUNCTIONS
 ============================================================================
 */
 
+// @pjb: constructs an orthographic matrix
+void ConstructOrtho(float* m, float left, float right, float bottom, float top, float Near, float Far)
+{
+	float x = -((right + left) / (right - left));
+	float y = -((top + bottom) / (top - bottom));
+	float z = -((Far + Near) / (Far - Near));
+		
+	m[ 0] = 2 / (right - left);
+	m[ 1] = 0;
+	m[ 2] = 0;
+	m[ 3] = 0;
+	
+	m[ 4] = 0;
+	m[ 5] = 2 / (top - bottom);
+	m[ 6] = 0;
+	m[ 7] = 0;
+	
+	m[ 8] = 0;
+	m[ 9] = 0;
+	m[10] = -2 / (Far - Near);
+	m[11] = 0;
+	
+	m[12] = x;
+	m[13] = y;
+	m[14] = z;
+	m[15] = 1;
+}
+
+
 /*
 ================
 Set2DProjection
@@ -341,15 +370,18 @@ Set2DProjection
 ================
 */
 static void	Set2DProjection(void) {
-	backEnd.projection2D = qtrue;
+    float orthoMatrix[16];
 
-	// set 2D virtual screen size
-	qglViewport( 0, 0, vdConfig.vidWidth, vdConfig.vidHeight );
-	qglScissor( 0, 0, vdConfig.vidWidth, vdConfig.vidHeight );
-	qglMatrixMode(GL_PROJECTION);
-    qglLoadIdentity ();
-	qglOrtho (0, vdConfig.vidWidth, vdConfig.vidHeight, 0, 0, 1);
-	qglMatrixMode(GL_MODELVIEW);
+    backEnd.projection2D = qtrue;
+
+    graphicsDriver.SetViewport( 0, 0, vdConfig.vidWidth, vdConfig.vidHeight );
+
+    // @pjb: generate orthographic projection matrix manually and pass to
+    // graphicsDriver.SetProjection
+    ConstructOrtho( orthoMatrix, 0, vdConfig.vidWidth, vdConfig.vidHeight, 0, 0, 1 ); 
+    graphicsDriver.SetProjection( orthoMatrix );
+
+    // Reset the state for 3D rendering
     qglLoadIdentity ();
 
 	GL_State( GLS_DEPTHTEST_DISABLE |
