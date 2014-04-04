@@ -24,20 +24,29 @@
     <None Include="win8\Quake3_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="win8\Assets\Logo.png">
-      <Filter>Assets</Filter>
-    </Image>
-    <Image Include="win8\Assets\SmallLogo.png">
-      <Filter>Assets</Filter>
-    </Image>
-    <Image Include="win8\Assets\SplashScreen.png">
-      <Filter>Assets</Filter>
-    </Image>
-    <Image Include="win8\Assets\StoreLogo.png">
-      <Filter>Assets</Filter>
-    </Image>
+    <AppxManifest Include="win8\Package_VS2013.appxmanifest" />
   </ItemGroup>
   <ItemGroup>
-    <AppxManifest Include="win8\Package_VS2013.appxmanifest" />
+    <Image Include="win8\Assets\logo30.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="win8\Assets\logo50.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="win8\Assets\logo70.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="win8\Assets\logo150.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="win8\Assets\logo310.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="win8\Assets\logo150wide.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="win8\Assets\logo300wide.png">
+      <Filter>Assets</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -4,7 +4,7 @@
   <Properties>
     <DisplayName>Quake 3: Arena</DisplayName>
     <PublisherDisplayName>Pete Lewis</PublisherDisplayName>
-    <Logo>Win8\Assets\StoreLogo.png</Logo>
+    <Logo>Win8\Assets\logo50.png</Logo>
   </Properties>
   <Prerequisites>
     <OSMinVersion>6.3.0</OSMinVersion>
@@ -15,8 +15,8 @@
   </Resources>
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="Quake3Arena.App">
-      <m2:VisualElements DisplayName="Quake 3: Arena" Description="Quake 3: Arena" BackgroundColor="#464646" ForegroundText="light" ToastCapable="false" Square150x150Logo="Win8\Assets\Logo.png" Square30x30Logo="Win8\Assets\SmallLogo.png">
-        <m2:DefaultTile>
+      <m2:VisualElements DisplayName="Quake 3: Arena" Description="Quake 3: Arena" BackgroundColor="#000000" ForegroundText="light" ToastCapable="false" Square150x150Logo="Win8\Assets\logo150.png" Square30x30Logo="Win8\Assets\logo30.png">
+        <m2:DefaultTile Square70x70Logo="Win8\Assets\logo70.png" Square310x310Logo="Win8\Assets\logo310.png" Wide310x150Logo="Win8\Assets\logo150wide.png">
           <m2:ShowNameOnTiles>
             <m2:ShowOn Tile="square150x150Logo" />
           </m2:ShowNameOnTiles>
@@ -25,7 +25,7 @@
           <m2:Rotation Preference="landscape" />
         </m2:InitialRotationPreference>
         <m2:ApplicationView MinWidth="default" />
-        <m2:SplashScreen Image="Win8\Assets\SplashScreen.png" />
+        <m2:SplashScreen Image="Win8\Assets\logo300wide.png" BackgroundColor="#000000" />
       </m2:VisualElements>
     </Application>
   </Applications>

@@ -970,12 +970,6 @@
     <None Include="win8\Quake3_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="win8\Assets\Logo.png" />
-    <Image Include="win8\Assets\SmallLogo.png" />
-    <Image Include="win8\Assets\SplashScreen.png" />
-    <Image Include="win8\Assets\StoreLogo.png" />
-  </ItemGroup>
-  <ItemGroup>
     <AppxManifest Include="win8\Package_VS2013.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
@@ -984,6 +978,15 @@
     <ProjectReference Include="quake3_VS2013.vcxproj">
       <Project>{40cdcff3-982c-45fc-8e9e-4a90d6b2a057}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="win8\Assets\logo150.png" />
+    <Image Include="win8\Assets\logo150wide.png" />
+    <Image Include="win8\Assets\logo30.png" />
+    <Image Include="win8\Assets\logo300wide.png" />
+    <Image Include="win8\Assets\logo310.png" />
+    <Image Include="win8\Assets\logo50.png" />
+    <Image Include="win8\Assets\logo70.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
