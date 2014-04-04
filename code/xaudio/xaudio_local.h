@@ -19,7 +19,8 @@ struct StreamingVoiceContext : public IXAudio2VoiceCallback
             }
             STDMETHOD_( void, OnBufferEnd )( void* )
             {
-                SetEvent( hBufferEndEvent );
+                //SetEvent( hBufferEndEvent );
+                ReleaseSemaphore( hBufferEndEvent, 1, nullptr );
             }
             STDMETHOD_( void, OnLoopEnd )( void* )
             {
@@ -31,7 +32,9 @@ struct StreamingVoiceContext : public IXAudio2VoiceCallback
     HANDLE hBufferEndEvent;
             int BuffersInUse;
 
-            StreamingVoiceContext() : hBufferEndEvent( CreateEvent( NULL, FALSE, FALSE, NULL ) )
+            StreamingVoiceContext( int maxCount ) 
+                //: hBufferEndEvent( CreateEvent( NULL, FALSE, FALSE, NULL ) )
+                : hBufferEndEvent( CreateSemaphore( nullptr, maxCount, maxCount, nullptr ) )
             {
             }
     virtual ~StreamingVoiceContext()

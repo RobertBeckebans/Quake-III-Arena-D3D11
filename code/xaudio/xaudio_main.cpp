@@ -17,7 +17,10 @@ static IXAudio2SourceVoice* g_pSourceVoice = NULL;
 #define STREAMING_BUFFER_COUNT 3
 static BYTE g_StreamingBuffers[STREAMING_BUFFER_COUNT][STREAMING_BUFFER_SIZE];
 static int g_StreamingBufferIndex = 0;
-static StreamingVoiceContext g_Context;
+static StreamingVoiceContext g_Context( STREAMING_BUFFER_COUNT );
+static double g_Freq;
+
+cvar_t* xaudio_blockWarning = nullptr;
 
 /*
 ==================
@@ -63,6 +66,12 @@ qboolean XAudio_Init(void)
 
     CoInitializeEx( NULL, COINIT_MULTITHREADED );
 
+    // For stats purposes
+    LARGE_INTEGER pFreq;
+    QueryPerformanceFrequency( &pFreq );
+    g_Freq = 1000.0 / pFreq.QuadPart;
+
+    // Create the audio objects
     HRESULT hr = XAudio2Create( &g_pXAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR );
     if ( FAILED( hr ) ) 
     {
@@ -70,8 +79,9 @@ qboolean XAudio_Init(void)
         goto fail;
     }
 
-    cvar_t* xaudio_debugLevel = Cvar_Get( "xaudio_debugLevel", "0", CVAR_TEMP | CVAR_LATCH );
+    xaudio_blockWarning = Cvar_Get( "xaudio_blockWarning", "0", CVAR_TEMP | CVAR_ARCHIVE );
 
+    cvar_t* xaudio_debugLevel = Cvar_Get( "xaudio_debugLevel", "0", CVAR_TEMP | CVAR_LATCH );
     if ( xaudio_debugLevel->integer > 0 )
     {
         XAUDIO2_DEBUG_CONFIGURATION dbgCfg;
@@ -166,7 +176,6 @@ how many sample are required to fill it up.
 */
 static int lastSample = 0;
 static int bufferOffset = 0;
-static bool hasNewBuffer = true;
 
 int XAudio_GetDMAPos( void ) 
 {
@@ -189,6 +198,7 @@ void XAudio_BeginPainting( int reserve )
     int reserveBytes = reserve * dma.samplebits / 8;
     if ( bufferOffset + reserveBytes > STREAMING_BUFFER_SIZE )
     {
+        // Wait for a buffer to become available
         for (;;)
         {
             XAUDIO2_VOICE_STATE state;
@@ -198,16 +208,20 @@ void XAudio_BeginPainting( int reserve )
             if (state.BuffersQueued < STREAMING_BUFFER_COUNT - 1)
                 break;
 
+            LARGE_INTEGER startTime, endTime;
+            QueryPerformanceCounter( &startTime );
             WaitForSingleObject( g_Context.hBufferEndEvent, INFINITE );
+            QueryPerformanceCounter( &endTime );
+
+            if ( xaudio_blockWarning->integer > 0 )
+            {
+                Com_Printf( "(Prep) Blocked on XAudio buffers for %0.0fms!\n", (endTime.QuadPart - startTime.QuadPart) * g_Freq );
+            }
         }
 
+        // Reset the buffer
         g_StreamingBufferIndex = (g_StreamingBufferIndex + 1) % STREAMING_BUFFER_COUNT;
-        hasNewBuffer = true;
         bufferOffset = 0;
-    }
-    else
-    {
-        hasNewBuffer = false;
     }
 
     // Pass back the pointer to this buffer
@@ -227,21 +241,43 @@ void XAudio_Submit( int offset, int length )
     //Com_Printf( "Offset %d length %d\n", offset, length );
 
     // Why? Because magic.
-    length >>= 2;
+    length >>= 1;
 
+    // Get the length in bytes
+    int byteLength = length * ( dma.samplebits / 8 );
+    byteLength &= ~3; // Round to 4-byte block size
+
+    // Wait for a buffer to become available
+    for (;;)
+    {
+        XAUDIO2_VOICE_STATE state;
+
+        g_pSourceVoice->GetState( &state, XAUDIO2_VOICE_NOSAMPLESPLAYED );
+
+        if (state.BuffersQueued < STREAMING_BUFFER_COUNT)
+            break;
+
+        LARGE_INTEGER startTime, endTime;
+        QueryPerformanceCounter( &startTime );
+        WaitForSingleObject( g_Context.hBufferEndEvent, INFINITE );
+        QueryPerformanceCounter( &endTime );
+
+        if ( xaudio_blockWarning->integer > 0 )
+        {
+            Com_Printf( "(Sub) Blocked on XAudio buffers for %0.0fms!\n", (endTime.QuadPart - startTime.QuadPart) * g_Freq );
+        }
+    }
+
+    // Submit the current buffer
     XAUDIO2_BUFFER xbuf;
     ZeroMemory( &xbuf, sizeof( xbuf ) );
-
-    xbuf.AudioBytes = length * ( dma.samplebits / 8 );
+    xbuf.AudioBytes = byteLength;
     xbuf.pAudioData = dma.buffer;
-
-    xbuf.AudioBytes &= ~3;
-
-    // lastSample = offset + length;
-    lastSample += length;
-    bufferOffset += xbuf.AudioBytes;
-
     g_pSourceVoice->SubmitSourceBuffer( &xbuf );
+
+    // Counters
+    lastSample += length;
+    bufferOffset += byteLength;
 }
 
 /*
