@@ -336,11 +336,11 @@ RENDER BACK END THREAD FUNCTIONS
 
 /*
 ================
-RB_SetGL2D
+Set2DProjection
 
 ================
 */
-void	RB_SetGL2D (void) {
+static void	Set2DProjection(void) {
 	backEnd.projection2D = qtrue;
 
 	// set 2D virtual screen size
@@ -424,7 +424,7 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 		ri.Printf( PRINT_ALL, "qglTexSubImage2D %i, %i: %i msec\n", cols, rows, end - start );
 	}
 
-	RB_SetGL2D();
+	Set2DProjection();
 
 	qglColor3f( tr.identityLight, tr.identityLight, tr.identityLight );
 
@@ -495,7 +495,7 @@ const void *RB_StretchPic ( const void *data ) {
 	cmd = (const stretchPicCommand_t *)data;
 
 	if ( !backEnd.projection2D ) {
-		RB_SetGL2D();
+		Set2DProjection();
 	}
 
 	shader = cmd->shader;
@@ -622,7 +622,7 @@ void RB_ShowImages( void ) {
 	int		start, end;
 
 	if ( !backEnd.projection2D ) {
-		RB_SetGL2D();
+		Set2DProjection();
 	}
 
     graphicsDriver.Clear( CLEAR_COLOR, CLEAR_DEFAULT_COLOR, CLEAR_DEFAULT_STENCIL, CLEAR_DEFAULT_DEPTH );
