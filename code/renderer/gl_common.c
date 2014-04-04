@@ -139,16 +139,18 @@ void GL_SelectTexture( int unit )
 	glState.currenttmu = unit;
 }
 
-
 /*
 ** GL_Cull
 */
 void GL_Cull( int cullType ) {
-	if ( glState.faceCulling == cullType ) {
+
+    int maskBits = ( backEnd.viewParms.isMirror << 3 ) | cullType;
+
+	if ( glState.faceCulling == maskBits ) {
 		return;
 	}
 
-	glState.faceCulling = cullType;
+	glState.faceCulling = maskBits;
 
 	if ( cullType == CT_TWO_SIDED ) 
 	{
@@ -458,7 +460,8 @@ void GL_SetDefaultState( void )
 {
 	qglClearDepth( 1.0f );
 
-	qglCullFace(GL_FRONT);
+    glState.faceCulling = -1;
+	GL_Cull( CT_BACK_SIDED );
 
 	qglColor4f (1,1,1,1);
 

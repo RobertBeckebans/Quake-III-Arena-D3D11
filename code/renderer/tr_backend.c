@@ -133,7 +133,7 @@ void RB_BeginDrawingView (void) {
 		backEnd.isHyperspace = qfalse;
 	}
 
-	// glState.faceCulling = -1;		// force face culling to set next time
+	//glState.faceCulling = -1;		// force face culling to set next time
     // @pjb: this should be guaranteed to be valid now that the shadowing code 
     // doesn't call CullFace directly.
 
@@ -141,7 +141,7 @@ void RB_BeginDrawingView (void) {
 	backEnd.skyRenderedThisView = qfalse;
 
 	// clip to the plane of the portal
-	if ( backEnd.viewParms.isPortal ) {
+	if ( 0 ) {// backEnd.viewParms.isPortal ) {
 		float	plane[4];
 		float	plane2[4];
 
