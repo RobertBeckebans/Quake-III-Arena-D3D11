@@ -209,8 +209,17 @@ void Quake3Win8App::SetWindow(CoreWindow^ window)
 	window->PointerPressed +=
 		ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &Quake3Win8App::OnPointerPressed);
 
+	window->PointerReleased +=
+		ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &Quake3Win8App::OnPointerReleased);
+
 	window->PointerMoved +=
 		ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &Quake3Win8App::OnPointerMoved);
+
+	window->KeyDown +=
+		ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &Quake3Win8App::OnKeyDown);
+
+	window->KeyUp +=
+		ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &Quake3Win8App::OnKeyUp);
 
 	// Disable all pointer visual feedback for better performance when touching.
 	auto pointerVisualizationSettings = Windows::UI::Input::PointerVisualizationSettings::GetForCurrentView();
@@ -334,7 +343,22 @@ void Quake3Win8App::OnPointerPressed(CoreWindow^ sender, PointerEventArgs^ args)
 	// @pjb: todo: click event?
 }
 
+void Quake3Win8App::OnPointerReleased(CoreWindow^ sender, PointerEventArgs^ args)
+{
+	// @pjb: todo: click event?
+}
+
 void Quake3Win8App::OnPointerMoved(CoreWindow^ sender, PointerEventArgs^ args)
+{
+	// @pjb: todo: emit mouse moved event
+}
+
+void Quake3Win8App::OnKeyDown(CoreWindow^ sender, KeyEventArgs^ args)
+{
+	// @pjb: todo: emit mouse moved event
+}
+
+void Quake3Win8App::OnKeyUp(CoreWindow^ sender, KeyEventArgs^ args)
 {
 	// @pjb: todo: emit mouse moved event
 }
