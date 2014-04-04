@@ -13,6 +13,11 @@
 //----------------------------------------------------------------------------
 // Globals
 //----------------------------------------------------------------------------
+ID3D11Device* g_pDevice = nullptr;
+ID3D11DeviceContext* g_pImmediateContext = nullptr;
+IDXGISwapChain* g_pSwapChain = nullptr;
+
+d3dBackBufferState_t g_BufferState;
 d3dRunState_t g_RunState;
 d3dDrawState_t g_DrawState;
 

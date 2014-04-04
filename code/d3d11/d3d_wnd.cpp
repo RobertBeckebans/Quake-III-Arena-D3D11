@@ -9,11 +9,6 @@ extern "C" {
 #define	WINDOW_CLASS_NAME	"Quake 3: Arena (Direct3D)"
 
 HWND g_hWnd = nullptr;
-ID3D11Device* g_pDevice = nullptr;
-ID3D11DeviceContext* g_pImmediateContext = nullptr;
-IDXGISwapChain* g_pSwapChain = nullptr;
-
-d3dBackBufferState_t g_BufferState;
 
 //----------------------------------------------------------------------------
 // WndProc: Intercepts window events before passing them on to the game.
