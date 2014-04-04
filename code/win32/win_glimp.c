@@ -1352,6 +1352,9 @@ static void GLW_StartOpenGL( void )
 */
 void GLimp_Init( void )
 {
+    extern HINSTANCE g_hInstance;
+    extern WNDPROC g_pfWndProc;
+
 	char	buf[1024];
 	cvar_t *lastValidRenderer = ri.Cvar_Get( "r_lastValidRenderer", "(uninitialized)", CVAR_ARCHIVE );
 	//cvar_t	*cv;
@@ -1376,9 +1379,6 @@ void GLimp_Init( void )
 	cv = ri.Cvar_Get( "win_wndproc", "", 0 );
 	sscanf( cv->string, "%i", (int *)&glw_state.wndproc );
     */
-    extern HINSTANCE g_hInstance;
-    extern WNDPROC g_pfWndProc;
-
     g_wv.hInstance = g_hInstance;
     glw_state.wndproc = g_pfWndProc;
 

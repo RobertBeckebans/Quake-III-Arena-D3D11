@@ -263,6 +263,8 @@ done:
 
 void GL_CreateImage( const image_t* image, const byte *pic, qboolean isLightmap )
 {
+    int glWrapClampMode;
+
     // Get the associated GL binding for this image
     glimage_t* glimage = glimages + image->index;
 
@@ -272,7 +274,6 @@ void GL_CreateImage( const image_t* image, const byte *pic, qboolean isLightmap 
 
     assert(image->wrapClampMode != GL_CLAMP && image->wrapClampMode != GL_REPEAT);
 
-    int glWrapClampMode;
     switch (image->wrapClampMode)
     {
     case WRAPMODE_CLAMP:

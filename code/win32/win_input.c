@@ -878,6 +878,8 @@ void IN_ClearStates (void)
 =========================================================================
 */
 void IN_StartupGamepad(void) {
+    int checkTime;
+    int i;
 
     if (! in_gamepad->integer ) {
         Com_Printf("Gamepad is not active.\n");
@@ -887,8 +889,8 @@ void IN_StartupGamepad(void) {
     ZeroMemory( &gamepads, sizeof(gamepads) );
 
     // Delay before we check for connected gamepads
-    int checkTime = in_gamepadCheckDelay->integer;
-    for ( int i = 0; i < XUSER_MAX_COUNT; ++i )
+    checkTime = in_gamepadCheckDelay->integer;
+    for ( i = 0; i < XUSER_MAX_COUNT; ++i )
     {
         gamepads[i].checkTimer = i * checkTime / XUSER_MAX_COUNT;
     }
@@ -922,6 +924,13 @@ void IN_GetGamepadThumbstickReading( short x, short y, int deadzone, gamepadThum
 
 void IN_GetGamepadReading( gamepadInfo_t* gamepad, int userIndex )
 {
+    XINPUT_STATE xinputState;
+    byte wasConnected;
+    DWORD getStateR;
+    int ldeadzone;
+    int rdeadzone;
+    qboolean triggerPressed;
+
     // If this isn't connected, we only want to poll it periodically
     if ( !gamepad->connected && gamepad->checkTimer > 0 ) {
         --gamepad->checkTimer;
@@ -929,9 +938,8 @@ void IN_GetGamepadReading( gamepadInfo_t* gamepad, int userIndex )
     }
 
     // Query the gamepad state, and if that succeeds the gamepad is connected
-    XINPUT_STATE xinputState;
-    byte wasConnected = gamepad->connected;
-    DWORD getStateR = XInputGetState( userIndex, &xinputState );
+    wasConnected = gamepad->connected;
+    getStateR = XInputGetState( userIndex, &xinputState );
     gamepad->connected = ( getStateR == ERROR_SUCCESS ) ? qtrue : qfalse;
 
     // Track insertions and removals
@@ -954,8 +962,8 @@ void IN_GetGamepadReading( gamepadInfo_t* gamepad, int userIndex )
     }
 
     // Get some old state
-    int ldeadzone = in_gamepadLDeadZone->integer;
-    int rdeadzone = in_gamepadRDeadZone->integer;
+    ldeadzone = in_gamepadLDeadZone->integer;
+    rdeadzone = in_gamepadRDeadZone->integer;
 
     // Cache the old state
     memcpy( &gamepad->lastState, &gamepad->state, sizeof( XINPUT_GAMEPAD ) );
@@ -987,7 +995,7 @@ void IN_GetGamepadReading( gamepadInfo_t* gamepad, int userIndex )
     gamepad->heldButtons = gamepad->state.wButtons;
 
     // Figure out whether the left trigger has been pulled or not
-    qboolean triggerPressed = gamepad->state.bLeftTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD;
+    triggerPressed = gamepad->state.bLeftTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD;
     if ( triggerPressed ) {
         gamepad->pressedLeftTrigger = !gamepad->heldLeftTrigger;
         gamepad->releasedLeftTrigger = qfalse;
@@ -1038,10 +1046,13 @@ static const gamepadButtonMapping_t gamepadButtonMappings[] = {
 
 void IN_ApplyGamepad( const gamepadInfo_t* gamepad )
 {
+    int rdeadzone;
+    int i;
+
     //
     // Handle buttons
     //
-    for ( int i = 0; i < _countof(gamepadButtonMappings); ++i )
+    for ( i = 0; i < _countof(gamepadButtonMappings); ++i )
     {
         const gamepadButtonMapping_t* button = &gamepadButtonMappings[i];
 
@@ -1081,7 +1092,7 @@ void IN_ApplyGamepad( const gamepadInfo_t* gamepad )
     //
     // Handle right stick as a mouse
     //
-    int rdeadzone = in_gamepadRDeadZone->integer;
+    rdeadzone = in_gamepadRDeadZone->integer;
 
     if ( abs( gamepad->state.sThumbRX ) > rdeadzone || 
          abs( gamepad->state.sThumbRY ) > rdeadzone ) 
@@ -1101,8 +1112,9 @@ void IN_ApplyGamepad( const gamepadInfo_t* gamepad )
 
 void IN_GamepadMove(void)
 {
+    int i;
     int firstConnected = -1;
-    for ( int i = 0; i < XUSER_MAX_COUNT; ++i )
+    for ( i = 0; i < XUSER_MAX_COUNT; ++i )
     {
         IN_GetGamepadReading( &gamepads[i], i );
 
