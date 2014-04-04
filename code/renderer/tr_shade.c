@@ -84,6 +84,8 @@ static void GLR_ComputeDlightProjection( shaderCommands_t* input, int stage ) {
 		dlight_t	*dl;
         dlightProjectionInfo_t* dlInfo = &input->dlightInfo[l];
 
+        dlInfo->numIndexes = 0;
+
 		if ( !( input->dlightBits & ( 1 << l ) ) ) {
 			continue;	// this surface definately doesn't have any of this light
 		}

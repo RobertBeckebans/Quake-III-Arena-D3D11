@@ -390,6 +390,8 @@ do the GL calls right at the end.
 static void GLR_ProjectDlightTexture( const shaderCommands_t* input, int stage ) {
     int l;
 
+	GL_Bind( tr.dlightImage );
+
 	for ( l = 0 ; l < input->dlightCount ; l++ ) {
         const dlightProjectionInfo_t* dlInfo = &input->dlightInfo[l];
 
@@ -403,7 +405,6 @@ static void GLR_ProjectDlightTexture( const shaderCommands_t* input, int stage )
 		qglEnableClientState( GL_COLOR_ARRAY );
 		qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, dlInfo->colorArray );
 
-		GL_Bind( tr.dlightImage );
 		// include GLS_DEPTHFUNC_EQUAL so alpha tested surfaces don't add light
 		// where they aren't rendered
 		if ( dlInfo->additive ) {
