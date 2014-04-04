@@ -438,6 +438,7 @@ static void GLRB_FogPass( const shaderCommands_t* input, int stage ) {
 
 	fog = tr.world->fogs + input->fogNum;
 
+    // @pjb: todo: move this out!
 	for ( i = 0; i < input->numVertexes; i++ ) {
 		* ( int * )&input->svars[stage].colors[i] = fog->colorInt;
 	}

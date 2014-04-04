@@ -41,16 +41,42 @@ __forceinline void UpdateMaterialState()
         UpdateDirtyViewPS();
 }
 
+static void SetTessVertexBuffer( const d3dTessBuffers_t* tess )
+{
+    UINT stride = sizeof(vec4_t);
+    UINT offset = 0;
+    g_pImmediateContext->IASetVertexBuffers( 0, 1, &tess->xyz, &stride, &offset );
+}
+
 static void SetTessVertexBuffersST( const d3dTessBuffers_t* tess, const d3dTessStageBuffers_t* stage )
 {
-    ID3D11Buffer* vbufs[3] = {
-        tess->xyz,
+    ID3D11Buffer* vbufs[2] = {
         stage->texCoords[0],
         stage->colors,
     };
 
+    UINT strides[2] = {
+        sizeof(vec2_t),
+        sizeof(color4ub_t)
+    };
+
+    UINT offsets[2] = {
+        0, 0
+    };
+
+    g_pImmediateContext->IASetVertexBuffers( 1, 2, vbufs, strides, offsets );
+}
+
+static void SetTessVertexBuffersMT( const d3dTessBuffers_t* tess, const d3dTessStageBuffers_t* stage )
+{
+    ID3D11Buffer* vbufs[3] = {
+        stage->texCoords[0],
+        stage->texCoords[1],
+        stage->colors,
+    };
+
     UINT strides[3] = {
-        sizeof(vec4_t),
+        sizeof(vec2_t),
         sizeof(vec2_t),
         sizeof(color4ub_t)
     };
@@ -59,30 +85,7 @@ static void SetTessVertexBuffersST( const d3dTessBuffers_t* tess, const d3dTessS
         0, 0, 0
     };
 
-    g_pImmediateContext->IASetVertexBuffers( 0, 3, vbufs, strides, offsets );
-}
-
-static void SetTessVertexBuffersMT( const d3dTessBuffers_t* tess, const d3dTessStageBuffers_t* stage )
-{
-    ID3D11Buffer* vbufs[4] = {
-        tess->xyz,
-        stage->texCoords[0],
-        stage->texCoords[1],
-        stage->colors,
-    };
-
-    UINT strides[4] = {
-        sizeof(vec4_t),
-        sizeof(vec2_t),
-        sizeof(vec2_t),
-        sizeof(color4ub_t)
-    };
-
-    UINT offsets[4] = {
-        0, 0, 0, 0
-    };
-
-    g_pImmediateContext->IASetVertexBuffers( 0, 4, vbufs, strides, offsets );
+    g_pImmediateContext->IASetVertexBuffers( 1, 3, vbufs, strides, offsets );
 }
 
 static void UpdateTessBuffer( ID3D11Buffer* gpuBuf, const void* cpuBuf, size_t size )
@@ -319,23 +322,19 @@ static void TessProjectDynamicLights( const shaderCommands_t *input )
     g_pImmediateContext->PSSetConstantBuffers( 0, 1, &g_DrawState.viewRenderData.psConstantBuffer );
     g_pImmediateContext->PSSetShaderResources( 0, 1, &tex->pSRV );
 
-    ID3D11Buffer* vbufs[3] = { 
-        buffers->xyz,
+    ID3D11Buffer* vbufs[2] = { 
         NULL,
         NULL
     };
 
-    UINT strides[3] = {
-        sizeof(vec4_t),
+    UINT strides[2] = {
         sizeof(vec2_t),
         sizeof(color4ub_t)
     };
 
-    UINT offsets[3] = {
-        0, 0, 0
+    UINT offsets[2] = {
+        0, 0
     };
-    
-    g_pImmediateContext->IASetVertexBuffers( 0, 1, vbufs, strides, offsets );
     
     for ( int l = 0 ; l < input->dlightCount ; l++ )
     {
@@ -345,11 +344,11 @@ static void TessProjectDynamicLights( const shaderCommands_t *input )
 			continue;
 		}
 
-        vbufs[1] = buffers->dlights[l].texCoords;
-        vbufs[2] = buffers->dlights[l].colors;
+        vbufs[0] = buffers->dlights[l].texCoords;
+        vbufs[1] = buffers->dlights[l].colors;
 
         g_pImmediateContext->IASetIndexBuffer( buffers->dlights[l].indexes, DXGI_FORMAT_R32_UINT, 0 );
-        g_pImmediateContext->IASetVertexBuffers( 1, 2, vbufs + 1, strides + 1, offsets + 1 );
+        g_pImmediateContext->IASetVertexBuffers( 1, 2, vbufs, strides, offsets );
 
         // Select the blend mode
 		if ( dlInfo->additive ) {
@@ -364,6 +363,11 @@ static void TessProjectDynamicLights( const shaderCommands_t *input )
         // Draw the dynamic light
         g_pImmediateContext->DrawIndexed( dlInfo->numIndexes, 0, 0 );
     }
+}
+
+static void TessDrawFog( const shaderCommands_t* input )
+{
+
 }
 
 static void IterateStagesGeneric( const shaderCommands_t *input )
@@ -412,6 +416,7 @@ void D3DDrv_DrawStageGeneric( const shaderCommands_t *input )
     g_pImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
     g_pImmediateContext->IASetIndexBuffer( g_DrawState.tessBufs.indexes, DXGI_FORMAT_R32_UINT, 0 );
     g_pImmediateContext->VSSetConstantBuffers( 0, 1, &g_DrawState.viewRenderData.vsConstantBuffer );
+    SetTessVertexBuffer( &g_DrawState.tessBufs );
 
     IterateStagesGeneric( input );
 
@@ -421,10 +426,10 @@ void D3DDrv_DrawStageGeneric( const shaderCommands_t *input )
         TessProjectDynamicLights( input );
     }
 
-    // TODO: fog
-
-    // TODO: revert polygon offset
-    
+    // fog
+	if ( input->fogNum && input->shader->fogPass ) {
+		TessDrawFog( input );
+	}    
 }
 
 void D3DDrv_DrawStageVertexLitTexture( const shaderCommands_t *input )
