@@ -242,6 +242,60 @@ D3D11_BLEND GetDestBlendConstant( int qConstant )
 	}
 }
 
+D3D11_BLEND GetSrcBlendAlphaConstant( int qConstant )
+{
+	switch ( qConstant )
+	{
+	case GLS_SRCBLEND_ZERO:
+		return D3D11_BLEND_ZERO;
+	case GLS_SRCBLEND_ONE:
+		return D3D11_BLEND_ONE;
+	case GLS_SRCBLEND_DST_COLOR:
+		return D3D11_BLEND_DEST_ALPHA;
+	case GLS_SRCBLEND_ONE_MINUS_DST_COLOR:
+		return D3D11_BLEND_INV_DEST_ALPHA;
+	case GLS_SRCBLEND_SRC_ALPHA:
+		return D3D11_BLEND_SRC_ALPHA;
+	case GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA:
+		return D3D11_BLEND_INV_SRC_ALPHA;
+	case GLS_SRCBLEND_DST_ALPHA:
+		return D3D11_BLEND_DEST_ALPHA;
+	case GLS_SRCBLEND_ONE_MINUS_DST_ALPHA:
+		return D3D11_BLEND_INV_DEST_ALPHA;
+	case GLS_SRCBLEND_ALPHA_SATURATE:
+		return D3D11_BLEND_SRC_ALPHA_SAT;
+    default:
+        ASSERT(0);
+        return D3D11_BLEND_ONE;
+	}
+}
+
+D3D11_BLEND GetDestBlendAlphaConstant( int qConstant )
+{
+	switch ( qConstant )
+	{
+	case GLS_DSTBLEND_ZERO:
+		return D3D11_BLEND_ZERO;
+	case GLS_DSTBLEND_ONE:
+		return D3D11_BLEND_ONE;
+	case GLS_DSTBLEND_SRC_COLOR:
+		return D3D11_BLEND_SRC_ALPHA;
+	case GLS_DSTBLEND_ONE_MINUS_SRC_COLOR:
+		return D3D11_BLEND_INV_SRC_ALPHA;
+	case GLS_DSTBLEND_SRC_ALPHA:
+		return D3D11_BLEND_SRC_ALPHA;
+	case GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA:
+		return D3D11_BLEND_INV_SRC_ALPHA;
+	case GLS_DSTBLEND_DST_ALPHA:
+		return D3D11_BLEND_DEST_ALPHA;
+	case GLS_DSTBLEND_ONE_MINUS_DST_ALPHA:
+		return D3D11_BLEND_INV_DEST_ALPHA;
+    default:
+        ASSERT(0);
+        return D3D11_BLEND_ONE;
+	}
+}
+
 //----------------------------------------------------------------------------
 //
 // ENTRY POINTS

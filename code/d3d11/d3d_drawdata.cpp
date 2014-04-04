@@ -102,9 +102,9 @@ void InitGenericStageRenderData( d3dGenericStageRenderData_t* rd )
     };
 
     CreateVertexLayoutAndShader( "genericmt_vs", elementsMT, _countof(elementsMT), &rd->vertexShaderMT, &rd->inputLayoutMT );
-    //CreateVertexLayoutAndShader( "genericst_vs", elementsST, _countof(elementsST), &rd->vertexShaderST, &rd->inputLayoutST );
+    CreateVertexLayoutAndShader( "genericst_vs", elementsST, _countof(elementsST), &rd->vertexShaderST, &rd->inputLayoutST );
     rd->pixelShaderMT = CompilePixelShader( "genericmt_ps" );
-    //rd->pixelShaderST = CompilePixelShader( "genericst_ps" );
+    rd->pixelShaderST = CompilePixelShader( "genericst_ps" );
 }
 
 void DestroyGenericStageRenderData( d3dGenericStageRenderData_t* rd )
@@ -240,12 +240,17 @@ void InitBlendStates( d3dBlendStates_t* bs )
     //
     bsd.RenderTarget[0].BlendEnable = TRUE;
     bsd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+    bsd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
     for ( int src = 0; src < D3D_BLEND_SRC_COUNT; ++src )
     {
         for ( int dst = 0; dst < D3D_BLEND_DST_COUNT; ++dst )
         {
-            bsd.RenderTarget[0].SrcBlend = GetSrcBlendConstant( src + 1 );
-            bsd.RenderTarget[0].DestBlend = GetDestBlendConstant( (dst + 1) << 4 );
+            int qSrc = src + 1;
+            int qDst = (dst + 1) << 4;
+            bsd.RenderTarget[0].SrcBlend = GetSrcBlendConstant( qSrc );
+            bsd.RenderTarget[0].DestBlend = GetDestBlendConstant( qDst );
+            bsd.RenderTarget[0].SrcBlendAlpha = GetSrcBlendAlphaConstant( qSrc );
+            bsd.RenderTarget[0].DestBlendAlpha = GetDestBlendAlphaConstant( qDst );
             g_pDevice->CreateBlendState( &bsd, &bs->states[src][dst] );
         }
     }

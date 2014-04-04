@@ -185,6 +185,8 @@ ID3D11DepthStencilState* GetDepthState( unsigned long mask ); // DEPTHSTATE_FLAG
 ID3D11BlendState* GetBlendState( int src, int dst );
 D3D11_BLEND GetSrcBlendConstant( int qConstant );
 D3D11_BLEND GetDestBlendConstant( int qConstant );
+D3D11_BLEND GetSrcBlendAlphaConstant( int qConstant );
+D3D11_BLEND GetDestBlendAlphaConstant( int qConstant );
 
 //----------------------------------------------------------------------------
 // Driver entry points

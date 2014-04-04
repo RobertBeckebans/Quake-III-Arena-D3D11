@@ -220,6 +220,35 @@ void D3DDrv_DrawBeam( const image_t* image, const float* color, const vec3_t sta
 
 }
 
+static void TessDrawTextured( const shaderCommands_t* input, int stage )
+{
+    const d3dTessBuffers_t* buffers = &g_DrawState.tessBufs;
+    const d3dGenericStageRenderData_t* resources = &g_DrawState.genericStage;
+    shaderStage_t	*pStage = input->xstages[stage];
+
+    const d3dImage_t* tex = nullptr;
+	if ( pStage->bundle[0].vertexLightmap && ( (r_vertexLight->integer && !r_uiFullScreen->integer) || vdConfig.hardwareType == GLHW_PERMEDIA2 ) && r_lightmap->integer ) {
+        tex = GetImageRenderInfo( tr.whiteImage );
+    } else {
+        tex = GetAnimatedImage( &pStage->bundle[0], input->shaderTime );
+    }
+
+    ASSERT( tex );
+
+    g_pImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+    g_pImmediateContext->IASetIndexBuffer( buffers->indexes, DXGI_FORMAT_R32_UINT, 0 );
+    g_pImmediateContext->VSSetConstantBuffers( 0, 1, &g_DrawState.viewRenderData.constantBuffer );
+    g_pImmediateContext->IASetInputLayout( resources->inputLayoutST );
+    g_pImmediateContext->VSSetShader( resources->vertexShaderST, nullptr, 0 );
+    g_pImmediateContext->PSSetShader( resources->pixelShaderST, nullptr, 0 );
+    g_pImmediateContext->PSSetSamplers( 0, 1, &tex->pSampler );
+    g_pImmediateContext->PSSetShaderResources( 0, 1, &tex->pSRV );
+
+    SetTessVertexBuffersST( buffers, &buffers->stages[stage] );
+
+    g_pImmediateContext->DrawIndexed( input->numIndexes, 0, 0 );
+}
+
 static void TessDrawMultitextured( const shaderCommands_t* input, int stage )
 {
     const d3dTessBuffers_t* buffers = &g_DrawState.tessBufs;
@@ -227,18 +256,14 @@ static void TessDrawMultitextured( const shaderCommands_t* input, int stage )
 
     shaderStage_t	*pStage = input->xstages[stage];
 
-    D3DDrv_SetState( pStage->stateBits );
-
     const d3dImage_t* tex0 = GetAnimatedImage( &pStage->bundle[0], input->shaderTime );
     const d3dImage_t* tex1 = GetAnimatedImage( &pStage->bundle[1], input->shaderTime );
 
     ASSERT( tex0 );
     ASSERT( tex1 );
 
-    ID3D11ShaderResourceView* psResources[2] = {
-        tex0->pSRV,
-        tex1->pSRV
-    };
+    ID3D11ShaderResourceView* psResources[2] = { tex0->pSRV, tex1->pSRV };
+    ID3D11SamplerState* psSamplers[2] = { tex0->pSampler, tex1->pSampler };
 
     g_pImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
     g_pImmediateContext->IASetIndexBuffer( buffers->indexes, DXGI_FORMAT_R32_UINT, 0 );
@@ -246,8 +271,9 @@ static void TessDrawMultitextured( const shaderCommands_t* input, int stage )
     g_pImmediateContext->VSSetShader( resources->vertexShaderMT, nullptr, 0 );
     g_pImmediateContext->VSSetConstantBuffers( 0, 1, &g_DrawState.viewRenderData.constantBuffer );
     g_pImmediateContext->PSSetShader( resources->pixelShaderMT, nullptr, 0 );
+    g_pImmediateContext->PSSetSamplers( 0, 2, psSamplers );
     g_pImmediateContext->PSSetShaderResources( 0, 2, psResources );
-
+    
     SetTessVertexBuffersMT( buffers, &buffers->stages[stage] );
 
     g_pImmediateContext->DrawIndexed( input->numIndexes, 0, 0 );
@@ -264,6 +290,8 @@ static void IterateStagesGeneric( const shaderCommands_t *input )
 			break;
 		}
 
+        D3DDrv_SetState( pStage->stateBits );
+
  		//
 		// do multitexture
 		//
@@ -273,21 +301,7 @@ static void IterateStagesGeneric( const shaderCommands_t *input )
         }
         else
         {
-            // todo: texcoords in input->svars[stage].texcoords[0]
-
-            const d3dImage_t* texture = nullptr;
-			if ( pStage->bundle[0].vertexLightmap && ( (r_vertexLight->integer && !r_uiFullScreen->integer) || vdConfig.hardwareType == GLHW_PERMEDIA2 ) && r_lightmap->integer )
-			{
-                texture = GetImageRenderInfo( tr.whiteImage );
-			}
-			else 
-            {
-                texture = GetAnimatedImage( &pStage->bundle[0], input->shaderTime );
-            }
-
-			D3DDrv_SetState( pStage->stateBits );
-
-            // todo: GLR_DrawElements( input, stage, input->numIndexes, input->indexes );
+            TessDrawTextured( input, stage );
         }
 
 		// allow skipping out to show just lightmaps during development
