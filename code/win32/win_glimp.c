@@ -1381,9 +1381,6 @@ LONG WINAPI GLimp_WndProc (
 */
 void GLimp_Init( void )
 {
-    extern HINSTANCE g_hInstance;
-    extern WNDPROC g_pfWndProc;
-
 	char	buf[1024];
 	cvar_t *lastValidRenderer = ri.Cvar_Get( "r_lastValidRenderer", "(uninitialized)", CVAR_ARCHIVE );
 	//cvar_t	*cv;
