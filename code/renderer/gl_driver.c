@@ -361,37 +361,6 @@ void GLRB_DebugPolygon( int color, int numPoints, const float *points ) {
 	qglDepthRange( 0, 1 );
 }
 
-void GLRB_DrawSkyBox( const skybox_t* skybox )
-{
-    int i, t, s;
-
-    qglColor3fv( skybox->tint );
-    GL_State( 0 );
-
-    for ( i = 0; i < 6; ++i )
-    {
-        const skyboxSide_t* side = &skybox->sides[i];
-
-        GL_Bind( side->image );
-
-        qglBegin( GL_TRIANGLE_STRIP );
-	    for ( t = side->mins[1]; t < side->maxs[1]; t++ )
-	    {
-            for ( s = side->mins[0]; s <= side->maxs[0]; s++ )
-            {
-                int index0 = t * SKY_POINTS_SIDE + s;
-                int index0 = t * SKY_POINTS_SIDE + s;
-
-			    qglTexCoord2fv( &skybox->tdata[3 * (t * SKY_POINTS_SIDE + s)] );
-			    qglVertex3fv( &skybox->vdata[t][s] );
-
-			    qglTexCoord2fv( &skybox->tdata[3 * ((t+1) * SKY_POINTS_SIDE + s)][s] );
-			    qglVertex3fv( &skybox->vdata[3 * ((t+1) * SKY_POINTS_SIDE + s)][s] );
-            }
-        }
-        qglEnd();
-    }
-}
 
 /*
 @@@@@@@@@@@@@@@@@@@@@
@@ -436,7 +405,6 @@ void GLRB_DriverInit( graphicsApiLayer_t* layer )
     layer->SpawnRenderThread = GLimp_SpawnRenderThread;
     layer->ShadowSilhouette = GLRB_ShadowSilhouette;
     layer->ShadowFinish = GLRB_ShadowFinish;
-    layer->DrawSkyBox = GLRB_DrawSkyBox;
     layer->DebugSetOverdrawMeasureEnabled = GLRB_SetOverdrawMeasureEnabled;
     layer->DebugSetTextureMode = GL_TextureMode;
     layer->DebugDrawPolygon = GLRB_DebugPolygon;

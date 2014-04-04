@@ -21,8 +21,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // tr_sky.c
 #include "tr_local.h"
-#include "tr_layer.h"
+
 #include "gl_common.h" // @pjb: todo: remove
+
+#define SKY_SUBDIVISIONS		8
+#define HALF_SKY_SUBDIVISIONS	(SKY_SUBDIVISIONS/2)
 
 static float s_cloudTexCoords[6][SKY_SUBDIVISIONS+1][SKY_SUBDIVISIONS+1][2];
 static float s_cloudTexP[6][SKY_SUBDIVISIONS+1][SKY_SUBDIVISIONS+1];
@@ -356,22 +359,36 @@ static void MakeSkyVec( float s, float t, int axis, float outSt[2], vec3_t outXY
 	}
 }
 
-
-
 static int	sky_texorder[6] = {0,2,1,3,4,5};
-static float	s_skyPoints[SKY_POINTS_TOTAL];
-static float	s_skyTexCoords[SKY_POINTS_TOTAL];
+static vec3_t	s_skyPoints[SKY_SUBDIVISIONS+1][SKY_SUBDIVISIONS+1];
+static float	s_skyTexCoords[SKY_SUBDIVISIONS+1][SKY_SUBDIVISIONS+1][2];
+
+static void DrawSkySide( struct image_s *image, const int mins[2], const int maxs[2] )
+{
+	int s, t;
+
+	GL_Bind( image );
+
+	for ( t = mins[1]+HALF_SKY_SUBDIVISIONS; t < maxs[1]+HALF_SKY_SUBDIVISIONS; t++ )
+	{
+		qglBegin( GL_TRIANGLE_STRIP );
+
+		for ( s = mins[0]+HALF_SKY_SUBDIVISIONS; s <= maxs[0]+HALF_SKY_SUBDIVISIONS; s++ )
+		{
+			qglTexCoord2fv( s_skyTexCoords[t][s] );
+			qglVertex3fv( s_skyPoints[t][s] );
+
+			qglTexCoord2fv( s_skyTexCoords[t+1][s] );
+			qglVertex3fv( s_skyPoints[t+1][s] );
+		}
+
+		qglEnd();
+	}
+}
 
 static void DrawSkyBox( shader_t *shader )
 {
-	int		    i;
-    skybox_t    skybox;
-
-    skybox.tint[0] = tr.identityLight;
-    skybox.tint[1] = tr.identityLight;
-    skybox.tint[2] = tr.identityLight;
-    skybox.tdata = s_skyTexCoords;
-    skybox.vdata = s_skyPoints;
+	int		i;
 
 	sky_min = 0;
 	sky_max = 1;
@@ -380,7 +397,6 @@ static void DrawSkyBox( shader_t *shader )
 
 	for (i=0 ; i<6 ; i++)
 	{
-        skyboxSide_t* side = &skybox.sides[i];
 		int sky_mins_subd[2], sky_maxs_subd[2];
 		int s, t;
 
@@ -425,29 +441,19 @@ static void DrawSkyBox( shader_t *shader )
 		{
 			for ( s = sky_mins_subd[0]+HALF_SKY_SUBDIVISIONS; s <= sky_maxs_subd[0]+HALF_SKY_SUBDIVISIONS; s++ )
 			{
-                float* pc = &s_skyPoints[3 * (t * SKY_POINTS_SIDE + s)];
-                float* tc = &s_skyPoints[2 * (t * SKY_POINTS_SIDE + s)];
 				MakeSkyVec( ( s - HALF_SKY_SUBDIVISIONS ) / ( float ) HALF_SKY_SUBDIVISIONS, 
 							( t - HALF_SKY_SUBDIVISIONS ) / ( float ) HALF_SKY_SUBDIVISIONS, 
 							i, 
-							tc, 
-							pc );
+							s_skyTexCoords[t][s], 
+							s_skyPoints[t][s] );
 			}
 		}
 
-        /*
 		DrawSkySide( shader->sky.outerbox[sky_texorder[i]],
 			         sky_mins_subd,
 					 sky_maxs_subd );
-        */
-        side->image = shader->sky.outerbox[sky_texorder[i]];
-        side->mins[0] = sky_mins_subd[0]+HALF_SKY_SUBDIVISIONS;
-        side->mins[1] = sky_mins_subd[1]+HALF_SKY_SUBDIVISIONS;
-        side->maxs[0] = sky_maxs_subd[0]+HALF_SKY_SUBDIVISIONS;
-        side->maxs[1] = sky_maxs_subd[1]+HALF_SKY_SUBDIVISIONS;
 	}
 
-    graphicsDriver.DrawSkyBox( &skybox );
 }
 
 static void FillCloudySkySide( const int mins[2], const int maxs[2], qboolean addIndexes )
@@ -718,7 +724,7 @@ void RB_DrawSun( void ) {
 	VectorScale( vec2, size, vec2 );
 
 	// farthest depth range
-    graphicsDriver.SetDepthRange( 1, 1 );
+	qglDepthRange( 1.0, 1.0 );
 
 	// FIXME: use quad stamp
 	RB_BeginSurface( tr.sunShader, tess.fogNum );
@@ -776,7 +782,7 @@ void RB_DrawSun( void ) {
 	RB_EndSurface();
 
 	// back to normal depth range
-	graphicsDriver.SetDepthRange( 0.0, 1.0 );
+	qglDepthRange( 0.0, 1.0 );
 }
 
 
@@ -805,27 +811,22 @@ void RB_StageIteratorSky( void ) {
 	// front of everything to allow developers to see how
 	// much sky is getting sucked in
 	if ( r_showsky->integer ) {
-		graphicsDriver.SetDepthRange( 0.0, 0.0 );
+		qglDepthRange( 0.0, 0.0 );
 	} else {
-		graphicsDriver.SetDepthRange( 1.0, 1.0 );
+		qglDepthRange( 1.0, 1.0 );
 	}
 
 	// draw the outer skybox
 	if ( tess.shader->sky.outerbox[0] && tess.shader->sky.outerbox[0] != tr.defaultImage ) {
-        float cachedModelView[16];
-        float newModelView[16];
-
-        graphicsDriver.GetModelViewMatrix( cachedModelView );
-        graphicsDriver.GetModelViewMatrix( newModelView );
-
-        newModelView[12] += backEnd.viewParms.or.origin[0];
-        newModelView[13] += backEnd.viewParms.or.origin[1];
-        newModelView[14] += backEnd.viewParms.or.origin[2];
-        graphicsDriver.SetModelViewMatrix( newModelView );
+		qglColor3f( tr.identityLight, tr.identityLight, tr.identityLight );
+		
+		qglPushMatrix ();
+		GL_State( 0 );
+		qglTranslatef (backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2]);
 
 		DrawSkyBox( tess.shader );
 
-        graphicsDriver.SetModelViewMatrix( cachedModelView );
+		qglPopMatrix();
 	}
 
 	// generate the vertexes for all the clouds, which will be drawn
@@ -838,7 +839,7 @@ void RB_StageIteratorSky( void ) {
 
 
 	// back to normal depth range
-	graphicsDriver.SetDepthRange( 0.0, 1.0 );
+	qglDepthRange( 0.0, 1.0 );
 
 	// note that sky was drawn so we will draw a sun later
 	backEnd.skyRenderedThisView = qtrue;
