@@ -20,6 +20,7 @@ using namespace Windows::UI::Core;
 using namespace Windows::System;
 using namespace Windows::Foundation;
 using namespace Windows::Graphics::Display;
+using namespace Windows::Devices::Input;
 using namespace concurrency;
 
 Q3Win8::MessageQueue g_gameMsgs;
@@ -99,7 +100,7 @@ namespace Q3Win8
             D3DWin8_NotifyWindowResize( (int) msg->Param0, (int) msg->Param1 );
             break;
         case GAME_MSG_MOUSE_MOVE:
-            // @pjb: Todo
+        	Sys_QueEvent( 0, SE_MOUSE, (int) msg->Param0, (int) msg->Param1, 0, NULL );
             break;
         case GAME_MSG_MOUSE_WHEEL:
             {
@@ -259,9 +260,6 @@ void Quake3Win8App::SetWindow(CoreWindow^ window)
 	window->PointerReleased +=
 		ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &Quake3Win8App::OnPointerReleased);
 
-	window->PointerMoved +=
-		ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &Quake3Win8App::OnPointerMoved);
-
     window->PointerWheelChanged +=
         ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &Quake3Win8App::OnPointerWheelChanged);
 
@@ -275,7 +273,9 @@ void Quake3Win8App::SetWindow(CoreWindow^ window)
 		ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &Quake3Win8App::OnKeyUp);
 
 	window->PointerCursor = nullptr;
-    window->SetPointerCapture();
+
+	MouseDevice::GetForCurrentView()->MouseMoved +=
+		ref new TypedEventHandler<MouseDevice^, MouseEventArgs^>(this, &Quake3Win8App::OnPointerMoved);
 
 	// Disable all pointer visual feedback for better performance when touching.
 	auto pointerVisualizationSettings = Windows::UI::Input::PointerVisualizationSettings::GetForCurrentView();
@@ -383,8 +383,6 @@ void Quake3Win8App::OnVisibilityChanged(CoreWindow^ sender, VisibilityChangedEve
 
 void Quake3Win8App::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args)
 {
-    sender->ReleasePointerCapture();
-
 	m_windowClosed = true;
 
     Q3Win8::MSG msg;
@@ -412,8 +410,8 @@ static size_t PackMouseButtons( Windows::UI::Input::PointerPointProperties^ prop
     // @pjb: todo: support for more buttons?
     size_t packed = 0;
     packed |= (properties->IsLeftButtonPressed & 1);
-    packed |= (properties->IsMiddleButtonPressed & 1) << 1;
-    packed |= (properties->IsRightButtonPressed & 1) << 2;
+    packed |= (properties->IsRightButtonPressed & 1) << 1;
+    packed |= (properties->IsMiddleButtonPressed & 1) << 2;
     return packed;
 }
 
@@ -423,7 +421,7 @@ void Quake3Win8App::OnPointerPressed(CoreWindow^ sender, PointerEventArgs^ args)
     ZeroMemory( &msg, sizeof(msg) );
     msg.Message = GAME_MSG_MOUSE_DOWN;
     msg.Param0 = PackMouseButtons( args->CurrentPoint->Properties );
-    msg.TimeStamp = args->CurrentPoint->Timestamp;
+    msg.TimeStamp = Sys_Milliseconds();
     g_gameMsgs.Post( &msg );
 }
 
@@ -433,18 +431,18 @@ void Quake3Win8App::OnPointerReleased(CoreWindow^ sender, PointerEventArgs^ args
     ZeroMemory( &msg, sizeof(msg) );
     msg.Message = GAME_MSG_MOUSE_UP;
     msg.Param0 = ~PackMouseButtons( args->CurrentPoint->Properties );
-    msg.TimeStamp = args->CurrentPoint->Timestamp;
+    msg.TimeStamp = Sys_Milliseconds();
     g_gameMsgs.Post( &msg );
 }
 
-void Quake3Win8App::OnPointerMoved(CoreWindow^ sender, PointerEventArgs^ args)
+void Quake3Win8App::OnPointerMoved(MouseDevice^ mouse, MouseEventArgs^ args)
 {
     Q3Win8::MSG msg;
     ZeroMemory( &msg, sizeof(msg) );
     msg.Message = GAME_MSG_MOUSE_MOVE;
-    msg.Param0 = args->CurrentPoint->Position.X;
-    msg.Param1 = args->CurrentPoint->Position.Y;
-    msg.TimeStamp = args->CurrentPoint->Timestamp;
+    msg.Param0 = args->MouseDelta.X;
+    msg.Param1 = args->MouseDelta.Y;
+    msg.TimeStamp = Sys_Milliseconds();
     g_gameMsgs.Post( &msg );
 }
 
@@ -454,7 +452,7 @@ void Quake3Win8App::OnPointerWheelChanged(CoreWindow^ sender, PointerEventArgs^ 
     ZeroMemory( &msg, sizeof(msg) );
     msg.Message = GAME_MSG_MOUSE_WHEEL;
     msg.Param0 = args->CurrentPoint->Properties->MouseWheelDelta;
-    msg.TimeStamp = args->CurrentPoint->Timestamp;
+    msg.TimeStamp = Sys_Milliseconds();
     g_gameMsgs.Post( &msg );
 }
 
@@ -495,7 +493,6 @@ void Quake3Win8App::OnActivated(CoreApplicationView^ applicationView, IActivated
 {
     auto window = CoreWindow::GetForCurrentThread();
     window->Activate();
-    window->SetPointerCapture();
 }
 
 void Quake3Win8App::OnSuspending(Platform::Object^ sender, SuspendingEventArgs^ args)
