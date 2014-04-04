@@ -21,7 +21,7 @@ class QShaderInclude : public ID3DInclude
 {
 public:
 
-    HRESULT Open(
+    HRESULT STDMETHODCALLTYPE Open(
         D3D_INCLUDE_TYPE IncludeType, 
         LPCSTR pFileName, 
         LPCVOID pParentData, 
@@ -39,7 +39,7 @@ public:
         return S_OK;
     }
 
-    HRESULT Close( 
+    HRESULT STDMETHODCALLTYPE Close( 
         LPCVOID pData )
     {
         ri.FS_FreeFile( (void*) pData );
