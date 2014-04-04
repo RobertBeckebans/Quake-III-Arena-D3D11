@@ -237,6 +237,79 @@ void DrawQuad(
     g_pImmediateContext->DrawIndexed( 6, 0, 0 );
 }
 
+static void DrawSkyBox( 
+    const d3dSkyBoxRenderData_t* sbrd,
+    const skyboxDrawInfo_t* skybox, 
+    const float* eye_origin, 
+    const float* colorTint )
+{
+    D3DDrv_SetState(0);
+    UpdateViewState();
+    UpdateMaterialState();
+
+    //
+    // Update the VS constant buffer
+    //
+    d3dSkyBoxVSConstantBuffer_t* vscb = QD3D::MapDynamicBuffer<d3dSkyBoxVSConstantBuffer_t>( 
+        g_pImmediateContext, 
+        sbrd->vsConstantBuffer );
+    memcpy( vscb->eyePos, eye_origin, sizeof(float) * 3 );
+    g_pImmediateContext->Unmap( sbrd->vsConstantBuffer, 0 );
+
+    //
+    // Update the PS constant buffer
+    //
+    d3dSkyBoxPSConstantBuffer_t* pscb = QD3D::MapDynamicBuffer<d3dSkyBoxPSConstantBuffer_t>( 
+        g_pImmediateContext, 
+        sbrd->psConstantBuffer );
+
+    if ( colorTint ) {
+        memcpy( pscb->color, colorTint, sizeof(float) * 3 );
+        pscb->color[3] = 1;
+    } else {
+        pscb->color[0] = 1; pscb->color[1] = 1; pscb->color[2] = 1; pscb->color[3] = 1; 
+    }
+
+    g_pImmediateContext->Unmap( sbrd->psConstantBuffer, 0 );
+
+    //
+    // Draw
+    //
+    UINT stride = sizeof(d3dSkyBoxVertex_t);
+    UINT offset = 0;
+    ID3D11Buffer* vsBuffers[] = {
+        g_DrawState.viewRenderData.vsConstantBuffer,
+        g_DrawState.skyBoxRenderData.vsConstantBuffer
+    };
+    ID3D11Buffer* psBuffers[] = {
+        g_DrawState.viewRenderData.psConstantBuffer,
+        g_DrawState.skyBoxRenderData.psConstantBuffer
+    };
+
+    g_pImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+    g_pImmediateContext->IASetVertexBuffers( 0, 1, &sbrd->vertexBuffer, &stride, &offset );
+    g_pImmediateContext->IASetInputLayout( sbrd->inputLayout );
+    g_pImmediateContext->IASetIndexBuffer( sbrd->indexBuffer, DXGI_FORMAT_R16_UINT, 0 );
+    g_pImmediateContext->VSSetShader( sbrd->vertexShader, nullptr, 0 );
+    g_pImmediateContext->VSSetConstantBuffers( 0, 2, vsBuffers );
+    g_pImmediateContext->PSSetShader( sbrd->pixelShader, nullptr, 0 );
+    g_pImmediateContext->PSSetConstantBuffers( 0, 2, psBuffers );
+
+    for ( int i = 0; i < 6; ++i )
+    {
+        const skyboxSideDrawInfo_t* side = &skybox->sides[i];
+
+        if ( !side->image )
+            continue;
+
+        const d3dImage_t* image = GetImageRenderInfo( side->image );
+
+        g_pImmediateContext->PSSetShaderResources( 0, 1, &image->pSRV );
+        g_pImmediateContext->PSSetSamplers( 0, 1, &image->pSampler );
+        g_pImmediateContext->DrawIndexed( 6, i * 6, 0 );
+    }
+}
+
 void D3DDrv_ShadowSilhouette( const float* edges, int edgeCount )
 {
 
@@ -249,7 +322,7 @@ void D3DDrv_ShadowFinish( void )
 
 void D3DDrv_DrawSkyBox( const skyboxDrawInfo_t* skybox, const float* eye_origin, const float* colorTint )
 {
-
+    DrawSkyBox( &g_DrawState.skyBoxRenderData, skybox, eye_origin, colorTint );
 }
 
 void D3DDrv_DrawBeam( const image_t* image, const float* color, const vec3_t startPoints[], const vec3_t endPoints[], int segs )

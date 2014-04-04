@@ -384,6 +384,7 @@ void InitDrawState()
     InitShaders();
 
     InitQuadRenderData( &g_DrawState.quadRenderData );
+    InitSkyBoxRenderData( &g_DrawState.skyBoxRenderData );
     InitViewRenderData( &g_DrawState.viewRenderData );
     InitGenericStageRenderData( &g_DrawState.genericStage );
     InitTessBuffers( &g_DrawState.tessBufs );
@@ -410,6 +411,7 @@ void DestroyDrawState()
     DestroyTessBuffers( &g_DrawState.tessBufs );
     DestroyGenericStageRenderData( &g_DrawState.genericStage );
     DestroyQuadRenderData( &g_DrawState.quadRenderData );
+    DestroySkyBoxRenderData( &g_DrawState.skyBoxRenderData );
     DestroyViewRenderData( &g_DrawState.viewRenderData );
     DestroyShaders();
     DestroyImages();

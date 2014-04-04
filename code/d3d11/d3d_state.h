@@ -59,6 +59,16 @@ struct d3dViewPSConstantBuffer_t
     float __padding[2];
 };
 
+struct d3dSkyBoxVSConstantBuffer_t
+{
+    float eyePos[4];
+};
+
+struct d3dSkyBoxPSConstantBuffer_t
+{
+    float color[4];
+};
+
 //----------------------------------------------------------------------------
 // Internal structures
 //----------------------------------------------------------------------------
@@ -94,6 +104,28 @@ struct d3dQuadRenderData_t
 
     // Constant buffers
     ID3D11Buffer* constantBuffer;
+};
+
+struct d3dSkyBoxVertex_t 
+{
+    float position[4];
+    float texcoord[2];
+};
+
+struct d3dSkyBoxRenderData_t
+{
+    // Shaders
+    ID3D11VertexShader* vertexShader;
+    ID3D11PixelShader* pixelShader;
+
+    // Vertex buffers
+    ID3D11InputLayout* inputLayout;
+    ID3D11Buffer* indexBuffer;
+    ID3D11Buffer* vertexBuffer;
+
+    // Constant buffers
+    ID3D11Buffer* vsConstantBuffer;
+    ID3D11Buffer* psConstantBuffer;
 };
 
 // @pjb: for the generic stage rendering
@@ -170,6 +202,7 @@ struct d3dBlendStates_t
 struct d3dDrawState_t
 {
     d3dQuadRenderData_t quadRenderData;
+    d3dSkyBoxRenderData_t skyBoxRenderData;
     d3dViewRenderData_t viewRenderData;
     
     d3dTessBuffers_t tessBufs;

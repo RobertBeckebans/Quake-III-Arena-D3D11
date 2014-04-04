@@ -82,6 +82,88 @@ void DestroyQuadRenderData( d3dQuadRenderData_t* qrd )
     Com_Memset( qrd, 0, sizeof( *qrd ) );
 }
 
+void InitSkyBoxRenderData( d3dSkyBoxRenderData_t* rd ) 
+{
+    Com_Memset( rd, 0, sizeof( d3dSkyBoxRenderData_t ) );
+
+    assert(0);
+
+    D3D11_INPUT_ELEMENT_DESC elements[] = { 
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+    };
+
+    CreateVertexLayoutAndShader( "skybox_vs", elements, _countof(elements), &rd->vertexShader, &rd->inputLayout );
+    rd->pixelShader = CompilePixelShader( "skybox_ps" );
+
+    static const d3dSkyBoxVertex_t vertices[] = 
+    {
+        -1, -1, -1, 0,
+         1, -1, -1, 0,
+         1,  1, -1, 0,
+        -1,  1, -1, 0,
+        -1, -1,  1, 0,
+         1, -1,  1, 0,
+         1,  1,  1, 0,
+        -1,  1,  1, 0
+    };
+
+    static const USHORT indices[] = 
+    {
+        0, 2, 3, 0, 1, 2,
+        1, 6, 2, 1, 5, 6,
+        5, 7, 6, 5, 4, 7,
+        4, 3, 7, 4, 0, 3,
+        7, 2, 6, 7, 3, 2,
+        5, 0, 4, 5, 1, 0
+    };
+
+    rd->indexBuffer = QD3D::CreateImmutableBuffer( 
+        g_pDevice, 
+        D3D11_BIND_INDEX_BUFFER, 
+        indices,
+        sizeof( indices ) );
+    if ( !rd->indexBuffer ) {
+        ri.Error( ERR_FATAL, "Could not create SkyBox index buffer.\n" );
+    }
+
+    rd->vertexBuffer = QD3D::CreateImmutableBuffer(
+        g_pDevice, 
+        D3D11_BIND_VERTEX_BUFFER,
+        vertices,
+        sizeof(vertices) );
+    if ( !rd->vertexBuffer ) {
+        ri.Error( ERR_FATAL, "Could not create SkyBox vertex buffer.\n" );
+    }
+
+    rd->vsConstantBuffer = QD3D::CreateDynamicBuffer<d3dSkyBoxVSConstantBuffer_t>( 
+        g_pDevice, 
+        D3D11_BIND_CONSTANT_BUFFER );
+    if ( !rd->vsConstantBuffer ) {
+        ri.Error( ERR_FATAL, "Could not create SkyBox VS constant buffer.\n" );
+    }
+
+    rd->psConstantBuffer = QD3D::CreateDynamicBuffer<d3dSkyBoxPSConstantBuffer_t>( 
+        g_pDevice, 
+        D3D11_BIND_CONSTANT_BUFFER );
+    if ( !rd->psConstantBuffer ) {
+        ri.Error( ERR_FATAL, "Could not create SkyBox PS constant buffer.\n" );
+    }
+}
+
+void DestroySkyBoxRenderData( d3dSkyBoxRenderData_t* rd )
+{
+    SAFE_RELEASE( rd->inputLayout );
+    SAFE_RELEASE( rd->vertexShader );
+    SAFE_RELEASE( rd->pixelShader );
+    SAFE_RELEASE( rd->vertexBuffer );
+    SAFE_RELEASE( rd->indexBuffer );
+    SAFE_RELEASE( rd->vsConstantBuffer );
+    SAFE_RELEASE( rd->psConstantBuffer );
+
+    Com_Memset( rd, 0, sizeof( *rd ) );
+}
+
 void InitGenericStageRenderData( d3dGenericStageRenderData_t* rd )
 {
     Com_Memset( rd, 0, sizeof( *rd ) );
