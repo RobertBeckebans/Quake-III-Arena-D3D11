@@ -87,10 +87,6 @@ typedef struct {
 
     // device information
     XINPUT_CAPABILITIES caps;
-    byte userIndex;
-    byte connected : 1;
-    byte inserted : 1;
-    byte removed : 1;
 
     // Xinput state
     XINPUT_GAMEPAD lastState;
@@ -116,13 +112,19 @@ typedef struct {
     // bitfield indicating which buttons were *just* released this frame
     unsigned short releasedButtons;
 
+    // bitfield for controller info: userindex and connectivity state
+    int userIndex : 3;
+    int connected : 1;
+    int inserted : 1;
+    int removed : 1;
+
     // bitfield indicating which triggers were held, pressed or released this frame
-    byte heldLeftTrigger : 1;
-    byte heldRightTrigger : 1;
-    byte pressedLeftTrigger : 1;
-    byte pressedRightTrigger : 1;
-    byte releasedLeftTrigger : 1;
-    byte releasedRightTrigger : 1;
+    int heldLeftTrigger : 1;
+    int heldRightTrigger : 1;
+    int pressedLeftTrigger : 1;
+    int pressedRightTrigger : 1;
+    int releasedLeftTrigger : 1;
+    int releasedRightTrigger : 1;
 
 } gamepadInfo_t;
 
@@ -1039,7 +1041,6 @@ void IN_ApplyGamepad( const gamepadInfo_t* gamepad )
     //
     // Handle buttons
     //
-    const int buttonBase = K_GAMEPAD_DPAD_UP;
     for ( int i = 0; i < _countof(gamepadButtonMappings); ++i )
     {
         const gamepadButtonMapping_t* button = &gamepadButtonMappings[i];
@@ -1066,8 +1067,6 @@ void IN_ApplyGamepad( const gamepadInfo_t* gamepad )
     //
     // Handle left stick as keys
     //
-    int ldeadzone = in_gamepadLDeadZone->integer;
-
     // If the values have changed ACCOUNTING FOR DEADZONE then we send messages, but only then
     if ( gamepad->leftThumb.yDeadZone != gamepad->oldLeftThumb.yDeadZone ) {
         int movement = gamepad->leftThumb.ny * 127;

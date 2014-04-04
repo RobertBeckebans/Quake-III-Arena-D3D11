@@ -427,7 +427,7 @@ int edgeVerts[6][2] = {
 };
 
 static void Autosprite2Deform( void ) {
-	int		i, j, k;
+	glIndex_t i, j, k;
 	int		indexes;
 	float	*xyz;
 	vec3_t	forward;

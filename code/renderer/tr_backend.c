@@ -549,7 +549,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	oldFogNum = -1;
 	oldDepthRange = qfalse;
 	oldDlighted = qfalse;
-	oldSort = -1;
+	oldSort = ~0U; // @pjb: unsigned
 	depthRange = qfalse;
 
 	backEnd.pc.c_surfaces += numDrawSurfs;

@@ -455,7 +455,7 @@ typedef enum {
 #define Hunk_Alloc( size, preference )				Hunk_AllocDebug(size, preference, #size, __FILE__, __LINE__)
 void *Hunk_AllocDebug( size_t size, ha_pref preference, char *label, char *file, int line );
 #else
-void *Hunk_Alloc( int size, ha_pref preference );
+void *Hunk_Alloc( size_t size, ha_pref preference );
 #endif
 
 #ifdef __linux__

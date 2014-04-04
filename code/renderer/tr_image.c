@@ -882,7 +882,7 @@ static void LoadBMP( const char *name, byte **pic, int *width, int *height )
 	{
 		ri.Error( ERR_DROP, "LoadBMP: only Windows-style BMP files supported (%s)\n", name );
 	}
-	if ( bmpHeader.fileSize != length )
+	if ( bmpHeader.fileSize != (unsigned) length )
 	{
 		ri.Error( ERR_DROP, "LoadBMP: header size does not match file size (%d vs. %d) (%s)\n", bmpHeader.fileSize, length, name );
 	}

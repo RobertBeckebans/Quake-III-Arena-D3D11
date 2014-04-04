@@ -247,7 +247,7 @@ bot_character_t *BotLoadCharacterFromFile(char *charfile, int skill)
 				return NULL;
 			} //end if
 			//if it's the correct skill
-			if (skill < 0 || token.intvalue == skill)
+			if (skill < 0 || token.intvalue == (unsigned int) skill)
 			{
 				foundcharacter = qtrue;
 				ch->skill = token.intvalue;

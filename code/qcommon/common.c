@@ -1002,7 +1002,7 @@ Z_Malloc
 #ifdef ZONE_DEBUG
 void *Z_MallocDebug( size_t size, char *label, char *file, int line ) {
 #else
-void *Z_Malloc( int size ) {
+void *Z_Malloc( size_t size ) {
 #endif
 	void	*buf;
 	

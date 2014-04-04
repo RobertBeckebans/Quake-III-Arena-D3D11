@@ -75,9 +75,7 @@ static void	 swapfunc(char *, char *, size_t, size_t);
 	es % sizeof(long) ? 2 : es == sizeof(long)? 0 : 1;
 
 static void
-swapfunc(a, b, n, swaptype)
-	char *a, *b;
-	size_t n, swaptype;
+swapfunc(char *a, char *b, size_t n, size_t swaptype)
 {
 	if(swaptype <= 1)
 		swapcode(long, a, b, n)
@@ -96,9 +94,7 @@ swapfunc(a, b, n, swaptype)
 #define vecswap(a, b, n) 	if ((n) > 0) swapfunc(a, b, n, swaptype)
 
 static char *
-med3(a, b, c, cmp)
-	char *a, *b, *c;
-	cmp_t *cmp;
+med3(char* a, char* b, char* c, cmp_t* cmp)
 {
 	return cmp(a, b) < 0 ?
 	       (cmp(b, c) < 0 ? b : (cmp(a, c) < 0 ? c : a ))
@@ -106,10 +102,11 @@ med3(a, b, c, cmp)
 }
 
 void
-qsort(a, n, es, cmp)
-	void *a;
-	size_t n, es;
-	cmp_t *cmp;
+qsort(
+	void *a,
+	size_t n, 
+    size_t es,
+	cmp_t *cmp)
 {
 	char *pa, *pb, *pc, *pd, *pl, *pm, *pn;
 	size_t d, r, swaptype, swap_cnt;
