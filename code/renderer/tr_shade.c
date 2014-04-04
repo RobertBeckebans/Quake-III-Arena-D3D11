@@ -691,7 +691,5 @@ void RB_EndSurface( void ) {
 	}
 	// clear shader so we can tell we don't have any unclosed surfaces
 	tess.numIndexes = 0;
-
-	GLimp_LogComment( "----------\n" );
 }
 

@@ -704,8 +704,6 @@ const void	*RB_SwapBuffers( const void *data ) {
 		graphicsDriver.Flush();
 	}
 
-	GLimp_LogComment( "***************** RB_SwapBuffers *****************\n\n\n" );
-
     graphicsDriver.EndFrame();
 
 	backEnd.projection2D = qfalse;

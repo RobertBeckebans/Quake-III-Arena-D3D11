@@ -1227,9 +1227,6 @@ void R_ResampleTexture( unsigned *in, int inwidth, int inheight, unsigned *out, 
 void R_LightScaleTexture (unsigned *in, int inwidth, int inheight, qboolean only_gamma );
 void R_BlendOverTexture( byte *data, int pixelCount, byte blend[4] );
 
-// @pjb: rename this and find a better home for it
-void GLimp_LogComment( char *comment );
-
 //
 // tr_shader.c
 //
