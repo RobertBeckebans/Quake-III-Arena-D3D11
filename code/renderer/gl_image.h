@@ -11,5 +11,6 @@ int GL_SumOfUsedImages( void );
 
 void GL_SetImageBorderColor( const image_t* image, const float* borderColor );
 
+int GL_ConvertImageFormat( imageFormat_t );
 
 #endif

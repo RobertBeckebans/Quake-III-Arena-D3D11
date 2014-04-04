@@ -411,7 +411,7 @@ void R_LevelShot( void ) {
 	buffer[14] = 128;
 	buffer[16] = 24;	// pixel size
 
-	qglReadPixels( 0, 0, vdConfig.vidWidth, vdConfig.vidHeight, GL_RGB, GL_UNSIGNED_BYTE, source ); 
+    graphicsDriver.ReadPixels( 0, 0, vdConfig.vidWidth, vdConfig.vidHeight, IMAGEFORMAT_RGB, source ); 
 
 	// resample from source
 	xScale = vdConfig.vidWidth / 512.0f;

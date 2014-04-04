@@ -203,6 +203,13 @@ size_t GLRB_QueryError( void )
     return (size_t) qglGetError();
 }
 
+void GLRB_ReadPixels( int x, int y, int width, int height, imageFormat_t requestedFmt, void* dest )
+{
+    int glFmt = GL_ConvertImageFormat( requestedFmt );
+
+    qglReadPixels( x, y, width, height, glFmt, GL_UNSIGNED_BYTE, dest );
+}
+
 /*
 @@@@@@@@@@@@@@@@@@@@@
 
@@ -215,6 +222,7 @@ void GLRB_DriverInit( graphicsApiLayer_t* layer )
     layer->Shutdown = GLimp_Shutdown;
     layer->UnbindResources = GLRB_RestoreTextureState;
     layer->QueryError = GLRB_QueryError;
+    layer->ReadPixels = GLRB_ReadPixels;
     layer->CreateImage = GL_CreateImage;
     layer->DeleteImage = GL_DeleteImage;
     layer->GetImageFormat = GL_GetImageFormat;

@@ -359,6 +359,33 @@ imageFormat_t GL_GetImageFormat( const image_t* image )
     }
 }
 
+int GL_ConvertImageFormat( imageFormat_t i )
+{
+    switch ( i )
+    {
+    case IMAGEFORMAT_I:
+        return GL_LUMINANCE;
+    case IMAGEFORMAT_IA:
+        return GL_LUMINANCE_ALPHA;
+    case IMAGEFORMAT_RGB:
+        return GL_RGB;
+    case IMAGEFORMAT_RGBA:
+        return GL_RGBA;
+    case IMAGEFORMAT_RGBA8:
+        return GL_RGBA8;
+    case IMAGEFORMAT_RGB8:
+        return GL_RGB8;
+    case IMAGEFORMAT_S3TC:
+        return GL_RGB_S3TC;
+    case IMAGEFORMAT_RGBA4:
+        return GL_RGBA4;
+    case IMAGEFORMAT_RGB5:
+        return GL_RGB5;
+    default:
+        return 0;
+    }
+}
+
 /*
 ** GL_Bind
 */
