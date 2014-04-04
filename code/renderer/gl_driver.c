@@ -56,7 +56,7 @@ static void InitOpenGL( void )
 	//		- r_gamma
 	//
 	
-	if ( vdConfig.vidWidth == 0 )
+	if ( !glState.initialized ) // @pjb: vdConfig.vidWidth == 0 is no longer a good indicator
 	{
 		GLint		temp;
 		
@@ -74,6 +74,8 @@ static void InitOpenGL( void )
 		{
 			vdConfig.maxTextureSize = 0;
 		}
+
+        glState.initialized = qtrue;
 	}
 
 	// init command buffers and SMP
@@ -212,6 +214,12 @@ void GLRB_ReadPixels( int x, int y, int width, int height, imageFormat_t request
     qglReadPixels( x, y, width, height, glFmt, GL_UNSIGNED_BYTE, dest );
 }
 
+void GLRB_Shutdown( void )
+{
+    GLimp_Shutdown();
+    glState.initialized = qfalse;
+}
+
 /*
 @@@@@@@@@@@@@@@@@@@@@
 
@@ -221,7 +229,7 @@ Returns the opengl graphics driver and sets up global state
 */
 void GLRB_DriverInit( graphicsApiLayer_t* layer )
 {
-    layer->Shutdown = GLimp_Shutdown;
+    layer->Shutdown = GLRB_Shutdown;
     layer->UnbindResources = GLRB_RestoreTextureState;
     layer->LastError = GLRB_LastError;
     layer->ReadPixels = GLRB_ReadPixels;

@@ -4,6 +4,7 @@
 
 // D3D headers
 #include "../d3d11/d3d_driver.h"
+#include "../d3d11/d3d_wnd.h"
 
 // GL headers
 #include "gl_common.h"
@@ -13,58 +14,75 @@
 #define driver #driver_disallowed
 
 static graphicsApiLayer_t openglDriver;
+static graphicsApiLayer_t d3dDriver;
+static cvar_t* proxy_driverPriority = NULL;
 
 void PROXY_Shutdown( void )
 {
+    d3dDriver.Shutdown();
     openglDriver.Shutdown();
 }
 
 void PROXY_UnbindResources( void )
 {
+    d3dDriver.UnbindResources();
     openglDriver.UnbindResources();
 }
 
 size_t PROXY_LastError( void )
 {
-    //@pjb: todo: decide which one of these takes preference
     size_t glError = openglDriver.LastError();
-    
-    return glError;
+    size_t d3dError = d3dDriver.LastError();
+
+    // @pjb: may want to change this but for now...
+    if ( proxy_driverPriority->integer == 0 )
+        return d3dError;
+    else
+        return glError;
 }
 
 void PROXY_ReadPixels( int x, int y, int width, int height, imageFormat_t requestedFmt, void* dest )
 {
     //@pjb: todo: decide which one of these takes preference
-    openglDriver.ReadPixels( x, y, width, height, requestedFmt, dest );
+    if (proxy_driverPriority->integer == 0)
+        d3dDriver.ReadPixels( x, y, width, height, requestedFmt, dest );
+    else
+        openglDriver.ReadPixels( x, y, width, height, requestedFmt, dest );
 }
 
 void PROXY_CreateImage( const image_t* image, const byte *pic, qboolean isLightmap )
 {
+    d3dDriver.CreateImage( image, pic, isLightmap );
     openglDriver.CreateImage( image, pic, isLightmap );
 }
 
 void PROXY_DeleteImage( const image_t* image )
 {
+    d3dDriver.DeleteImage( image );
     openglDriver.DeleteImage( image );
 }
 
 imageFormat_t PROXY_GetImageFormat( const image_t* image )
 {
-    // todo: CALL the D3D one and discard the results
-    // Just do the GL one
-    return openglDriver.GetImageFormat( image );
+    imageFormat_t d3dFmt = d3dDriver.GetImageFormat( image );
+    imageFormat_t glFmt = openglDriver.GetImageFormat( image );
+
+    // @pjb: todo: enable this when relevant
+    //assert( d3dFmt == glFmt );
+    //return d3dFmt;
+
+    return glFmt;
 }
 
 void PROXY_SetGamma( unsigned char red[256], unsigned char green[256], unsigned char blue[256] )
 {
+    d3dDriver.SetGamma( red, green, blue );
     openglDriver.SetGamma( red, green, blue );
-    // @pjb: todo
 }
 
 int PROXY_SumOfUsedImages( void )
 {
-    return openglDriver.GetFrameImageMemoryUsage(); 
-    // @pjb: todo
+    return d3dDriver.GetFrameImageMemoryUsage() + openglDriver.GetFrameImageMemoryUsage(); 
 }
 
 void PROXY_GfxInfo( void )
@@ -78,28 +96,50 @@ void PROXY_GfxInfo( void )
 
 void PROXY_Clear( unsigned long bits, const float* clearCol, unsigned long stencil, float depth )
 {
+    d3dDriver.Clear( bits, clearCol, stencil, depth );
     openglDriver.Clear( bits, clearCol, stencil, depth );
-    // @pjb: todo
 }
 
 void PROXY_SetProjection( const float* projMatrix )
 {
+    d3dDriver.SetProjection( projMatrix );
     openglDriver.SetProjection( projMatrix );
 }
 
 void PROXY_SetViewport( int left, int top, int width, int height )
 {
+    d3dDriver.SetViewport( left, top, width, height );
     openglDriver.SetViewport( left, top, width, height );
 }
 
 void PROXY_Flush( void )
 {
+    d3dDriver.Flush();
     openglDriver.Flush();
 }
 
 void PROXY_SetState( unsigned long stateMask )
 {
+    d3dDriver.SetState( stateMask );
     openglDriver.SetState( stateMask );
+}
+
+void PROXY_PositionOpenGLWindowRightOfD3D( void )
+{
+    HWND hD3DWnd, hGLWnd;
+    RECT d3dR, glR;
+
+    hD3DWnd = D3DWnd_GetWindowHandle();
+    hGLWnd = GLimp_GetWindowHandle();
+
+    GetWindowRect( hD3DWnd, &d3dR );
+    GetWindowRect( hGLWnd, &glR );
+
+    if ( !MoveWindow( hGLWnd, d3dR.right, d3dR.top, glR.right - glR.left, glR.bottom - glR.top, TRUE ) )
+    {
+        ri.Printf( PRINT_WARNING, "Failed to move GL window: %d, %d, %d, %d\n",
+            d3dR.left, d3dR.top, glR.right - glR.left, glR.bottom - glR.top );
+    }
 }
 
 void PROXY_DriverInit( graphicsApiLayer_t* layer )
@@ -120,18 +160,21 @@ void PROXY_DriverInit( graphicsApiLayer_t* layer )
     layer->Flush = PROXY_Flush;
     layer->SetState = PROXY_SetState;
 
+    // Get the configurable driver priority
+    proxy_driverPriority = Cvar_Get( "proxy_driverPriority", "0", CVAR_ARCHIVE );
+
     // If using the proxy driver we cannot use fullscreen
     Cvar_Set( "r_fullscreen", "0" );
 
-    // Proxy OpenGL
+    D3DDrv_DriverInit( &d3dDriver );
     GLRB_DriverInit( &openglDriver );
 
-    // todo: proxy D3D11
-
-
+    R_ValidateGraphicsLayer( &d3dDriver );
     R_ValidateGraphicsLayer( &openglDriver );
-    // tod: R_ValidateGraphicsLayer( &d3dDriver );
-    
+
+    // Let's arrange these windows shall we?
+    PROXY_PositionOpenGLWindowRightOfD3D();
+            
     // Copy the resource strings to the vgConfig
     Q_strncpyz( vdConfig.renderer_string, "PROXY DRIVER", sizeof( vdConfig.renderer_string ) );
     Q_strncpyz( vdConfig.vendor_string, "@pjb", sizeof( vdConfig.vendor_string ) );

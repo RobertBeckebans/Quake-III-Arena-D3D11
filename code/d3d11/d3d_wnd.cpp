@@ -1,28 +1,16 @@
 #include "d3d_common.h"
-#include "d3d_views.h"
 
-#include "../renderer/tr_local.h"
-#include "../qcommon/qcommon.h"
-#include "../win32/resource.h"
-#include "../win32/win_local.h"
+extern "C" {
+#   include "../win32/resource.h"
+#   include "../win32/win_local.h"
+}
 
-#define	WINDOW_CLASS_NAME	"Quake 3: Arena"
+#define	WINDOW_CLASS_NAME	"Quake 3: Arena (Direct3D)"
 
 HWND g_hWnd = nullptr;
 ID3D11Device* g_pDevice = nullptr;
 ID3D11DeviceContext* g_pImmediateContext = nullptr;
 IDXGISwapChain* g_pSwapChain = nullptr;
-D3D11_TEXTURE2D_DESC g_BackBufferDesc;
-ID3D11RenderTargetView* g_pBackBufferView = nullptr;
-ID3D11DepthStencilView* g_pDepthBufferView = nullptr;
-
-// @pjb: todo: replace these with defaults from CVars
-static const DXGI_FORMAT DEPTH_TEXTURE_FORMAT = DXGI_FORMAT_R24G8_TYPELESS;
-static const DXGI_FORMAT DEPTH_DEPTH_VIEW_FORMAT = DXGI_FORMAT_D24_UNORM_S8_UINT;
-static const DXGI_FORMAT DEPTH_SHADER_VIEW_FORMAT = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-
-void CreateBuffers();
-void DestroyBuffers();
 
 //----------------------------------------------------------------------------
 // WndProc: Intercepts window events before passing them on to the game.
@@ -69,7 +57,7 @@ static BOOL RegisterWindowClass()
     wc.lpfnWndProc = (WNDPROC) Direct3DWndProc;
     wc.cbClsExtra = 0;
     wc.hInstance = g_wv.hInstance;
-    wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
+    wc.hIcon = LoadIcon(NULL, MAKEINTRESOURCE(IDI_ICON1));
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = NULL;
     wc.lpszMenuName = NULL;
@@ -81,13 +69,38 @@ static BOOL RegisterWindowClass()
 //----------------------------------------------------------------------------
 // Creates a window to render our game in.
 //----------------------------------------------------------------------------
-static HWND CreateGameWindow( int x, int y, int width, int height )
+static HWND CreateGameWindow( int x, int y, int width, int height, bool fullscreen )
 {
-    const UINT exStyle = WS_EX_APPWINDOW; // To enable sizing: | WS_EX_WINDOWEDGE;
-    const UINT style = WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
+    UINT exStyle;
+    UINT style;
 
-    RECT rect = { x, y, width, height };
+	if ( fullscreen )
+	{ 
+		exStyle = WS_EX_TOPMOST;
+		style = WS_POPUP|WS_VISIBLE|WS_SYSMENU;
+	}
+	else
+	{
+		exStyle = 0;
+		style = WS_OVERLAPPED|WS_BORDER|WS_CAPTION|WS_VISIBLE|WS_SYSMENU;
+	}
+  
+    RECT rect = { x, y, x + width, y + height };
     AdjustWindowRectEx(&rect, style, FALSE, exStyle);
+
+    // Make sure it's on-screen 
+    if ( rect.top < 0 ) 
+    {
+        rect.bottom -= rect.top;
+        rect.top = 0;
+    }
+    if ( rect.left < 0 ) 
+    {
+        rect.right -= rect.left;
+        rect.left = 0;
+    }
+
+    // @pjb: todo: right and bottom edges of the monitor
 
     return CreateWindowEx(
         exStyle, 
@@ -107,7 +120,7 @@ static HWND CreateGameWindow( int x, int y, int width, int height )
 //----------------------------------------------------------------------------
 // Creates a window, initializes the driver and sets up Direct3D state.
 //----------------------------------------------------------------------------
-D3D_PUBLIC void D3DDrv_Init( void )
+D3D_PUBLIC void D3DWnd_Init( void )
 {
 	ri.Printf( PRINT_ALL, "Initializing D3D11 subsystem\n" );
 
@@ -117,14 +130,18 @@ D3D_PUBLIC void D3DDrv_Init( void )
         return;
     }
 
+    // @pjb: todo: fullscreen stuff
+    bool fullscreen = r_fullscreen->integer != 0;
+
     cvar_t* vid_xpos = ri.Cvar_Get ("vid_xpos", "", 0);
     cvar_t* vid_ypos = ri.Cvar_Get ("vid_ypos", "", 0);
-    
+
     g_hWnd = CreateGameWindow( 
-        vid_xpos->integer, 
-        vid_ypos->integer, 
+        vid_xpos->integer,
+        vid_ypos->integer,
         vdConfig.vidWidth, 
-        vdConfig.vidHeight );
+        vdConfig.vidHeight,
+        fullscreen);
     if ( !g_hWnd )
     {
         ri.Error( ERR_FATAL, "Failed to create Direct3D 11 window.\n" );
@@ -155,17 +172,18 @@ D3D_PUBLIC void D3DDrv_Init( void )
         ri.Error( ERR_FATAL, "Failed to create Direct3D 11 swapchain.\n" );
         return;
     }
-    
-    CreateBuffers();
+
+    ::ShowWindow( g_hWnd, SW_SHOW );
+    ::UpdateWindow( g_hWnd );
+	::SetForegroundWindow( g_hWnd );
+	::SetFocus( g_hWnd );
 }
 
 //----------------------------------------------------------------------------
 // Cleans up and stops D3D, and closes the window.
 //----------------------------------------------------------------------------
-D3D_PUBLIC void D3DDrv_Shutdown( void )
+D3D_PUBLIC void D3DWnd_Shutdown( void )
 {
-    DestroyBuffers();
-
     SAFE_RELEASE(g_pSwapChain);
     SAFE_RELEASE(g_pImmediateContext);
     SAFE_RELEASE(g_pDevice);
@@ -174,31 +192,10 @@ D3D_PUBLIC void D3DDrv_Shutdown( void )
 }
 
 //----------------------------------------------------------------------------
-// Get the back buffer and depth/stencil buffer.
+// Returns the window handle
 //----------------------------------------------------------------------------
-void CreateBuffers()
+D3D_PUBLIC HWND D3DWnd_GetWindowHandle( void )
 {
-    g_pBackBufferView = QD3D::CreateBackBufferView(g_pSwapChain, g_pDevice, &g_BackBufferDesc);
-    ASSERT(g_pBackBufferView);
-
-    g_pDepthBufferView = QD3D::CreateDepthBufferView(
-        g_pDevice,
-        g_BackBufferDesc.Width,
-        g_BackBufferDesc.Height,
-        DEPTH_TEXTURE_FORMAT,
-        DEPTH_DEPTH_VIEW_FORMAT,
-        g_BackBufferDesc.SampleDesc.Count,
-        g_BackBufferDesc.SampleDesc.Quality,
-        D3D11_BIND_SHADER_RESOURCE);
-    ASSERT(g_pDepthBufferView);
-}
-
-//----------------------------------------------------------------------------
-// Release references to the back buffer and depth
-//----------------------------------------------------------------------------
-void DestroyBuffers()
-{
-    SAFE_RELEASE(g_pBackBufferView);
-    SAFE_RELEASE(g_pDepthBufferView);
+    return g_hWnd;
 }
 

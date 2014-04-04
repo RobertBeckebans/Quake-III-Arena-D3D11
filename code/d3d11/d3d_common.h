@@ -1,6 +1,12 @@
 #ifndef __D3D_COMMON_H__
 #define __D3D_COMMON_H__
 
+extern "C" {
+#   include "../renderer/tr_local.h"
+#   include "../renderer/tr_layer.h"
+#   include "../qcommon/qcommon.h"
+}
+
 #define D3D_PUBLIC  extern "C"
 
 #ifndef __cplusplus

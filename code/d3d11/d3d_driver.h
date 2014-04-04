@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 
+void D3DDrv_DriverInit( graphicsApiLayer_t* layer );
 
 #ifdef __cplusplus
 } // extern "C"

@@ -100,6 +100,7 @@
     </ClCompile>
     <Lib>
       <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalDependencies>d3d11.lib</AdditionalDependencies>
     </Lib>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -125,6 +126,7 @@
     </ClCompile>
     <Lib>
       <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalDependencies>d3d11.lib</AdditionalDependencies>
     </Lib>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -149,6 +151,7 @@
     </ClCompile>
     <Lib>
       <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalDependencies>d3d11.lib</AdditionalDependencies>
     </Lib>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -174,6 +177,7 @@
     </ClCompile>
     <Lib>
       <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalDependencies>d3d11.lib</AdditionalDependencies>
     </Lib>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -188,6 +192,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\d3d11\d3d_common.cpp" />
+    <ClCompile Include="..\d3d11\d3d_driver.cpp" />
     <ClCompile Include="..\d3d11\d3d_views.cpp" />
     <ClCompile Include="..\d3d11\d3d_wnd.cpp" />
     <ClCompile Include="gl_common.c" />

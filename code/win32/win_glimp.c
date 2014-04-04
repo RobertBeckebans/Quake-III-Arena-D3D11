@@ -58,11 +58,10 @@ typedef enum {
 #define TRY_PFD_FAIL_SOFT	1
 #define TRY_PFD_FAIL_HARD	2
 
-#define	WINDOW_CLASS_NAME	"Quake 3: Arena"
+#define	WINDOW_CLASS_NAME	"Quake 3: Arena (OpenGL)"
 
 static void		GLW_InitExtensions( void );
 static rserr_t	GLW_SetMode( const char *drivername, 
-							 int mode, 
 							 int colorbits, 
 							 qboolean cdsFullscreen );
 
@@ -89,13 +88,12 @@ cvar_t	*r_maskMinidriver;		// allow a different dll name to be treated as if it 
 ** GLW_StartDriverAndSetMode
 */
 static qboolean GLW_StartDriverAndSetMode( const char *drivername, 
-										   int mode, 
 										   int colorbits,
 										   qboolean cdsFullscreen )
 {
 	rserr_t err;
 
-	err = GLW_SetMode( drivername, r_mode->integer, colorbits, cdsFullscreen );
+	err = GLW_SetMode( drivername, colorbits, cdsFullscreen );
 
 	switch ( err )
 	{
@@ -103,7 +101,7 @@ static qboolean GLW_StartDriverAndSetMode( const char *drivername,
 		ri.Printf( PRINT_ALL, "...WARNING: fullscreen unavailable in this mode\n" );
 		return qfalse;
 	case RSERR_INVALID_MODE:
-		ri.Printf( PRINT_ALL, "...WARNING: could not set the given mode (%d)\n", mode );
+		ri.Printf( PRINT_ALL, "...WARNING: could not set the given mode (%dx%d)\n", vdConfig.vidWidth, vdConfig.vidHeight );
 		return qfalse;
 	default:
 		break;
@@ -740,25 +738,15 @@ static void PrintCDSError( int value )
 ** GLW_SetMode
 */
 static rserr_t GLW_SetMode( const char *drivername, 
-						    int mode, 
 							int colorbits, 
 							qboolean cdsFullscreen )
 {
 	HDC hDC;
-	const char *win_fs[] = { "W", "FS" };
 	int		cdsRet;
 	DEVMODE dm;
+	const char *win_fs[] = { "W", "FS" };
 		
-	//
-	// print out informational messages
-	//
-	ri.Printf( PRINT_ALL, "...setting mode %d:", mode );
-	if ( !R_GetModeInfo( &vdConfig.vidWidth, &vdConfig.vidHeight, &vdConfig.windowAspect, mode ) )
-	{
-		ri.Printf( PRINT_ALL, " invalid mode\n" );
-		return RSERR_INVALID_MODE;
-	}
-	ri.Printf( PRINT_ALL, " %d %d %s\n", vdConfig.vidWidth, vdConfig.vidHeight, win_fs[cdsFullscreen] );
+	ri.Printf( PRINT_ALL, "...configuring display for %d %d %s\n", vdConfig.vidWidth, vdConfig.vidHeight, win_fs[cdsFullscreen] );
 
 	//
 	// check our desktop attributes
@@ -1205,7 +1193,7 @@ static qboolean GLW_LoadOpenGL( const char *drivername )
 		cdsFullscreen = r_fullscreen->integer;
 
 		// create the window and set up the context
-		if ( !GLW_StartDriverAndSetMode( drivername, r_mode->integer, r_colorbits->integer, cdsFullscreen ) )
+		if ( !GLW_StartDriverAndSetMode( drivername, r_colorbits->integer, cdsFullscreen ) )
 		{
 			// if we're on a 24/32-bit desktop and we're going fullscreen on an ICD,
 			// try it again but with a 16-bit desktop
@@ -1215,7 +1203,7 @@ static qboolean GLW_LoadOpenGL( const char *drivername )
 					 cdsFullscreen != qtrue ||
 					 r_mode->integer != 3 )
 				{
-					if ( !GLW_StartDriverAndSetMode( drivername, 3, 16, qtrue ) )
+					if ( !GLW_StartDriverAndSetMode( drivername, 16, qtrue ) )
 					{
 						goto fail;
 					}
@@ -1694,3 +1682,9 @@ void GLimp_WakeRenderer( void *data ) {
 	WaitForSingleObject( renderActiveEvent, INFINITE );
 }
 
+
+// @pjb: returns the window handle
+HWND GLimp_GetWindowHandle( void )
+{
+    return glw_state.hWnd;
+}

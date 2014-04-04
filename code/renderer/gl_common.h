@@ -37,6 +37,7 @@ typedef struct {
     char            version_string[MAX_STRING_CHARS];
     char            extensions_string[BIG_INFO_STRING];
 
+    qboolean        initialized;
 	int			    currenttextures[2];
 	int			    currenttmu;
 	qboolean	    finishCalled;
@@ -85,6 +86,7 @@ void		GLimp_SetGamma( unsigned char red[256],
 						    unsigned char green[256],
 							unsigned char blue[256] );
 
-
+// @pjb: returns the window handle
+HWND        GLimp_GetWindowHandle( void );
 
 #endif

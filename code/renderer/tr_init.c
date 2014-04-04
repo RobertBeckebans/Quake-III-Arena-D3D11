@@ -737,6 +737,23 @@ void R_Register( void )
 	ri.Cmd_AddCommand( "gfxinfo", R_GfxInfo );
 }
 
+// @pjb: this used to be done way down inside GLimp, but we have to do it much earlier now
+void R_InitVMode( void )
+{
+    ri.Printf( PRINT_ALL, "...setting mode %d:", r_mode->integer );
+
+	if ( !R_GetModeInfo( &vdConfig.vidWidth, &vdConfig.vidHeight, &vdConfig.windowAspect, r_mode->integer ) )
+	{
+		ri.Printf( PRINT_ALL, " invalid mode. Setting to default.\n" );
+
+        // @pjb: apparently this is a safe fallback
+		r_mode->integer = 3;
+        R_GetModeInfo( &vdConfig.vidWidth, &vdConfig.vidHeight, &vdConfig.windowAspect, r_mode->integer );
+	}
+
+	ri.Printf( PRINT_ALL, " %dx%d\n", vdConfig.vidWidth, vdConfig.vidHeight );
+}
+
 /*
 ===============
 R_Init
@@ -815,6 +832,11 @@ void R_Init( void ) {
 		backEndData[1] = NULL;
 	}
 	R_ToggleSmpFrame();
+
+    //
+	// print out informational messages
+	//
+    R_InitVMode();
 
     // @pjb: Select our driver
     InitDriver();
