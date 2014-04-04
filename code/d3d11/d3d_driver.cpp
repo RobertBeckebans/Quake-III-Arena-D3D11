@@ -279,52 +279,54 @@ void SetupVideoConfig()
     // We expect vidWidth, vidHeight and windowAspect to all be set by now
 }
 
-D3D_PUBLIC void D3DDrv_DriverInit( graphicsApiLayer_t* layer )
+D3D_PUBLIC void D3DDrv_DriverInit( void )
 {
-    layer->Shutdown = D3DDrv_Shutdown;
-    layer->UnbindResources = D3DDrv_UnbindResources;
-    layer->LastError = D3DDrv_LastError;
-    layer->ReadPixels = D3DDrv_ReadPixels;
-    layer->ReadDepth = D3DDrv_ReadDepth;
-    layer->ReadStencil = D3DDrv_ReadStencil;
-    layer->CreateImage = D3DDrv_CreateImage;
-    layer->DeleteImage = D3DDrv_DeleteImage;
-    layer->UpdateCinematic = D3DDrv_UpdateCinematic;
-    layer->DrawImage = D3DDrv_DrawImage;
-    layer->GetImageFormat = D3DDrv_GetImageFormat;
-    layer->SetGamma = D3DDrv_SetGamma;
-    layer->GetFrameImageMemoryUsage = D3DDrv_SumOfUsedImages;
-    layer->GraphicsInfo = D3DDrv_GfxInfo;
-    layer->Clear = D3DDrv_Clear;
-    layer->SetProjectionMatrix = D3DDrv_SetProjection;
-    layer->GetProjectionMatrix = D3DDrv_GetProjection;
-    layer->SetModelViewMatrix = D3DDrv_SetModelView;
-    layer->GetModelViewMatrix = D3DDrv_GetModelView;
-    layer->SetViewport = D3DDrv_SetViewport;
-    layer->Flush = D3DDrv_Flush;
-    layer->SetState = D3DDrv_SetState;
-    layer->ResetState2D = D3DDrv_ResetState2D;
-    layer->ResetState3D = D3DDrv_ResetState3D;
-    layer->SetPortalRendering = D3DDrv_SetPortalRendering;
-    layer->SetDepthRange = D3DDrv_SetDepthRange;
-    layer->SetDrawBuffer = D3DDrv_SetDrawBuffer;
-    layer->EndFrame = D3DDrv_EndFrame;
-    layer->MakeCurrent = D3DDrv_MakeCurrent;
-    layer->ShadowSilhouette = D3DDrv_ShadowSilhouette;
-    layer->ShadowFinish = D3DDrv_ShadowFinish;
-    layer->DrawSkyBox = D3DDrv_DrawSkyBox;
-    layer->DrawBeam = D3DDrv_DrawBeam;
-    layer->DrawStageGeneric = D3DDrv_DrawStageGeneric;
-    layer->DrawStageVertexLitTexture = D3DDrv_DrawStageVertexLitTexture;
-    layer->DrawStageLightmappedMultitexture = D3DDrv_DrawStageLightmappedMultitexture;
-    layer->BeginTessellate = D3DDrv_BeginTessellate;
-    layer->EndTessellate = D3DDrv_EndTessellate;
-    layer->DebugDrawAxis = D3DDrv_DebugDrawAxis;
-    layer->DebugDrawTris = D3DDrv_DebugDrawTris;
-    layer->DebugDrawNormals = D3DDrv_DebugDrawNormals;
-    layer->DebugSetOverdrawMeasureEnabled = D3DDrv_DebugSetOverdrawMeasureEnabled;
-    layer->DebugSetTextureMode = D3DDrv_DebugSetTextureMode;
-    layer->DebugDrawPolygon = D3DDrv_DebugDrawPolygon;
+#ifndef WIN8
+    GFX_Shutdown = D3DDrv_Shutdown;
+    GFX_UnbindResources = D3DDrv_UnbindResources;
+    GFX_LastError = D3DDrv_LastError;
+    GFX_ReadPixels = D3DDrv_ReadPixels;
+    GFX_ReadDepth = D3DDrv_ReadDepth;
+    GFX_ReadStencil = D3DDrv_ReadStencil;
+    GFX_CreateImage = D3DDrv_CreateImage;
+    GFX_DeleteImage = D3DDrv_DeleteImage;
+    GFX_UpdateCinematic = D3DDrv_UpdateCinematic;
+    GFX_DrawImage = D3DDrv_DrawImage;
+    GFX_GetImageFormat = D3DDrv_GetImageFormat;
+    GFX_SetGamma = D3DDrv_SetGamma;
+    GFX_GetFrameImageMemoryUsage = D3DDrv_SumOfUsedImages;
+    GFX_GraphicsInfo = D3DDrv_GfxInfo;
+    GFX_Clear = D3DDrv_Clear;
+    GFX_SetProjectionMatrix = D3DDrv_SetProjection;
+    GFX_GetProjectionMatrix = D3DDrv_GetProjection;
+    GFX_SetModelViewMatrix = D3DDrv_SetModelView;
+    GFX_GetModelViewMatrix = D3DDrv_GetModelView;
+    GFX_SetViewport = D3DDrv_SetViewport;
+    GFX_Flush = D3DDrv_Flush;
+    GFX_SetState = D3DDrv_SetState;
+    GFX_ResetState2D = D3DDrv_ResetState2D;
+    GFX_ResetState3D = D3DDrv_ResetState3D;
+    GFX_SetPortalRendering = D3DDrv_SetPortalRendering;
+    GFX_SetDepthRange = D3DDrv_SetDepthRange;
+    GFX_SetDrawBuffer = D3DDrv_SetDrawBuffer;
+    GFX_EndFrame = D3DDrv_EndFrame;
+    GFX_MakeCurrent = D3DDrv_MakeCurrent;
+    GFX_ShadowSilhouette = D3DDrv_ShadowSilhouette;
+    GFX_ShadowFinish = D3DDrv_ShadowFinish;
+    GFX_DrawSkyBox = D3DDrv_DrawSkyBox;
+    GFX_DrawBeam = D3DDrv_DrawBeam;
+    GFX_DrawStageGeneric = D3DDrv_DrawStageGeneric;
+    GFX_DrawStageVertexLitTexture = D3DDrv_DrawStageVertexLitTexture;
+    GFX_DrawStageLightmappedMultitexture = D3DDrv_DrawStageLightmappedMultitexture;
+    GFX_BeginTessellate = D3DDrv_BeginTessellate;
+    GFX_EndTessellate = D3DDrv_EndTessellate;
+    GFX_DebugDrawAxis = D3DDrv_DebugDrawAxis;
+    GFX_DebugDrawTris = D3DDrv_DebugDrawTris;
+    GFX_DebugDrawNormals = D3DDrv_DebugDrawNormals;
+    GFX_DebugSetOverdrawMeasureEnabled = D3DDrv_DebugSetOverdrawMeasureEnabled;
+    GFX_DebugSetTextureMode = D3DDrv_DebugSetTextureMode;
+    GFX_DebugDrawPolygon = D3DDrv_DebugDrawPolygon;
+#endif
 
     // This, weirdly, can be called multiple times. Catch that if that's the case.
     if ( g_pDevice == nullptr )

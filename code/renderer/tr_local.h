@@ -1142,9 +1142,6 @@ extern	cvar_t	*r_saveFontData;
 
 //====================================================================
 
-// @pjb: forward declare this but don't use
-typedef struct graphicsApiLayer_s graphicsApiLayer_t;
-
 float R_NoiseGet4f( float x, float y, float z, float t );
 void  R_NoiseInit( void );
 

@@ -493,7 +493,7 @@ static void DrawSkyBox( shader_t *shader, const float* eye_origin, const float* 
     skybox.vbuffer = s_skyVBuffer;
     skybox.tbuffer = s_skyTBuffer;
 
-    graphicsDriver.DrawSkyBox( &skybox, eye_origin, colorTint );
+    GFX_DrawSkyBox( &skybox, eye_origin, colorTint );
 }
 
 static void FillCloudySkySide( const int mins[2], const int maxs[2], qboolean addIndexes )
@@ -753,13 +753,13 @@ void RB_DrawSun( void ) {
 		return;
 	}
 
-    graphicsDriver.GetModelViewMatrix( cachedModelView );
+    GFX_GetModelViewMatrix( cachedModelView );
     
     memcpy( newModelView, backEnd.viewParms.world.modelMatrix, sizeof(float) * 16 );
     newModelView[12] += backEnd.viewParms.or.origin[0];
     newModelView[13] += backEnd.viewParms.or.origin[1];
     newModelView[14] += backEnd.viewParms.or.origin[2];
-    graphicsDriver.SetModelViewMatrix( newModelView );
+    GFX_SetModelViewMatrix( newModelView );
 
 	dist = 	backEnd.viewParms.zFar / 1.75;		// div sqrt(3)
 	size = dist * 0.4;
@@ -772,7 +772,7 @@ void RB_DrawSun( void ) {
 	VectorScale( vec2, size, vec2 );
 
 	// farthest depth range
-	graphicsDriver.SetDepthRange( 1.0, 1.0 );
+	GFX_SetDepthRange( 1.0, 1.0 );
 
 	// FIXME: use quad stamp
 	RB_BeginSurface( tr.sunShader, tess.fogNum );
@@ -830,8 +830,8 @@ void RB_DrawSun( void ) {
 	RB_EndSurface();
 
 	// back to normal depth range
-	graphicsDriver.SetDepthRange( 0.0, 1.0 );
-    graphicsDriver.SetModelViewMatrix( cachedModelView );
+	GFX_SetDepthRange( 0.0, 1.0 );
+    GFX_SetModelViewMatrix( cachedModelView );
 }
 
 
@@ -860,9 +860,9 @@ void RB_StageIteratorSky( void ) {
 	// front of everything to allow developers to see how
 	// much sky is getting sucked in
 	if ( r_showsky->integer ) {
-		graphicsDriver.SetDepthRange( 0.0, 0.0 );
+		GFX_SetDepthRange( 0.0, 0.0 );
 	} else {
-		graphicsDriver.SetDepthRange( 1.0, 1.0 );
+		GFX_SetDepthRange( 1.0, 1.0 );
 	}
 
 	// draw the outer skybox
@@ -886,7 +886,7 @@ void RB_StageIteratorSky( void ) {
 
 
 	// back to normal depth range
-	graphicsDriver.SetDepthRange( 0.0, 1.0 );
+	GFX_SetDepthRange( 0.0, 1.0 );
 
 	// note that sky was drawn so we will draw a sun later
 	backEnd.skyRenderedThisView = qtrue;

@@ -322,7 +322,7 @@ void RB_SurfaceBeam( void )
 		VectorAdd( start_points[i], direction, end_points[i] );
 	}
 
-    graphicsDriver.DrawBeam( tr.whiteImage, color, start_points, end_points, NUM_BEAM_SEGS );
+    GFX_DrawBeam( tr.whiteImage, color, start_points, end_points, NUM_BEAM_SEGS );
 }
 
 //================================================================================
@@ -1064,7 +1064,7 @@ Draws x/y/z lines from the origin for orientation debugging
 ===================
 */
 void RB_SurfaceAxis( void ) {
-	graphicsDriver.DebugDrawAxis();
+	GFX_DebugDrawAxis();
 }
 
 //===========================================================================

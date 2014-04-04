@@ -609,6 +609,7 @@
     </ClCompile>
     <ClCompile Include="tr_init.c">
     </ClCompile>
+    <ClCompile Include="tr_layer.c" />
     <ClCompile Include="tr_light.c">
     </ClCompile>
     <ClCompile Include="tr_main.c">

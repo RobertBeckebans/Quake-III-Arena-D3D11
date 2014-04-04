@@ -44,7 +44,7 @@ void R_PerformanceCounters( void ) {
 		ri.Printf (PRINT_ALL, "%i/%i shaders/surfs %i leafs %i verts %i/%i tris %.2f mtex %.2f dc\n",
 			backEnd.pc.c_shaders, backEnd.pc.c_surfaces, tr.pc.c_leafs, backEnd.pc.c_vertexes, 
 			backEnd.pc.c_indexes/3, backEnd.pc.c_totalIndexes/3, 
-			graphicsDriver.GetFrameImageMemoryUsage()/(1000000.0f), backEnd.pc.c_overDraw / (float)(vdConfig.vidWidth * vdConfig.vidHeight) ); 
+			GFX_GetFrameImageMemoryUsage()/(1000000.0f), backEnd.pc.c_overDraw / (float)(vdConfig.vidWidth * vdConfig.vidHeight) ); 
 	} else if (r_speeds->integer == 2) {
 		ri.Printf (PRINT_ALL, "(patch) %i sin %i sclip  %i sout %i bin %i bclip %i bout\n",
 			tr.pc.c_sphere_cull_patch_in, tr.pc.c_sphere_cull_patch_clip, tr.pc.c_sphere_cull_patch_out, 
@@ -334,7 +334,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		else
 		{
 			R_SyncRenderThread();
-            graphicsDriver.DebugSetOverdrawMeasureEnabled( qtrue );
+            GFX_DebugSetOverdrawMeasureEnabled( qtrue );
 		}
 		r_measureOverdraw->modified = qfalse;
 	}
@@ -343,7 +343,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		// this is only reached if it was on and is now off
 		if ( r_measureOverdraw->modified ) {
 			R_SyncRenderThread();
-            graphicsDriver.DebugSetOverdrawMeasureEnabled( qfalse );
+            GFX_DebugSetOverdrawMeasureEnabled( qfalse );
 		}
 		r_measureOverdraw->modified = qfalse;
 	}
@@ -353,7 +353,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	//
 	if ( r_textureMode->modified ) {
 		R_SyncRenderThread();
-		graphicsDriver.DebugSetTextureMode( r_textureMode->string );
+		GFX_DebugSetTextureMode( r_textureMode->string );
 		r_textureMode->modified = qfalse;
 	}
 
@@ -372,7 +372,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
         size_t	err;
 
 		R_SyncRenderThread();
-        if ( ( err = graphicsDriver.LastError() ) != 0 ) {
+        if ( ( err = GFX_LastError() ) != 0 ) {
             ri.Error( ERR_FATAL, "RE_BeginFrame() - glGetError() failed (0x%x)!\n", err );
         }
     }

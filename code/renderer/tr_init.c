@@ -32,8 +32,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 vdconfig_t	vdConfig;
 
-graphicsApiLayer_t graphicsDriver = { 0 };
-
 cvar_t	*r_flareSize;
 cvar_t	*r_flareFade;
 
@@ -187,57 +185,36 @@ static void AssertCvarRange( cvar_t *cv, float minVal, float maxVal, qboolean sh
 */
 void InitDriver( void )
 {
-    Com_Memset( &graphicsDriver, 0, sizeof( graphicsDriver ) );
-
+#ifndef WIN8
     // @pjb: based on whichever renderer is requested, return different entry points
 	// the RE_ functions are Renderer Entry points
     if ( strcmp( r_driver->string, "opengl" ) == 0 )
     {
-        GLRB_DriverInit( &graphicsDriver );
+        GLRB_DriverInit();
     }
     else if ( strcmp( r_driver->string, "d3d11" ) == 0 )
     {
-        D3DDrv_DriverInit( &graphicsDriver );
+        D3DDrv_DriverInit();
     }
     else     if ( strcmp( r_driver->string, "proxy" ) == 0 )
     {
-        PROXY_DriverInit( &graphicsDriver );
+        PROXY_DriverInit();
     }
     else
     {
         // Invalid driver
 		ri.Error(ERR_FATAL, "Invalid driver: %s\n", r_driver->string );
     }
-
-    // Validate the driver pointers
-    R_ValidateGraphicsLayer( &graphicsDriver );
+#else
+    D3DDrv_DriverInit();
+#endif
 }
 
 void ShutdownDriver( void )
 {
-    graphicsDriver.Shutdown();
-    Com_Memset( &graphicsDriver, 0, sizeof( graphicsDriver ) );
+    GFX_Shutdown();
 }
 
-/*
-    @pjb: Validates the driver is completely full of pointers
-*/
-void ValidateDriverLayerMemory( size_t* memory, size_t size )
-{
-    size_t i;
-    for ( i = 0; i < size / sizeof(size_t); ++i ) {
-        if ( memory[i] == 0 )
-            Com_Error( ERR_FATAL, "Video API layer not set up correctly: missing binding in slot %d.\n", i );
-    }
-}
-
-/*
-    @pjb: Expose the validation API to other areas of the game
-*/
-void R_ValidateGraphicsLayer( graphicsApiLayer_t* layer )
-{
-    ValidateDriverLayerMemory( (size_t*) layer, sizeof( graphicsApiLayer_t ) );
-}
 
 /*
 ** R_GetModeInfo
@@ -410,7 +387,7 @@ void R_LevelShot( void ) {
 	buffer[14] = 128;
 	buffer[16] = 24;	// pixel size
 
-    graphicsDriver.ReadPixels( 0, 0, vdConfig.vidWidth, vdConfig.vidHeight, IMAGEFORMAT_RGB, source ); 
+    GFX_ReadPixels( 0, 0, vdConfig.vidWidth, vdConfig.vidHeight, IMAGEFORMAT_RGB, source ); 
 
 	// resample from source
 	xScale = vdConfig.vidWidth / 512.0f;
@@ -567,8 +544,8 @@ void R_ScreenShotJPEG_f (void) {
 // @pjb: print info about the driver
 void R_GfxInfo( void )
 {
-    if (graphicsDriver.GraphicsInfo)
-        graphicsDriver.GraphicsInfo();
+    if (GFX_GraphicsInfo)
+        GFX_GraphicsInfo();
     else
         ri.Printf( PRINT_ALL, "R_GfxInfo: Driver not yet initialized.\n" );
 }
@@ -852,7 +829,7 @@ void R_Init( void ) {
 	R_InitFreeType();
 
 
-	err = graphicsDriver.LastError();
+	err = GFX_LastError();
 	if ( err != 0 )
 		ri.Printf (PRINT_WARNING, "Graphics driver error set: 0x%x\n", err);
 
@@ -884,7 +861,7 @@ void RE_Shutdown( qboolean destroyWindow ) {
 		R_ShutdownCommandBuffers();
 		R_DeleteTextures();
 
-        graphicsDriver.UnbindResources();
+        GFX_UnbindResources();
 	}
 
 	R_DoneFreeType();

@@ -254,7 +254,7 @@ void RB_TestFlare( flare_t *f ) {
 	backEnd.finishCalled = qfalse;
 
 	// read back the z buffer contents
-    graphicsDriver.ReadDepth( f->windowX, f->windowY, 1, 1, &depth );
+    GFX_ReadDepth( f->windowX, f->windowY, 1, 1, &depth );
 
 	screenZ = backEnd.viewParms.projectionMatrix[14] / 
 		( ( 2*depth - 1 ) * backEnd.viewParms.projectionMatrix[11] - backEnd.viewParms.projectionMatrix[10] );
@@ -427,11 +427,11 @@ void RB_RenderFlares (void) {
 	}
 
 	if ( backEnd.viewParms.isPortal ) {
-		graphicsDriver.SetPortalRendering( qfalse, NULL, NULL );
+		GFX_SetPortalRendering( qfalse, NULL, NULL );
 	}
 
-    graphicsDriver.GetModelViewMatrix( cachedModelView );
-    graphicsDriver.GetProjectionMatrix( cachedProjection );
+    GFX_GetModelViewMatrix( cachedModelView );
+    GFX_GetProjectionMatrix( cachedProjection );
 
 	ConstructOrtho( ortho,
         backEnd.viewParms.viewportX, 
@@ -440,8 +440,8 @@ void RB_RenderFlares (void) {
         backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight,
 		-99999, 99999 );
 
-    graphicsDriver.SetModelViewMatrix( s_identityMatrix );
-    graphicsDriver.SetProjectionMatrix( ortho );
+    GFX_SetModelViewMatrix( s_identityMatrix );
+    GFX_SetProjectionMatrix( ortho );
 
 	for ( f = r_activeFlares ; f ; f = f->next ) {
 		if ( f->frameSceneNum == backEnd.viewParms.frameSceneNum
@@ -451,7 +451,7 @@ void RB_RenderFlares (void) {
 		}
 	}
 
-    graphicsDriver.SetModelViewMatrix( cachedModelView );
-    graphicsDriver.SetProjectionMatrix( cachedProjection );
+    GFX_SetModelViewMatrix( cachedModelView );
+    GFX_SetProjectionMatrix( cachedProjection );
 }
 
