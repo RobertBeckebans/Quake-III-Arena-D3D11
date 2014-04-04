@@ -263,7 +263,7 @@ void Quake3Win8App::Run()
         });
 
         // @pjb: Todo: on Blue this is way better: task.is_done()
-        while ( dlgDismissed )
+        while ( !dlgDismissed )
         {
 			CoreWindow::GetForCurrentThread()->Dispatcher->ProcessEvents(CoreProcessEventsOption::ProcessOneAndAllPending);
         }
