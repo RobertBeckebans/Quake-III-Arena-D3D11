@@ -426,24 +426,12 @@ RB_FogPass
 Blends a fog texture on top of everything else
 ===================
 */
-static void GLRB_FogPass( const shaderCommands_t* input, int stage ) {
-	fog_t		*fog;
-	int			i;
-
+static void GLRB_FogPass( const shaderCommands_t* input ) {
 	qglEnableClientState( GL_COLOR_ARRAY );
-	qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, input->svars[stage].colors );
+	qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, input->fogVars.colors );
 
 	qglEnableClientState( GL_TEXTURE_COORD_ARRAY);
-	qglTexCoordPointer( 2, GL_FLOAT, 0, input->svars[stage].texcoords[0] );
-
-	fog = tr.world->fogs + input->fogNum;
-
-    // @pjb: todo: move this out!
-	for ( i = 0; i < input->numVertexes; i++ ) {
-		* ( int * )&input->svars[stage].colors[i] = fog->colorInt;
-	}
-
-	RB_CalcFogTexCoords( ( float * ) input->svars[stage].texcoords[0] );
+	qglTexCoordPointer( 2, GL_FLOAT, 0, input->fogVars.texcoords[0] );
 
 	GL_Bind( tr.fogImage );
 
@@ -453,7 +441,7 @@ static void GLRB_FogPass( const shaderCommands_t* input, int stage ) {
 		GL_State( GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
 	}
 
-	GLR_DrawElements( input, stage, input->numIndexes, input->indexes );
+	GLR_DrawElements( input, 0, input->numIndexes, input->indexes );
 }
 
 /*
@@ -596,7 +584,7 @@ void GLRB_StageIteratorGeneric( const shaderCommands_t *input )
 	// now do fog
 	//
 	if ( input->fogNum && input->shader->fogPass ) {
-		GLRB_FogPass( input, 0 ); // @pjb: todo: check this stage index
+		GLRB_FogPass( input ); // @pjb: todo: check this stage index
 	}
 
 	// 
@@ -674,7 +662,7 @@ void GLRB_StageIteratorVertexLitTexture( const shaderCommands_t *input )
 	// now do fog
 	//
 	if ( input->fogNum && input->shader->fogPass ) {
-		GLRB_FogPass( input, 0 );
+		GLRB_FogPass( input );
 	}
 
 	// 
@@ -777,7 +765,7 @@ void GLRB_StageIteratorLightmappedMultitexture( const shaderCommands_t *input )
 	// now do fog
 	//
 	if ( input->fogNum && input->shader->fogPass ) {
-		GLRB_FogPass( input, 0 );
+		GLRB_FogPass( input );
 	}
 
 	//

@@ -232,6 +232,19 @@ static void RB_ComputeDlightProjection( shaderCommands_t* input, int stage ) {
 	}
 }
 
+static void RB_ComputeFog( shaderCommands_t* input )
+{
+    int i;
+	fog_t *fog = tr.world->fogs + input->fogNum;
+
+    // @pjb: todo: replace this because WHHHY
+	for ( i = 0; i < input->numVertexes; i++ ) {
+		* ( int * )&input->fogVars.colors[i] = fog->colorInt;
+	}
+
+	RB_CalcFogTexCoords( ( float * ) input->fogVars.texcoords[0] );
+}
+
 /*
 ==============
 RB_BeginSurface
@@ -250,6 +263,7 @@ void RB_BeginSurface( shader_t *shader, int fogNum ) {
 	tess.shader = state;
 	tess.fogNum = fogNum;
 	tess.dlightBits = 0;		// will be OR'd in by surface functions
+    tess.dlightCount = 0;
 	tess.xstages = state->stages;
 	tess.numPasses = state->numUnfoggedPasses;
 	tess.currentStageIteratorFunc = state->optimalStageIteratorFunc;
@@ -558,6 +572,18 @@ static void ComputeTexCoords( shaderCommands_t* input, int stage, shaderStage_t 
 	}
 }
 
+// @pjb: dlights, fog
+static void RB_CalculatePostEffects( shaderCommands_t *input )
+{
+	if ( input->dlightBits && input->shader->sort <= SS_OPAQUE
+		&& !(input->shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY) ) ) {
+        RB_ComputeDlightProjection( input, 0 ); 
+    }
+
+	if ( input->fogNum && input->shader->fogPass ) {
+        RB_ComputeFog( input );
+    }
+}
 
 /*
 ** RB_StageIteratorGeneric
@@ -581,7 +607,7 @@ void RB_StageIteratorGeneric( void )
 		ComputeTexCoords( &tess, stage, pStage );
     }
 
-    RB_ComputeDlightProjection( &tess, 0 ); 
+    RB_CalculatePostEffects( &tess );
 
     graphicsDriver.DrawStageGeneric( &tess );
 }
@@ -593,7 +619,7 @@ void RB_StageIteratorVertexLitTexture( void )
 {
 	RB_CalcDiffuseColor( ( unsigned char * ) tess.svars[0].colors );
 
-    RB_ComputeDlightProjection( &tess, 0 ); 
+    RB_CalculatePostEffects( &tess );
 
     graphicsDriver.DrawStageVertexLitTexture( &tess );
 }
@@ -604,6 +630,8 @@ void RB_StageIteratorVertexLitTexture( void )
 void RB_StageIteratorLightmappedMultitexture( void ) {
 
     RB_ComputeDlightProjection( &tess, 0 ); 
+
+    RB_CalculatePostEffects( &tess );
 
     graphicsDriver.DrawStageLightmappedMultitexture( &tess );
 }
