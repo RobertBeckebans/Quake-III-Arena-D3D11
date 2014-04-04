@@ -61,6 +61,14 @@ struct d3dQuadRenderData_t
     ID3D11Buffer* constantBuffer;
 };
 
+// @pjb: for the generic stage rendering
+struct d3dGenericStageRenderData_t 
+{
+    ID3D11VertexShader* vertexShader;
+    ID3D11PixelShader* pixelShader;
+    ID3D11InputLayout* inputLayout;
+};
+
 // @pjb: represents the GPU caches for stageVars_t
 struct d3dTessStageBuffers_t {
     ID3D11Buffer* texCoords[NUM_TEXTURE_BUNDLES];
@@ -108,7 +116,10 @@ struct d3dDrawState_t
 {
     d3dQuadRenderData_t quadRenderData;
     d3dViewRenderData_t viewRenderData;
+    
     d3dTessBuffers_t tessBufs;
+    d3dGenericStageRenderData_t genericStage;
+
     d3dRasterStates_t rasterStates;
     d3dDepthStates_t depthStates;
     d3dBlendStates_t blendStates;

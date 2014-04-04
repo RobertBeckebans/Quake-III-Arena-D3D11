@@ -4,31 +4,40 @@
 #include "d3d_shaders.h"
 #include "d3d_image.h"
 
+static void CreateVertexLayoutAndShader( 
+    const char* shaderName, 
+    const D3D11_INPUT_ELEMENT_DESC* elements,
+    size_t numElements,
+    ID3D11VertexShader** vshader,
+    ID3D11InputLayout** layout )
+{
+    ID3DBlob* vsByteCode = nullptr;
+    *vshader = CompileVertexShader( "fsq_vs", &vsByteCode );
+
+    HRESULT hr = g_pDevice->CreateInputLayout(
+        elements,
+        (UINT) numElements,
+        vsByteCode->GetBufferPointer(),
+        vsByteCode->GetBufferSize(),
+        layout );
+    if ( FAILED( hr ) ) {
+        ri.Error( ERR_FATAL, "Failed to create input layout: 0x%08X", hr );
+    }
+
+    SAFE_RELEASE( vsByteCode );
+}
+
 void InitQuadRenderData( d3dQuadRenderData_t* qrd ) 
 {
     Com_Memset( qrd, 0, sizeof( d3dQuadRenderData_t ) );
-
-    ID3DBlob* vsByteCode = nullptr;
-
-    qrd->vertexShader = CompileVertexShader( "fsq_vs", &vsByteCode );
-    qrd->pixelShader = CompilePixelShader( "fsq_ps" );
 
     D3D11_INPUT_ELEMENT_DESC elements[] = { 
         { "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
         { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 8, D3D11_INPUT_PER_VERTEX_DATA, 0 }
     };
 
-    HRESULT hr = g_pDevice->CreateInputLayout(
-        elements,
-        _countof( elements ),
-        vsByteCode->GetBufferPointer(),
-        vsByteCode->GetBufferSize(),
-        &qrd->inputLayout );
-    if ( FAILED( hr ) ) {
-        ri.Error( ERR_FATAL, "Failed to create input layout: 0x%08X", hr );
-    }
-
-    SAFE_RELEASE( vsByteCode );
+    CreateVertexLayoutAndShader( "fsq_vs", elements, _countof(elements), &qrd->vertexShader, &qrd->inputLayout );
+    qrd->pixelShader = CompilePixelShader( "fsq_ps" );
 
     static const USHORT indices[] = 
     {
@@ -70,7 +79,33 @@ void DestroyQuadRenderData( d3dQuadRenderData_t* qrd )
     SAFE_RELEASE( qrd->indexBuffer );
     SAFE_RELEASE( qrd->constantBuffer );
 
-    Com_Memset( qrd, 0, sizeof( d3dQuadRenderData_t ) );
+    Com_Memset( qrd, 0, sizeof( *qrd ) );
+}
+
+void InitGenericStageRenderData( d3dGenericStageRenderData_t* rd )
+{
+    Com_Memset( rd, 0, sizeof( *rd ) );
+    
+    static_assert( NUM_TEXTURE_BUNDLES == 2, "Need to munge this code for anything but 2 texture bundles" );
+
+    D3D11_INPUT_ELEMENT_DESC elements[] = { 
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,  0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,     1, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "TEXCOORD", 1, DXGI_FORMAT_R32G32_FLOAT,     2, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM,   3, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+    };
+
+    CreateVertexLayoutAndShader( "generic_vs", elements, _countof(elements), &rd->vertexShader, &rd->inputLayout );
+    rd->pixelShader = CompilePixelShader( "generic_ps" );
+}
+
+void DestroyGenericStageRenderData( d3dGenericStageRenderData_t* rd )
+{
+    SAFE_RELEASE( rd->inputLayout );
+    SAFE_RELEASE( rd->vertexShader );
+    SAFE_RELEASE( rd->pixelShader );
+
+    Com_Memset( rd, 0, sizeof( *rd ) );
 }
 
 void InitViewRenderData( d3dViewRenderData_t* vrd )
@@ -110,7 +145,6 @@ void InitRasterStates( d3dRasterStates_t* rs )
     // 
     // Backface culling
     //
-    ZeroMemory( &rd, sizeof( rd ) );
     rd.CullMode = D3D11_CULL_BACK;
     g_pDevice->CreateRasterizerState( &rd, &rs->cullBack );
 

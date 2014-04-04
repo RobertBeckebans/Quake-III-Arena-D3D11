@@ -88,6 +88,7 @@ void InitDrawState()
 
     InitQuadRenderData( &g_DrawState.quadRenderData );
     InitViewRenderData( &g_DrawState.viewRenderData );
+    InitGenericStageRenderData( &g_DrawState.genericStage );
     InitTessBuffers( &g_DrawState.tessBufs );
     InitRasterStates( &g_DrawState.rasterStates );
     InitDepthStates( &g_DrawState.depthStates );
@@ -113,6 +114,7 @@ void DestroyDrawState()
     DestroyDepthStates( &g_DrawState.depthStates );
     DestroyBlendStates( &g_DrawState.blendStates );
     DestroyTessBuffers( &g_DrawState.tessBufs );
+    DestroyGenericStageRenderData( &g_DrawState.genericStage );
     DestroyQuadRenderData( &g_DrawState.quadRenderData );
     DestroyViewRenderData( &g_DrawState.viewRenderData );
     DestroyShaders();
@@ -121,88 +123,5 @@ void DestroyDrawState()
 
     Com_Memset( &g_RunState, 0, sizeof( g_RunState ) );
     Com_Memset( &g_DrawState, 0, sizeof( g_DrawState ) );
-}
-
-void UpdateDirtyView()
-{
-    // Upload the constants
-    d3dViewConstantBuffer_t* cb = QD3D::MapDynamicBuffer<d3dViewConstantBuffer_t>( g_pImmediateContext, g_DrawState.viewRenderData.constantBuffer );
-    memcpy( cb, &g_RunState.constants, sizeof(d3dViewConstantBuffer_t) );
-    g_pImmediateContext->Unmap( g_DrawState.viewRenderData.constantBuffer, 0 );
-    g_RunState.dirtyConstants = qfalse;
-}
-
-// @pjb: forceinline because I don't want to put the 'if' inside UpdateDirtyTransform
-__forceinline void UpdateViewState()
-{
-    // If we have dirty constants, update the constant buffer
-    if ( g_RunState.dirtyConstants )
-        UpdateDirtyView();
-
-    // Select what state we want
-
-}
-
-void DrawQuad( 
-    const d3dQuadRenderData_t* qrd,
-    const d3dImage_t* image,
-    const float* coords,
-    const float* texcoords,
-    const float* color )
-{
-    UpdateViewState();
-
-    //
-    // Update the constant buffer
-    //
-    d3dQuadRenderConstantBuffer_t* cb = QD3D::MapDynamicBuffer<d3dQuadRenderConstantBuffer_t>( 
-        g_pImmediateContext, 
-        qrd->constantBuffer );
-
-    if ( color ) {
-        memcpy( cb->color, color, sizeof(float) * 3 );
-        cb->color[3] = 1;
-    } else {
-        cb->color[0] = 1; cb->color[1] = 1; cb->color[2] = 1; cb->color[3] = 1; 
-    }
-
-    g_pImmediateContext->Unmap( qrd->constantBuffer, 0 );
-
-    //
-    // Update the vertex buffer
-    //
-    d3dQuadRenderVertex_t* vb = QD3D::MapDynamicBuffer<d3dQuadRenderVertex_t>( 
-        g_pImmediateContext, 
-        qrd->vertexBuffer );
-
-    vb[0].texcoords[0] = texcoords[0]; vb[0].texcoords[1] = texcoords[1];
-    vb[1].texcoords[0] = texcoords[2]; vb[1].texcoords[1] = texcoords[1];
-    vb[2].texcoords[0] = texcoords[2]; vb[2].texcoords[1] = texcoords[3];
-    vb[3].texcoords[0] = texcoords[0]; vb[3].texcoords[1] = texcoords[3];
-
-    vb[0].coords[0] = coords[0]; vb[0].coords[1] = coords[1];
-    vb[1].coords[0] = coords[2]; vb[1].coords[1] = coords[1];
-    vb[2].coords[0] = coords[2]; vb[2].coords[1] = coords[3];
-    vb[3].coords[0] = coords[0]; vb[3].coords[1] = coords[3];
-
-    g_pImmediateContext->Unmap( qrd->vertexBuffer, 0 );
-
-    //
-    // Draw
-    //
-    UINT stride = sizeof(float) * 4;
-    UINT offset = 0;
-
-    g_pImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-    g_pImmediateContext->IASetVertexBuffers( 0, 1, &qrd->vertexBuffer, &stride, &offset );
-    g_pImmediateContext->IASetInputLayout( qrd->inputLayout );
-    g_pImmediateContext->IASetIndexBuffer( qrd->indexBuffer, DXGI_FORMAT_R16_UINT, 0 );
-    g_pImmediateContext->VSSetShader( qrd->vertexShader, nullptr, 0 );
-    g_pImmediateContext->VSSetConstantBuffers( 0, 1, &g_DrawState.viewRenderData.constantBuffer );
-    g_pImmediateContext->PSSetShader( qrd->pixelShader, nullptr, 0 );
-    g_pImmediateContext->PSSetSamplers( 0, 1, &image->pSampler );
-    g_pImmediateContext->PSSetShaderResources( 0, 1, &image->pSRV );
-    g_pImmediateContext->PSSetConstantBuffers( 0, 1, &g_DrawState.quadRenderData.constantBuffer );
-    g_pImmediateContext->DrawIndexed( 6, 0, 0 );
 }
 

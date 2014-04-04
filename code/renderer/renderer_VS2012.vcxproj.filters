@@ -644,4 +644,12 @@
       <Filter>Direct3D Implementation\Shaders</Filter>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\..\baseq3\d3d11\generic_vs.hlsl">
+      <Filter>Direct3D Implementation\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\baseq3\d3d11\generic_ps.hlsl">
+      <Filter>Direct3D Implementation\Shaders</Filter>
+    </FxCompile>
+  </ItemGroup>
 </Project>

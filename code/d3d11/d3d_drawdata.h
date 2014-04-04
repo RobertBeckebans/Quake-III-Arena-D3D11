@@ -5,6 +5,9 @@ struct d3dImage_t;
 void InitQuadRenderData( d3dQuadRenderData_t* qrd );
 void DestroyQuadRenderData( d3dQuadRenderData_t* qrd );
 
+void InitGenericStageRenderData( d3dGenericStageRenderData_t* rd );
+void DestroyGenericStageRenderData( d3dGenericStageRenderData_t* rd );
+
 void InitViewRenderData( d3dViewRenderData_t* vrd );
 void DestroyViewRenderData( d3dViewRenderData_t* vrd );
 
