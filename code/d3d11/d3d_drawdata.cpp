@@ -368,6 +368,12 @@ void InitTessBuffers( d3dTessBuffers_t* tess )
         buffers->colors = CreateTessVertexBuffer( sizeof(byte) * 4 );
         buffers->texCoords = CreateTessVertexBuffer( sizeof(float) * 2 );
     }
+
+    //
+    // Now set up fog buffers
+    //
+    tess->fog.colors = CreateTessVertexBuffer( sizeof(color4ub_t) );
+    tess->fog.texCoords = CreateTessVertexBuffer( sizeof(vec2_t) );
 }
 
 void DestroyTessBuffers( d3dTessBuffers_t* tess )
@@ -388,6 +394,9 @@ void DestroyTessBuffers( d3dTessBuffers_t* tess )
         SAFE_RELEASE( tess->dlights[l].colors );
         SAFE_RELEASE( tess->dlights[l].texCoords );
     }
+
+    SAFE_RELEASE( tess->fog.colors );
+    SAFE_RELEASE( tess->fog.texCoords );
 
     Com_Memset( tess, 0, sizeof( *tess ) );
 }

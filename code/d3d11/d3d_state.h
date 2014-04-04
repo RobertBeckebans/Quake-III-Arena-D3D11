@@ -116,6 +116,12 @@ struct d3dTessStageBuffers_t {
     ID3D11Buffer* colors;
 };
 
+// @pjb: represents the GPU caches for stageVars_t
+struct d3dTessFogBuffers_t {
+    ID3D11Buffer* texCoords;
+    ID3D11Buffer* colors;
+};
+
 // @pjb: represents the dynamic light rendering information
 struct d3dTessLightProjBuffers_t {
     ID3D11Buffer* indexes;
@@ -129,6 +135,7 @@ struct d3dTessBuffers_t {
     ID3D11Buffer* xyz;
     d3dTessStageBuffers_t stages[MAX_SHADER_STAGES];
     d3dTessLightProjBuffers_t dlights[MAX_DLIGHTS];
+    d3dTessFogBuffers_t fog;
 };
 
 // @pjb: stores the D3D state and only changes every WndInit

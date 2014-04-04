@@ -132,6 +132,9 @@ static void UpdateTessBuffers()
         UpdateTessBuffer( gpuLight->colors, cpuLight->colorArray, sizeof(byte) * 4 * input->numVertexes );
         UpdateTessBuffer( gpuLight->texCoords, cpuLight->texCoordsArray, sizeof(float) * 2 * input->numVertexes );
     }
+
+    UpdateTessBuffer( g_DrawState.tessBufs.fog.colors, input->fogVars.colors, sizeof(color4ub_t) * tess.numVertexes );
+    UpdateTessBuffer( g_DrawState.tessBufs.fog.texCoords, input->fogVars.texcoords, sizeof(vec2_t) * tess.numVertexes );
 }
 
 static const d3dImage_t* GetAnimatedImage( textureBundle_t *bundle, float shaderTime ) {
@@ -367,7 +370,41 @@ static void TessProjectDynamicLights( const shaderCommands_t *input )
 
 static void TessDrawFog( const shaderCommands_t* input )
 {
+	if ( input->shader->fogPass == FP_EQUAL ) {
+		D3DDrv_SetState( GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_DEPTHFUNC_EQUAL );
+	} else {
+		D3DDrv_SetState( GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
+	}
 
+    UpdateMaterialState();
+
+    const d3dGenericStageRenderData_t* resources = &g_DrawState.genericStage;
+    const d3dTessBuffers_t* buffers = &g_DrawState.tessBufs;
+    const d3dImage_t* tex = GetImageRenderInfo( tr.fogImage );
+
+    ID3D11Buffer* vbufs[2] = { 
+        buffers->fog.texCoords,
+        buffers->fog.colors
+    };
+
+    UINT strides[2] = {
+        sizeof(vec2_t),
+        sizeof(color4ub_t)
+    };
+
+    UINT offsets[2] = {
+        0, 0
+    };
+    
+    g_pImmediateContext->IASetInputLayout( resources->inputLayoutST );
+    g_pImmediateContext->IASetIndexBuffer( buffers->indexes, DXGI_FORMAT_R32_UINT, 0 );
+    g_pImmediateContext->IASetVertexBuffers( 1, 2, vbufs, strides, offsets );
+    g_pImmediateContext->VSSetShader( resources->vertexShaderST, nullptr, 0 );
+    g_pImmediateContext->PSSetShader( resources->pixelShaderST, nullptr, 0 );
+    g_pImmediateContext->PSSetSamplers( 0, 1, &tex->pSampler );
+    g_pImmediateContext->PSSetConstantBuffers( 0, 1, &g_DrawState.viewRenderData.psConstantBuffer );
+    g_pImmediateContext->PSSetShaderResources( 0, 1, &tex->pSRV );
+    g_pImmediateContext->DrawIndexed( input->numIndexes, 0, 0 );
 }
 
 static void IterateStagesGeneric( const shaderCommands_t *input )
