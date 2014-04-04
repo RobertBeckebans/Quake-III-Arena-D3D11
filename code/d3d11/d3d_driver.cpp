@@ -286,7 +286,11 @@ void SetupVideoConfig()
 		vdConfig.displayFrequency = dm.dmDisplayFrequency;
 	}
     
-    // We expect vidWidth, vidHeight and windowAspect to all be set by now
+    // We expect vidWidth, vidHeight and windowAspect to all be set by now in most cases,
+    // but on Win8 they can be enforced by the system instead of set by us.
+    vdConfig.vidWidth = g_BufferState.swapChainDesc.Width;
+    vdConfig.vidHeight = g_BufferState.swapChainDesc.Height;
+    vdConfig.windowAspect = vdConfig.vidWidth / (float)vdConfig.vidHeight;
 }
 
 D3D_PUBLIC void D3DDrv_DriverInit( void )
