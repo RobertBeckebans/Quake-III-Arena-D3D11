@@ -472,6 +472,16 @@ static void blit2_32( byte *src, byte *dst, int spl  )
 *
 ******************************************************************************/
 
+byte* ptr_32bit_add_and_overflow( byte* base, unsigned int offset )
+{
+#ifdef _M_X64
+    byte* ptr = base + offset;
+    return (byte*) ((size_t)base & 0xFFFFFFFF00000000) | ((size_t)ptr & 0x00000000FFFFFFFF);
+#else
+    return base + offset;
+#endif
+}
+
 static void blitVQQuad32fs( byte **status, unsigned char *data )
 {
 unsigned short	newd, celdata, code;
@@ -531,7 +541,7 @@ int		spl;
 							data++;
 							break;
 						case	0x4000:										// motion compensation
-							move4_32( status[index] + cin.mcomp[(*data)], status[index], spl );
+							move4_32( ptr_32bit_add_and_overflow( status[index], cin.mcomp[(*data)] ), status[index], spl );
 							data++;
 							break;
 					}
@@ -539,7 +549,7 @@ int		spl;
 				}
 				break;
 			case	0x4000:													// motion compensation
-				move8_32( status[index] + cin.mcomp[(*data)], status[index], spl );
+				move8_32( ptr_32bit_add_and_overflow( status[index], cin.mcomp[(*data)] ), status[index], spl );
 				data++;
 				index += 5;
 				break;
