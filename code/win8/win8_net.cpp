@@ -25,8 +25,7 @@ static qboolean networkingEnabled = qfalse;
 static cvar_t	*net_noudp;
 
 DatagramSocket^ g_Socket = nullptr;
-DataWriter^ g_SocketDataWriter = nullptr;
-std::map<netadr_t, DataWriter^> g_StreamOutCache;
+std::map<netadr_t, IOutputStream^> g_StreamOutCache;
 Win8::MessageQueue g_NetMsgQueue;
 
 // For the g_StreamOutCache map
@@ -217,6 +216,8 @@ WIN8_EXPORT qboolean Sys_StringToAdr( const char *s, netadr_t *a ) {
     if ( !NET_StringToIpv6( s, a->ip ) )
         if ( !NET_StringToIpv4( s, a->ip ) )
             return qfalse;
+    a->type = NA_IP;
+    a->port = 0;
     return qtrue;
 }
 
@@ -236,7 +237,7 @@ DatagramSocketMessageReceivedEventArgs^ NET_GetMessageArguments( const Win8::MSG
 NET_OpenNewStream
 ==================
 */
-DataWriter^ NET_OpenNewStream( const netadr_t* to )
+IOutputStream^ NET_OpenNewStream( const netadr_t* to )
 {
     HANDLE hEvent = CreateEventEx( nullptr, nullptr, 0, EVENT_ALL_ACCESS );
 
@@ -260,7 +261,7 @@ DataWriter^ NET_OpenNewStream( const netadr_t* to )
     WaitForSingleObjectEx( hEvent, INFINITE, FALSE );
     CloseHandle( hEvent );
 
-    return ref new DataWriter( stream );
+    return stream;
 }
 
 /*
@@ -319,11 +320,11 @@ WIN8_EXPORT void Sys_SendPacket( int length, const void *data, netadr_t to )
     if ( g_Socket == nullptr || to.type == NA_IPX || to.type == NA_BROADCAST_IPX )
         return;
 
-    DataWriter^ stream = nullptr;
+    IOutputStream^ stream = nullptr;
 
     if ( to.type == NA_BROADCAST )
     {
-        stream = g_SocketDataWriter;
+        stream = g_Socket->OutputStream;
     }
     else
     {
@@ -342,7 +343,16 @@ WIN8_EXPORT void Sys_SendPacket( int length, const void *data, netadr_t to )
     }
 
     // @pjb: todo: the efficiency of this really concerns me
-    stream->WriteBytes( ref new Platform::Array<byte>( (byte*) data, length ) );
+    try
+    {
+        DataWriter^ dw = ref new DataWriter();
+        dw->WriteBytes( ref new Platform::Array<byte>( (byte*) data, length ) );
+        stream->WriteAsync( dw->DetachBuffer() );
+    }
+    catch ( Platform::Exception^ ex )
+    {
+        OutputDebugStringW( ex->Message->Data() );
+    }
 }
 
 /*
@@ -354,7 +364,7 @@ LAN clients will have their rate var ignored
 */
 WIN8_EXPORT qboolean Sys_IsLANAddress( netadr_t adr ) {
     // @pjb: todo
-    return qfalse;
+    return qtrue;
 }
 
 /*
@@ -376,7 +386,7 @@ WIN8_EXPORT void Sys_ShowIP(void) {
             Win8::CopyString( localHostInfo->DisplayName, hostnameTmp, sizeof( hostnameTmp ) );
             Win8::CopyString( localHostInfo->IPInformation->NetworkAdapter->NetworkAdapterId.ToString(), adapterIdTmp, sizeof( adapterIdTmp ) );
 
-            Com_Printf( "... Address: %s / Adapter: %s\n", hostnameTmp, adapterIdTmp );
+            Com_Printf( "Address: %s / Adapter: %s\n", hostnameTmp, adapterIdTmp );
         }
     }
 }
@@ -444,6 +454,9 @@ HRESULT NET_StartListeningOnPort( HostName^ localHost, int port, bool bindToAny 
 
     if ( status )
     {
+        g_Socket->Control->DontFragment = true;
+        g_Socket->Control->InboundBufferSizeInBytes = 2048;
+
         // Listen on socket
         g_Socket->MessageReceived += ref new TypedEventHandler<DatagramSocket^, DatagramSocketMessageReceivedEventArgs^>( 
             NET_OnMessageReceived );
@@ -511,7 +524,6 @@ void NET_StartListening( void ) {
     Cvar_Set( "net_ip", hostNameTmp );
 
     g_Socket = ref new DatagramSocket();
-    g_SocketDataWriter = ref new DataWriter( g_Socket->OutputStream );
         
 	// automatically scan for a valid port, so multiple
 	// dedicated servers can be started without requiring
@@ -545,7 +557,6 @@ void NET_StopListening( void )
     g_StreamOutCache.clear();
 
     // Close the socket
-    g_SocketDataWriter = nullptr;
     g_Socket = nullptr;
 }
 
