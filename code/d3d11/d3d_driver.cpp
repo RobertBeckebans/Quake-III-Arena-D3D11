@@ -22,7 +22,12 @@ HRESULT g_hrLastError = S_OK;
 void D3DDrv_Shutdown( void )
 {
     DestroyDrawState();
+
+#ifdef WIN8
+    // @pjb: todo: shut down window here
+#else
     D3DWnd_Shutdown();
+#endif
 }
 
 void D3DDrv_UnbindResources( void )
@@ -331,7 +336,11 @@ D3D_PUBLIC void D3DDrv_DriverInit( void )
     // This, weirdly, can be called multiple times. Catch that if that's the case.
     if ( g_pDevice == nullptr )
     {
+#ifdef WIN8
+        // @pjb: todo: init d3d here
+#else
         D3DWnd_Init();
+#endif
     }
 
     InitDrawState();
