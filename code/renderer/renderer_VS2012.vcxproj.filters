@@ -328,9 +328,6 @@
     <ClCompile Include="gl_common.c">
       <Filter>OpenGL Implementation</Filter>
     </ClCompile>
-    <ClCompile Include="gl_backend.c">
-      <Filter>OpenGL Implementation</Filter>
-    </ClCompile>
     <ClCompile Include="gl_image.c">
       <Filter>OpenGL Implementation</Filter>
     </ClCompile>
