@@ -1317,7 +1317,18 @@ void RB_StageIteratorLightmappedMultitexture( void );
 void RB_AddQuadStamp( vec3_t origin, vec3_t left, vec3_t up, byte *color );
 void RB_AddQuadStampExt( vec3_t origin, vec3_t left, vec3_t up, byte *color, float s1, float t1, float s2, float t2 );
 
+/*
+============================================================
 
+SMP
+
+============================================================
+*/
+
+void* RSMP_RendererSleep( void );
+qboolean RSMP_SpawnRenderThread( void (*function)( void ) );
+void RSMP_WakeRenderer( void *data );
+void RSMP_FrontEndSleep( void );
 
 /*
 ============================================================

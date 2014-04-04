@@ -12,7 +12,6 @@ void ( APIENTRY * qglClientActiveTextureARB )( GLenum texture );
 void ( APIENTRY * qglLockArraysEXT)( GLint, GLint);
 void ( APIENTRY * qglUnlockArraysEXT) ( void );
 
-
 void GLRB_RestoreTextureState( void )
 {
     // Flush textures; reset texture state
@@ -471,10 +470,7 @@ void GLRB_DriverInit( graphicsApiLayer_t* layer )
     layer->SetDepthRange = GL_SetDepthRange;
     layer->SetDrawBuffer = GLRB_SetDrawBuffer;
     layer->EndFrame = GLimp_EndFrame;
-    layer->NotifyOfCommands = GLimp_WakeRenderer;
-    layer->WaitForCommands = GLimp_RendererSleep;
-    layer->WaitForRenderThread = GLimp_FrontEndSleep;
-    layer->SpawnRenderThread = GLimp_SpawnRenderThread;
+    layer->MakeCurrent = GLimp_MakeCurrent;
     layer->ShadowSilhouette = GLRB_ShadowSilhouette;
     layer->ShadowFinish = GLRB_ShadowFinish;
     layer->DrawSkyBox = GLRB_DrawSkyBox;

@@ -61,6 +61,16 @@ void D3DDrv_ReadPixels( int x, int y, int width, int height, imageFormat_t reque
     
 }
 
+void D3DDrv_ReadDepth( int x, int y, int width, int height, float* dest )
+{
+
+}
+
+void D3DDrv_ReadStencil( int x, int y, int width, int height, byte* dest )
+{
+
+}
+
 void D3DDrv_CreateImage( const image_t* image, const byte *pic, qboolean isLightmap )
 {
     
@@ -69,6 +79,16 @@ void D3DDrv_CreateImage( const image_t* image, const byte *pic, qboolean isLight
 void D3DDrv_DeleteImage( const image_t* image )
 {
     
+}
+
+void D3DDrv_UpdateCinematic( image_t* image, const byte* pic, int cols, int rows, qboolean dirty )
+{
+
+}
+
+void D3DDrv_DrawImage( const image_t* image, const float* coords, const float* texcoords, const float* color )
+{
+
 }
 
 imageFormat_t D3DDrv_GetImageFormat( const image_t* image )
@@ -116,6 +136,21 @@ void D3DDrv_SetProjection( const float* projMatrix )
     
 }
 
+void D3DDrv_GetProjection( float* projMatrix )
+{
+
+}
+
+void D3DDrv_SetModelView( const float* modelViewMatrix )
+{
+
+}
+
+void D3DDrv_GetModelView( float* modelViewMatrix )
+{
+
+}
+
 void D3DDrv_SetViewport( int left, int top, int width, int height )
 {
     
@@ -141,25 +176,140 @@ void D3DDrv_ResetState3D( void )
 
 }
 
+void D3DDrv_SetPortalRendering( qboolean enabled, const float* flipMatrix, const float* plane )
+{
+
+}
+
+void D3DDrv_SetDepthRange( float minRange, float maxRange )
+{
+
+}
+
+void D3DDrv_SetDrawBuffer( int buffer )
+{
+
+}
+
+void D3DDrv_EndFrame( void )
+{
+
+}
+
+void D3DDrv_MakeCurrent( qboolean current )
+{
+
+}
+
+void D3DDrv_ShadowSilhouette( const float* edges, int edgeCount )
+{
+
+}
+
+void D3DDrv_ShadowFinish( void )
+{
+
+}
+
+void D3DDrv_DrawSkyBox( const skyboxDrawInfo_t* skybox, const float* eye_origin, const float* colorTint )
+{
+
+}
+
+void D3DDrv_DrawBeam( const image_t* image, const float* color, const vec3_t startPoints[], const vec3_t endPoints[], int segs )
+{
+
+}
+
+void D3DDrv_DrawStageGeneric( const shaderCommands_t *input )
+{
+
+}
+
+void D3DDrv_DrawStageVertexLitTexture( const shaderCommands_t *input )
+{
+
+}
+
+void D3DDrv_DrawStageLightmappedMultitexture( const shaderCommands_t *input )
+{
+
+}
+
+void D3DDrv_DebugDrawAxis( void )
+{
+
+}
+
+void D3DDrv_DebugDrawTris( shaderCommands_t *input )
+{
+
+}
+
+void D3DDrv_DebugDrawNormals( shaderCommands_t *input )
+{
+
+}
+
+void D3DDrv_DebugSetOverdrawMeasureEnabled( qboolean enabled )
+{
+
+}
+
+void D3DDrv_DebugSetTextureMode( const char* mode )
+{
+
+}
+
+void D3DDrv_DebugDrawPolygon( int color, int numPoints, const float* points )
+{
+
+}
+
 D3D_PUBLIC void D3DDrv_DriverInit( graphicsApiLayer_t* layer )
 {
     layer->Shutdown = D3DDrv_Shutdown;
     layer->UnbindResources = D3DDrv_UnbindResources;
     layer->LastError = D3DDrv_LastError;
     layer->ReadPixels = D3DDrv_ReadPixels;
+    layer->ReadDepth = D3DDrv_ReadDepth;
+    layer->ReadStencil = D3DDrv_ReadStencil;
     layer->CreateImage = D3DDrv_CreateImage;
     layer->DeleteImage = D3DDrv_DeleteImage;
+    layer->UpdateCinematic = D3DDrv_UpdateCinematic;
+    layer->DrawImage = D3DDrv_DrawImage;
     layer->GetImageFormat = D3DDrv_GetImageFormat;
     layer->SetGamma = D3DDrv_SetGamma;
     layer->GetFrameImageMemoryUsage = D3DDrv_SumOfUsedImages;
     layer->GraphicsInfo = D3DDrv_GfxInfo;
     layer->Clear = D3DDrv_Clear;
     layer->SetProjectionMatrix = D3DDrv_SetProjection;
+    layer->GetProjectionMatrix = D3DDrv_GetProjection;
+    layer->SetModelViewMatrix = D3DDrv_SetModelView;
+    layer->GetModelViewMatrix = D3DDrv_GetModelView;
     layer->SetViewport = D3DDrv_SetViewport;
     layer->Flush = D3DDrv_Flush;
     layer->SetState = D3DDrv_SetState;
     layer->ResetState2D = D3DDrv_ResetState2D;
     layer->ResetState3D = D3DDrv_ResetState3D;
+    layer->SetPortalRendering = D3DDrv_SetPortalRendering;
+    layer->SetDepthRange = D3DDrv_SetDepthRange;
+    layer->SetDrawBuffer = D3DDrv_SetDrawBuffer;
+    layer->EndFrame = D3DDrv_EndFrame;
+    layer->MakeCurrent = D3DDrv_MakeCurrent;
+    layer->ShadowSilhouette = D3DDrv_ShadowSilhouette;
+    layer->ShadowFinish = D3DDrv_ShadowFinish;
+    layer->DrawSkyBox = D3DDrv_DrawSkyBox;
+    layer->DrawBeam = D3DDrv_DrawBeam;
+    layer->DrawStageGeneric = D3DDrv_DrawStageGeneric;
+    layer->DrawStageVertexLitTexture = D3DDrv_DrawStageVertexLitTexture;
+    layer->DrawStageLightmappedMultitexture = D3DDrv_DrawStageLightmappedMultitexture;
+    layer->DebugDrawAxis = D3DDrv_DebugDrawAxis;
+    layer->DebugDrawTris = D3DDrv_DebugDrawTris;
+    layer->DebugDrawNormals = D3DDrv_DebugDrawNormals;
+    layer->DebugSetOverdrawMeasureEnabled = D3DDrv_DebugSetOverdrawMeasureEnabled;
+    layer->DebugSetTextureMode = D3DDrv_DebugSetTextureMode;
+    layer->DebugDrawPolygon = D3DDrv_DebugDrawPolygon;
 
     // This, weirdly, can be called multiple times. Catch that if that's the case.
     if ( g_pDevice == nullptr )

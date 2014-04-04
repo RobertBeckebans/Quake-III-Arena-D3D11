@@ -244,6 +244,7 @@
     </ClCompile>
     <ClCompile Include="tr_surface.c">
     </ClCompile>
+    <ClCompile Include="tr_smp.c" />
     <ClCompile Include="tr_world.c">
     </ClCompile>
     <ClCompile Include="..\win32\win_gamma.c">

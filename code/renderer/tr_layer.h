@@ -38,10 +38,7 @@ typedef struct graphicsApiLayer_s {
     void            (* SetDepthRange)( float minRange, float maxRange );
     void            (* SetDrawBuffer)( int buffer );
     void            (* EndFrame)( void );
-    void            (* NotifyOfCommands )( void *data );
-    void*           (* WaitForCommands)( void );
-    void            (* WaitForRenderThread)( void );
-    qboolean        (* SpawnRenderThread )( void (*)( void ) );
+    void            (* MakeCurrent)( qboolean current );
     void            (* ShadowSilhouette)( const float* edges, int edgeCount );
     void            (* ShadowFinish)( void );
     void            (* DrawSkyBox)( const skyboxDrawInfo_t* skybox, const float* eye_origin, const float* colorTint );

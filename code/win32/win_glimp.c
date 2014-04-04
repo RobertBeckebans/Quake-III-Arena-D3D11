@@ -82,6 +82,7 @@ glwstate_t glw_state;
 cvar_t	*r_allowSoftwareGL;		// don't abort out if the pixelformat claims software
 cvar_t	*r_maskMinidriver;		// allow a different dll name to be treated as if it were opengl32.dll
 
+static int wglErrors = 0;
 
 
 /*
@@ -1575,113 +1576,13 @@ void GLimp_LogComment( char *comment )
 	}
 }
 
-
-/*
-===========================================================
-
-SMP acceleration
-
-===========================================================
-*/
-
-HANDLE	renderCommandsEvent;
-HANDLE	renderCompletedEvent;
-HANDLE	renderActiveEvent;
-
-void (*glimpRenderThread)( void );
-
-void GLimp_RenderThreadWrapper( void ) {
-	glimpRenderThread();
-
-	// unbind the context before we die
-	qwglMakeCurrent( glw_state.hDC, NULL );
-}
-
-/*
-=======================
-GLimp_SpawnRenderThread
-=======================
-*/
-HANDLE	renderThreadHandle;
-int		renderThreadId;
-qboolean GLimp_SpawnRenderThread( void (*function)( void ) ) {
-
-	renderCommandsEvent = CreateEvent( NULL, TRUE, FALSE, NULL );
-	renderCompletedEvent = CreateEvent( NULL, TRUE, FALSE, NULL );
-	renderActiveEvent = CreateEvent( NULL, TRUE, FALSE, NULL );
-
-	glimpRenderThread = function;
-
-	renderThreadHandle = CreateThread(
-	   NULL,	// LPSECURITY_ATTRIBUTES lpsa,
-	   0,		// DWORD cbStack,
-	   (LPTHREAD_START_ROUTINE)GLimp_RenderThreadWrapper,	// LPTHREAD_START_ROUTINE lpStartAddr,
-	   0,			// LPVOID lpvThreadParm,
-	   0,			//   DWORD fdwCreate,
-	   &renderThreadId );
-
-	if ( !renderThreadHandle ) {
-		return qfalse;
-	}
-
-	return qtrue;
-}
-
-static	void	*smpData;
-static	int		wglErrors;
-
-void *GLimp_RendererSleep( void ) {
-	void	*data;
-
-	if ( !qwglMakeCurrent( glw_state.hDC, NULL ) ) {
-		wglErrors++;
-	}
-
-	// after this, the front end can exit GLimp_FrontEndSleep
-	SetEvent( renderCompletedEvent );
-
-	ResetEvent( renderActiveEvent );
-
-	WaitForSingleObject( renderCommandsEvent, INFINITE );
-
-	if ( !qwglMakeCurrent( glw_state.hDC, glw_state.hGLRC ) ) {
-		wglErrors++;
-	}
-
-	ResetEvent( renderCompletedEvent );
-	ResetEvent( renderCommandsEvent );
-
-	data = smpData;
-
-	// after this, the main thread can exit GLimp_WakeRenderer
-	SetEvent( renderActiveEvent );
-
-	return data;
-}
-
-
-void GLimp_FrontEndSleep( void ) {
-	WaitForSingleObject( renderCompletedEvent, INFINITE );
-
-	if ( !qwglMakeCurrent( glw_state.hDC, glw_state.hGLRC ) ) {
+// @pjb: makes current (or not)
+void GLimp_MakeCurrent( qboolean current )
+{
+	if ( !qwglMakeCurrent( glw_state.hDC, current ? glw_state.hGLRC : NULL ) ) {
 		wglErrors++;
 	}
 }
-
-
-void GLimp_WakeRenderer( void *data ) {
-	smpData = data;
-
-	if ( !qwglMakeCurrent( glw_state.hDC, NULL ) ) {
-		wglErrors++;
-	}
-
-	// after this, the renderer can continue through GLimp_RendererSleep
-	SetEvent( renderCommandsEvent );
-
-	WaitForSingleObject( renderActiveEvent, INFINITE );
-}
-
 
 // @pjb: returns the window handle
 HWND GLimp_GetWindowHandle( void )

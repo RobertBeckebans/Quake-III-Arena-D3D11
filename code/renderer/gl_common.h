@@ -130,10 +130,7 @@ void		GLimp_Init( void );
 void		GLimp_Shutdown( void );
 void		GLimp_EndFrame( void );
 
-qboolean	GLimp_SpawnRenderThread( void (*function)( void ) );
-void		*GLimp_RendererSleep( void );
-void		GLimp_FrontEndSleep( void );
-void		GLimp_WakeRenderer( void *data );
+void        GLimp_MakeCurrent( qboolean current );
 
 void		GLimp_LogComment( char *comment );
 

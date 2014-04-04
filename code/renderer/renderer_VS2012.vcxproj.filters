@@ -355,6 +355,9 @@
     <ClCompile Include="gl_shade.c">
       <Filter>OpenGL Implementation</Filter>
     </ClCompile>
+    <ClCompile Include="tr_smp.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tr_public.h">

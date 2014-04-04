@@ -85,7 +85,7 @@ void R_InitCommandBuffers( void ) {
 	vdConfig.smpActive = qfalse;
 	if ( r_smp->integer ) {
 		ri.Printf( PRINT_ALL, "Trying SMP acceleration...\n" );
-		if ( graphicsDriver.SpawnRenderThread( RB_RenderThread ) ) {
+		if ( RSMP_SpawnRenderThread( RB_RenderThread ) ) {
 			ri.Printf( PRINT_ALL, "...succeeded.\n" );
 			vdConfig.smpActive = qtrue;
 		} else {
@@ -102,7 +102,7 @@ R_ShutdownCommandBuffers
 void R_ShutdownCommandBuffers( void ) {
 	// kill the rendering thread
 	if ( vdConfig.smpActive ) {
-        graphicsDriver.NotifyOfCommands( NULL );
+        RSMP_WakeRenderer( NULL );
 		vdConfig.smpActive = qfalse;
 	}
 }
@@ -141,7 +141,7 @@ void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
 		}
 
 		// sleep until the renderer has completed
-		graphicsDriver.WaitForRenderThread();
+		RSMP_FrontEndSleep();
 	}
 
 	// at this point, the back end thread is idle, so it is ok
@@ -156,7 +156,7 @@ void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
 		if ( !vdConfig.smpActive ) {
 			RB_ExecuteRenderCommands( cmdList->cmds );
 		} else {
-            graphicsDriver.NotifyOfCommands( cmdList );
+            RSMP_WakeRenderer( cmdList );
 		}
 	}
 }
@@ -181,7 +181,7 @@ void R_SyncRenderThread( void ) {
 	if ( !vdConfig.smpActive ) {
 		return;
 	}
-	graphicsDriver.WaitForRenderThread();
+	RSMP_FrontEndSleep();
 }
 
 /*
