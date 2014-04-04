@@ -544,10 +544,14 @@ void R_ScreenShotJPEG_f (void) {
 // @pjb: print info about the driver
 void R_GfxInfo( void )
 {
+#ifndef WIN8
     if (GFX_GraphicsInfo)
         GFX_GraphicsInfo();
     else
         ri.Printf( PRINT_ALL, "R_GfxInfo: Driver not yet initialized.\n" );
+#else
+    GFX_GraphicsInfo();
+#endif
 }
 
 

@@ -61,52 +61,50 @@ extern void            (* GFX_DebugDrawPolygon)( int color, int numPoints, const
 // On fixed platforms we can point this straight at D3D functions.
 #include "../d3d11/d3d_driver.h"
 
-typedef struct graphicsApiLayer_s {
-    __forceinline void            GFX_Shutdown( void );
-    __forceinline void            GFX_UnbindResources( void );
-    __forceinline size_t          GFX_LastError( void );
-    __forceinline void            GFX_ReadPixels( int x, int y, int width, int height, imageFormat_t requestedFmt, void* dest );
-    __forceinline void            GFX_ReadDepth( int x, int y, int width, int height, float* dest );
-    __forceinline void            GFX_ReadStencil( int x, int y, int width, int height, byte* dest );
-    __forceinline void            GFX_CreateImage( const image_t* image, const byte *pic, qboolean isLightmap );
-    __forceinline void            GFX_DeleteImage( const image_t* image );
-    __forceinline void            GFX_UpdateCinematic( const image_t* image, const byte* pic, int cols, int rows, qboolean dirty );
-    __forceinline void            GFX_DrawImage( const image_t* image, const float* coords, const float* texcoords, const float* color );
-    __forceinline imageFormat_t   GFX_GetImageFormat( const image_t* image );
-    __forceinline void            GFX_SetGamma( unsigned char red[256], unsigned char green[256], unsigned char blue[256] );
-    __forceinline int             GFX_GetFrameImageMemoryUsage( void );
-    __forceinline void            GFX_GraphicsInfo( void );
-    __forceinline void            GFX_Clear( unsigned long bits, const float* clearCol, unsigned long stencil, float depth );
-    __forceinline void            GFX_SetProjectionMatrix( const float* projMatrix );
-    __forceinline void            GFX_GetProjectionMatrix( float* projMatrix );
-    __forceinline void            GFX_SetModelViewMatrix( const float* modelViewMatrix );
-    __forceinline void            GFX_GetModelViewMatrix( float* modelViewMatrix );
-    __forceinline void            GFX_SetViewport( int left, int top, int width, int height );
-    __forceinline void            GFX_Flush( void );
-    __forceinline void            GFX_SetState( unsigned long stateMask ); // Use GLS_* flags in tr_state.h
-    __forceinline void            GFX_ResetState2D( void );
-    __forceinline void            GFX_ResetState3D( void );
-    __forceinline void            GFX_SetPortalRendering( qboolean enabled, const float* flipMatrix, const float* plane );
-    __forceinline void            GFX_SetDepthRange( float minRange, float maxRange );
-    __forceinline void            GFX_SetDrawBuffer( int buffer );
-    __forceinline void            GFX_EndFrame( void );
-    __forceinline void            GFX_MakeCurrent( qboolean current );
-    __forceinline void            GFX_ShadowSilhouette( const float* edges, int edgeCount );
-    __forceinline void            GFX_ShadowFinish( void );
-    __forceinline void            GFX_DrawSkyBox( const skyboxDrawInfo_t* skybox, const float* eye_origin, const float* colorTint );
-    __forceinline void            GFX_DrawBeam( const image_t* image, const float* color, const vec3_t startPoints[], const vec3_t endPoints[], int segs );
-    __forceinline void            GFX_DrawStageGeneric( const shaderCommands_t *input );
-    __forceinline void            GFX_DrawStageVertexLitTexture( const shaderCommands_t *input );
-    __forceinline void            GFX_DrawStageLightmappedMultitexture( const shaderCommands_t *input );
-    __forceinline void            GFX_BeginTessellate( const shaderCommands_t* input );
-    __forceinline void            GFX_EndTessellate( const shaderCommands_t* input );
-    __forceinline void            GFX_DebugDrawAxis( void );
-    __forceinline void            GFX_DebugDrawNormals( const shaderCommands_t *input );
-    __forceinline void            GFX_DebugDrawTris( const shaderCommands_t *input );
-    __forceinline void            GFX_DebugSetOverdrawMeasureEnabled( qboolean enabled );
-    __forceinline void            GFX_DebugSetTextureMode( const char* mode );
-    __forceinline void            GFX_DebugDrawPolygon( int color, int numPoints, const float* points );
-} graphicsApiLayer_t;
+#define GFX_Shutdown                         D3DDrv_Shutdown                 
+#define GFX_UnbindResources                  D3DDrv_UnbindResources
+#define GFX_LastError                        D3DDrv_LastError
+#define GFX_ReadPixels                       D3DDrv_ReadPixels
+#define GFX_ReadDepth                        D3DDrv_ReadDepth
+#define GFX_ReadStencil                      D3DDrv_ReadStencil
+#define GFX_CreateImage                      D3DDrv_CreateImage
+#define GFX_DeleteImage                      D3DDrv_DeleteImage
+#define GFX_UpdateCinematic                  D3DDrv_UpdateCinematic
+#define GFX_DrawImage                        D3DDrv_DrawImage
+#define GFX_GetImageFormat                   D3DDrv_GetImageFormat
+#define GFX_SetGamma                         D3DDrv_SetGamma
+#define GFX_GetFrameImageMemoryUsage         D3DDrv_SumOfUsedImages
+#define GFX_GraphicsInfo                     D3DDrv_GfxInfo
+#define GFX_Clear                            D3DDrv_Clear
+#define GFX_SetProjectionMatrix              D3DDrv_SetProjection
+#define GFX_GetProjectionMatrix              D3DDrv_GetProjection
+#define GFX_SetModelViewMatrix               D3DDrv_SetModelView
+#define GFX_GetModelViewMatrix               D3DDrv_GetModelView
+#define GFX_SetViewport                      D3DDrv_SetViewport
+#define GFX_Flush                            D3DDrv_Flush
+#define GFX_SetState                         D3DDrv_SetState
+#define GFX_ResetState2D                     D3DDrv_ResetState2D
+#define GFX_ResetState3D                     D3DDrv_ResetState3D
+#define GFX_SetPortalRendering               D3DDrv_SetPortalRendering
+#define GFX_SetDepthRange                    D3DDrv_SetDepthRange
+#define GFX_SetDrawBuffer                    D3DDrv_SetDrawBuffer
+#define GFX_EndFrame                         D3DDrv_EndFrame
+#define GFX_MakeCurrent                      D3DDrv_MakeCurrent
+#define GFX_ShadowSilhouette                 D3DDrv_ShadowSilhouette
+#define GFX_ShadowFinish                     D3DDrv_ShadowFinish
+#define GFX_DrawSkyBox                       D3DDrv_DrawSkyBox
+#define GFX_DrawBeam                         D3DDrv_DrawBeam
+#define GFX_DrawStageGeneric                 D3DDrv_DrawStageGeneric
+#define GFX_DrawStageVertexLitTexture        D3DDrv_DrawStageVertexLitTexture
+#define GFX_DrawStageLightmappedMultitexture D3DDrv_DrawStageLightmappedMultitexture
+#define GFX_BeginTessellate                  D3DDrv_BeginTessellate
+#define GFX_EndTessellate                    D3DDrv_EndTessellate
+#define GFX_DebugDrawAxis                    D3DDrv_DebugDrawAxis
+#define GFX_DebugDrawNormals                 D3DDrv_DebugDrawNormals
+#define GFX_DebugDrawTris                    D3DDrv_DebugDrawTris
+#define GFX_DebugSetOverdrawMeasureEnabled   D3DDrv_DebugSetOverdrawMeasureEnabled
+#define GFX_DebugSetTextureMode              D3DDrv_DebugSetTextureMode
+#define GFX_DebugDrawPolygon                 D3DDrv_DebugDrawPolygon
 
 #endif
 
