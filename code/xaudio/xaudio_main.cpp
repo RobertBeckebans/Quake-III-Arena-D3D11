@@ -14,11 +14,12 @@ static IXAudio2* g_pXAudio2 = NULL;
 static IXAudio2MasteringVoice* g_pMasterVoice = NULL;
 static IXAudio2SourceVoice* g_pSourceVoice = NULL;
 
-#define STREAMING_BUFFER_COUNT 16
+#define STREAMING_BUFFER_COUNT 3
 static BYTE g_StreamingBuffers[STREAMING_BUFFER_COUNT][STREAMING_BUFFER_SIZE];
 static int g_StreamingBufferIndex = 0;
 static StreamingVoiceContext g_Context;
-static HANDLE g_hBufferReleaseSem = NULL;
+
+cvar_t* xaudio_maxSamples = nullptr;
 
 /*
 ==================
@@ -43,15 +44,9 @@ void XAudio_Shutdown( void )
         g_pXAudio2->Release();
     }
 
-    if ( g_hBufferReleaseSem )
-    {
-        CloseHandle( g_hBufferReleaseSem );
-    }
-
     g_pSourceVoice = NULL;
     g_pMasterVoice = NULL;
     g_pXAudio2 = NULL;
-    g_hBufferReleaseSem = NULL;
 
     Com_Printf( "XAudio2 shut down.\n" );
 }
@@ -76,6 +71,8 @@ qboolean XAudio_Init(void)
         Com_Printf( "... Warning: XAudio2 failed to initialize.\n" );
         goto fail;
     }
+
+    xaudio_maxSamples = Cvar_Get( "xaudio_maxSamples", "0", CVAR_TEMP );
 
     cvar_t* xaudio_debugLevel = Cvar_Get( "xaudio_debugLevel", "0", CVAR_TEMP | CVAR_LATCH );
 
@@ -136,8 +133,6 @@ qboolean XAudio_Init(void)
     // Start the voice (but there's no data yet)
     g_pSourceVoice->Start( 0, 0 );
 
-    g_hBufferReleaseSem = CreateSemaphore( nullptr, STREAMING_BUFFER_COUNT, STREAMING_BUFFER_COUNT, nullptr );
-    
 	dma.channels = format.nChannels;
 	dma.samplebits = format.wBitsPerSample;
 	dma.speed = format.nSamplesPerSec;
@@ -179,12 +174,12 @@ static bool hasNewBuffer = true;
 
 int XAudio_GetDMAPos( void ) 
 {
-    /*
     return lastSample;
-    */
+    /*
     XAUDIO2_VOICE_STATE state;
     g_pSourceVoice->GetState( &state );
     return (2 * state.SamplesPlayed) % dma.samples;
+    */
 }
 
 /*
@@ -203,8 +198,17 @@ void XAudio_BeginPainting( int reserve )
     int reserveBytes = reserve * dma.samplebits / 8;
     if ( bufferOffset + reserveBytes > STREAMING_BUFFER_SIZE )
     {
-        // This will go off the end of the buffer. We have to wait for a new buffer to become available and swap to it.
-        WaitForSingleObject( g_hBufferReleaseSem, INFINITE );
+        for (;;)
+        {
+            XAUDIO2_VOICE_STATE state;
+
+            g_pSourceVoice->GetState( &state, XAUDIO2_VOICE_NOSAMPLESPLAYED );
+
+            if (state.BuffersQueued < STREAMING_BUFFER_COUNT - 1)
+                break;
+
+            WaitForSingleObject( g_Context.hBufferEndEvent, INFINITE );
+        }
 
         g_StreamingBufferIndex = (g_StreamingBufferIndex + 1) % STREAMING_BUFFER_COUNT;
         hasNewBuffer = true;
@@ -231,9 +235,11 @@ void XAudio_Submit( int offset, int length )
 {
     //Com_Printf( "Offset %d length %d\n", offset, length );
 
-    // Drop this if we're overloaded...
-    if ( g_Context.BuffersInUse > 2 )
-        return;
+    if ( xaudio_maxSamples->integer > 0 )
+    {
+        //length = min( xaudio_maxSamples->integer, length );
+        length /= xaudio_maxSamples->integer;
+    }
 
     XAUDIO2_BUFFER xbuf;
     ZeroMemory( &xbuf, sizeof( xbuf ) );
@@ -241,13 +247,12 @@ void XAudio_Submit( int offset, int length )
     xbuf.AudioBytes = length * ( dma.samplebits / 8 );
     xbuf.pAudioData = dma.buffer;
 
+    xbuf.AudioBytes &= ~3;
+
     // lastSample = offset + length;
     lastSample += length;
     bufferOffset += xbuf.AudioBytes;
 
-    if ( hasNewBuffer )
-        xbuf.pContext = g_hBufferReleaseSem;
-    
     g_pSourceVoice->SubmitSourceBuffer( &xbuf );
 }
 
