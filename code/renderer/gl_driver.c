@@ -367,7 +367,8 @@ void GLRB_DriverInit( graphicsApiLayer_t* layer )
     layer->WaitForCommands = GLimp_RendererSleep;
     layer->WaitForRenderThread = GLimp_FrontEndSleep;
     layer->SpawnRenderThread = GLimp_SpawnRenderThread;
-    layer->SetOverdrawMeasureEnabled = GLRB_SetOverdrawMeasureEnabled;
+    layer->DebugSetOverdrawMeasureEnabled = GLRB_SetOverdrawMeasureEnabled;
+    layer->DebugSetTextureMode = GL_TextureMode;
 
     InitOpenGL();
 

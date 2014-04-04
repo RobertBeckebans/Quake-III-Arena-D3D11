@@ -22,8 +22,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tr_local.h"
 #include "tr_layer.h"
 
-#include "gl_common.h" // @pjb: todo: remove
-
 volatile renderCommandList_t	*renderCommandList;
 
 volatile qboolean	renderThreadActive;
@@ -87,7 +85,7 @@ void R_InitCommandBuffers( void ) {
 	vdConfig.smpActive = qfalse;
 	if ( r_smp->integer ) {
 		ri.Printf( PRINT_ALL, "Trying SMP acceleration...\n" );
-		if ( GLimp_SpawnRenderThread( RB_RenderThread ) ) {
+		if ( graphicsDriver.SpawnRenderThread( RB_RenderThread ) ) {
 			ri.Printf( PRINT_ALL, "...succeeded.\n" );
 			vdConfig.smpActive = qtrue;
 		} else {
@@ -336,7 +334,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		else
 		{
 			R_SyncRenderThread();
-            graphicsDriver.SetOverdrawMeasureEnabled( qtrue );
+            graphicsDriver.DebugSetOverdrawMeasureEnabled( qtrue );
 		}
 		r_measureOverdraw->modified = qfalse;
 	}
@@ -345,7 +343,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		// this is only reached if it was on and is now off
 		if ( r_measureOverdraw->modified ) {
 			R_SyncRenderThread();
-            graphicsDriver.SetOverdrawMeasureEnabled( qfalse );
+            graphicsDriver.DebugSetOverdrawMeasureEnabled( qfalse );
 		}
 		r_measureOverdraw->modified = qfalse;
 	}
@@ -355,7 +353,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	//
 	if ( r_textureMode->modified ) {
 		R_SyncRenderThread();
-		GL_TextureMode( r_textureMode->string );
+		graphicsDriver.DebugSetTextureMode( r_textureMode->string );
 		r_textureMode->modified = qfalse;
 	}
 

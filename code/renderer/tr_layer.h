@@ -37,8 +37,10 @@ typedef struct graphicsApiLayer_s {
     void            (* NotifyOfCommands )( void *data );
     void*           (* WaitForCommands)( void );
     void            (* WaitForRenderThread)( void );
-    void            (* SpawnRenderThread )( void (*)( void ) );
-    void            (* SetOverdrawMeasureEnabled)( qboolean enabled );
+    qboolean        (* SpawnRenderThread )( void (*)( void ) );
+
+    void            (* DebugSetOverdrawMeasureEnabled)( qboolean enabled );
+    void            (* DebugSetTextureMode)( const char* mode );
 } graphicsApiLayer_t;
 
 extern graphicsApiLayer_t      graphicsDriver;
