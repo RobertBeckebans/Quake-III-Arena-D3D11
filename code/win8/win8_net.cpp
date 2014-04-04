@@ -401,7 +401,7 @@ WIN8_EXPORT void Sys_ShowIP(void) {
 
 /*
 ====================
-NET_OnConnectionReceived
+NET_OnMessageReceived
 
 DO NOT USE ANY QUAKE FUNCTIONS. (Sys_Milliseconds is an exception.)
 This function MUST interop with the game through the message queue.
