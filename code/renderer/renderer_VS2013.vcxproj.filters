@@ -328,9 +328,6 @@
     <ClCompile Include="gl_common.c">
       <Filter>OpenGL Implementation</Filter>
     </ClCompile>
-    <ClCompile Include="gl_backend.c">
-      <Filter>OpenGL Implementation</Filter>
-    </ClCompile>
     <ClCompile Include="gl_image.c">
       <Filter>OpenGL Implementation</Filter>
     </ClCompile>
@@ -351,6 +348,9 @@
     </ClCompile>
     <ClCompile Include="..\d3d11\d3d_driver.cpp">
       <Filter>Direct3D Implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="gl_shadows.c">
+      <Filter>OpenGL Implementation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -424,9 +424,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="gl_common.h">
-      <Filter>OpenGL Implementation</Filter>
-    </ClInclude>
-    <ClInclude Include="gl_image.h">
       <Filter>OpenGL Implementation</Filter>
     </ClInclude>
     <ClInclude Include="tr_layer.h">

@@ -533,7 +533,6 @@
     <ClInclude Include="..\qcommon\qcommon.h" />
     <ClInclude Include="..\qcommon\qfiles.h" />
     <ClInclude Include="gl_common.h" />
-    <ClInclude Include="gl_image.h" />
     <ClInclude Include="proxy_main.h" />
     <ClInclude Include="qgl.h" />
     <ClInclude Include="..\game\surfaceflags.h" />
