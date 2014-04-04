@@ -7,6 +7,7 @@ extern "C" {
 #include <ppl.h>
 #include <ppltasks.h>
 #include <assert.h>
+#include <map>
 
 #include "win8_msgq.h"
 #include "win8_msgs.h"
@@ -14,6 +15,7 @@ extern "C" {
 #include "win8_net.h"
 
 using namespace Windows::Foundation;
+using namespace Windows::Storage::Streams;
 using namespace Windows::Networking;
 using namespace Windows::Networking::Connectivity;
 using namespace Windows::Networking::Sockets;
@@ -23,7 +25,14 @@ static qboolean networkingEnabled = qfalse;
 static cvar_t	*net_noudp;
 
 DatagramSocket^ g_Socket = nullptr;
+std::map<netadr_t, DataWriter^> g_StreamOutCache;
 Win8::MessageQueue g_NetMsgQueue;
+
+// For the g_StreamOutCache map
+static bool operator < (const netadr_t& a, const netadr_t& b)
+{
+    return memcmp( &a, &b, sizeof( netadr_t ) ) < 0;
+}
 
 /*
 =============
@@ -192,12 +201,12 @@ bool NET_Ipv4ToString( const BYTE* address, char* str, size_t len )
     return true;
 }
 
-bool NET_IsIpv6NetAdr( const netadr_t* a )
+bool NET_IsIpv6NetAdr( const void* ip )
 {
     return 
-        ((const UINT*) a->ip)[1] != 0 &&
-        ((const UINT*) a->ip)[2] != 0 &&
-        ((const UINT*) a->ip)[3] != 0;
+        ((const UINT*) ip)[1] != 0 &&
+        ((const UINT*) ip)[2] != 0 &&
+        ((const UINT*) ip)[3] != 0;
 }
 
 
@@ -212,19 +221,45 @@ WIN8_EXPORT qboolean Sys_StringToAdr( const char *s, netadr_t *a ) {
 
 /*
 =============
-NET_NewClient
+NET_GetMessageArguments
 =============
 */
-void NET_HandleNewMessage( const Win8::MSG* msg ) 
+DatagramSocketMessageReceivedEventArgs^ NET_GetMessageArguments( const Win8::MSG* msg ) 
 {
-    // @pjb: Todo
-    
-    auto args = Win8::GetType< Windows::Networking::Sockets::DatagramSocketMessageReceivedEventArgs >( reinterpret_cast<IUnknown*>( msg->Param0 ) );
-    auto inputStream = args->GetDataStream();
+    IUnknown* iface = reinterpret_cast<IUnknown*>( msg->Param0 );
+    return Win8::GetType<DatagramSocketMessageReceivedEventArgs>( iface );
+}
 
-    Com_Printf( "[NET] New packet received from %S:%d\n", 
-        args->RemoteAddress->DisplayName->Data(),
-        args->RemotePort );
+/*
+==================
+NET_OpenNewStream
+==================
+*/
+DataWriter^ NET_OpenNewStream( const netadr_t* to )
+{
+    HANDLE hEvent = CreateEventEx( nullptr, nullptr, 0, EVENT_ALL_ACCESS );
+
+    IOutputStream^ stream = nullptr;
+
+    char ipAddress[64];
+    if ( NET_IsIpv6NetAdr( to->ip ) )
+        NET_Ipv6ToString( to->ip, ipAddress, sizeof( ipAddress ) );
+    else 
+        NET_Ipv4ToString( to->ip, ipAddress, sizeof( ipAddress ) );
+
+    HostName^ remoteHostName = ref new HostName( Win8::CopyString( ipAddress ) );
+
+    concurrency::create_task( g_Socket->GetOutputStreamAsync( remoteHostName, to->port.ToString() ) ).then(
+        [hEvent, &stream] ( IOutputStream^ s )
+    {
+        stream = s;
+        SetEvent( hEvent );
+    } );
+    
+    WaitForSingleObjectEx( hEvent, INFINITE, FALSE );
+    CloseHandle( hEvent );
+
+    return ref new DataWriter( stream );
 }
 
 /*
@@ -238,24 +273,38 @@ WIN8_EXPORT qboolean Sys_GetPacket( netadr_t *net_from, msg_t *net_message ) {
     
     qboolean hasPacket = qfalse;
 
-    // Pump messages
+    // Pump one message
     Win8::MSG msg;
-    while ( g_NetMsgQueue.Pop( &msg ) )
+    if ( !g_NetMsgQueue.Pop( &msg ) )
+        return qfalse;
+
+    // It must be a packet event
+    if ( msg.Message != NET_MSG_INCOMING_MESSAGE ) 
     {
-        switch (msg.Message)
-        {
-        case NET_MSG_INCOMING_MESSAGE:
-            NET_HandleNewMessage( &msg );
-            break;
-        default:
-            assert(0);
-            break;
-        }
+        assert(0);
+        return qfalse;
     }
 
-    // @pjb: Todo
+    auto args = NET_GetMessageArguments( &msg );
+    auto dataReader = args->GetDataReader();
 
-    return hasPacket;
+    // How much data is there in the buffer?
+    int packetSize = dataReader->UnconsumedBufferLength;
+
+    // @pjb: oh Jesus the perf
+
+    // Read the data into the packet
+    dataReader->ReadBytes( ref new Platform::Array<byte>( net_message->data, net_message->maxsize ) );
+    
+    // Get the address of the sender
+    swscanf_s( args->RemotePort->Data(), L"%d", &net_from->port );
+
+    // Oh my.
+    char seriousHack[256];
+    Win8::CopyString( args->RemoteAddress->DisplayName, seriousHack, sizeof( seriousHack ) );
+    NET_StringToAdr( seriousHack, net_from );
+
+    return qtrue;
 }
 
 /*
@@ -263,8 +312,28 @@ WIN8_EXPORT qboolean Sys_GetPacket( netadr_t *net_from, msg_t *net_message ) {
 Sys_SendPacket
 ==================
 */
-WIN8_EXPORT void Sys_SendPacket( int length, const void *data, netadr_t to ) {
-    // @pjb: todo
+WIN8_EXPORT void Sys_SendPacket( int length, const void *data, netadr_t to )
+{
+    if ( g_Socket == nullptr )
+        return;
+
+    DataWriter^ stream = nullptr;
+
+    // Look up the peer in the output stream cache
+    auto cache = g_StreamOutCache.find( to );
+    if ( cache == std::end( g_StreamOutCache ) )
+    {
+        // Not cached. Cache it now!
+        stream = NET_OpenNewStream( &to );
+        g_StreamOutCache[to] = stream;
+    }
+    else
+    {
+        stream = cache->second;
+    }
+
+    // @pjb: todo: the efficiency of this really concerns me
+    stream->WriteBytes( ref new Platform::Array<byte>( (byte*) data, length ) );
 }
 
 /*
@@ -285,7 +354,22 @@ Sys_ShowIP
 ==================
 */
 WIN8_EXPORT void Sys_ShowIP(void) {
-    // @pjb: todo
+    char hostnameTmp[256];
+    char adapterIdTmp[256];
+    // @pjb: todo: fatal error C1001: An internal error has occurred in the compiler.
+    // for each ( HostName^ localHostInfo in NetworkInformation::GetHostNames() )
+    auto hostNames = NetworkInformation::GetHostNames();
+    for ( int i = 0; i < hostNames->Size; ++i )
+    {
+        auto localHostInfo = hostNames->GetAt(i);
+        if ( localHostInfo->IPInformation != nullptr )
+        {
+            Win8::CopyString( localHostInfo->DisplayName, hostnameTmp, sizeof( hostnameTmp ) );
+            Win8::CopyString( localHostInfo->IPInformation->NetworkAdapter->NetworkAdapterId.ToString(), adapterIdTmp, sizeof( adapterIdTmp ) );
+
+            Com_Printf( "... Address: %s / Adapter: %s\n", hostnameTmp, adapterIdTmp );
+        }
+    }
 }
 
 /*
@@ -437,9 +521,22 @@ NET_StopListening
 */
 void NET_StopListening( void ) 
 {
+    // Must handle all messages before we clean up as 
+    // they could contain pointers that need to be 
+    // freed.
+    Win8::MSG msg;
+    while ( g_NetMsgQueue.Pop( &msg ) ) 
+    {
+        // Discard message arguments
+        NET_GetMessageArguments( &msg );
+    }
+
+    // Clear the output stream cache
+    g_StreamOutCache.clear();
+
+    // Close the socket
     if ( g_Socket != nullptr )
     {
-        g_Socket->Close();
         g_Socket = nullptr;
     }
 }
@@ -529,35 +626,10 @@ WIN8_EXPORT void NET_Init( void ) {
     // Print the local addresses and adapters
 	Com_Printf( "Init WinRT Sockets\n" );
 
-	Com_Printf( "... [INFO] Set net_adapterId to specify a use a specific adapter.\n" );
 	Com_Printf( "... [INFO] Set net_ip to specify a use a specific local address.\n" );
 	Com_Printf( "... [INFO] Set net_port to specify a port to listen on.\n" );
 
-	cvar_t* adapterId = Cvar_Get( "net_adapterId", "", CVAR_LATCH );
-	cvar_t* ip = Cvar_Get( "net_ip", "localhost", CVAR_LATCH );
-    
-    char hostnameTmp[256];
-    char adapterIdTmp[256];
-    // @pjb: todo: fatal error C1001: An internal error has occurred in the compiler.
-    // for each ( HostName^ localHostInfo in NetworkInformation::GetHostNames() )
-    auto hostNames = NetworkInformation::GetHostNames();
-    for ( int i = 0; i < hostNames->Size; ++i )
-    {
-        auto localHostInfo = hostNames->GetAt(i);
-        if ( localHostInfo->IPInformation != nullptr )
-        {
-            Win8::CopyString( localHostInfo->DisplayName, hostnameTmp, sizeof( hostnameTmp ) );
-            Win8::CopyString( localHostInfo->IPInformation->NetworkAdapter->NetworkAdapterId.ToString(), adapterIdTmp, sizeof( adapterIdTmp ) );
-
-            Com_Printf( "... Address: %s / Adapter: %s\n", hostnameTmp, adapterIdTmp );
-
-            // If net_adapterId is set, compare and set if necessary
-            if ( *adapterId->string && !*ip->string && Q_strncmp( adapterId->string, adapterIdTmp, sizeof(adapterIdTmp) ) == 0 )
-            {
-                Cvar_Set( "net_ip", hostnameTmp );
-            }
-        }
-    }
+    Sys_ShowIP();
 
     // Configure the addresses
 	NET_Config( qtrue );
@@ -569,10 +641,8 @@ NET_Shutdown
 ====================
 */
 WIN8_EXPORT void NET_Shutdown( void ) {
-
-    // @pjb: todo
-
 	NET_Config( qfalse );
+	Com_Printf( "Shutdown WinRT Sockets\n" );
 }
 
 /*
