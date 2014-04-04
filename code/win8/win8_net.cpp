@@ -31,9 +31,106 @@ Sys_StringToAdr
 
 idnewt
 192.246.40.70
+2001:0db8:85a3:0000:0000:8a2e:0370:7334
 =============
 */
+bool NET_StringToIpv6( const char* const s, BYTE* addressBytes )
+{
+    USHORT address[8];
+    USHORT group = 0;
+    int groupSplit = -1;
+    int groupIndex = 0;
+    char previous = 0;
+    const char* cur = s;
+    for ( ; *cur; ++cur )
+    {
+        // Check if there are too many characters
+        if ( groupIndex == 8 )
+            return false;
+
+        // Check for :: abbreviations
+        if ( *cur == ':' && previous == ':' )
+        {
+            // Can't have two sets of ::
+            if ( groupSplit != -1 )
+                return false;
+            
+            // Can't have this at the end
+            if ( groupIndex == 7 )
+                return false;
+
+            // We'll keep filling all the groups in sequence, then shuffle them up in a minute
+            groupSplit = groupIndex;
+        }
+        // Check for group delimiter
+        else if ( *cur == ':' )
+        {
+            // Push the current group (if there is one)
+            address[groupIndex++] = group;
+            group = 0;
+        }
+        else
+        {
+            // If we have stuff in the top 4 bits, this is a bad address
+            if ( group & 0xF000 )
+                return false;
+
+            byte nibble = 0;
+
+            // Check for a valid character
+            if ( *cur >= 'A' && *cur <= 'Z' )
+                nibble = *cur - 'A' + 10;
+            else if ( *cur >= 'a' && *cur <= 'z' )
+                nibble = *cur - 'a' + 10;
+            else if ( *cur >= '0' && *cur <= '9' )
+                nibble = *cur - '0';
+            else
+                return false;
+
+            group = (group << 4) | nibble;
+        }
+        
+        previous = *cur;
+    }
+
+    if ( previous == 0 )
+        return false;
+
+    // Push the final group
+    address[groupIndex++] = group;
+
+    // Group delimiter? Shuffle them up!
+    if ( groupSplit != -1 )
+    {
+        int last;
+        for ( last = 7; groupIndex >= groupSplit; --last) 
+            address[last] = address[--groupIndex];
+        for ( int empty = groupSplit; empty <= last; ++empty )
+            address[empty] = 0;
+    }
+
+    memcpy( addressBytes, address, sizeof( address ) );
+
+    return true;
+}
+
+bool NET_Ipv6ToString( const BYTE* address, char* str, size_t len )
+{
+    if ( len < 8 * 5 )
+        return false;
+
+    const USHORT* addr16 = reinterpret_cast<const USHORT*>( address );
+
+    sprintf_s( str, len, "%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x",
+        addr16[0], addr16[1], addr16[2], addr16[3], 
+        addr16[4], addr16[5], addr16[6], addr16[7] );
+
+    return true;
+}
+
+
 WIN8_EXPORT qboolean Sys_StringToAdr( const char *s, netadr_t *a ) {
+    
     // @pjb: todo
     return qfalse;
 }

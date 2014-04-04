@@ -140,6 +140,7 @@ void NetadrToSockadr( netadr_t *a, struct sockaddr *s ) {
 void SockadrToNetadr( struct sockaddr *s, netadr_t *a ) {
 	if (s->sa_family == AF_INET) {
 		a->type = NA_IP;
+        Com_Memset( a->ip, 0, sizeof( a->ip ) ); // @pjb: clear IPv6 bits
 		*(int *)&a->ip = ((struct sockaddr_in *)s)->sin_addr.s_addr;
 		a->port = ((struct sockaddr_in *)s)->sin_port;
 	}

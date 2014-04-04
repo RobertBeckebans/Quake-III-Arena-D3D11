@@ -142,7 +142,7 @@ typedef enum {
 typedef struct {
 	netadrtype_t	type;
 
-	byte	ip[4];
+	byte	ip[16];    // @pjb: IPv6 support
 	byte	ipx[10];
 
 	unsigned short	port;
