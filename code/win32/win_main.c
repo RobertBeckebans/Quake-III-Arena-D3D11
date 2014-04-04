@@ -50,10 +50,6 @@ static char		sys_cmdline[MAX_STRING_CHARS];
 #include <sys\stat.h>
 
 
-// @pjb: horrible hack to replace a worse hack
-HINSTANCE g_hInstance = NULL;
-WNDPROC g_pfWndProc = NULL;
-
 int fh = 0;
 
 void Spk_Open(char *name)
@@ -1109,9 +1105,6 @@ void Sys_Init( void ) {
 	Cvar_Get( "win_hinstance", va("%i", (int)g_wv.hInstance), CVAR_ROM );
 	Cvar_Get( "win_wndproc", va("%i", (int)MainWndProc), CVAR_ROM );
     */
-    g_hInstance = g_wv.hInstance;
-    g_pfWndProc = (WNDPROC) MainWndProc;
-
 
 	//
 	// figure out our CPU
@@ -1212,6 +1205,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
         return 0;
 	}
 
+    g_wv.hPrimaryWnd = NULL;
 	g_wv.hInstance = hInstance;
 	Q_strncpyz( sys_cmdline, lpCmdLine, sizeof( sys_cmdline ) );
 

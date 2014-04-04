@@ -201,7 +201,7 @@ void IN_ActivateWin32Mouse( void ) {
 	width = GetSystemMetrics (SM_CXSCREEN);
 	height = GetSystemMetrics (SM_CYSCREEN);
 
-	GetWindowRect ( g_wv.hWnd, &window_rect);
+	GetWindowRect ( g_wv.hPrimaryWnd, &window_rect);
 	if (window_rect.left < 0)
 		window_rect.left = 0;
 	if (window_rect.top < 0)
@@ -215,7 +215,7 @@ void IN_ActivateWin32Mouse( void ) {
 
 	SetCursorPos (window_center_x, window_center_y);
 
-	SetCapture ( g_wv.hWnd );
+	SetCapture ( g_wv.hPrimaryWnd );
 	ClipCursor (&window_rect);
 	while (ShowCursor (FALSE) >= 0)
 		;
@@ -382,7 +382,7 @@ qboolean IN_InitDIMouse( void ) {
 	}
 
 	// set the cooperativity level.
-    hr = IDirectInputDevice_SetCooperativeLevel(g_pMouse, g_wv.hWnd,
+    hr = IDirectInputDevice_SetCooperativeLevel(g_pMouse, g_wv.hPrimaryWnd,
 			DISCL_EXCLUSIVE | DISCL_FOREGROUND);
 
 	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=50
@@ -643,7 +643,7 @@ void IN_StartupMouse( void )
 		Com_Printf ("Skipping check for DirectInput\n");
 	} else {
 
-        if (!g_wv.hWnd)
+        if (!g_wv.hPrimaryWnd)
         {
           Com_Printf ("No window for DirectInput mouse init, delaying\n");
           s_wmv.mouseStartupDelayed = qtrue;
@@ -826,7 +826,7 @@ void IN_Frame (void) {
     IN_GamepadMove();
 
 	if ( !s_wmv.mouseInitialized ) {
-    if (s_wmv.mouseStartupDelayed && g_wv.hWnd)
+    if (s_wmv.mouseStartupDelayed && g_wv.hPrimaryWnd)
 		{
 			Com_Printf("Proceeding with delayed mouse init\n");
       IN_StartupMouse();

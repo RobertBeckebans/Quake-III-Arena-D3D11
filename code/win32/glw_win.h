@@ -30,6 +30,7 @@ typedef struct
 {
 	WNDPROC		wndproc;
 
+    HWND        hWnd;       // @pjb: handle to exclusively GL window
 	HDC     hDC;			// handle to device context
 	HGLRC   hGLRC;			// handle to GL rendering context
 

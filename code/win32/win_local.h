@@ -81,7 +81,7 @@ typedef struct
 	HINSTANCE		reflib_library;		// Handle to refresh DLL 
 	qboolean		reflib_active;
 
-	HWND			hWnd;
+	HWND			hPrimaryWnd;
 	HINSTANCE		hInstance;
 	qboolean		activeApp;
 	qboolean		isMinimized;

@@ -307,7 +307,9 @@ LONG WINAPI MainWndProc (
 
 	case WM_CREATE:
 
-		g_wv.hWnd = hWnd;
+        if (!g_wv.hPrimaryWnd) {
+            g_wv.hPrimaryWnd = hWnd;
+        }
 
 		vid_xpos = Cvar_Get ("vid_xpos", "3", CVAR_ARCHIVE);
 		vid_ypos = Cvar_Get ("vid_ypos", "22", CVAR_ARCHIVE);
@@ -340,7 +342,6 @@ LONG WINAPI MainWndProc (
 #endif
 	case WM_DESTROY:
 		// let sound and input know about this?
-		g_wv.hWnd = NULL;
 		if ( r_fullscreen->integer )
 		{
 			WIN_EnableAltTab();
@@ -371,21 +372,26 @@ LONG WINAPI MainWndProc (
 
 			if (!r_fullscreen->integer )
 			{
-				xPos = (short) LOWORD(lParam);    // horizontal position 
-				yPos = (short) HIWORD(lParam);    // vertical position 
+                // @pjb: Only cache the position of the primary window
+                if ( hWnd == g_wv.hPrimaryWnd ) 
+                {
+				    xPos = (short) LOWORD(lParam);    // horizontal position 
+				    yPos = (short) HIWORD(lParam);    // vertical position 
 
-				r.left   = 0;
-				r.top    = 0;
-				r.right  = 1;
-				r.bottom = 1;
+				    r.left   = 0;
+				    r.top    = 0;
+				    r.right  = 1;
+				    r.bottom = 1;
 
-				style = GetWindowLong( hWnd, GWL_STYLE );
-				AdjustWindowRect( &r, style, FALSE );
+				    style = GetWindowLong( hWnd, GWL_STYLE );
+				    AdjustWindowRect( &r, style, FALSE );
 
-				Cvar_SetValue( "vid_xpos", xPos + r.left);
-				Cvar_SetValue( "vid_ypos", yPos + r.top);
-				vid_xpos->modified = qfalse;
-				vid_ypos->modified = qfalse;
+				    Cvar_SetValue( "vid_xpos", xPos + r.left);
+				    Cvar_SetValue( "vid_ypos", yPos + r.top);
+				    vid_xpos->modified = qfalse;
+				    vid_ypos->modified = qfalse;
+                }
+
 				if ( g_wv.activeApp )
 				{
 					IN_Activate (qtrue);
