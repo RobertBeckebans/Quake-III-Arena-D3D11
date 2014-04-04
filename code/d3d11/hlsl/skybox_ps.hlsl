@@ -13,7 +13,7 @@ struct VS_PS_Data
 	float2 AlbedoTC : TEXCOORD0;
 };
 
-float4 Main(VS_PS_Data input) : SV_TARGET
+float4 main(VS_PS_Data input) : SV_TARGET
 {
     return ColorTint * Diffuse.Sample(Sampler, input.AlbedoTC );
 }

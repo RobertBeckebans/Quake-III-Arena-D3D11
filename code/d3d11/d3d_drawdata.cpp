@@ -11,20 +11,20 @@ static void CreateVertexLayoutAndShader(
     ID3D11VertexShader** vshader,
     ID3D11InputLayout** layout )
 {
-    ID3DBlob* vsByteCode = nullptr;
-    *vshader = CompileVertexShader( shaderName, &vsByteCode );
+    d3dVertexShaderBlob_t vsByteCode;
+    *vshader = LoadVertexShader( shaderName, &vsByteCode );
 
     HRESULT hr = g_pDevice->CreateInputLayout(
         elements,
         (UINT) numElements,
-        vsByteCode->GetBufferPointer(),
-        vsByteCode->GetBufferSize(),
+        vsByteCode.blob,
+        vsByteCode.len,
         layout );
     if ( FAILED( hr ) ) {
         ri.Error( ERR_FATAL, "Failed to create input layout: 0x%08X", hr );
     }
 
-    SAFE_RELEASE( vsByteCode );
+    FS_FreeFile( vsByteCode.blob );
 }
 
 void InitQuadRenderData( d3dQuadRenderData_t* qrd ) 
@@ -37,7 +37,7 @@ void InitQuadRenderData( d3dQuadRenderData_t* qrd )
     };
 
     CreateVertexLayoutAndShader( "fsq_vs", elements, _countof(elements), &qrd->vertexShader, &qrd->inputLayout );
-    qrd->pixelShader = CompilePixelShader( "fsq_ps" );
+    qrd->pixelShader = LoadPixelShader( "fsq_ps" );
 
     static const USHORT indices[] = 
     {
@@ -92,7 +92,7 @@ void InitSkyBoxRenderData( d3dSkyBoxRenderData_t* rd )
     };
 
     CreateVertexLayoutAndShader( "skybox_vs", elements, _countof(elements), &rd->vertexShader, &rd->inputLayout );
-    rd->pixelShader = CompilePixelShader( "skybox_ps" );
+    rd->pixelShader = LoadPixelShader( "skybox_ps" );
 
     static const float skyboxVertexData[] = 
     {
@@ -202,8 +202,8 @@ void InitGenericStageRenderData( d3dGenericStageRenderData_t* rd )
 
     CreateVertexLayoutAndShader( "genericmt_vs", elementsMT, _countof(elementsMT), &rd->vertexShaderMT, &rd->inputLayoutMT );
     CreateVertexLayoutAndShader( "genericst_vs", elementsST, _countof(elementsST), &rd->vertexShaderST, &rd->inputLayoutST );
-    rd->pixelShaderMT = CompilePixelShader( "genericmt_ps" );
-    rd->pixelShaderST = CompilePixelShader( "genericst_ps" );
+    rd->pixelShaderMT = LoadPixelShader( "genericmt_ps" );
+    rd->pixelShaderST = LoadPixelShader( "genericst_ps" );
 }
 
 void DestroyGenericStageRenderData( d3dGenericStageRenderData_t* rd )

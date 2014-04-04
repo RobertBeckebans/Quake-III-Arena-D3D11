@@ -5,5 +5,11 @@
 void InitShaders();
 void DestroyShaders();
 
-ID3D11PixelShader* CompilePixelShader( const char* name );
-ID3D11VertexShader* CompileVertexShader( const char* name, ID3DBlob** ppBlob );
+struct d3dVertexShaderBlob_t
+{
+    void* blob;
+    int len;
+};
+
+ID3D11PixelShader* LoadPixelShader( const char* name );
+ID3D11VertexShader* LoadVertexShader( const char* name, d3dVertexShaderBlob_t* blobOut );

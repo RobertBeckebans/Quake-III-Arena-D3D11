@@ -1,4 +1,4 @@
-#include "pscommon.hlsl"
+#include "pscommon.h"
 
 cbuffer CBuf : register(b1)
 {
@@ -15,7 +15,7 @@ struct VS_PS_Data
 	float2 TexCoord : TEXCOORD;
 };
 
-float4 Main(VS_PS_Data input) : SV_TARGET
+float4 main(VS_PS_Data input) : SV_TARGET
 {
     return FinalColor(float4(Color, 1) * Diffuse.Sample(Sampler, input.TexCoord));
 }

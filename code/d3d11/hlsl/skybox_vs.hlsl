@@ -1,4 +1,4 @@
-#include "vscommon.hlsl"
+#include "vscommon.h"
 
 cbuffer SkyBoxDataVS : register(b1)
 {
@@ -17,7 +17,7 @@ struct VS_PS_Data
 	float2 AlbedoTC : TEXCOORD0;
 };
 
-VS_PS_Data Main(VS_Data input)
+VS_PS_Data main(VS_Data input)
 {
 	VS_PS_Data output;
 
