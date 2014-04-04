@@ -187,6 +187,9 @@
     <None Include="ref_trin.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\d3d11\d3d_common.cpp" />
+    <ClCompile Include="..\d3d11\d3d_views.cpp" />
+    <ClCompile Include="..\d3d11\d3d_wnd.cpp" />
     <ClCompile Include="gl_common.c" />
     <ClCompile Include="gl_driver.c" />
     <ClCompile Include="gl_image.c" />
@@ -516,12 +519,15 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\d3d11\d3d_common.h" />
+    <ClInclude Include="..\d3d11\d3d_driver.h" />
+    <ClInclude Include="..\d3d11\d3d_views.h" />
+    <ClInclude Include="..\d3d11\d3d_wnd.h" />
     <ClInclude Include="..\qcommon\cm_public.h" />
     <ClInclude Include="..\win32\glw_win.h" />
     <ClInclude Include="..\game\q_shared.h" />
     <ClInclude Include="..\qcommon\qcommon.h" />
     <ClInclude Include="..\qcommon\qfiles.h" />
-    <ClInclude Include="d3d_public.h" />
     <ClInclude Include="gl_common.h" />
     <ClInclude Include="gl_image.h" />
     <ClInclude Include="proxy_main.h" />

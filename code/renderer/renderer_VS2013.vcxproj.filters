@@ -340,6 +340,15 @@
     <ClCompile Include="tr_backend.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\d3d11\d3d_wnd.cpp">
+      <Filter>Direct3D Implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\d3d11\d3d_common.cpp">
+      <Filter>Direct3D Implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\d3d11\d3d_views.cpp">
+      <Filter>Direct3D Implementation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tr_public.h">
@@ -408,9 +417,6 @@
     <ClInclude Include="proxy_main.h">
       <Filter>Proxy Implementation</Filter>
     </ClInclude>
-    <ClInclude Include="d3d_public.h">
-      <Filter>Direct3D Implementation</Filter>
-    </ClInclude>
     <ClInclude Include="tr_local.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -419,6 +425,18 @@
     </ClInclude>
     <ClInclude Include="gl_image.h">
       <Filter>OpenGL Implementation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\d3d11\d3d_common.h">
+      <Filter>Direct3D Implementation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\d3d11\d3d_views.h">
+      <Filter>Direct3D Implementation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\d3d11\d3d_wnd.h">
+      <Filter>Direct3D Implementation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\d3d11\d3d_driver.h">
+      <Filter>Direct3D Implementation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // @pjb proxy driver declarations
 #include "proxy_main.h"
-#include "d3d_public.h"
+#include "../d3d11/d3d_driver.h"
 
 #include "gl_common.h"
 

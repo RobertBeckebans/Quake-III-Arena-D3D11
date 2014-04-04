@@ -3,7 +3,7 @@
 #include "proxy_main.h"
 
 // D3D headers
-#include "d3d_public.h"
+#include "../d3d11/d3d_driver.h"
 
 // GL headers
 #include "gl_common.h"
