@@ -30,8 +30,11 @@ enum GAME_MSG
     GAME_MSG_QUIT,
     GAME_MSG_VIDEO_CHANGE,
     GAME_MSG_MOUSE_MOVE,
-    GAME_MSG_MOUSE_BUTTON,
-    GAME_MSG_KEY
+    GAME_MSG_MOUSE_DOWN,
+    GAME_MSG_MOUSE_UP,
+    GAME_MSG_KEY_DOWN,
+    GAME_MSG_KEY_UP,
+    GAME_MSG_KEY_CHAR
 };
 
 enum SYS_MSG
@@ -95,11 +98,20 @@ namespace Q3Win8
         case GAME_MSG_MOUSE_MOVE:
             // @pjb: Todo
             break;
-        case GAME_MSG_MOUSE_BUTTON: 
+        case GAME_MSG_MOUSE_DOWN: 
             // @pjb: Todo
             break;
-        case GAME_MSG_KEY:
+        case GAME_MSG_MOUSE_UP: 
             // @pjb: Todo
+            break;
+        case GAME_MSG_KEY_CHAR:
+		    Sys_QueEvent( SYS_EVENT_FRAME_TIME, SE_CHAR, (int) msg->Param0, 0, 0, NULL );
+            break;
+        case GAME_MSG_KEY_DOWN:
+    		Sys_QueEvent( SYS_EVENT_FRAME_TIME, SE_KEY, Sys_MapKey( (int) msg->Param1 ), qtrue, 0, NULL );
+            break;
+        case GAME_MSG_KEY_UP:
+    		Sys_QueEvent( SYS_EVENT_FRAME_TIME, SE_KEY, Sys_MapKey( (int) msg->Param1 ), qfalse, 0, NULL );
             break;
         default:
             // Wat
@@ -214,6 +226,9 @@ void Quake3Win8App::SetWindow(CoreWindow^ window)
 
 	window->PointerMoved +=
 		ref new TypedEventHandler<CoreWindow^, PointerEventArgs^>(this, &Quake3Win8App::OnPointerMoved);
+
+	window->CharacterReceived +=
+		ref new TypedEventHandler<CoreWindow^, CharacterReceivedEventArgs^>(this, &Quake3Win8App::OnCharacterReceived);
 
 	window->KeyDown +=
 		ref new TypedEventHandler<CoreWindow^, KeyEventArgs^>(this, &Quake3Win8App::OnKeyDown);
@@ -340,27 +355,79 @@ void Quake3Win8App::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args
 
 void Quake3Win8App::OnPointerPressed(CoreWindow^ sender, PointerEventArgs^ args)
 {
-	// @pjb: todo: click event?
+    Q3Win8::MSG msg;
+    ZeroMemory( &msg, sizeof(msg) );
+    msg.Message = GAME_MSG_MOUSE_DOWN;
+    // @pjb: todo: which button?
+    msg.TimeStamp = args->CurrentPoint->Timestamp;
+    g_gameMsgs.Post( &msg );
 }
 
 void Quake3Win8App::OnPointerReleased(CoreWindow^ sender, PointerEventArgs^ args)
 {
-	// @pjb: todo: click event?
+    Q3Win8::MSG msg;
+    ZeroMemory( &msg, sizeof(msg) );
+    msg.Message = GAME_MSG_MOUSE_UP;
+    // @pjb: todo: which button?
+    msg.TimeStamp = args->CurrentPoint->Timestamp;
+    g_gameMsgs.Post( &msg );
 }
 
 void Quake3Win8App::OnPointerMoved(CoreWindow^ sender, PointerEventArgs^ args)
 {
-	// @pjb: todo: emit mouse moved event
+    Q3Win8::MSG msg;
+    ZeroMemory( &msg, sizeof(msg) );
+    msg.Message = GAME_MSG_MOUSE_MOVE;
+    msg.Param0 = args->CurrentPoint->Position.X;
+    msg.Param1 = args->CurrentPoint->Position.Y;
+    msg.TimeStamp = args->CurrentPoint->Timestamp;
+    g_gameMsgs.Post( &msg );
+}
+
+// Pack the keycode information in the Win32 way (given here:
+// http://msdn.microsoft.com/en-us/library/windows/desktop/ms646280(v=vs.85).aspx)
+static size_t PackKeyStatus( Windows::UI::Core::CorePhysicalKeyStatus status, bool keyDown )
+{
+    size_t packed;
+    packed  = status.RepeatCount & 0xFFFF;
+    packed |= (status.ScanCode & 0xFF) << 16;
+    packed |= (status.IsExtendedKey & 1) << 24;
+    packed |= (status.WasKeyDown & 1) << 30;
+    packed |= ((keyDown & 1) ^ 1) << 31;
+    return packed;
+}
+
+void Quake3Win8App::OnCharacterReceived(CoreWindow^ sender, CharacterReceivedEventArgs^ args)
+{
+    Q3Win8::MSG msg;
+    ZeroMemory( &msg, sizeof(msg) );
+    msg.Message = GAME_MSG_KEY_CHAR;
+    msg.Param0 = (size_t) args->KeyCode;
+    msg.Param1 = PackKeyStatus( args->KeyStatus, true );
+    msg.TimeStamp = Sys_Milliseconds();
+    g_gameMsgs.Post( &msg );
 }
 
 void Quake3Win8App::OnKeyDown(CoreWindow^ sender, KeyEventArgs^ args)
 {
-	// @pjb: todo: emit mouse moved event
+    Q3Win8::MSG msg;
+    ZeroMemory( &msg, sizeof(msg) );
+    msg.Message = GAME_MSG_KEY_DOWN;
+    msg.Param0 = (size_t) args->VirtualKey;
+    msg.Param1 = PackKeyStatus( args->KeyStatus, true );
+    msg.TimeStamp = Sys_Milliseconds();
+    g_gameMsgs.Post( &msg );
 }
 
 void Quake3Win8App::OnKeyUp(CoreWindow^ sender, KeyEventArgs^ args)
 {
-	// @pjb: todo: emit mouse moved event
+    Q3Win8::MSG msg;
+    ZeroMemory( &msg, sizeof(msg) );
+    msg.Message = GAME_MSG_KEY_UP;
+    msg.Param0 = (size_t) args->VirtualKey;
+    msg.Param1 = PackKeyStatus( args->KeyStatus, false );
+    msg.TimeStamp = Sys_Milliseconds();
+    g_gameMsgs.Post( &msg );
 }
 
 void Quake3Win8App::OnActivated(CoreApplicationView^ applicationView, IActivatedEventArgs^ args)

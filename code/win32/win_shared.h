@@ -69,4 +69,6 @@ void	IN_Init (void);
 void	IN_Shutdown (void);
 void    IN_Frame( void );
 
+int     Sys_MapKey( int key );
+
 #endif
