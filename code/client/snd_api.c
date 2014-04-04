@@ -30,7 +30,7 @@ typedef struct {
     qboolean    (* Init)( void );
     int         (* GetDMAPos)( void );
     void        (* BeginPainting)( void );
-    void        (* Submit)( int samples );
+    void        (* Submit)( int offset, int length );
     void        (* Activate)( void );
 } soundApi_t;
 
@@ -126,9 +126,9 @@ Send sound to device if buffer isn't really the dma buffer
 Also unlocks the dsound buffer
 ===============
 */
-void SNDDMA_Submit( int samples ) {
+void SNDDMA_Submit( int offset, int length ) {
 
-    s_soundDriver.Submit( samples );
+    s_soundDriver.Submit( offset, length );
 }
 
 /*

@@ -122,7 +122,7 @@ void S_TransferStereo16 (unsigned long *pbuf, int endtime)
         endtime -= s_paintedtime;
     	ls_paintedtime = 0;
     } else {
-    	ls_paintedtime = s_paintedtime;
+        ls_paintedtime = s_paintedtime;
     }
 
 	while (ls_paintedtime < endtime)

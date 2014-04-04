@@ -672,14 +672,17 @@ void S_ClearSoundBuffer( void ) {
 	else
 		clear = 0;
 
-	SNDDMA_BeginPainting ();
-	if (dma.buffer)
-    // TTimo: due to a particular bug workaround in linux sound code,
-    //   have to optionally use a custom C implementation of Com_Memset
-    //   not affecting win32, we have #define Snd_Memset Com_Memset
-    // https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=371
-		Snd_Memset(dma.buffer, clear, dma.samples * dma.samplebits/8);
-	SNDDMA_Submit ( dma.samples );
+    // @pjb: this is redundant on triple-buffered sound buffers
+    if ( !dma.manybuffered ) {
+	    SNDDMA_BeginPainting ();
+	    if (dma.buffer)
+        // TTimo: due to a particular bug workaround in linux sound code,
+        //   have to optionally use a custom C implementation of Com_Memset
+        //   not affecting win32, we have #define Snd_Memset Com_Memset
+        // https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=371
+		    Snd_Memset(dma.buffer, clear, dma.samples * dma.samplebits/8);
+        SNDDMA_Submit ( 0, dma.samples );
+    }
 }
 
 /*
@@ -1287,7 +1290,7 @@ void S_Update_(void) {
 
 	S_PaintChannels (endtime);
 
-	SNDDMA_Submit ( endtime - starttime );
+	SNDDMA_Submit ( starttime, endtime - starttime );
 
 	lastTime = thisTime;
 }

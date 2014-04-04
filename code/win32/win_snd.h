@@ -35,7 +35,7 @@ void	DirectSound_Shutdown(void);
 
 void	DirectSound_BeginPainting (void);
 
-void	DirectSound_Submit(int samples);
+void	DirectSound_Submit( int offset, int length );
 
 void    DirectSound_Activate(void);
 

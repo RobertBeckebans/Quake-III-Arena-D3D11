@@ -18,7 +18,7 @@ void	XAudio_Shutdown(void);
 
 void	XAudio_BeginPainting (void);
 
-void	XAudio_Submit(int samples);
+void	XAudio_Submit( int offset, int length );
 
 void    XAudio_Activate(void);
 
