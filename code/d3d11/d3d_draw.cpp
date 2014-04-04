@@ -24,9 +24,6 @@ __forceinline void UpdateViewState()
     // If we have dirty constants, update the constant buffer
     if ( g_RunState.dirtyConstants )
         UpdateDirtyView();
-
-    // Select what state we want
-
 }
 
 static void SetTessVertexBuffersST( const d3dTessBuffers_t* tess, const d3dTessStageBuffers_t* stage )
@@ -318,7 +315,6 @@ void D3DDrv_DrawStageGeneric( const shaderCommands_t *input )
     UpdateTessBuffers();
 
     SetCullMode( input->shader->cullType );
-    //SetCullMode( CT_TWO_SIDED );
     
     // todo: polygon offset
     if ( input->shader->polygonOffset )
