@@ -1950,6 +1950,7 @@
     <None Include="unix\ChangeLog" />
     <None Include="unix\Conscript-pk3" />
     <None Include="Construct" />
+    <None Include="win8\deployvmdlls.bat" />
     <None Include="win8\Quake3_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>

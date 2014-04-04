@@ -320,6 +320,9 @@
     <None Include="win8\Quake3_TemporaryKey.pfx">
       <Filter>Windows\Win8</Filter>
     </None>
+    <None Include="win8\deployvmdlls.bat">
+      <Filter>Windows\Win8</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="win32\qe3.ico">
