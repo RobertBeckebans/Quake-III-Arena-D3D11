@@ -45,6 +45,7 @@ typedef struct graphicsApiLayer_s {
 
     void            (* DebugSetOverdrawMeasureEnabled)( qboolean enabled );
     void            (* DebugSetTextureMode)( const char* mode );
+    void            (* DebugDrawPolygon)( int color, int numPoints, const float* points );
 } graphicsApiLayer_t;
 
 extern graphicsApiLayer_t      graphicsDriver;

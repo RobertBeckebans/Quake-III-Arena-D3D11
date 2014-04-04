@@ -329,6 +329,40 @@ void GLRB_SetOverdrawMeasureEnabled( qboolean enabled )
 }
 
 /*
+================
+R_DebugPolygon
+================
+*/
+void GLRB_DebugPolygon( int color, int numPoints, const float *points ) {
+	int		i;
+
+	GL_Bind( tr.whiteImage);
+	GL_Cull( CT_FRONT_SIDED );
+	GL_State( GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE );
+
+	// draw solid shade
+
+	qglColor3f( color&1, (color>>1)&1, (color>>2)&1 );
+	qglBegin( GL_POLYGON );
+	for ( i = 0 ; i < numPoints ; i++ ) {
+		qglVertex3fv( points + i * 3 );
+	}
+	qglEnd();
+
+	// draw wireframe outline
+	GL_State( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE );
+	qglDepthRange( 0, 0 );
+	qglColor3f( 1, 1, 1 );
+	qglBegin( GL_POLYGON );
+	for ( i = 0 ; i < numPoints ; i++ ) {
+		qglVertex3fv( points + i * 3 );
+	}
+	qglEnd();
+	qglDepthRange( 0, 1 );
+}
+
+
+/*
 @@@@@@@@@@@@@@@@@@@@@
 
 Returns the opengl graphics driver and sets up global state
@@ -371,6 +405,7 @@ void GLRB_DriverInit( graphicsApiLayer_t* layer )
     layer->SpawnRenderThread = GLimp_SpawnRenderThread;
     layer->DebugSetOverdrawMeasureEnabled = GLRB_SetOverdrawMeasureEnabled;
     layer->DebugSetTextureMode = GL_TextureMode;
+    layer->DebugDrawPolygon = GLRB_DebugPolygon;
 
     InitOpenGL();
 
