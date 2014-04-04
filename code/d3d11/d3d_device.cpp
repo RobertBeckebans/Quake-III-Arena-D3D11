@@ -15,10 +15,8 @@ QD3D11Device* InitDevice()
 {
     Com_Memset( &g_BufferState, 0, sizeof( g_BufferState ) );
 
-#ifdef _ARM_
+#ifdef WIN8
     g_BufferState.featureLevel = D3D_FEATURE_LEVEL_9_1;
-#elif defined(_WIN32_WINNT_WINBLUE)
-    g_BufferState.featureLevel = D3D_FEATURE_LEVEL_11_2; 
 #else
     g_BufferState.featureLevel = D3D_FEATURE_LEVEL_11_1; 
 #endif
