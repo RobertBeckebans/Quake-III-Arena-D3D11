@@ -997,7 +997,7 @@ void	Sys_Mkdir( const char *path );
 char	*Sys_Cwd( void );
 
 // @pjb: for writable folders
-#ifdef WIN32
+#ifdef WIN8
 char	*Sys_UserDir( void );
 #endif
 

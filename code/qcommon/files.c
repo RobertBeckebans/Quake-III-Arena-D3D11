@@ -2803,7 +2803,7 @@ static void FS_Startup( const char *gameName ) {
 	fs_homepath = Cvar_Get ("fs_homepath", homePath, CVAR_INIT );
 
     // @pjb: init the user local storage path
-#ifdef WIN32
+#ifdef WIN8
     userPath = Sys_UserDir();
 #else
   userPath = Sys_DefaultHomePath();
@@ -2830,7 +2830,7 @@ static void FS_Startup( const char *gameName ) {
 	}
 
     // @pjb: don't add the directory if it's the base directory or the home directory
-#ifdef WIN32
+#ifdef WIN8
 	if (fs_basepath->string[0] && 
         Q_stricmp(fs_userpath->string,fs_basepath->string) &&
         Q_stricmp(fs_userpath->string,fs_homepath->string)) {
@@ -2849,7 +2849,7 @@ static void FS_Startup( const char *gameName ) {
 		if (fs_homepath->string[0] && Q_stricmp(fs_homepath->string,fs_basepath->string)) {
 			FS_AddGameDirectory(fs_homepath->string, fs_basegame->string);
 		}
-#ifdef WIN32
+#ifdef WIN8
 		if (fs_userpath->string[0]) {
 			FS_AddGameDirectory(fs_userpath->string, fs_basegame->string);
 		}
@@ -2867,7 +2867,7 @@ static void FS_Startup( const char *gameName ) {
 		if (fs_homepath->string[0] && Q_stricmp(fs_homepath->string,fs_basepath->string)) {
 			FS_AddGameDirectory(fs_homepath->string, fs_gamedirvar->string);
 		}
-#ifdef WIN32
+#ifdef WIN8
 		if (fs_userpath->string[0]) {
 			FS_AddGameDirectory(fs_userpath->string, fs_gamedirvar->string);
 		}
