@@ -355,9 +355,6 @@
     <ClCompile Include="gl_shade.c">
       <Filter>OpenGL Implementation</Filter>
     </ClCompile>
-    <ClCompile Include="tr_smp.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\d3d11\d3d_state.cpp">
       <Filter>Direct3D Implementation</Filter>
     </ClCompile>
@@ -384,6 +381,9 @@
     </ClCompile>
     <ClCompile Include="..\d3d11\d3d_device.cpp">
       <Filter>Direct3D Implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="tr_smp.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -675,5 +675,13 @@
     <None Include="..\..\baseq3\d3d11\pscommon.hlsl">
       <Filter>Direct3D Implementation\Shaders</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\..\baseq3\d3d11\skybox_vs.hlsl">
+      <Filter>Direct3D Implementation\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\baseq3\d3d11\skybox_ps.hlsl">
+      <Filter>Direct3D Implementation\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
