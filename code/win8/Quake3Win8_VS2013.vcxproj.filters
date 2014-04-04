@@ -23,18 +23,35 @@
     <ClInclude Include="win8_utils.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Quake3_TemporaryKey.pfx" />
+    <Image Include="Assets\logo150.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\logo150wide.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\logo30.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\logo300wide.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\logo310.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\logo50.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\logo70.png">
+      <Filter>Assets</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package_VS2012.appxmanifest" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Assets\logo150.png" />
-    <Image Include="Assets\logo150wide.png" />
-    <Image Include="Assets\logo30.png" />
-    <Image Include="Assets\logo300wide.png" />
-    <Image Include="Assets\logo310.png" />
-    <Image Include="Assets\logo50.png" />
-    <Image Include="Assets\logo70.png" />
+    <Text Include="packagelist.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Quake3_TemporaryKey.pfx" />
   </ItemGroup>
 </Project>

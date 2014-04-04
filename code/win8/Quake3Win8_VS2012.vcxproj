@@ -996,6 +996,7 @@
     <ProjectReference Include="..\cgame\cgame_VS2012.vcxproj">
       <Project>{c878e295-cb82-4b40-8ecf-5ce5525466fa}</Project>
       <Private>true</Private>
+      <CopyLocal>true</CopyLocal>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
@@ -1004,6 +1005,7 @@
     <ProjectReference Include="..\game\game_VS2012.vcxproj">
       <Project>{f9ee10da-2404-4154-b904-f93c936c040a}</Project>
       <Private>true</Private>
+      <CopyLocal>true</CopyLocal>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
@@ -1012,6 +1014,7 @@
     <ProjectReference Include="..\q3_ui\q3_ui_VS2012.vcxproj">
       <Project>{d454c4c7-7765-4149-abad-05fdeb9d94f8}</Project>
       <Private>true</Private>
+      <CopyLocal>true</CopyLocal>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
@@ -1023,6 +1026,7 @@
     <ProjectReference Include="..\ui\ui_VS2012.vcxproj">
       <Project>{a8eac38e-c7da-42f8-811d-77fd092b9d19}</Project>
       <Private>true</Private>
+      <CopyLocal>true</CopyLocal>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
