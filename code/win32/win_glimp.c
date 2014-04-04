@@ -1045,7 +1045,7 @@ static void GLW_InitExtensions( void )
 	}
 	else
 	{
-		ri.Printf( PRINT_ALL, "...GL_ARB_multitexture not found\n" );
+		ri.Error( ERR_FATAL, "ERROR: GL_ARB_multitexture not found\n" );
 	}
 
 	// GL_EXT_compiled_vertex_array

@@ -3,6 +3,8 @@
 #include "qgl.h"
 #include "gl_common.h"
 
+#include <assert.h>
+
 int		gl_filter_min = GL_LINEAR_MIPMAP_NEAREST;
 int		gl_filter_max = GL_LINEAR;
 
@@ -207,6 +209,11 @@ void GL_Cull( int cullType ) {
 */
 void GL_TexEnv( int env )
 {
+    assert( env != GL_REPLACE );
+    assert( env != GL_MODULATE );
+    assert( env != GL_DECAL );
+    assert( env != GL_ADD );
+
 	if ( env == glState.texEnv[glState.currenttmu] )
 	{
 		return;
@@ -217,16 +224,16 @@ void GL_TexEnv( int env )
 
 	switch ( env )
 	{
-	case GL_MODULATE:
+	case TEXENV_MODULATE:
 		qglTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
 		break;
-	case GL_REPLACE:
+	case TEXENV_REPLACE:
 		qglTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE );
 		break;
-	case GL_DECAL:
+	case TEXENV_DECAL:
 		qglTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL );
 		break;
-	case GL_ADD:
+	case TEXENV_ADD:
 		qglTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD );
 		break;
 	default:
@@ -487,14 +494,14 @@ void GL_SetDefaultState( void )
 	if ( qglActiveTextureARB ) {
 		GL_SelectTexture( 1 );
 		GL_TextureMode( r_textureMode->string );
-		GL_TexEnv( GL_MODULATE );
+		GL_TexEnv( TEXENV_MODULATE );
 		qglDisable( GL_TEXTURE_2D );
 		GL_SelectTexture( 0 );
 	}
 
 	qglEnable(GL_TEXTURE_2D);
 	GL_TextureMode( r_textureMode->string );
-	GL_TexEnv( GL_MODULATE );
+	GL_TexEnv( TEXENV_MODULATE );
 
 	qglShadeModel( GL_SMOOTH );
 	qglDepthFunc( GL_LEQUAL );

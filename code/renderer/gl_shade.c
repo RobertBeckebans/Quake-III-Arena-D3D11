@@ -357,7 +357,7 @@ static void GLR_DrawMultitextured( const shaderCommands_t *input, int stage ) {
 	qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
 
 	if ( r_lightmap->integer ) {
-		GL_TexEnv( GL_REPLACE );
+		GL_TexEnv( TEXENV_REPLACE );
 	} else {
 		GL_TexEnv( input->shader->multitextureEnv );
 	}
@@ -734,9 +734,9 @@ void GLRB_StageIteratorLightmappedMultitexture( const shaderCommands_t *input )
 	GL_SelectTexture( 1 );
 	qglEnable( GL_TEXTURE_2D );
 	if ( r_lightmap->integer ) {
-		GL_TexEnv( GL_REPLACE );
+		GL_TexEnv( TEXENV_REPLACE );
 	} else {
-		GL_TexEnv( GL_MODULATE );
+		GL_TexEnv( TEXENV_MODULATE );
 	}
 	GLR_BindAnimatedImage( &input->xstages[0]->bundle[1], input->shaderTime );
 	qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
@@ -760,7 +760,7 @@ void GLRB_StageIteratorLightmappedMultitexture( const shaderCommands_t *input )
 
 	GL_SelectTexture( 0 );
 #ifdef REPLACE_MODE
-	GL_TexEnv( GL_MODULATE );
+	GL_TexEnv( TEXENV_MODULATE );
 	qglShadeModel( GL_SMOOTH );
 #endif
 

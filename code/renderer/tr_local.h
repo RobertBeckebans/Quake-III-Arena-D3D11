@@ -94,6 +94,14 @@ typedef enum {
     WRAPMODE_REPEAT
 } wrapClampMode_t;
 
+// @pjb: used in tr_shader.c for the texture environment
+typedef enum {
+    TEXENV_MODULATE,
+    TEXENV_REPLACE,
+    TEXENV_DECAL,
+    TEXENV_ADD
+};
+
 // @pjb: we can't use GL internal formats any more: here's some common ground
 typedef enum {
     IMAGEFORMAT_UNKNOWN,
