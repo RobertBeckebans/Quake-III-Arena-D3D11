@@ -349,12 +349,12 @@ LONG WINAPI MainWndProc (
 		}
 		// fall through
 	case WM_KEYDOWN:
-		Sys_QueEvent( SYS_EVENT_FRAME_TIME, SE_KEY, MapKey( lParam ), qtrue, 0, NULL );
+		Sys_QueEvent( SYS_EVENT_FRAME_TIME, SE_KEY, Sys_MapKey( lParam ), qtrue, 0, NULL );
 		break;
 
 	case WM_SYSKEYUP:
 	case WM_KEYUP:
-		Sys_QueEvent( SYS_EVENT_FRAME_TIME, SE_KEY, MapKey( lParam ), qfalse, 0, NULL );
+		Sys_QueEvent( SYS_EVENT_FRAME_TIME, SE_KEY, Sys_MapKey( lParam ), qfalse, 0, NULL );
 		break;
 
 	case WM_CHAR:
