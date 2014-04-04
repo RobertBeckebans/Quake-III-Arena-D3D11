@@ -74,6 +74,12 @@ template<class Type> Type^ Win8_GetType( IUnknown* obj )
     return agile;
 }
 
+int ConvertDipsToPixels(float dips)
+{
+	static const float dipsPerInch = 96.0f;
+	return (int) floor(dips * DisplayProperties::LogicalDpi / dipsPerInch + 0.5f); // Round to nearest integer.
+}
+
 namespace Q3Win8
 {
     void HandleMessage( const MSG* msg )
@@ -198,7 +204,10 @@ void Quake3Win8App::SetWindow(CoreWindow^ window)
 	m_logicalSize = Windows::Foundation::Size(window->Bounds.Width, window->Bounds.Height);
 
     IUnknown* windowPtr = Win8_GetPointer( window );
-    D3DWin8_NotifyNewWindow( windowPtr, m_logicalSize.Width, m_logicalSize.Height );
+    D3DWin8_NotifyNewWindow( 
+        windowPtr, 
+        ConvertDipsToPixels( m_logicalSize.Width ), 
+        ConvertDipsToPixels( m_logicalSize.Height ) );
 }
 
 void Quake3Win8App::Load(Platform::String^ entryPoint)
@@ -281,8 +290,8 @@ void Quake3Win8App::OnWindowSizeChanged(CoreWindow^ window, WindowSizeChangedEve
     Q3Win8::MSG msg;
     ZeroMemory( &msg, sizeof(msg) );
     msg.Message = GAME_MSG_VIDEO_CHANGE;
-    msg.Param0 = m_logicalSize.Width;
-    msg.Param1 = m_logicalSize.Height;
+    msg.Param0 = ConvertDipsToPixels( m_logicalSize.Width );
+    msg.Param1 = ConvertDipsToPixels( m_logicalSize.Height );
     g_gameMsgs.Post( &msg );
 }
 

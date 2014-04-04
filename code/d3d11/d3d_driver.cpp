@@ -207,12 +207,18 @@ void D3DDrv_EndFrame( void )
 		frequency = min( vdConfig.displayFrequency, 60 / r_swapInterval->integer );
     }
 
+    DXGI_PRESENT_PARAMETERS parameters = {0};
+	parameters.DirtyRectsCount = 0;
+	parameters.pDirtyRects = nullptr;
+	parameters.pScrollRect = nullptr;
+	parameters.pScrollOffset = nullptr;
+    
     HRESULT hr = S_OK;
     switch (frequency)
     {
-    case 60: hr = g_pSwapChain->Present( 1, 0 ); break; 
-    case 30: hr = g_pSwapChain->Present( 2, 0 ); break;
-    default: hr = g_pSwapChain->Present( 0, 0 ); break; 
+    case 60: hr = g_pSwapChain->Present1( 1, 0, &parameters ); break; 
+    case 30: hr = g_pSwapChain->Present1( 2, 0, &parameters ); break;
+    default: hr = g_pSwapChain->Present1( 0, 0, &parameters ); break; 
     }
 
 #ifdef WIN8
