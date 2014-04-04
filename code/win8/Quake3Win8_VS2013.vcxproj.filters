@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Assets">
+      <UniqueIdentifier>{231ab93b-236b-4416-ab26-2796a3a0184c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\win32\win_shared.c" />
+    <ClCompile Include="win8_app.cpp" />
+    <ClCompile Include="win8_input.cpp" />
+    <ClCompile Include="win8_msgq.cpp" />
+    <ClCompile Include="win8_net.cpp" />
+    <ClCompile Include="win8_sys.cpp" />
+    <ClCompile Include="win8_utils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\win32\win_shared.h" />
+    <ClInclude Include="win8_app.h" />
+    <ClInclude Include="win8_msgq.h" />
+    <ClInclude Include="win8_msgs.h" />
+    <ClInclude Include="win8_net.h" />
+    <ClInclude Include="win8_utils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="deployvmdlls.bat" />
+    <None Include="Quake3_TemporaryKey.pfx" />
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="Package_VS2012.appxmanifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\logo150.png" />
+    <Image Include="Assets\logo150wide.png" />
+    <Image Include="Assets\logo30.png" />
+    <Image Include="Assets\logo300wide.png" />
+    <Image Include="Assets\logo310.png" />
+    <Image Include="Assets\logo50.png" />
+    <Image Include="Assets\logo70.png" />
+  </ItemGroup>
+</Project>

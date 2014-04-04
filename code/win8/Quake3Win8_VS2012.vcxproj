@@ -86,7 +86,7 @@
     <ProjectGuid>{44760134-0930-4F5F-A11B-7A0C85504CAE}</ProjectGuid>
   </PropertyGroup>
   <PropertyGroup>
-    <PackageCertificateKeyFile>win8\Quake3_TemporaryKey.pfx</PackageCertificateKeyFile>
+    <PackageCertificateKeyFile>Quake3_TemporaryKey.pfx</PackageCertificateKeyFile>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|Win32'" Label="Configuration">
@@ -800,7 +800,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="win32\win_shared.c">
+    <ClCompile Include="..\win32\win_shared.c">
       <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">false</CompileAsWinRT>
       <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">false</CompileAsWinRT>
       <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">false</CompileAsWinRT>
@@ -814,7 +814,7 @@
       <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">false</CompileAsWinRT>
       <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">false</CompileAsWinRT>
     </ClCompile>
-    <ClCompile Include="win8\win8_app.cpp">
+    <ClCompile Include="win8_app.cpp">
       <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">true</CompileAsWinRT>
       <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">true</CompileAsWinRT>
       <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">true</CompileAsWinRT>
@@ -840,7 +840,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="win8\win8_input.cpp">
+    <ClCompile Include="win8_input.cpp">
       <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">true</CompileAsWinRT>
       <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">true</CompileAsWinRT>
       <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">true</CompileAsWinRT>
@@ -866,7 +866,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="win8\win8_msgq.cpp">
+    <ClCompile Include="win8_msgq.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">false</ExcludedFromBuild>
@@ -880,7 +880,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="win8\win8_net.cpp">
+    <ClCompile Include="win8_net.cpp">
       <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">true</CompileAsWinRT>
       <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">true</CompileAsWinRT>
       <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">true</CompileAsWinRT>
@@ -906,7 +906,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="win8\win8_sys.cpp">
+    <ClCompile Include="win8_sys.cpp">
       <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">true</CompileAsWinRT>
       <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">true</CompileAsWinRT>
       <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">true</CompileAsWinRT>
@@ -932,11 +932,11 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="win8\win8_utils.cpp" />
+    <ClCompile Include="win8_utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="win32\win_shared.h" />
-    <ClInclude Include="win8\win8_app.h">
+    <ClInclude Include="..\win32\win_shared.h" />
+    <ClInclude Include="win8_app.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">false</ExcludedFromBuild>
@@ -950,7 +950,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="win8\win8_msgq.h">
+    <ClInclude Include="win8_msgq.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">false</ExcludedFromBuild>
@@ -964,7 +964,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="win8\win8_msgs.h">
+    <ClInclude Include="win8_msgs.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">false</ExcludedFromBuild>
@@ -978,172 +978,31 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="win8\win8_net.h" />
-    <ClInclude Include="win8\win8_utils.h" />
+    <ClInclude Include="win8_net.h" />
+    <ClInclude Include="win8_utils.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\baseq3\autoexec.cfg">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">true</DeploymentContent>
-    </None>
-    <None Include="..\baseq3\pak0.pk3">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">true</DeploymentContent>
-    </None>
-    <None Include="..\baseq3\pak1.pk3">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">true</DeploymentContent>
-    </None>
-    <None Include="..\baseq3\pak2.pk3">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">true</DeploymentContent>
-    </None>
-    <None Include="..\baseq3\pak3.pk3">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">true</DeploymentContent>
-    </None>
-    <None Include="..\baseq3\pak4.pk3">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">true</DeploymentContent>
-    </None>
-    <None Include="..\baseq3\pak5.pk3">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">true</DeploymentContent>
-    </None>
-    <None Include="..\baseq3\pak6.pk3">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">true</DeploymentContent>
-    </None>
-    <None Include="..\baseq3\pak7.pk3">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">true</DeploymentContent>
-    </None>
-    <None Include="..\baseq3\pak8.pk3">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|ARM'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug Win8|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">true</DeploymentContent>
-    </None>
-    <None Include="win8\deployvmdlls.bat" />
-    <None Include="win8\Quake3Win8_VS2012.build.appxrecipe" />
-    <None Include="win8\Quake3_TemporaryKey.pfx" />
+    <None Include="deployvmdlls.bat" />
+    <None Include="Quake3_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <AppxManifest Include="win8\Package_VS2012.appxmanifest">
+    <AppxManifest Include="Package_VS2012.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="quake3_VS2012.vcxproj">
+    <ProjectReference Include="..\qcommon\quake3_VS2012.vcxproj">
       <Project>{40cdcff3-982c-45fc-8e9e-4a90d6b2a057}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="win8\Assets\logo150.png" />
-    <Image Include="win8\Assets\logo150wide.png" />
-    <Image Include="win8\Assets\logo30.png" />
-    <Image Include="win8\Assets\logo300wide.png" />
-    <Image Include="win8\Assets\logo310.png" />
-    <Image Include="win8\Assets\logo50.png" />
-    <Image Include="win8\Assets\logo70.png" />
+    <Image Include="Assets\logo150.png" />
+    <Image Include="Assets\logo150wide.png" />
+    <Image Include="Assets\logo30.png" />
+    <Image Include="Assets\logo300wide.png" />
+    <Image Include="Assets\logo310.png" />
+    <Image Include="Assets\logo50.png" />
+    <Image Include="Assets\logo70.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

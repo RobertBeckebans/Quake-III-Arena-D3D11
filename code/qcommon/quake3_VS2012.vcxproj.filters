@@ -27,162 +27,162 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="client\cl_ui.c">
+    <ClCompile Include="..\client\cl_ui.c">
+      <Filter>.Game\Client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\client\cl_cgame.c">
       <Filter>Game\Client</Filter>
     </ClCompile>
-    <ClCompile Include="client\cl_cgame.c">
+    <ClCompile Include="..\client\cl_cin.c">
       <Filter>Game\Client</Filter>
     </ClCompile>
-    <ClCompile Include="client\cl_cin.c">
+    <ClCompile Include="..\client\cl_console.c">
       <Filter>Game\Client</Filter>
     </ClCompile>
-    <ClCompile Include="client\cl_console.c">
+    <ClCompile Include="..\client\cl_input.c">
       <Filter>Game\Client</Filter>
     </ClCompile>
-    <ClCompile Include="client\cl_input.c">
+    <ClCompile Include="..\client\cl_keys.c">
       <Filter>Game\Client</Filter>
     </ClCompile>
-    <ClCompile Include="client\cl_keys.c">
+    <ClCompile Include="..\client\cl_main.c">
       <Filter>Game\Client</Filter>
     </ClCompile>
-    <ClCompile Include="client\cl_main.c">
+    <ClCompile Include="..\client\cl_net_chan.c">
       <Filter>Game\Client</Filter>
     </ClCompile>
-    <ClCompile Include="client\cl_net_chan.c">
+    <ClCompile Include="..\client\cl_parse.c">
       <Filter>Game\Client</Filter>
     </ClCompile>
-    <ClCompile Include="client\cl_parse.c">
+    <ClCompile Include="..\client\cl_scrn.c">
       <Filter>Game\Client</Filter>
     </ClCompile>
-    <ClCompile Include="client\cl_scrn.c">
-      <Filter>Game\Client</Filter>
-    </ClCompile>
-    <ClCompile Include="server\sv_bot.c">
+    <ClCompile Include="..\server\sv_bot.c">
       <Filter>Game\Server</Filter>
     </ClCompile>
-    <ClCompile Include="server\sv_ccmds.c">
+    <ClCompile Include="..\server\sv_ccmds.c">
       <Filter>Game\Server</Filter>
     </ClCompile>
-    <ClCompile Include="server\sv_client.c">
+    <ClCompile Include="..\server\sv_client.c">
       <Filter>Game\Server</Filter>
     </ClCompile>
-    <ClCompile Include="server\sv_game.c">
+    <ClCompile Include="..\server\sv_game.c">
       <Filter>Game\Server</Filter>
     </ClCompile>
-    <ClCompile Include="server\sv_init.c">
+    <ClCompile Include="..\server\sv_init.c">
       <Filter>Game\Server</Filter>
     </ClCompile>
-    <ClCompile Include="server\sv_main.c">
+    <ClCompile Include="..\server\sv_main.c">
       <Filter>Game\Server</Filter>
     </ClCompile>
-    <ClCompile Include="server\sv_net_chan.c">
+    <ClCompile Include="..\server\sv_net_chan.c">
       <Filter>Game\Server</Filter>
     </ClCompile>
-    <ClCompile Include="server\sv_snapshot.c">
+    <ClCompile Include="..\server\sv_snapshot.c">
       <Filter>Game\Server</Filter>
     </ClCompile>
-    <ClCompile Include="server\sv_world.c">
+    <ClCompile Include="..\server\sv_world.c">
       <Filter>Game\Server</Filter>
     </ClCompile>
-    <ClCompile Include="qcommon\vm.c">
+    <ClCompile Include="vm.c">
       <Filter>Game\VM</Filter>
     </ClCompile>
-    <ClCompile Include="qcommon\vm_interpreted.c">
+    <ClCompile Include="vm_interpreted.c">
       <Filter>Game\VM</Filter>
     </ClCompile>
-    <ClCompile Include="client\snd_adpcm.c">
+    <ClCompile Include="..\client\snd_adpcm.c">
       <Filter>Game\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="client\snd_api.c">
+    <ClCompile Include="..\client\snd_api.c">
       <Filter>Game\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="client\snd_dma.c">
+    <ClCompile Include="..\client\snd_dma.c">
       <Filter>Game\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="client\snd_mem.c">
+    <ClCompile Include="..\client\snd_mem.c">
       <Filter>Game\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="client\snd_mix.c">
+    <ClCompile Include="..\client\snd_mix.c">
       <Filter>Game\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="client\snd_wavelet.c">
+    <ClCompile Include="..\client\snd_wavelet.c">
       <Filter>Game\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="qcommon\cm_load.c">
+    <ClCompile Include="cm_load.c">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="qcommon\cm_patch.c">
+    <ClCompile Include="cm_patch.c">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="qcommon\cm_polylib.c">
+    <ClCompile Include="cm_polylib.c">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="qcommon\cm_test.c">
+    <ClCompile Include="cm_test.c">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="qcommon\cm_trace.c">
+    <ClCompile Include="cm_trace.c">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="qcommon\cmd.c">
+    <ClCompile Include="cmd.c">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="qcommon\common.c">
+    <ClCompile Include="common.c">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="qcommon\cvar.c">
+    <ClCompile Include="cvar.c">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="qcommon\files.c">
+    <ClCompile Include="files.c">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="qcommon\huffman.c">
+    <ClCompile Include="huffman.c">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="qcommon\md4.c">
+    <ClCompile Include="md4.c">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="qcommon\msg.c">
+    <ClCompile Include="msg.c">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="qcommon\net_chan.c">
+    <ClCompile Include="net_chan.c">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="game\q_math.c">
+    <ClCompile Include="..\game\q_math.c">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="game\q_shared.c">
+    <ClCompile Include="..\game\q_shared.c">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="qcommon\unzip.c">
+    <ClCompile Include="unzip.c">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="qcommon\vm_x86.c">
+    <ClCompile Include="vm_x86.c">
       <Filter>Game\VM</Filter>
     </ClCompile>
-    <ClCompile Include="xaudio\xaudio_main.cpp">
+    <ClCompile Include="..\xaudio\xaudio_main.cpp">
       <Filter>XAudio2</Filter>
     </ClCompile>
-    <ClCompile Include="xinput\xinput_main.c">
+    <ClCompile Include="..\xinput\xinput_main.c">
       <Filter>XInput</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="game\bg_public.h">
+    <ClInclude Include="..\game\bg_public.h">
       <Filter>Game\Client</Filter>
     </ClInclude>
-    <ClInclude Include="cgame\cg_public.h">
+    <ClInclude Include="c..\game\cg_public.h">
       <Filter>Game\Client</Filter>
     </ClInclude>
-    <ClInclude Include="client\client.h">
+    <ClInclude Include="..\client\client.h">
       <Filter>Game\Client</Filter>
     </ClInclude>
-    <ClInclude Include="qcommon\vm_local.h">
+    <ClInclude Include="vm_local.h">
       <Filter>Game\VM</Filter>
     </ClInclude>
-    <ClInclude Include="qcommon\unzip.h">
+    <ClInclude Include="unzip.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="game\surfaceflags.h">
+    <ClInclude Include="..\game\surfaceflags.h">
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="renderer\tr_local.h">
@@ -191,58 +191,58 @@
     <ClInclude Include="renderer\tr_public.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="cgame\tr_types.h">
+    <ClInclude Include="..\game\tr_types.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="ui\ui_public.h">
+    <ClInclude Include="..\ui\ui_public.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="ui\keycodes.h">
+    <ClInclude Include="..\ui\keycodes.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="client\keys.h">
+    <ClInclude Include="..\client\keys.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="game\q_shared.h">
+    <ClInclude Include="..\game\q_shared.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="qcommon\qcommon.h">
+    <ClInclude Include="qcommon.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="qcommon\qfiles.h">
+    <ClInclude Include="qfiles.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="game\g_public.h">
+    <ClInclude Include="..\game\g_public.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="qcommon\cm_local.h">
+    <ClInclude Include="cm_local.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="qcommon\cm_patch.h">
+    <ClInclude Include="cm_patch.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="qcommon\cm_polylib.h">
+    <ClInclude Include="cm_polylib.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="qcommon\cm_public.h">
+    <ClInclude Include="cm_public.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="server\server.h">
+    <ClInclude Include="..\server\server.h">
       <Filter>Game\Server</Filter>
     </ClInclude>
-    <ClInclude Include="client\snd_local.h">
+    <ClInclude Include="..\client\snd_local.h">
       <Filter>Game\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="client\snd_public.h">
+    <ClInclude Include="..\client\snd_public.h">
       <Filter>Game\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="xaudio\xaudio_local.h">
+    <ClInclude Include="..\xaudio\xaudio_local.h">
       <Filter>XAudio2</Filter>
     </ClInclude>
-    <ClInclude Include="xaudio\xaudio_public.h">
+    <ClInclude Include="..\xaudio\xaudio_public.h">
       <Filter>XAudio2</Filter>
     </ClInclude>
-    <ClInclude Include="xinput\xinput_public.h">
+    <ClInclude Include="..\xinput\xinput_public.h">
       <Filter>XInput</Filter>
     </ClInclude>
   </ItemGroup>

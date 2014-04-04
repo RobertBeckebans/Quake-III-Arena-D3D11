@@ -15,9 +15,9 @@
   </Resources>
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="Quake3Arena.App">
-      <VisualElements DisplayName="Quake 3: Arena" Logo="Win8\Assets\logo150.png" SmallLogo="Win8\Assets\logo30.png" Description="Quake 3: Arena" ForegroundText="light" BackgroundColor="#000000" ToastCapable="false">
-        <DefaultTile ShowName="allLogos" WideLogo="Win8\Assets\logo150wide.png" />
-        <SplashScreen Image="Win8\Assets\logo300wide.png" BackgroundColor="#000000" />
+      <VisualElements DisplayName="Quake 3: Arena" Logo="Assets\logo150.png" SmallLogo="Assets\logo30.png" Description="Quake 3: Arena" ForegroundText="light" BackgroundColor="#000000" ToastCapable="false">
+        <DefaultTile ShowName="allLogos" WideLogo="Assets\logo150wide.png" />
+        <SplashScreen Image="Assets\logo300wide.png" BackgroundColor="#000000" />
         <InitialRotationPreference>
           <Rotation Preference="landscape" />
         </InitialRotationPreference>

@@ -28,15 +28,18 @@ Both builds have separate build configurations for vanilla Q3A and Quake 3: Team
 
 ## Building & Running the Desktop Edition ##
 
-You can find the solution for this in code\Quake3Win32_VS201X.sln. Make sure Quake3Win32_VS201X is the Startup Project. Choose the relevant platform and configuration: I prefer x64 and Debug or Debug TA. 
+You can find the solution for this in code\win32\Quake3Win32_VS201X.sln. Make sure Quake3Win32_VS201X is the Startup Project. Choose the relevant platform and configuration: I prefer x64 and Debug or Debug TA. 
 
 - Drop your _baseq3_ directory into the &lt;root&gt; directory. Same goes for Team Arena's _missionpack_ directory if applicable.
-- If launching from Visual Studio, set the Project Properties > Debugging > Working Directory to `$(ProjectDir)..`.
+- If launching from Visual Studio, set the Project Properties > Debugging > Working Directory to `$(SolutionDir)..`.
 - On the command line, specify `+set sv_pure 0`. This is because you're using the VM DLLs.
 
 ## Building & Running the Windows 8 Edition ##
 
-You can find the solution for this in code\Quake3Win8_VS201X.sln. You will need to build and deploy one time to generate the package deployment path, which is in `code\Build\$(Platform)\$(Configuration)\AppX`. Copy your _baseq3_ folder in there. You should be able to just run after that.
+You can find the solution for this in code\win8\Quake3Win8_VS201X.sln.
+
+- Drop your _baseq3_ directory into the &lt;root&gt; directory. Same goes for Team Arena's _missionpack_ directory if applicable.
+- Build & Run.
 
 ## Enabling or Disabling Features ##
 
