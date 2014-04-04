@@ -346,6 +346,10 @@ LONG WINAPI MainWndProc (
 		{
 			WIN_EnableAltTab();
 		}
+
+        // @pjb: clear the primary window handle if this is it
+        if ( hWnd == g_wv.hPrimaryWnd )
+            g_wv.hPrimaryWnd = NULL;
 		break;
 
 	case WM_CLOSE:
