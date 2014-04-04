@@ -73,6 +73,38 @@ static void SetTessVertexBuffersMT( const d3dTessBuffers_t* tess, const d3dTessS
     g_pImmediateContext->IASetVertexBuffers( 0, 4, vbufs, strides, offsets );
 }
 
+static void UpdateTessBuffer( ID3D11Buffer* gpuBuf, const void* cpuBuf, size_t size )
+{
+	D3D11_MAPPED_SUBRESOURCE map;
+	g_pImmediateContext->Map( gpuBuf, 0, D3D11_MAP_WRITE_DISCARD, 0, &map);
+    memcpy( map.pData, cpuBuf, size );
+    g_pImmediateContext->Unmap( gpuBuf, 0 );
+}
+
+static void UpdateTessBuffers()
+{
+    const shaderCommands_t* input = &tess;
+
+    // Lock down the buffers
+    UpdateTessBuffer( g_DrawState.tessBufs.indexes, input->indexes, sizeof(glIndex_t) * tess.numIndexes );
+    UpdateTessBuffer( g_DrawState.tessBufs.xyz, input->xyz, sizeof(vec4_t) * tess.numVertexes );
+
+	for ( int stage = 0; stage < MAX_SHADER_STAGES; stage++ )
+	{
+		const stageVars_t *cpuStage = &tess.svars[stage];
+
+		if ( !cpuStage ) {
+			break;
+		}
+
+        d3dTessStageBuffers_t* gpuStage = &g_DrawState.tessBufs.stages[stage];
+        UpdateTessBuffer( gpuStage->colors, cpuStage->colors, sizeof(color4ub_t) * tess.numVertexes );
+
+        for ( int tex = 0; tex < NUM_TEXTURE_BUNDLES; ++tex )
+            UpdateTessBuffer( gpuStage->texCoords[tex], cpuStage->texcoords[tex], sizeof(vec2_t) * tess.numVertexes );
+    }
+}
+
 static const d3dImage_t* GetAnimatedImage( textureBundle_t *bundle, float shaderTime ) {
 	int		index;
 
@@ -269,6 +301,7 @@ static void IterateStagesGeneric( const shaderCommands_t *input )
 void D3DDrv_DrawStageGeneric( const shaderCommands_t *input )
 {
     UpdateDirtyView();
+    UpdateTessBuffers();
 
     SetCullMode( input->shader->cullType );
     //SetCullMode( CT_TWO_SIDED );
@@ -305,34 +338,9 @@ void D3DDrv_BeginTessellate( const shaderCommands_t* input )
     // Do nothing.
 }
 
-void UpdateTessBuffer( ID3D11Buffer* gpuBuf, const void* cpuBuf, size_t size )
-{
-	D3D11_MAPPED_SUBRESOURCE map;
-	g_pImmediateContext->Map( gpuBuf, 0, D3D11_MAP_WRITE_DISCARD, 0, &map);
-    memcpy( map.pData, cpuBuf, size );
-    g_pImmediateContext->Unmap( gpuBuf, 0 );
-}
-
 void D3DDrv_EndTessellate( const shaderCommands_t* input )
 {
-    // Lock down the buffers
-    UpdateTessBuffer( g_DrawState.tessBufs.indexes, input->indexes, sizeof(glIndex_t) * tess.numIndexes );
-    UpdateTessBuffer( g_DrawState.tessBufs.xyz, input->xyz, sizeof(vec4_t) * tess.numVertexes );
-
-	for ( int stage = 0; stage < MAX_SHADER_STAGES; stage++ )
-	{
-		const stageVars_t *cpuStage = &tess.svars[stage];
-
-		if ( !cpuStage ) {
-			break;
-		}
-
-        d3dTessStageBuffers_t* gpuStage = &g_DrawState.tessBufs.stages[stage];
-        UpdateTessBuffer( gpuStage->colors, cpuStage->colors, sizeof(color4ub_t) * tess.numVertexes );
-
-        for ( int tex = 0; tex < NUM_TEXTURE_BUNDLES; ++tex )
-            UpdateTessBuffer( gpuStage->texCoords[tex], cpuStage->texcoords[tex], sizeof(vec2_t) * tess.numVertexes );
-    }
+    // Do nothing.
 }
 
 void D3DDrv_DebugDrawAxis( void )
