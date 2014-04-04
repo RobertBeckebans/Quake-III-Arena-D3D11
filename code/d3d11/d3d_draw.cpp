@@ -33,6 +33,10 @@ __forceinline void UpdateViewState()
     // If we have dirty constants, update the constant buffer
     if ( g_RunState.vsDirtyConstants )
         UpdateDirtyViewVS();
+}
+
+__forceinline void UpdateMaterialState()
+{
     if ( g_RunState.psDirtyConstants )
         UpdateDirtyViewPS();
 }
@@ -153,6 +157,7 @@ void DrawQuad(
     const float* color )
 {
     UpdateViewState();
+    UpdateMaterialState();
 
     //
     // Update the constant buffer
@@ -301,6 +306,8 @@ static void IterateStagesGeneric( const shaderCommands_t *input )
 		}
 
         D3DDrv_SetState( pStage->stateBits );
+
+        UpdateMaterialState();
 
  		//
 		// do multitexture
