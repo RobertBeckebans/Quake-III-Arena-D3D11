@@ -564,7 +564,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>rem bash -c "perl ./unix/cons -- release-TA"</Command>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" "Release TA" "$(TargetDir)\AppX"</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -650,7 +650,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>rem bash -c "perl ./unix/cons -- release-TA"</Command>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" "Release TA" "$(TargetDir)\AppX"</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -738,7 +738,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>rem bash -c "perl ./unix/cons -- release-TA"</Command>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" "Release TA" "$(TargetDir)\AppX"</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -825,7 +825,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>rem bash -c "perl ./unix/cons -- debug"</Command>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" Debug "$(TargetDir)\AppX"</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -913,7 +913,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>rem bash -c "perl ./unix/cons -- debug"</Command>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" Debug "$(TargetDir)\AppX"</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -1003,7 +1003,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>rem bash -c "perl ./unix/cons -- debug"</Command>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" Debug "$(TargetDir)\AppX"</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -1093,6 +1093,9 @@
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
     </Bscmake>
+    <PostBuildEvent>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" Release "$(TargetDir)\AppX"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -1171,6 +1174,9 @@
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
     </Bscmake>
+    <PostBuildEvent>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" Release "$(TargetDir)\AppX"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <ClCompile>
@@ -1251,6 +1257,9 @@
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
     </Bscmake>
+    <PostBuildEvent>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" Release "$(TargetDir)\AppX"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">
     <ClCompile>
@@ -1329,7 +1338,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>rem bash -c "perl ./unix/cons -- debug-TA"</Command>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" "Debug TA" "$(TargetDir)\AppX"</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -1417,7 +1426,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>rem bash -c "perl ./unix/cons -- debug-TA"</Command>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" "Debug TA" "$(TargetDir)\AppX"</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -1507,7 +1516,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Post build processing..</Message>
-      <Command>rem bash -c "perl ./unix/cons -- debug-TA"</Command>
+      <Command>$(SolutionDir)win8\deployvmdlls.bat "$(TargetDir)" "Debug TA" "$(TargetDir)\AppX"</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -1783,6 +1792,20 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release TA|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug TA|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="win8\win8_msgq.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release TA|ARM'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug TA|ARM'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release TA|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug TA|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="win8\win8_net.cpp">
       <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">true</CompileAsWinRT>
       <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">true</CompileAsWinRT>
@@ -1904,6 +1927,20 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release TA|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug TA|x64'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="win8\win8_msgq.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release TA|ARM'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug TA|ARM'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release TA|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug TA|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="xaudio\xaudio_local.h" />
     <ClInclude Include="xaudio\xaudio_public.h" />
   </ItemGroup>
@@ -1913,6 +1950,7 @@
     <None Include="unix\ChangeLog" />
     <None Include="unix\Conscript-pk3" />
     <None Include="Construct" />
+    <None Include="win8\deployvmdlls.bat" />
     <None Include="win8\Quake3_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
