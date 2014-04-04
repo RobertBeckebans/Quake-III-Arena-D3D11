@@ -27,7 +27,7 @@
     <None Include="win8\Quake3_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <AppxManifest Include="win8\Package_VS2013.appxmanifest" />
+    <AppxManifest Include="win8\Package_VS2012.appxmanifest" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="win8\Assets\logo30.png">

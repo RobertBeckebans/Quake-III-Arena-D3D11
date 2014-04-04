@@ -664,6 +664,8 @@
     <None Include="..\..\baseq3\d3d11\vscommon.hlsl">
       <Filter>Direct3D Implementation\Shaders</Filter>
     </None>
+    <None Include="..\..\baseq3\d3d11\skybox_ps.hlsl" />
+    <None Include="..\..\baseq3\d3d11\skybox_vs.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\baseq3\d3d11\genericst_ps.hlsl">
@@ -675,13 +677,5 @@
     <None Include="..\..\baseq3\d3d11\pscommon.hlsl">
       <Filter>Direct3D Implementation\Shaders</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="..\..\baseq3\d3d11\skybox_vs.hlsl">
-      <Filter>Direct3D Implementation\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="..\..\baseq3\d3d11\skybox_ps.hlsl">
-      <Filter>Direct3D Implementation\Shaders</Filter>
-    </FxCompile>
   </ItemGroup>
 </Project>
