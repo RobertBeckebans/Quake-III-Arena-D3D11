@@ -8,20 +8,16 @@ extern "C" {
 
 #define STREAMING_BUFFER_SIZE 0x10000
 
-#define LOOPING_BUFFERS
+//#define LOOPING_BUFFERS
 
 static IXAudio2* g_pXAudio2 = NULL;
 static IXAudio2MasteringVoice* g_pMasterVoice = NULL;
 static IXAudio2SourceVoice* g_pSourceVoice = NULL;
 
-#ifdef LOOPING_BUFFERS
-#define STREAMING_BUFFER_COUNT 100
+#define STREAMING_BUFFER_COUNT 3
 static BYTE g_StreamingBuffers[STREAMING_BUFFER_COUNT][STREAMING_BUFFER_SIZE];
 static int g_StreamingBufferIndex = 0;
 static StreamingVoiceContext g_Context;
-#else
-static BYTE g_StreamingBuffer[STREAMING_BUFFER_SIZE];
-#endif
 
 /*
 ==================
@@ -81,6 +77,10 @@ qboolean XAudio_Init(void)
         goto fail;
     }
     
+#ifdef _DEBUG
+    // TODO: debug config
+#endif
+
     // Set up the DMA structure
     dma.channels = 2;
     dma.samplebits = 16;
@@ -100,11 +100,7 @@ qboolean XAudio_Init(void)
     format.nAvgBytesPerSec = format.nSamplesPerSec*format.nBlockAlign; 
 
     // Create the source voice
-#ifdef LOOPING_BUFFERS
-    hr = g_pXAudio2->CreateSourceVoice( &g_pSourceVoice, &format, 0, 1.0f, &g_Context );
-#else
-    hr = g_pXAudio2->CreateSourceVoice( &g_pSourceVoice, &format );
-#endif
+    hr = g_pXAudio2->CreateSourceVoice( &g_pSourceVoice, &format, 0, 2.0f, &g_Context );
     if ( FAILED( hr ) )
     {
         Com_Printf( "... Warning: XAudio2 failed to initialize source voice.\n" );
@@ -121,15 +117,14 @@ qboolean XAudio_Init(void)
 	dma.samples = STREAMING_BUFFER_SIZE / (dma.samplebits/8);
 	dma.submission_chunk = 1;
 	dma.buffer = NULL;
+    dma.manybuffered = qtrue;
 
-#ifdef LOOPING_BUFFERS
     g_StreamingBufferIndex = 0;
-#endif
 
-    SNDDMA_BeginPainting();
-    if ( dma.buffer )
-        Com_Memset( dma.buffer, 0, dma.samples * dma.samplebits/8 );
-    SNDDMA_Submit(dma.samples);
+    for ( int i = 0; i < STREAMING_BUFFER_COUNT; ++i )
+    {
+        Com_Memset( g_StreamingBuffers[i], 0, dma.samples * dma.samplebits/8 );
+    }
 
     Com_Printf( "... OK.\n" );
     return qtrue;
@@ -155,7 +150,7 @@ int XAudio_GetDMAPos( void )
 {
     XAUDIO2_VOICE_STATE state;
     g_pSourceVoice->GetState( &state, 0 );
-
+    
     int sample16 = (dma.samplebits/8) - 1;
     int s = state.SamplesPlayed >> sample16;
     return s & ( dma.samples - 1);
@@ -171,7 +166,6 @@ Makes sure dma.buffer is valid
 
 void XAudio_BeginPainting( void ) 
 {
-#ifdef LOOPING_BUFFERS
     XAUDIO2_VOICE_STATE state;
 
     // Wait for a buffer to become available
@@ -189,15 +183,6 @@ void XAudio_BeginPainting( void )
 
     // Switch to the next buffer
     g_StreamingBufferIndex = (g_StreamingBufferIndex + 1) % STREAMING_BUFFER_COUNT;
-#else
-    XAUDIO2_VOICE_STATE state;
-    g_pSourceVoice->GetState( &state, 0 );
-
-    int sample = state.SamplesPlayed % dma.samples;
-    int bytes = sample * dma.samplebits / 8;
-
-    dma.buffer = &g_StreamingBuffer[ bytes ];
-#endif
 }
 
 /*
@@ -213,9 +198,10 @@ void XAudio_Submit( int samples )
     XAUDIO2_BUFFER xbuf;
     ZeroMemory( &xbuf, sizeof( xbuf ) );
 
-    xbuf.AudioBytes = STREAMING_BUFFER_SIZE;
+    xbuf.AudioBytes = samples * (dma.samplebits/8);
     xbuf.pAudioData = dma.buffer;
-    xbuf.PlayLength = samples;
+    //xbuf.PlayBegin = 0;
+    //xbuf.PlayLength = samples * (dma.samplebits/8);
     
     g_pSourceVoice->SubmitSourceBuffer( &xbuf );
 }

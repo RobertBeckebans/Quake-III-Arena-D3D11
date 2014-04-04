@@ -68,6 +68,7 @@ typedef struct {
 	int			samplebits;
 	int			speed;
 	byte		*buffer;
+    qboolean    manybuffered;           // @pjb: buffer is double+ buffered; always write to beginning
 } dma_t;
 
 #define START_SAMPLE_IMMEDIATE	0x7fffffff

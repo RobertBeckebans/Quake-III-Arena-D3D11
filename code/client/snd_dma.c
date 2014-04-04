@@ -1231,13 +1231,13 @@ void S_GetSoundtime(void)
 
 
 void S_Update_(void) {
+    unsigned        starttime;
 	unsigned        endtime;
 	int				samps;
 	static			float	lastTime = 0.0f;
 	float			ma, op;
 	float			thisTime, sane;
 	static			int ot = -1;
-    int             startTime;
 
 	if ( !s_soundStarted || s_soundMuted ) {
 		return;
@@ -1281,14 +1281,13 @@ void S_Update_(void) {
 	if (endtime - s_soundtime > samps)
 		endtime = s_soundtime + samps;
 
-
+    starttime = s_paintedtime;
 
 	SNDDMA_BeginPainting ();
 
-    startTime = s_paintedtime;
 	S_PaintChannels (endtime);
 
-	SNDDMA_Submit ( s_paintedtime - startTime );
+	SNDDMA_Submit ( endtime - starttime );
 
 	lastTime = thisTime;
 }
