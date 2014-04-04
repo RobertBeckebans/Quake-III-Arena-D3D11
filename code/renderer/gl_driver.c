@@ -198,7 +198,7 @@ void GLRB_GfxInfo_f( void )
 	}
 }
 
-size_t GLRB_QueryError( void )
+size_t GLRB_LastError( void )
 {
     return (size_t) qglGetError();
 }
@@ -221,7 +221,7 @@ void GLRB_DriverInit( graphicsApiLayer_t* layer )
 {
     layer->Shutdown = GLimp_Shutdown;
     layer->UnbindResources = GLRB_RestoreTextureState;
-    layer->QueryError = GLRB_QueryError;
+    layer->LastError = GLRB_LastError;
     layer->ReadPixels = GLRB_ReadPixels;
     layer->CreateImage = GL_CreateImage;
     layer->DeleteImage = GL_DeleteImage;

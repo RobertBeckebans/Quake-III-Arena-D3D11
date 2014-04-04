@@ -10,7 +10,7 @@
 typedef struct graphicsApiLayer_s {
     void            (* Shutdown)( void );
     void            (* UnbindResources)( void );
-    size_t          (* QueryError)( void );
+    size_t          (* LastError)( void );
     void            (* ReadPixels)( int x, int y, int width, int height, imageFormat_t requestedFmt, void* dest );
     void            (* CreateImage)( const image_t* image, const byte *pic, qboolean isLightmap );
     void            (* DeleteImage)( const image_t* image );

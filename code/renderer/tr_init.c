@@ -830,7 +830,7 @@ void R_Init( void ) {
 	R_InitFreeType();
 
 
-	err = graphicsDriver.QueryError();
+	err = graphicsDriver.LastError();
 	if ( err != GL_NO_ERROR )
 		ri.Printf (PRINT_WARNING, "Graphics driver error set: 0x%x\n", err);
 

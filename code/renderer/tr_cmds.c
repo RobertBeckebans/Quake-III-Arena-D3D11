@@ -378,7 +378,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
         size_t	err;
 
 		R_SyncRenderThread();
-        if ( ( err = graphicsDriver.QueryError() ) != 0 ) {
+        if ( ( err = graphicsDriver.LastError() ) != 0 ) {
             ri.Error( ERR_FATAL, "RE_BeginFrame() - glGetError() failed (0x%x)!\n", err );
         }
     }
