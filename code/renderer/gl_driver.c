@@ -28,6 +28,8 @@ void GLRB_RestoreTextureState( void )
 			qglBindTexture( GL_TEXTURE_2D, 0 );
 		}
 	}
+
+    GL_SetDefaultState();
 }
 
 /*
