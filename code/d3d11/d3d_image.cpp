@@ -8,6 +8,9 @@ typedef struct d3dImage_s
     ID3D11ShaderResourceView* pSRV;
     DXGI_FORMAT internalFormat;
     D3D11_SAMPLER_DESC samplerDesc;
+    int width;
+    int height;
+    int frameUsed;
     qboolean dynamic;
 } d3dImage_t;
 
@@ -126,6 +129,9 @@ void D3DDrv_CreateImage( const image_t* image, const byte *pic, qboolean isLight
         d3dImage->samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
     else
         d3dImage->samplerDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+
+    d3dImage->width = image->width;
+    d3dImage->height = image->height;
 }
 
 void D3DDrv_DeleteImage( const image_t* image )
@@ -162,20 +168,31 @@ void D3DDrv_UpdateCinematic( image_t* image, const byte* pic, int cols, int rows
             memcpy( map.pData, pic, cols * rows * sizeof(UINT) );
             g_pImmediateContext->Unmap( d3dImage->pTexture, 0 );
 
-            // Regenerate mipmaps (@pjb: is this necessary?)
-            g_pImmediateContext->GenerateMips( d3dImage->pSRV );
+            // @pjb: todo: generate mips?
         }
     }
 }
 
 imageFormat_t D3DDrv_GetImageFormat( const image_t* image )
 {
-    return IMAGEFORMAT_UNKNOWN;
+    // @pjb: hack: all images are RGBA8 for now
+    return IMAGEFORMAT_RGBA;
 }
 
 int D3DDrv_SumOfUsedImages( void )
 {
-    return 0;
+	int	total;
+	int i;
+
+	total = 0;
+	for ( i = 0; i < tr.numImages; i++ ) {
+        const d3dImage_t* d3dImage = &s_d3dImages[tr.images[i]->index];
+		if ( d3dImage->frameUsed == tr.frameCount ) {
+			total += d3dImage->width * d3dImage->height;
+		}
+	}
+
+	return total;
 }
 
 
