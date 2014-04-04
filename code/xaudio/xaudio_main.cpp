@@ -19,8 +19,6 @@ static BYTE g_StreamingBuffers[STREAMING_BUFFER_COUNT][STREAMING_BUFFER_SIZE];
 static int g_StreamingBufferIndex = 0;
 static StreamingVoiceContext g_Context;
 
-cvar_t* xaudio_maxSamples = nullptr;
-
 /*
 ==================
 XAudio_Shutdown
@@ -71,8 +69,6 @@ qboolean XAudio_Init(void)
         Com_Printf( "... Warning: XAudio2 failed to initialize.\n" );
         goto fail;
     }
-
-    xaudio_maxSamples = Cvar_Get( "xaudio_maxSamples", "0", CVAR_TEMP );
 
     cvar_t* xaudio_debugLevel = Cvar_Get( "xaudio_debugLevel", "0", CVAR_TEMP | CVAR_LATCH );
 
@@ -175,11 +171,6 @@ static bool hasNewBuffer = true;
 int XAudio_GetDMAPos( void ) 
 {
     return lastSample;
-    /*
-    XAUDIO2_VOICE_STATE state;
-    g_pSourceVoice->GetState( &state );
-    return (2 * state.SamplesPlayed) % dma.samples;
-    */
 }
 
 /*
@@ -235,11 +226,8 @@ void XAudio_Submit( int offset, int length )
 {
     //Com_Printf( "Offset %d length %d\n", offset, length );
 
-    if ( xaudio_maxSamples->integer > 0 )
-    {
-        //length = min( xaudio_maxSamples->integer, length );
-        length /= xaudio_maxSamples->integer;
-    }
+    // Why? Because magic.
+    length >>= 2;
 
     XAUDIO2_BUFFER xbuf;
     ZeroMemory( &xbuf, sizeof( xbuf ) );
