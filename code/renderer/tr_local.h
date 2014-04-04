@@ -824,8 +824,6 @@ the bits are allocated as follows:
 #define	QSORT_ENTITYNUM_SHIFT	7
 #define	QSORT_FOGNUM_SHIFT		2
 
-extern	int			gl_filter_min, gl_filter_max;
-
 /*
 ** performanceCounters_t
 */

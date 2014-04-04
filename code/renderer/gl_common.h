@@ -6,6 +6,9 @@
 
 typedef struct image_s image_t;
 
+extern	int			gl_filter_min, gl_filter_max;
+
+
 
 void GL_Bind( const image_t *image );
 void GL_SetDefaultState (void);

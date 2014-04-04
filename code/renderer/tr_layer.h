@@ -14,6 +14,8 @@ typedef struct graphicsApiLayer_s {
     void            (* ReadPixels)( int x, int y, int width, int height, imageFormat_t requestedFmt, void* dest );
     void            (* CreateImage)( const image_t* image, const byte *pic, qboolean isLightmap );
     void            (* DeleteImage)( const image_t* image );
+    void            (* UpdateCinematic)( image_t* image, const byte* pic, int cols, int rows, qboolean dirty );
+    void            (* DrawImage)( const image_t* image, const float* coords, const float* texcoords, const float* color );
     imageFormat_t   (* GetImageFormat)( const image_t* image );
     void            (* SetGamma)( unsigned char red[256], unsigned char green[256], unsigned char blue[256] );
     int             (* GetFrameImageMemoryUsage)( void );

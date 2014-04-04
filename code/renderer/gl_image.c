@@ -332,6 +332,30 @@ void GL_DeleteImage( const image_t* image )
     Com_Memset( &glimages[image->index], 0, sizeof( glimage_t ) );
 }
 
+void GL_UpdateCinematic( image_t* image, const byte* pic, int cols, int rows, qboolean dirty )
+{
+    assert( image->mipmap == qfalse );
+
+	GL_Bind( image );
+
+	// if the scratchImage isn't in the format we want, specify it as a new texture
+	if ( cols != image->width || rows != image->height ) {
+		image->width = cols;
+		image->height = rows;
+		qglTexImage2D( GL_TEXTURE_2D, 0, GL_RGB8, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, pic );
+		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
+		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );	
+	} else {
+		if (dirty) {
+			// otherwise, just subimage upload it so that drivers can tell we are going to be changing
+			// it and don't try and do a texture compression
+			qglTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, cols, rows, GL_RGBA, GL_UNSIGNED_BYTE, pic );
+		}
+	}
+}
+
 imageFormat_t GL_GetImageFormat( const image_t* image )
 {
     switch ( glimages[image->index].internalFormat )
@@ -393,7 +417,7 @@ void GL_Bind( const image_t *image ) {
 
     glimage_t* glimage;
 
-	if ( !image ) {
+    if ( !image ) {
 		ri.Printf( PRINT_WARNING, "GL_Bind: NULL image\n" );
 		glimage = &glimages[tr.defaultImage->index];
 	} else {
@@ -404,7 +428,9 @@ void GL_Bind( const image_t *image ) {
 		glimage = &glimages[tr.dlightImage->index];
 	}
 
-	if ( glState.currenttextures[glState.currenttmu] != glimage->texnum ) {
+    assert(glimage->texnum != 0);
+	
+    if ( glState.currenttextures[glState.currenttmu] != glimage->texnum ) {
 		glimage->frameUsed = tr.frameCount;
 		glState.currenttextures[glState.currenttmu] = glimage->texnum;
 		qglBindTexture (GL_TEXTURE_2D, glimage->texnum);

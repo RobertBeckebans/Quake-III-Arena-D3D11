@@ -272,6 +272,27 @@ void GLRB_SetDepthRange( float minRange, float maxRange )
     qglDepthRange( minRange, maxRange );
 }
 
+void GLRB_DrawImage( const image_t* image, const float* coords, const float* texcoords, const float* color )
+{
+    GL_Bind( image );
+
+    if ( color )
+	    qglColor3f( tr.identityLight, tr.identityLight, tr.identityLight );
+    else
+        qglColor3f( 1, 1, 1 );
+
+	qglBegin (GL_QUADS);
+	qglTexCoord2f ( texcoords[0],  texcoords[1] );
+	qglVertex2f (coords[0], coords[1]);
+	qglTexCoord2f ( texcoords[2],  texcoords[1] );
+	qglVertex2f (coords[2], coords[1]);
+	qglTexCoord2f ( texcoords[2], texcoords[3] );
+	qglVertex2f (coords[2], coords[3]);
+	qglTexCoord2f ( texcoords[0], texcoords[3] );
+	qglVertex2f (coords[0], coords[3]);
+	qglEnd ();
+}
+
 /*
 @@@@@@@@@@@@@@@@@@@@@
 
@@ -287,6 +308,8 @@ void GLRB_DriverInit( graphicsApiLayer_t* layer )
     layer->ReadPixels = GLRB_ReadPixels;
     layer->CreateImage = GL_CreateImage;
     layer->DeleteImage = GL_DeleteImage;
+    layer->UpdateCinematic = GL_UpdateCinematic;
+    layer->DrawImage = GLRB_DrawImage;
     layer->GetImageFormat = GL_GetImageFormat;
     layer->SetGamma = GLRB_SetGamma;
     layer->GetFrameImageMemoryUsage = GL_SumOfUsedImages;
