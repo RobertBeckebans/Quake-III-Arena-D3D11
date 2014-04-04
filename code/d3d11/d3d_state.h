@@ -61,6 +61,19 @@ struct d3dQuadRenderData_t
     ID3D11Buffer* constantBuffer;
 };
 
+// @pjb: represents the GPU caches for stageVars_t
+struct d3dTessStageBuffers_t {
+    ID3D11Buffer* texCoords[NUM_TEXTURE_BUNDLES];
+    ID3D11Buffer* colors;
+};
+
+// @pjb: represents the GPU caches for shaderCommands_t
+struct d3dTessBuffers_t {
+    ID3D11Buffer* indexes;
+    ID3D11Buffer* xyz;
+    d3dTessStageBuffers_t stages[MAX_SHADER_STAGES];
+};
+
 // @pjb: stores the D3D state and only changes every WndInit
 struct d3dBackBufferState_t {
     D3D11_TEXTURE2D_DESC backBufferDesc;
@@ -95,6 +108,7 @@ struct d3dDrawState_t
 {
     d3dQuadRenderData_t quadRenderData;
     d3dViewRenderData_t viewRenderData;
+    d3dTessBuffers_t tessBufs;
     d3dRasterStates_t rasterStates;
     d3dDepthStates_t depthStates;
     d3dBlendStates_t blendStates;
@@ -171,6 +185,8 @@ void D3DDrv_DrawBeam( const image_t* image, const float* color, const vec3_t sta
 void D3DDrv_DrawStageGeneric( const shaderCommands_t *input );
 void D3DDrv_DrawStageVertexLitTexture( const shaderCommands_t *input );
 void D3DDrv_DrawStageLightmappedMultitexture( const shaderCommands_t *input );
+void D3DDrv_BeginTessellate( shaderCommands_t* input );
+void D3DDrv_EndTessellate( shaderCommands_t* input );
 void D3DDrv_DebugDrawAxis( void );
 void D3DDrv_DebugDrawTris( shaderCommands_t *input );
 void D3DDrv_DebugDrawNormals( shaderCommands_t *input );

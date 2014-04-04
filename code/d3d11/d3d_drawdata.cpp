@@ -172,5 +172,72 @@ void DestroyBlendStates( d3dBlendStates_t* bs )
     Com_Memset( bs, 0, sizeof( d3dBlendStates_t ) );
 }
 
+static ID3D11Buffer* CreateTessVertexBuffer( size_t size )
+{
+	D3D11_BUFFER_DESC bd;
+	ZeroMemory(&bd, sizeof(bd));
 
+	bd.Usage = D3D11_USAGE_DYNAMIC;
+	bd.ByteWidth = (UINT)size * SHADER_MAX_VERTEXES;
+	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	
+	ID3D11Buffer* buffer;
+	g_pDevice->CreateBuffer(&bd, NULL, &buffer);
+    if ( !buffer ) {
+        ri.Error( ERR_FATAL, "Could not create tess vertex buffer.\n" );
+    }
+    
+    return buffer;
+}
+
+void InitTessBuffers( d3dTessBuffers_t* tess )
+{
+    Com_Memset( tess, 0, sizeof( *tess ) );
+
+    // Index buffer
+    tess->indexes = QD3D::CreateDynamicBuffer<unsigned short>(
+        g_pDevice, 
+        D3D11_BIND_INDEX_BUFFER,
+        SHADER_MAX_INDEXES);
+    if ( !tess->indexes ) {
+        ri.Error( ERR_FATAL, "Could not create tess index buffer.\n" );
+    }
+
+    // Vertex buffer
+    tess->xyz = CreateTessVertexBuffer( sizeof(vec4_t) );
+
+    //
+    // Now set up the stages
+    //
+    for ( int stage = 0; stage < MAX_SHADER_STAGES; ++stage )
+    {
+        d3dTessStageBuffers_t* stageBufs = &tess->stages[stage];
+
+        // Color buffer
+        stageBufs->colors = CreateTessVertexBuffer( sizeof(color4ub_t) );
+
+        // Texcoord buffers
+        for ( int tex = 0; tex < NUM_TEXTURE_BUNDLES; ++tex )
+        {
+            // Color buffer
+            stageBufs->texCoords[tex] = CreateTessVertexBuffer( sizeof(vec2_t) );
+        }
+    }
+}
+
+void DestroyTessBuffers( d3dTessBuffers_t* tess )
+{
+    SAFE_RELEASE( tess->indexes );
+    SAFE_RELEASE( tess->xyz );
+
+    for ( int stage = 0; stage < MAX_SHADER_STAGES; ++stage )
+    {
+        SAFE_RELEASE( tess->stages[stage].colors );
+        for ( int tex = 0; tex < NUM_TEXTURE_BUNDLES; ++tex )
+            SAFE_RELEASE( tess->stages[stage].texCoords[tex] );
+    }
+
+    Com_Memset( tess, 0, sizeof( *tess ) );
+}
 

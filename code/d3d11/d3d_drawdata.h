@@ -17,3 +17,5 @@ void DestroyDepthStates( d3dDepthStates_t* ds );
 void InitBlendStates( d3dBlendStates_t* bs );
 void DestroyBlendStates( d3dBlendStates_t* bs );
 
+void InitTessBuffers( d3dTessBuffers_t* tess );
+void DestroyTessBuffers( d3dTessBuffers_t* tess );

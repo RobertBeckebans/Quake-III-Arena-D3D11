@@ -199,14 +199,6 @@ void D3DDrv_DebugSetTextureMode( const char* mode )
 
 }
 
-void D3DDrv_BeginTessellate( shaderCommands_t* input )
-{
-}
-
-void D3DDrv_EndTessellate( shaderCommands_t* input )
-{
-}
-
 void SetupVideoConfig()
 {
     // Set up a bunch of default state

@@ -88,6 +88,7 @@ void InitDrawState()
 
     InitQuadRenderData( &g_DrawState.quadRenderData );
     InitViewRenderData( &g_DrawState.viewRenderData );
+    InitTessBuffers( &g_DrawState.tessBufs );
     InitRasterStates( &g_DrawState.rasterStates );
     InitDepthStates( &g_DrawState.depthStates );
     InitBlendStates( &g_DrawState.blendStates );
@@ -111,6 +112,7 @@ void DestroyDrawState()
     DestroyRasterStates( &g_DrawState.rasterStates );
     DestroyDepthStates( &g_DrawState.depthStates );
     DestroyBlendStates( &g_DrawState.blendStates );
+    DestroyTessBuffers( &g_DrawState.tessBufs );
     DestroyQuadRenderData( &g_DrawState.quadRenderData );
     DestroyViewRenderData( &g_DrawState.viewRenderData );
     DestroyShaders();

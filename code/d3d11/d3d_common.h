@@ -287,7 +287,7 @@ namespace QD3D
 		_In_ UINT bindFlags,
 		_In_ UINT count)
 	{
-        static_assert( sizeof(Struct) % 16 == 0, "Struct must be a mulitple of 16 bytes in size" );
+        ASSERT( ( ( count * sizeof(Struct) ) & 15 ) == 0 );
 
         const size_t c_MaxStackThreshold = 256;
 
