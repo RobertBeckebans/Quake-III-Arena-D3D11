@@ -476,7 +476,7 @@ byte* ptr_32bit_add_and_overflow( byte* base, unsigned int offset )
 {
 #ifdef _M_X64
     byte* ptr = base + offset;
-    return (byte*) ((size_t)base & 0xFFFFFFFF00000000) | ((size_t)ptr & 0x00000000FFFFFFFF);
+    return (byte*) ( ((size_t)base & 0xFFFFFFFF00000000) | ((size_t)ptr & 0x00000000FFFFFFFF) );
 #else
     return base + offset;
 #endif
