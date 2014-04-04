@@ -26,8 +26,11 @@ protected:
 
 private:
 
+    void HandleException( Platform::Exception^ ex );
+
     bool m_windowClosed;
 	bool m_windowVisible;
+    bool m_appQuitting;
 };
 
 ref class Quake3Win8ApplicationSource sealed : Windows::ApplicationModel::Core::IFrameworkViewSource

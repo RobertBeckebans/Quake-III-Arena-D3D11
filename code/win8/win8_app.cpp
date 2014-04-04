@@ -18,32 +18,36 @@ using namespace Windows::Foundation;
 using namespace Windows::Graphics::Display;
 using namespace concurrency;
 
-void Win8_HandleFatalException( Platform::Exception^ ex )
+void Win8_DisplayFatalException( Platform::Exception^ ex )
 {
     // Throw up a dialog box!
-    if ( ex->HResult != S_OK )
+    try
     {
-        try
-        {
-            Windows::UI::Popups::MessageDialog^ dlg = ref new Windows::UI::Popups::MessageDialog(ex->Message);
-            auto asyncOp = concurrency::create_task( dlg->ShowAsync() );
-            asyncOp.wait();
-        }
-        catch ( Platform::Exception^ ex )
-        {
-            OutputDebugStringW( ex->Message->Data() );
-        }
+        Windows::UI::Popups::MessageDialog^ dlg = ref new Windows::UI::Popups::MessageDialog(ex->Message);
+        auto asyncOp = concurrency::create_task( dlg->ShowAsync() );
+        asyncOp.wait();
     }
-
-    CoreApplication::Exit();
+    catch ( Platform::Exception^ ex )
+    {
+        OutputDebugStringW( ex->Message->Data() );
+    }
 }
 
-#define WIN8_SAFE( x )      try { x; } catch ( Platform::Exception^ ex ) { Win8_HandleFatalException( ex ); }
+#define WIN8_SAFE( x )      try { x; } catch ( Platform::Exception^ ex ) { HandleException( ex ); }
 
 Quake3Win8App::Quake3Win8App() :
 	m_windowClosed(false),
-	m_windowVisible(true)
+	m_windowVisible(true),
+    m_appQuitting(false)
 {
+}
+
+void Quake3Win8App::HandleException( Platform::Exception^ ex )
+{
+    if ( ex->HResult != S_OK )
+        Win8_DisplayFatalException( ex );
+
+    m_appQuitting = true;
 }
 
 void Quake3Win8App::Initialize(CoreApplicationView^ applicationView)
@@ -104,7 +108,7 @@ void Quake3Win8App::Load(Platform::String^ entryPoint)
 void Quake3Win8App::Run()
 {
 	WIN8_SAFE(
-    while (!m_windowClosed)
+    while (!m_appQuitting && !m_windowClosed)
 	{
 		if (m_windowVisible)
 		{
@@ -208,7 +212,15 @@ int main( Platform::Array<Platform::String^>^ args )
     
     auto q3ApplicationSource = ref new Quake3Win8ApplicationSource();
 
-    WIN8_SAFE( CoreApplication::Run(q3ApplicationSource) );
+    try
+    {
+        CoreApplication::Run(q3ApplicationSource);
+    }
+    catch ( Platform::Exception^ ex )
+    {
+        if ( ex->HResult != S_OK )
+            Win8_DisplayFatalException( ex );
+    }
 
 	return 0;
 }
