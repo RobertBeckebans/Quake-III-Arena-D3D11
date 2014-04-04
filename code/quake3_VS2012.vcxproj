@@ -1645,10 +1645,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Win8|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Win8|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Win8|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="win32\win_net.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">true</ExcludedFromBuild>
@@ -1664,20 +1664,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="win32\win_shared.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Win8|ARM'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|ARM'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Win8|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Win8|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Win8|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="win32\win_shared.c" />
     <ClCompile Include="win32\win_snd.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release TA Win8|ARM'">true</ExcludedFromBuild>
@@ -1720,6 +1707,20 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release Win8|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug TA Win8|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="win8\win8_sys.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release TA|ARM'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug TA|ARM'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release TA|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug TA|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="xaudio\xaudio_main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -1749,6 +1750,7 @@
     <ClInclude Include="qcommon\unzip.h" />
     <ClInclude Include="qcommon\vm_local.h" />
     <ClInclude Include="win32\win_local.h" />
+    <ClInclude Include="win32\win_shared.h" />
     <ClInclude Include="win32\win_snd.h" />
     <ClInclude Include="xaudio\xaudio_local.h" />
     <ClInclude Include="xaudio\xaudio_public.h" />

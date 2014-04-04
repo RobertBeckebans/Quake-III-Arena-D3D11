@@ -1,44 +1,7 @@
-/*
-===========================================================================
-Copyright (C) 1999-2005 Id Software, Inc.
-
-This file is part of Quake III Arena source code.
-
-Quake III Arena source code is free software; you can redistribute it
-and/or modify it under the terms of the GNU General Public License as
-published by the Free Software Foundation; either version 2 of the License,
-or (at your option) any later version.
-
-Quake III Arena source code is distributed in the hope that it will be
-useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Foobar; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-===========================================================================
-*/
-// win_main.c
-
-#include "../client/client.h"
-#include "../qcommon/qcommon.h"
-#include "win_local.h"
-#include "win_shared.h"
-#include "resource.h"
-#include <errno.h>
-#include <float.h>
-#include <stdio.h>
-#include <direct.h>
-#include <conio.h>
-
-#define	CD_BASEDIR	"quake3"
-#define	CD_EXE		"quake3.exe"
-#define	CD_BASEDIR_LINUX	"bin\\x86\\glibc-2.1"
-#define	CD_EXE_LINUX "quake3"
-#define MEM_THRESHOLD 96*1024*1024
-
-static char		sys_cmdline[MAX_STRING_CHARS];
+extern "C" {
+#   include "../client/client.h"
+#   include "../qcommon/qcommon.h"
+}
 
 //============================================
 
@@ -77,18 +40,6 @@ int Sys_Milliseconds (void)
 	sys_curtime = timeGetTime() - sys_timeBase;
 
 	return sys_curtime;
-}
-
-/*
-==================
-Sys_LowPhysicalMemory()
-==================
-*/
-
-qboolean Sys_LowPhysicalMemory() {
-	MEMORYSTATUS stat;
-  GlobalMemoryStatus (&stat);
-	return (stat.dwTotalPhys <= MEM_THRESHOLD) ? qtrue : qfalse;
 }
 
 /*
@@ -152,7 +103,6 @@ void Sys_Print( const char *msg ) {
 	Conbuf_AppendText( msg );
 }
 
-
 /*
 ==============
 Sys_Cwd
@@ -166,9 +116,6 @@ char *Sys_Cwd( void ) {
 
 	return cwd;
 }
-
-//========================================================
-
 
 /*
 ================
@@ -221,7 +168,6 @@ qboolean Sys_ScanForCD( void ) {
 	return qfalse;
 }
 
-
 /*
 ================
 Sys_GetClipboardData
@@ -257,6 +203,7 @@ LOAD/UNLOAD DLL
 
 ========================================================================
 */
+
 
 /*
 =================
@@ -383,7 +330,6 @@ void * QDECL Sys_LoadDll( const char *name, char *fqpath , int (QDECL **entryPoi
 	return libHandle;
 }
 
-
 /*
 ================
 Sys_GetEvent
@@ -456,8 +402,6 @@ sysEvent_t Sys_GetEvent( void ) {
 
 	return ev;
 }
-
-//================================================================
 
 /*
 ================
@@ -603,7 +547,6 @@ void Sys_Init( void ) {
 	IN_Init();		// FIXME: not in dedicated?
 }
 
-
 //=======================================================================
 
 int	totalMsec, countMsec;
@@ -682,5 +625,12 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 
 	// never gets here
 }
+
+
+
+
+
+
+
 
 

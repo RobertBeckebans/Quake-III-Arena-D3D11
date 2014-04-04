@@ -46,9 +46,6 @@
     <ClCompile Include="win32\win_net.c">
       <Filter>Windows\Win32</Filter>
     </ClCompile>
-    <ClCompile Include="win32\win_shared.c">
-      <Filter>Windows\Win32</Filter>
-    </ClCompile>
     <ClCompile Include="win32\win_snd.c">
       <Filter>Windows\Win32</Filter>
     </ClCompile>
@@ -193,6 +190,12 @@
     <ClCompile Include="qcommon\vm_x86.c">
       <Filter>Game\VM</Filter>
     </ClCompile>
+    <ClCompile Include="win32\win_shared.c">
+      <Filter>Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="win8\win8_sys.cpp">
+      <Filter>Windows\Win8</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="win32\win_snd.h">
@@ -281,6 +284,9 @@
     </ClInclude>
     <ClInclude Include="client\snd_public.h">
       <Filter>Game\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="win32\win_shared.h">
+      <Filter>Windows</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -4,6 +4,7 @@
 #include "d3d_image.h"
 #include "d3d_shaders.h"
 #include "d3d_drawdata.h"
+#include "d3d_driver.h"
 
 //----------------------------------------------------------------------------
 // Locals

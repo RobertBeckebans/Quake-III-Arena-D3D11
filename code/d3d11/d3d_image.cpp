@@ -124,7 +124,7 @@ void CreateImageCustom(
     d3dImage->height = height;
 }
 
-void D3DDrv_CreateImage( const image_t* image, const byte *pic, qboolean isLightmap )
+D3D_PUBLIC void D3DDrv_CreateImage( const image_t* image, const byte *pic, qboolean isLightmap )
 {
     // Count the number of miplevels for this image
     int mipLevels = 1;
@@ -153,7 +153,7 @@ void D3DDrv_CreateImage( const image_t* image, const byte *pic, qboolean isLight
         isLightmap );
 }
 
-void D3DDrv_DeleteImage( const image_t* image )
+D3D_PUBLIC void D3DDrv_DeleteImage( const image_t* image )
 {
     d3dImage_t* d3dImage = &s_d3dImages[image->index];
 
@@ -164,7 +164,7 @@ void D3DDrv_DeleteImage( const image_t* image )
     Com_Memset( d3dImage, 0, sizeof( d3dImage_t ) );
 }
 
-void D3DDrv_UpdateCinematic( const image_t* image, const byte* pic, int cols, int rows, qboolean dirty )
+D3D_PUBLIC void D3DDrv_UpdateCinematic( const image_t* image, const byte* pic, int cols, int rows, qboolean dirty )
 {
     if ( cols != image->width || rows != image->height ) {
         D3DDrv_DeleteImage( image );
@@ -197,13 +197,13 @@ void D3DDrv_UpdateCinematic( const image_t* image, const byte* pic, int cols, in
     }
 }
 
-imageFormat_t D3DDrv_GetImageFormat( const image_t* image )
+D3D_PUBLIC imageFormat_t D3DDrv_GetImageFormat( const image_t* image )
 {
     // @pjb: hack: all images are RGBA8 for now
     return IMAGEFORMAT_RGBA;
 }
 
-int D3DDrv_SumOfUsedImages( void )
+D3D_PUBLIC int D3DDrv_SumOfUsedImages( void )
 {
 	int	total;
 	int i;
