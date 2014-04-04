@@ -790,6 +790,35 @@ void		R_ModelBounds( qhandle_t handle, vec3_t mins, vec3_t maxs );
 
 void		R_Modellist_f (void);
 
+/*
+==============================================================================
+
+SKY
+
+==============================================================================
+*/
+
+#define SKY_SUBDIVISIONS		8
+
+typedef struct {
+    unsigned short offset;
+    unsigned short length;
+} bufferRange_t;
+
+typedef struct {
+    struct image_s* image;
+    bufferRange_t stripInfo[SKY_SUBDIVISIONS];
+    unsigned short stripCount;
+} skyboxSideDrawInfo_t;
+
+typedef struct {
+    skyboxSideDrawInfo_t sides[6];
+    const float* vbuffer;
+    const float* tbuffer;
+} skyboxDrawInfo_t;
+
+
+
 //====================================================
 extern	refimport_t		ri;
 

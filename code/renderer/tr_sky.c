@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tr_layer.h"
 #include "gl_common.h" // @pjb: todo: remove
 
-#define SKY_SUBDIVISIONS		8
 #define HALF_SKY_SUBDIVISIONS	(SKY_SUBDIVISIONS/2)
 
 static float s_cloudTexCoords[6][SKY_SUBDIVISIONS+1][SKY_SUBDIVISIONS+1][2];
@@ -370,21 +369,6 @@ static float	s_skyTexCoords[SKY_SUBDIVISIONS+1][SKY_SUBDIVISIONS+1][2];
 static float    s_skyVBuffer[MAX_SKY_POINT_INDICES];
 static float    s_skyTBuffer[MAX_SKY_TEX_INDICES];
 
-typedef struct {
-    unsigned short offset;
-    unsigned short length;
-} bufferRange_t;
-
-typedef struct {
-    struct image_s* image;
-    bufferRange_t stripInfo[SKY_SUBDIVISIONS];
-    unsigned short stripCount;
-} skyboxSideDrawInfo_t;
-
-typedef struct {
-    skyboxSideDrawInfo_t sides[6];
-} skyboxDrawInfo_t;
-
 static int DrawSkySide( skyboxSideDrawInfo_t* skyboxSideInfo, int vertexOffset, const int mins[2], const int maxs[2] )
 {
 	int s, t;
@@ -507,40 +491,10 @@ static void DrawSkyBox( shader_t *shader, const float* eye_origin, const float* 
 					 sky_maxs_subd );
 	}
 
-    qglColor3fv( colorTint );		
-	qglPushMatrix ();
-	GL_State( 0 );
-	qglTranslatef( eye_origin[0], eye_origin[1], eye_origin[2] );
+    skybox.vbuffer = s_skyVBuffer;
+    skybox.tbuffer = s_skyTBuffer;
 
-    for ( i = 0; i < 6; ++i )
-    {
-        const skyboxSideDrawInfo_t* side = &skybox.sides[i];
-        int j;
-
-        if ( !side->image )
-            continue;
-
-        GL_Bind( side->image );
-
-        for ( j = 0; j < side->stripCount; ++j )
-        {
-            int start = side->stripInfo[j].offset;
-            int end = side->stripInfo[j].length + start;
-            int k;
-
-            qglBegin( GL_TRIANGLE_STRIP );
-
-            for ( k = start; k < end; ++k )
-            {
-                qglTexCoord2fv( s_skyTBuffer + 2 * k );
-                qglVertex3fv( s_skyVBuffer + 3 * k );
-            }
-
-            qglEnd();
-        }
-    }
-
-	qglPopMatrix();
+    graphicsDriver.DrawSkyBox( &skybox, eye_origin, colorTint );
 }
 
 static void FillCloudySkySide( const int mins[2], const int maxs[2], qboolean addIndexes )

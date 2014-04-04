@@ -44,6 +44,7 @@ typedef struct graphicsApiLayer_s {
     qboolean        (* SpawnRenderThread )( void (*)( void ) );
     void            (* ShadowSilhouette)( const float* edges, int edgeCount );
     void            (* ShadowFinish)( void );
+    void            (* DrawSkyBox)( const skyboxDrawInfo_t* skybox, const float* eye_origin, const float* colorTint );
 
     void            (* DebugSetOverdrawMeasureEnabled)( qboolean enabled );
     void            (* DebugSetTextureMode)( const char* mode );

@@ -361,6 +361,44 @@ void GLRB_DebugPolygon( int color, int numPoints, const float *points ) {
 	qglDepthRange( 0, 1 );
 }
 
+void GLRB_DrawSkyBox( const skyboxDrawInfo_t* skybox, const float* eye_origin, const float* colorTint )
+{
+    int i, j, k;
+
+    qglColor3fv( colorTint );		
+	qglPushMatrix ();
+	GL_State( 0 );
+	qglTranslatef( eye_origin[0], eye_origin[1], eye_origin[2] );
+
+    for ( i = 0; i < 6; ++i )
+    {
+        const skyboxSideDrawInfo_t* side = &skybox->sides[i];
+
+        if ( !side->image )
+            continue;
+
+        GL_Bind( side->image );
+
+        for ( j = 0; j < side->stripCount; ++j )
+        {
+            int start = side->stripInfo[j].offset;
+            int end = side->stripInfo[j].length + start;
+
+            qglBegin( GL_TRIANGLE_STRIP );
+
+            for ( k = start; k < end; ++k )
+            {
+                qglTexCoord2fv( skybox->tbuffer + 2 * k );
+                qglVertex3fv( skybox->vbuffer + 3 * k );
+            }
+
+            qglEnd();
+        }
+    }
+
+	qglPopMatrix();
+}
+
 
 /*
 @@@@@@@@@@@@@@@@@@@@@
@@ -405,6 +443,7 @@ void GLRB_DriverInit( graphicsApiLayer_t* layer )
     layer->SpawnRenderThread = GLimp_SpawnRenderThread;
     layer->ShadowSilhouette = GLRB_ShadowSilhouette;
     layer->ShadowFinish = GLRB_ShadowFinish;
+    layer->DrawSkyBox = GLRB_DrawSkyBox;
     layer->DebugSetOverdrawMeasureEnabled = GLRB_SetOverdrawMeasureEnabled;
     layer->DebugSetTextureMode = GL_TextureMode;
     layer->DebugDrawPolygon = GLRB_DebugPolygon;
