@@ -155,7 +155,7 @@ namespace QD3D
         _In_ QD3D11Device* device, 
         _Out_ QDXGIDevice** dxgiDevice )
     {
-        return device->QueryInterface(__uuidof(QDXGIDevice), (void **)&dxgiDevice);
+        return device->QueryInterface(__uuidof(QDXGIDevice), (void **) dxgiDevice);
     }
 
     //----------------------------------------------------------------------------
@@ -170,7 +170,7 @@ namespace QD3D
         if ( FAILED( hr ) )
             return hr;
 
-		hr = dxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void **)&dxgiAdapter);
+		hr = dxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void **) dxgiAdapter);
         SAFE_RELEASE( dxgiDevice );
         return hr;
     }
