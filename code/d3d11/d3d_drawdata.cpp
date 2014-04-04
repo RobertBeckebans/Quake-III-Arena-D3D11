@@ -172,6 +172,26 @@ void DestroyBlendStates( d3dBlendStates_t* bs )
     Com_Memset( bs, 0, sizeof( d3dBlendStates_t ) );
 }
 
+static ID3D11Buffer* CreateTessIndexBuffer()
+{
+	D3D11_BUFFER_DESC bd;
+	ZeroMemory(&bd, sizeof(bd));
+
+    // @pjb: todo: glIndex_t is apparently 32 bit :(
+	bd.Usage = D3D11_USAGE_DYNAMIC;
+	bd.ByteWidth = (UINT)sizeof(glIndex_t) * SHADER_MAX_VERTEXES;
+	bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	
+	ID3D11Buffer* buffer;
+	g_pDevice->CreateBuffer(&bd, NULL, &buffer);
+    if ( !buffer ) {
+        ri.Error( ERR_FATAL, "Could not create tess index buffer.\n" );
+    }
+    
+    return buffer;
+}
+
 static ID3D11Buffer* CreateTessVertexBuffer( size_t size )
 {
 	D3D11_BUFFER_DESC bd;
@@ -196,13 +216,7 @@ void InitTessBuffers( d3dTessBuffers_t* tess )
     Com_Memset( tess, 0, sizeof( *tess ) );
 
     // Index buffer
-    tess->indexes = QD3D::CreateDynamicBuffer<unsigned short>(
-        g_pDevice, 
-        D3D11_BIND_INDEX_BUFFER,
-        SHADER_MAX_INDEXES);
-    if ( !tess->indexes ) {
-        ri.Error( ERR_FATAL, "Could not create tess index buffer.\n" );
-    }
+    tess->indexes = CreateTessIndexBuffer();
 
     // Vertex buffer
     tess->xyz = CreateTessVertexBuffer( sizeof(vec4_t) );
