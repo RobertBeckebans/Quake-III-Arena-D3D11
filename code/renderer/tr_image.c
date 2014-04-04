@@ -1694,7 +1694,7 @@ static void R_CreateFogImage( void ) {
 	borderColor[3] = 1;
 
     // @pjb : GL-specific hack to add a white border - TODO: truly necessary?
-	GL_SetImageBorderColor( tr.fogImage, borderColor );
+	SetImageBorderColor( tr.fogImage, borderColor );
     */
 }
 

@@ -854,7 +854,7 @@ void R_Init( void ) {
 
 
 	err = graphicsDriver.LastError();
-	if ( err != GL_NO_ERROR )
+	if ( err != 0 )
 		ri.Printf (PRINT_WARNING, "Graphics driver error set: 0x%x\n", err);
 
 	ri.Printf( PRINT_ALL, "----- finished R_Init -----\n" );
