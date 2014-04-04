@@ -39,7 +39,7 @@ shaderCommands_t	tess;
 Perform dynamic lighting with another rendering pass
 ===================
 */
-static void GLR_ComputeDlightProjection( shaderCommands_t* input, int stage ) {
+static void RB_ComputeDlightProjection( shaderCommands_t* input, int stage ) {
 	int		i, l;
 #if idppc_altivec
 	vec_t	origin0, origin1, origin2;
@@ -581,7 +581,7 @@ void RB_StageIteratorGeneric( void )
 		ComputeTexCoords( &tess, stage, pStage );
     }
 
-    GLR_ComputeDlightProjection( &tess, 0 ); 
+    RB_ComputeDlightProjection( &tess, 0 ); 
 
     graphicsDriver.DrawStageGeneric( &tess );
 }
@@ -593,7 +593,7 @@ void RB_StageIteratorVertexLitTexture( void )
 {
 	RB_CalcDiffuseColor( ( unsigned char * ) tess.svars[0].colors );
 
-    GLR_ComputeDlightProjection( &tess, 0 ); 
+    RB_ComputeDlightProjection( &tess, 0 ); 
 
     graphicsDriver.DrawStageVertexLitTexture( &tess );
 }
@@ -603,7 +603,7 @@ void RB_StageIteratorVertexLitTexture( void )
 */
 void RB_StageIteratorLightmappedMultitexture( void ) {
 
-    GLR_ComputeDlightProjection( &tess, 0 ); 
+    RB_ComputeDlightProjection( &tess, 0 ); 
 
     graphicsDriver.DrawStageLightmappedMultitexture( &tess );
 }

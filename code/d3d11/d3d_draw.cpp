@@ -115,6 +115,20 @@ static void UpdateTessBuffers()
         for ( int tex = 0; tex < NUM_TEXTURE_BUNDLES; ++tex )
             UpdateTessBuffer( gpuStage->texCoords[tex], cpuStage->texcoords[tex], sizeof(vec2_t) * tess.numVertexes );
     }
+
+    for ( int l = 0; l < tess.dlightCount; ++l )
+    {
+        const dlightProjectionInfo_t* cpuLight = &input->dlightInfo[l];
+        d3dTessLightProjBuffers_t* gpuLight = &g_DrawState.tessBufs.dlights[l];
+
+		if ( !cpuLight->numIndexes ) {
+			continue;
+		}
+
+        UpdateTessBuffer( gpuLight->indexes, cpuLight->hitIndexes, sizeof(glIndex_t) * cpuLight->numIndexes );
+        UpdateTessBuffer( gpuLight->colors, cpuLight->colorArray, sizeof(byte) * 4 * input->numVertexes );
+        UpdateTessBuffer( gpuLight->texCoords, cpuLight->texCoordsArray, sizeof(float) * 2 * input->numVertexes );
+    }
 }
 
 static const d3dImage_t* GetAnimatedImage( textureBundle_t *bundle, float shaderTime ) {
@@ -252,9 +266,6 @@ static void TessDrawTextured( const shaderCommands_t* input, int stage )
 
     ASSERT( tex );
 
-    g_pImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-    g_pImmediateContext->IASetIndexBuffer( buffers->indexes, DXGI_FORMAT_R32_UINT, 0 );
-    g_pImmediateContext->VSSetConstantBuffers( 0, 1, &g_DrawState.viewRenderData.vsConstantBuffer );
     g_pImmediateContext->IASetInputLayout( resources->inputLayoutST );
     g_pImmediateContext->VSSetShader( resources->vertexShaderST, nullptr, 0 );
     g_pImmediateContext->PSSetShader( resources->pixelShaderST, nullptr, 0 );
@@ -283,11 +294,8 @@ static void TessDrawMultitextured( const shaderCommands_t* input, int stage )
     ID3D11ShaderResourceView* psResources[2] = { tex0->pSRV, tex1->pSRV };
     ID3D11SamplerState* psSamplers[2] = { tex0->pSampler, tex1->pSampler };
 
-    g_pImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-    g_pImmediateContext->IASetIndexBuffer( buffers->indexes, DXGI_FORMAT_R32_UINT, 0 );
     g_pImmediateContext->IASetInputLayout( resources->inputLayoutMT );
     g_pImmediateContext->VSSetShader( resources->vertexShaderMT, nullptr, 0 );
-    g_pImmediateContext->VSSetConstantBuffers( 0, 1, &g_DrawState.viewRenderData.vsConstantBuffer );
     g_pImmediateContext->PSSetShader( resources->pixelShaderMT, nullptr, 0 );
     g_pImmediateContext->PSSetSamplers( 0, 2, psSamplers );
     g_pImmediateContext->PSSetConstantBuffers( 0, 1, &g_DrawState.viewRenderData.psConstantBuffer );
@@ -296,6 +304,66 @@ static void TessDrawMultitextured( const shaderCommands_t* input, int stage )
     SetTessVertexBuffersMT( buffers, &buffers->stages[stage] );
 
     g_pImmediateContext->DrawIndexed( input->numIndexes, 0, 0 );
+}
+
+static void TessProjectDynamicLights( const shaderCommands_t *input )
+{
+    const d3dTessBuffers_t* buffers = &g_DrawState.tessBufs;
+    const d3dImage_t* tex = GetImageRenderInfo( tr.dlightImage );
+
+    const d3dGenericStageRenderData_t* resources = &g_DrawState.genericStage;
+    g_pImmediateContext->IASetInputLayout( resources->inputLayoutST );
+    g_pImmediateContext->VSSetShader( resources->vertexShaderST, nullptr, 0 );
+    g_pImmediateContext->PSSetShader( resources->pixelShaderST, nullptr, 0 );
+    g_pImmediateContext->PSSetSamplers( 0, 1, &tex->pSampler );
+    g_pImmediateContext->PSSetConstantBuffers( 0, 1, &g_DrawState.viewRenderData.psConstantBuffer );
+    g_pImmediateContext->PSSetShaderResources( 0, 1, &tex->pSRV );
+
+    ID3D11Buffer* vbufs[3] = { 
+        buffers->xyz,
+        NULL,
+        NULL
+    };
+
+    UINT strides[3] = {
+        sizeof(vec4_t),
+        sizeof(vec2_t),
+        sizeof(color4ub_t)
+    };
+
+    UINT offsets[3] = {
+        0, 0, 0
+    };
+    
+    g_pImmediateContext->IASetVertexBuffers( 0, 1, vbufs, strides, offsets );
+    
+    for ( int l = 0 ; l < input->dlightCount ; l++ )
+    {
+        const dlightProjectionInfo_t* dlInfo = &input->dlightInfo[l];
+
+		if ( !dlInfo->numIndexes ) {
+			continue;
+		}
+
+        vbufs[1] = buffers->dlights[l].texCoords;
+        vbufs[2] = buffers->dlights[l].colors;
+
+        g_pImmediateContext->IASetIndexBuffer( buffers->dlights[l].indexes, DXGI_FORMAT_R32_UINT, 0 );
+        g_pImmediateContext->IASetVertexBuffers( 1, 2, vbufs + 1, strides + 1, offsets + 1 );
+
+        // Select the blend mode
+		if ( dlInfo->additive ) {
+			D3DDrv_SetState( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
+		}
+		else {
+			D3DDrv_SetState( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
+		}
+
+        UpdateMaterialState();
+
+        // Draw the dynamic light
+        g_pImmediateContext->DrawIndexed( dlInfo->numIndexes, 0, 0 );
+    }
 }
 
 static void IterateStagesGeneric( const shaderCommands_t *input )
@@ -341,9 +409,17 @@ void D3DDrv_DrawStageGeneric( const shaderCommands_t *input )
     // todo: wireframe mode?
     CommitRasterizerState( input->shader->cullType, input->shader->polygonOffset, qfalse );
     
+    g_pImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+    g_pImmediateContext->IASetIndexBuffer( g_DrawState.tessBufs.indexes, DXGI_FORMAT_R32_UINT, 0 );
+    g_pImmediateContext->VSSetConstantBuffers( 0, 1, &g_DrawState.viewRenderData.vsConstantBuffer );
+
     IterateStagesGeneric( input );
 
-    // TODO: dynamic lighting
+    // dynamic lighting
+	if ( input->dlightBits && input->shader->sort <= SS_OPAQUE
+		&& !(input->shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY) ) ) {
+        TessProjectDynamicLights( input );
+    }
 
     // TODO: fog
 

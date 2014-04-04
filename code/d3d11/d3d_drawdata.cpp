@@ -356,6 +356,18 @@ void InitTessBuffers( d3dTessBuffers_t* tess )
             stageBufs->texCoords[tex] = CreateTessVertexBuffer( sizeof(vec2_t) );
         }
     }
+
+    //
+    // Now set up dlight projection buffers
+    //
+    for ( int l = 0; l < MAX_DLIGHTS; ++l )
+    {
+        d3dTessLightProjBuffers_t* buffers = &tess->dlights[l];
+
+        buffers->indexes = CreateTessIndexBuffer();
+        buffers->colors = CreateTessVertexBuffer( sizeof(byte) * 4 );
+        buffers->texCoords = CreateTessVertexBuffer( sizeof(float) * 2 );
+    }
 }
 
 void DestroyTessBuffers( d3dTessBuffers_t* tess )
@@ -368,6 +380,13 @@ void DestroyTessBuffers( d3dTessBuffers_t* tess )
         SAFE_RELEASE( tess->stages[stage].colors );
         for ( int tex = 0; tex < NUM_TEXTURE_BUNDLES; ++tex )
             SAFE_RELEASE( tess->stages[stage].texCoords[tex] );
+    }
+
+    for ( int l = 0; l < MAX_DLIGHTS; ++l )
+    {
+        SAFE_RELEASE( tess->dlights[l].indexes );
+        SAFE_RELEASE( tess->dlights[l].colors );
+        SAFE_RELEASE( tess->dlights[l].texCoords );
     }
 
     Com_Memset( tess, 0, sizeof( *tess ) );
