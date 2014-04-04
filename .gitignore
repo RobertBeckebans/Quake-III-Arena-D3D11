@@ -7,6 +7,7 @@ ipch
 baseq3
 missionpack
 demoq3
+demota
 *.res
 botlib.log
 Build

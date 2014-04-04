@@ -196,11 +196,21 @@ or configs will never get loaded from disk!
 
 */
 
-#define	DEMOGAME			"demota"
+// @pjb: fix the demo path for non-TA builds
+#ifdef MISSIONPACK
+#   define	DEMOGAME			"demota"
+#else
+#   define  DEMOGAME            "demoq3"
+#endif
 
 // every time a new demo pk3 file is built, this checksum must be updated.
 // the easiest way to get it is to just run the game and see what it spits out
-#define	DEMO_PAK_CHECKSUM	437558517u
+// @pjb: fix the checksum for non-TA builds
+#ifdef MISSIONPACK
+#   define	DEMO_PAK_CHECKSUM	437558517u
+#else
+#   define  DEMO_PAK_CHECKSUM   0xb1f4d354U
+#endif
 
 // if this is defined, the executable positively won't work with any paks other
 // than the demo pak, even if productid is present.  This is only used for our
