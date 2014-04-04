@@ -8,6 +8,9 @@
 #include "gl_common.h"
 #include "gl_image.h"
 
+// @pjb: this is just here to deliberately fuck the build if driver is used in here
+#define driver #driver_disallowed
+
 // called before the library is unloaded
 // if the system is just reconfiguring, pass destroyWindow = qfalse,
 // which will keep the screen from flashing to the desktop.
