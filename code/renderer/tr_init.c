@@ -205,7 +205,7 @@ void InitDriver( void )
     else
     {
         // Invalid driver
-		ri.Printf(PRINT_ALL, "Invalid driver: %s\n", r_driver->string );
+		ri.Error(ERR_FATAL, "Invalid driver: %s\n", r_driver->string );
     }
 }
 
