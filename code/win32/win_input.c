@@ -78,6 +78,12 @@ static	joystickInfo_t	joy;
 
 // @pjb: gamepad stuff
 typedef struct {
+    float nx, ny;               // normalized [-1,1]
+    short x, y;                 // raw
+    short xDeadZone, yDeadZone; // stripped of deadzone (shouldn't be used directly)
+} gamepadThumbstickReading_t;
+
+typedef struct {
 
     // device information
     XINPUT_CAPABILITIES caps;
@@ -87,13 +93,19 @@ typedef struct {
     byte removed : 1;
 
     // Xinput state
+    XINPUT_GAMEPAD lastState;
     XINPUT_GAMEPAD state;
+
+    // thumbstick values
+    gamepadThumbstickReading_t leftThumb;
+    gamepadThumbstickReading_t rightThumb;
+
+    // old thumbstick values
+    gamepadThumbstickReading_t oldLeftThumb;
+    gamepadThumbstickReading_t oldRightThumb;
 
     // timer that counts down to the next controller check
     unsigned short checkTimer;
-
-    // normalized thumbstick values in the range [-1,1]
-    float   x1, y1, x2, y2;
 
     // bitfield indicating which buttons were pressed in previous frames
     unsigned short heldButtons;
@@ -880,19 +892,33 @@ void IN_StartupGamepad(void) {
     }
 }
 
-#define THUMBSTICK_MAGIC 32767.0f
-
-float IN_GetGamepadThumbstickValue( int value, int deadzone )
+int IN_GamepadStripDeadzone( int reading, int deadzone )
 {
-    if ( value > deadzone )
-        return ( value - deadzone ) / ( THUMBSTICK_MAGIC - deadzone );
-    else if ( value < -deadzone )
-        return ( value + deadzone + 1.0f ) / ( THUMBSTICK_MAGIC - deadzone );
+    if ( reading > deadzone )
+        return (reading - deadzone);
+    else if ( reading < -deadzone )
+        return (reading + deadzone + 1);
     else
         return 0;
 }
 
-void IN_GetGamepadReading( gamepadInfo_t* gamepad, int userIndex, int ldeadzone, int rdeadzone )
+#define THUMBSTICK_MAGIC 32767.0f
+float IN_GamepadNormalizeThumbstick( int reading, int deadzone )
+{
+    return reading / (THUMBSTICK_MAGIC - deadzone);
+}
+
+void IN_GetGamepadThumbstickReading( short x, short y, int deadzone, gamepadThumbstickReading_t* thumb )
+{
+    thumb->x = x;
+    thumb->y = y;
+    thumb->xDeadZone = IN_GamepadStripDeadzone( x, deadzone );
+    thumb->yDeadZone = IN_GamepadStripDeadzone( y, deadzone );
+    thumb->nx = IN_GamepadNormalizeThumbstick( thumb->xDeadZone, deadzone );
+    thumb->ny = IN_GamepadNormalizeThumbstick( thumb->yDeadZone, deadzone );
+}
+
+void IN_GetGamepadReading( gamepadInfo_t* gamepad, int userIndex )
 {
     // If this isn't connected, we only want to poll it periodically
     if ( !gamepad->connected && gamepad->checkTimer > 0 ) {
@@ -925,16 +951,31 @@ void IN_GetGamepadReading( gamepadInfo_t* gamepad, int userIndex, int ldeadzone,
         XInputGetCapabilities( userIndex, XINPUT_FLAG_GAMEPAD, &gamepad->caps );
     }
 
+    // Get some old state
+    int ldeadzone = in_gamepadLDeadZone->integer;
+    int rdeadzone = in_gamepadRDeadZone->integer;
+
+    // Cache the old state
+    memcpy( &gamepad->lastState, &gamepad->state, sizeof( XINPUT_GAMEPAD ) );
+
     // Copy the state
     memcpy( &gamepad->state, &xinputState.Gamepad, sizeof( XINPUT_GAMEPAD ) );
 
-    //int l_deadzone = in_gamepadLDeadZone->integer;
-    //int r_deadzone = in_gamepadRDeadZone->integer;
+    gamepad->oldLeftThumb = gamepad->leftThumb;
+    gamepad->oldRightThumb = gamepad->rightThumb;
 
-    gamepad->x1 = IN_GetGamepadThumbstickValue( gamepad->state.sThumbLX, ldeadzone );
-    gamepad->x2 = IN_GetGamepadThumbstickValue( gamepad->state.sThumbRX, rdeadzone );
-    gamepad->y1 = IN_GetGamepadThumbstickValue( gamepad->state.sThumbLY, ldeadzone );
-    gamepad->y2 = IN_GetGamepadThumbstickValue( gamepad->state.sThumbRY, rdeadzone );
+    //Get thumbstick values
+    IN_GetGamepadThumbstickReading( 
+        gamepad->state.sThumbLX, 
+        gamepad->state.sThumbLY,
+        ldeadzone,
+        &gamepad->leftThumb );
+
+    IN_GetGamepadThumbstickReading(
+        gamepad->state.sThumbRX,
+        gamepad->state.sThumbRY,
+        rdeadzone,
+        &gamepad->rightThumb );
 
     // Get the buttons that have been pressed or released since the last update
     gamepad->pressedButtons = ( gamepad->heldButtons ^ gamepad->state.wButtons ) & gamepad->state.wButtons;
@@ -1021,12 +1062,22 @@ void IN_ApplyGamepad( const gamepadInfo_t* gamepad )
         Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_GAMEPAD_LTRIGGER, qtrue, 0, NULL );
     else if ( gamepad->releasedLeftTrigger )
         Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, K_GAMEPAD_LTRIGGER, qfalse, 0, NULL );
-
+    
     //
     // Handle left stick as keys
     //
     int ldeadzone = in_gamepadLDeadZone->integer;
 
+    // If the values have changed ACCOUNTING FOR DEADZONE then we send messages, but only then
+    if ( gamepad->leftThumb.yDeadZone != gamepad->oldLeftThumb.yDeadZone ) {
+        int movement = gamepad->leftThumb.ny * 127;
+        Sys_QueEvent( g_wv.sysMsgTime, SE_GAMEPAD_AXIS, AXIS_FORWARD, movement, 0, NULL );
+    }
+
+    if ( gamepad->leftThumb.xDeadZone != gamepad->oldLeftThumb.xDeadZone ) {
+        int movement = gamepad->leftThumb.nx * 127;
+        Sys_QueEvent( g_wv.sysMsgTime, SE_GAMEPAD_AXIS, AXIS_SIDE, movement, 0, NULL );
+    }
 
     //
     // Handle right stick as a mouse
@@ -1056,13 +1107,10 @@ void IN_ApplyGamepad( const gamepadInfo_t* gamepad )
 
 void IN_GamepadMove(void)
 {
-    int ldeadzone = in_gamepadLDeadZone->integer;
-    int rdeadzone = in_gamepadRDeadZone->integer;
-
     int firstConnected = -1;
     for ( int i = 0; i < XUSER_MAX_COUNT; ++i )
     {
-        IN_GetGamepadReading( &gamepads[i], i, ldeadzone, rdeadzone );
+        IN_GetGamepadReading( &gamepads[i], i );
 
         if (firstConnected == -1 && gamepads[i].connected)
             firstConnected = i;

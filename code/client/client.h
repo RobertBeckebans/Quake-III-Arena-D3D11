@@ -102,6 +102,7 @@ typedef struct {
 	int			mouseDx[2], mouseDy[2];	// added to by mouse events
 	int			mouseIndex;
 	int			joystickAxis[MAX_JOYSTICK_AXIS];	// set by joystick events
+    int         gamepadAxis[MAX_JOYSTICK_AXIS]; // @pjb: set by gamepad events
 
 	// cgame communicates a few values to the client system
 	int			cgameUserCmdValue;	// current weapon to add to usercmd_t
