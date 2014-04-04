@@ -14,13 +14,18 @@ static IXAudio2* g_pXAudio2 = NULL;
 static IXAudio2MasteringVoice* g_pMasterVoice = NULL;
 static IXAudio2SourceVoice* g_pSourceVoice = NULL;
 
-#define STREAMING_BUFFER_COUNT 3
+#define STREAMING_BUFFER_COUNT 16
 static BYTE g_StreamingBuffers[STREAMING_BUFFER_COUNT][STREAMING_BUFFER_SIZE];
+static SIZE_T g_LeakDetect = 0;
 static int g_StreamingBufferIndex = 0;
 static StreamingVoiceContext g_Context( STREAMING_BUFFER_COUNT );
 static double g_Freq;
 
 cvar_t* xaudio_blockWarning = nullptr;
+cvar_t* xaudio_lengthScale = nullptr;
+cvar_t* xaudio_log = nullptr;
+cvar_t* xaudio_allowDrop = nullptr;
+cvar_t* xaudio_maxQueueSize = nullptr;
 
 /*
 ==================
@@ -79,7 +84,11 @@ qboolean XAudio_Init(void)
         goto fail;
     }
 
+    xaudio_lengthScale = Cvar_Get( "xaudio_lengthScale", "0", CVAR_TEMP | CVAR_ARCHIVE );
     xaudio_blockWarning = Cvar_Get( "xaudio_blockWarning", "0", CVAR_TEMP | CVAR_ARCHIVE );
+    xaudio_log = Cvar_Get( "xaudio_log", "0", CVAR_TEMP | CVAR_ARCHIVE );
+    xaudio_allowDrop = Cvar_Get( "xaudio_allowDrop", "1", CVAR_TEMP | CVAR_ARCHIVE );
+    xaudio_maxQueueSize = Cvar_Get( "xaudio_maxQueueSize", "3", CVAR_TEMP | CVAR_ARCHIVE );
 
     cvar_t* xaudio_debugLevel = Cvar_Get( "xaudio_debugLevel", "0", CVAR_TEMP | CVAR_LATCH );
     if ( xaudio_debugLevel->integer > 0 )
@@ -194,8 +203,8 @@ void XAudio_BeginPainting( int reserve )
 {
     // Wait for a buffer to become available
 
-    // Have we still got space in this buffer?
-    int reserveBytes = reserve * dma.samplebits / 8;
+    // Have we still got space in this buffer? Be conservative.
+    int reserveBytes = (reserve << 1) * dma.samplebits / 8;
     if ( bufferOffset + reserveBytes > STREAMING_BUFFER_SIZE )
     {
         // Wait for a buffer to become available
@@ -239,10 +248,17 @@ Also unlocks the dsound buffer
 */
 void XAudio_Submit( int offset, int length ) 
 {
-    //Com_Printf( "Offset %d length %d\n", offset, length );
+    assert( g_LeakDetect == 0 );
+
+    XAUDIO2_VOICE_STATE state;
+    g_pSourceVoice->GetState( &state );
+
+    if ( xaudio_log->integer > 0 )
+        Com_Printf( "DMA offset %10d length %4d | XAudio2 played %10d | Lead %d\n", offset, length, state.SamplesPlayed, offset - state.SamplesPlayed );
 
     // Why? Because magic.
-    length >>= 2;
+    if ( xaudio_lengthScale->integer > 0 )
+        length /= xaudio_lengthScale->integer;
 
     // Get the length in bytes
     int byteLength = length * ( dma.samplebits / 8 );
@@ -251,11 +267,11 @@ void XAudio_Submit( int offset, int length )
     // Wait for a buffer to become available
     for (;;)
     {
-        XAUDIO2_VOICE_STATE state;
+        if ( xaudio_allowDrop->integer > 0 && 
+             state.BuffersQueued > xaudio_maxQueueSize->integer )
+            return;
 
-        g_pSourceVoice->GetState( &state, XAUDIO2_VOICE_NOSAMPLESPLAYED );
-
-        if (state.BuffersQueued < STREAMING_BUFFER_COUNT)
+        if (state.BuffersQueued < STREAMING_BUFFER_COUNT - 1)
             break;
 
         LARGE_INTEGER startTime, endTime;
@@ -268,6 +284,9 @@ void XAudio_Submit( int offset, int length )
         {
             Com_Printf( "(Sub) Blocked on XAudio buffers for %dms!\n", msBlock );
         }
+
+        // Re-query (don't need "samples played" any more.)
+        g_pSourceVoice->GetState( &state, XAUDIO2_VOICE_NOSAMPLESPLAYED );
     }
 
     // Submit the current buffer

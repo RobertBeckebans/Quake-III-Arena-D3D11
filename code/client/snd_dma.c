@@ -1251,7 +1251,8 @@ void S_Update_(void) {
 	// Updates s_soundtime
 	S_GetSoundtime();
 
-	if (s_soundtime == ot) {
+    // @pjb: xaudio can drop frames
+	if (!dma.manybuffered && s_soundtime == ot) {
 		return;
 	}
 	ot = s_soundtime;
