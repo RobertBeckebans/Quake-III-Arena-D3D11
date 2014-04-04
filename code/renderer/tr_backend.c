@@ -868,7 +868,7 @@ void RB_RenderThread( void ) {
 	while ( 1 ) {
 		// sleep until we have work to do
         // @pjb: todo, may have to refactor this
-		data = graphicsDriver.Sleep();
+		data = graphicsDriver.WaitForCommands();
 
 		if ( !data ) {
 			return;	// all done, renderer is shutting down

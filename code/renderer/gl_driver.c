@@ -347,7 +347,7 @@ void GLRB_DriverInit( graphicsApiLayer_t* layer )
     layer->SetDepthRange = GL_SetDepthRange;
     layer->SetDrawBuffer = GLRB_SetDrawBuffer;
     layer->EndFrame = GLimp_EndFrame;
-    layer->Sleep = GLimp_RendererSleep;
+    layer->WaitForCommands = GLimp_RendererSleep;
 
     InitOpenGL();
 

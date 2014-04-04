@@ -34,7 +34,7 @@ typedef struct graphicsApiLayer_s {
     void            (* SetDepthRange)( float minRange, float maxRange );
     void            (* SetDrawBuffer)( int buffer );
     void            (* EndFrame)( void );
-    void*           (* Sleep)( void );
+    void*           (* WaitForCommands)( void );
 } graphicsApiLayer_t;
 
 extern graphicsApiLayer_t      graphicsDriver;
