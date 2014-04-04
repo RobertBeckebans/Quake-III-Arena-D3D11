@@ -178,7 +178,7 @@ typedef struct {
 
 	int						colorBits, depthBits, stencilBits;
 
-	vdDriverType_t			driverType;
+	vdDriverType_t			driverType; // @pjb: todo: get rid of this
 	vdHardwareType_t		hardwareType;
 
 	qboolean				deviceSupportsGamma;

@@ -294,7 +294,7 @@ void PROXY_DebugDrawPolygon( int color, int numPoints, const float* points )
 
 
 
-void PROXY_PositionOpenGLWindowRightOfD3D( void )
+static void PositionOpenGLWindowRightOfD3D( void )
 {
     HWND hD3DWnd, hGLWnd;
     RECT d3dR, glR;
@@ -312,8 +312,66 @@ void PROXY_PositionOpenGLWindowRightOfD3D( void )
     }
 }
 
+static void ReconcileVideoConfigs( const vdconfig_t* glConfig, const vdconfig_t* d3dConfig, vdconfig_t* outConfig )
+{
+    // Copy the resource strings to the vgConfig
+    Q_strncpyz( outConfig->renderer_string, "PROXY DRIVER", sizeof( outConfig->renderer_string ) );
+    Q_strncpyz( outConfig->vendor_string, "@pjb", sizeof( outConfig->vendor_string ) );
+    Q_strncpyz( outConfig->version_string, "1.0", sizeof( outConfig->version_string ) );
+
+    if ( glConfig->deviceSupportsGamma != d3dConfig->deviceSupportsGamma ) {
+        ri.Error( ERR_FATAL, "Conflicting gamma support: D3D %s, GL %s\n", 
+            d3dConfig->deviceSupportsGamma ? "yes" : "no",
+            glConfig->deviceSupportsGamma ? "yes" : "no" );
+    }
+    
+    if ( glConfig->stereoEnabled != d3dConfig->stereoEnabled ) {
+        ri.Error( ERR_FATAL, "Conflicting stereo support: D3D %s, GL %s\n", 
+            d3dConfig->stereoEnabled ? "yes" : "no",
+            glConfig->stereoEnabled ? "yes" : "no" );
+    }
+    
+    if ( glConfig->isFullscreen != d3dConfig->isFullscreen ) {
+        ri.Error( ERR_FATAL, "Conflicting fullscreen support: D3D %s, GL %s\n", 
+            d3dConfig->isFullscreen ? "yes" : "no",
+            glConfig->isFullscreen ? "yes" : "no" );
+    }
+    
+    if ( glConfig->textureEnvAddAvailable != d3dConfig->textureEnvAddAvailable ) {
+        ri.Error( ERR_FATAL, "Conflicting texenv add support: D3D %s, GL %s\n", 
+            d3dConfig->textureEnvAddAvailable ? "yes" : "no",
+            glConfig->textureEnvAddAvailable ? "yes" : "no" );
+    }
+    
+    if ( glConfig->displayFrequency != d3dConfig->displayFrequency ) {
+        ri.Error( ERR_FATAL, "Conflicting displayFrequency: D3D %d, GL %d\n", 
+            d3dConfig->displayFrequency,
+            glConfig->displayFrequency );
+    }
+    
+    if ( glConfig->hardwareType != GLHW_GENERIC || d3dConfig->hardwareType != GLHW_GENERIC ) {
+        ri.Error( ERR_FATAL, "Proxy driver requires GENERIC hardware type: D3D %d, GL %d\n", 
+            d3dConfig->hardwareType,
+            glConfig->hardwareType );
+    }
+
+    if ( glConfig->vidWidth != d3dConfig->vidWidth ||
+         glConfig->vidHeight != d3dConfig->vidHeight ) {
+        ri.Error( ERR_FATAL, "Conflicting video resolution: D3D %dx%d, GL %dx%d\n", 
+            d3dConfig->vidWidth, d3dConfig->vidHeight,
+            glConfig->vidWidth, glConfig->vidHeight );
+    }
+    
+    outConfig->maxTextureSize = min( d3dConfig->maxTextureSize, glConfig->maxTextureSize );
+    outConfig->colorBits = min( d3dConfig->colorBits, glConfig->colorBits );
+    outConfig->depthBits = min( d3dConfig->depthBits, glConfig->depthBits );
+    outConfig->stencilBits = min( d3dConfig->stencilBits, glConfig->stencilBits );
+}
+
 void PROXY_DriverInit( graphicsApiLayer_t* layer )
 {
+    vdconfig_t old_vdConfig, gl_vdConfig, d3d_vdConfig;
+
     layer->Shutdown = PROXY_Shutdown;
     layer->UnbindResources = PROXY_UnbindResources;
     layer->LastError = PROXY_LastError;
@@ -363,22 +421,25 @@ void PROXY_DriverInit( graphicsApiLayer_t* layer )
     // If using the proxy driver we cannot use fullscreen
     Cvar_Set( "r_fullscreen", "0" );
 
-    D3DDrv_DriverInit( &d3dDriver );
+    // Backup the vdConfig because the drivers will make changes to this (unfortunately)
+    old_vdConfig = vdConfig;
 
+    // Init the D3D driver and back up the vdConfig
+    D3DDrv_DriverInit( &d3dDriver );
+    d3d_vdConfig = vdConfig;
+
+    // Init the GL driver and back up the vdConfig
     GLRB_DriverInit( &glDriver );
+    gl_vdConfig = vdConfig;
 
     R_ValidateGraphicsLayer( &d3dDriver );
     R_ValidateGraphicsLayer( &glDriver );
 
     // Let's arrange these windows shall we?
-    PROXY_PositionOpenGLWindowRightOfD3D();
-            
-    // Copy the resource strings to the vgConfig
-    Q_strncpyz( vdConfig.renderer_string, "PROXY DRIVER", sizeof( vdConfig.renderer_string ) );
-    Q_strncpyz( vdConfig.vendor_string, "@pjb", sizeof( vdConfig.vendor_string ) );
-    Q_strncpyz( vdConfig.version_string, "1.0", sizeof( vdConfig.version_string ) );
-    
-    // todo: arbitrate conflicting vdConfig settings
+    PositionOpenGLWindowRightOfD3D();
 
+    // Restore the old config and reconcile the new configs
+    vdConfig = old_vdConfig;
+    ReconcileVideoConfigs( &d3d_vdConfig, &gl_vdConfig, &vdConfig );
 }
 

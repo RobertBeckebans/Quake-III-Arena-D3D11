@@ -3,6 +3,7 @@
 #include "d3d_driver.h"
 #include "d3d_wnd.h"
 #include "d3d_views.h"
+#include "d3d_state.h"
 
 // @pjb: this is just here to deliberately fuck the build if driver is used in here
 #define driver #driver_disallowed
@@ -98,7 +99,8 @@ imageFormat_t D3DDrv_GetImageFormat( const image_t* image )
 
 void D3DDrv_SetGamma( unsigned char red[256], unsigned char green[256], unsigned char blue[256] )
 {
-    
+    // @pjb: todo?
+    ri.Error( ERR_FATAL, "D3D11 hardware gamma ramp not implemented." );
 }
 
 int D3DDrv_SumOfUsedImages( void )
@@ -133,32 +135,39 @@ void D3DDrv_Clear( unsigned long bits, const float* clearCol, unsigned long sten
 
 void D3DDrv_SetProjection( const float* projMatrix )
 {
-    
+    memcpy( d3dState.projectionMatrix, projMatrix, sizeof(float) * 16 );
 }
 
 void D3DDrv_GetProjection( float* projMatrix )
 {
-
+    memcpy( projMatrix, d3dState.projectionMatrix, sizeof(float) * 16 );
 }
 
 void D3DDrv_SetModelView( const float* modelViewMatrix )
 {
-
+    memcpy( d3dState.modelViewMatrix, modelViewMatrix, sizeof(float) * 16 );
 }
 
 void D3DDrv_GetModelView( float* modelViewMatrix )
 {
-
+    memcpy( modelViewMatrix, d3dState.modelViewMatrix, sizeof(float) * 16 );
 }
 
 void D3DDrv_SetViewport( int left, int top, int width, int height )
 {
-    
+    D3D11_VIEWPORT viewport;
+    viewport.TopLeftX = left;
+    viewport.TopLeftY = top;
+    viewport.Width = width;
+    viewport.Height = height;
+    viewport.MinDepth = 0;
+    viewport.MaxDepth = 0;
+    g_pImmediateContext->RSSetViewports( 1, &viewport );
 }
 
 void D3DDrv_Flush( void )
 {
-    
+    g_pImmediateContext->Flush();
 }
 
 void D3DDrv_SetState( unsigned long stateMask )

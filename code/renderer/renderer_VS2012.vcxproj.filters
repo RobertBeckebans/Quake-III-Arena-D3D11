@@ -358,6 +358,9 @@
     <ClCompile Include="tr_smp.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\d3d11\d3d_state.cpp">
+      <Filter>Direct3D Implementation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tr_public.h">
@@ -449,6 +452,9 @@
     </ClInclude>
     <ClInclude Include="tr_state.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\d3d11\d3d_state.h">
+      <Filter>Direct3D Implementation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
