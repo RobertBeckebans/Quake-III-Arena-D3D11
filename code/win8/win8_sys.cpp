@@ -1,18 +1,97 @@
 extern "C" {
 #   include "../client/client.h"
 #   include "../qcommon/qcommon.h"
+#   include "../win32/win_shared.h"
+}
+
+#include <ppl.h>
+#include <ppltasks.h>
+#include <assert.h>
+
+//============================================
+// Win8 stuff
+
+static double g_Freq = 0;
+
+void Win8_InitTimer()
+{
+    LARGE_INTEGER i;
+    QueryPerformanceFrequency( &i );
+    g_Freq = 1000.0 / i.QuadPart;
+}
+
+int Win8_GetTime()
+{
+    LARGE_INTEGER i;
+    QueryPerformanceCounter( &i );
+    return (int)( i.QuadPart * g_Freq );
+}
+
+void Win8_CopyString( Platform::String^ str, char* dst, size_t dstLen )
+{
+    size_t numConverted = 0;
+    errno_t err = wcstombs_s(
+        &numConverted,
+        dst, dstLen,
+        str->Data(), dstLen);
+}
+
+
+Platform::String^ Win8_CopyString( const char* src )
+{
+    size_t len = strlen( src );
+
+    wchar_t* wide = new wchar_t[len + 1];
+    if ( !wide )
+        throw; // I've actually no idea how I want to handle this.
+
+    size_t numConverted = 0;
+    mbstowcs_s(
+        &numConverted,
+        wide, len,
+        src, len );
+
+    Platform::String^ dst = ref new Platform::String( wide );
+
+    delete [] wide;
+    
+    return dst;
+}
+
+size_t Win8_MultiByteToWide( 
+    const char* src, 
+    wchar_t* dst,
+    size_t dstLen )
+{
+    size_t numConverted = 0;
+    mbstowcs_s(
+        &numConverted,
+        dst, dstLen,
+        src, strlen( src ) );
+
+    return numConverted;
 }
 
 //============================================
+// Quake APIs
 
 char *Sys_GetCurrentUser( void )
 {
 	static char s_userName[1024];
 	unsigned long size = sizeof( s_userName );
 
+    strcpy( s_userName, "player" );
 
-	if ( !GetUserName( s_userName, &size ) )
-		strcpy( s_userName, "player" );
+    try
+    {
+        auto t = concurrency::create_task( 
+            Windows::System::UserProfile::UserInformation::GetDisplayNameAsync() );
+    
+        Win8_CopyString( t.get(), s_userName, sizeof( s_userName ) );
+    }
+    catch ( ... )
+    {
+    }
 
 	if ( !s_userName[0] )
 	{
@@ -34,10 +113,11 @@ int Sys_Milliseconds (void)
 	static qboolean	initialized = qfalse;
 
 	if (!initialized) {
-		sys_timeBase = timeGetTime();
+        Win8_InitTimer();
+		sys_timeBase = Win8_GetTime();
 		initialized = qtrue;
 	}
-	sys_curtime = timeGetTime() - sys_timeBase;
+	sys_curtime = Win8_GetTime() - sys_timeBase;
 
 	return sys_curtime;
 }
@@ -52,32 +132,23 @@ Show the early console as an error dialog
 void QDECL Sys_Error( const char *error, ... ) {
 	va_list		argptr;
 	char		text[4096];
-    MSG        msg;
 
 	va_start (argptr, error);
 	vsprintf (text, error, argptr);
 	va_end (argptr);
 
-	Conbuf_AppendText( text );
-	Conbuf_AppendText( "\n" );
+    OutputDebugStringA( text );
 
-	Sys_SetErrorText( text );
-	Sys_ShowConsole( 1, qtrue );
+    Platform::String^ textObj = Win8_CopyString( text );
 
-	timeEndPeriod( 1 );
+    // Throw up a dialog box!
+    Windows::UI::Popups::MessageDialog^ dlg = ref new Windows::UI::Popups::MessageDialog(textObj);
+    auto asyncOp = concurrency::create_task( dlg->ShowAsync() );
+    asyncOp.wait();
 
 	IN_Shutdown();
 
-	// wait for the user to quit
-	while ( 1 ) {
-		if (!GetMessage (&msg, NULL, 0, 0))
-			Com_Quit_f ();
-		TranslateMessage (&msg);
-      	DispatchMessage (&msg);
-	}
-
-	Sys_DestroyConsole();
-
+    // TODO: Probably a better way to handle this?
 	exit (1);
 }
 
@@ -87,10 +158,9 @@ Sys_Quit
 ==============
 */
 void Sys_Quit( void ) {
-	timeEndPeriod( 1 );
-	IN_Shutdown();
-	Sys_DestroyConsole();
 
+    IN_Shutdown();
+	
 	exit (0);
 }
 
@@ -100,72 +170,25 @@ Sys_Print
 ==============
 */
 void Sys_Print( const char *msg ) {
-	Conbuf_AppendText( msg );
+	OutputDebugStringA( msg );
 }
 
 /*
 ==============
 Sys_Cwd
+
+Win8: return the installation directory (read-only)
 ==============
 */
 char *Sys_Cwd( void ) {
 	static char cwd[MAX_OSPATH];
 
-	_getcwd( cwd, sizeof( cwd ) - 1 );
-	cwd[MAX_OSPATH-1] = 0;
+	Windows::ApplicationModel::Package^ pkg = Windows::ApplicationModel::Package::Current;
+    Windows::Storage::StorageFolder^ installDir = pkg->InstalledLocation;
+
+    Win8_CopyString( installDir->Path, cwd, sizeof(cwd) );
 
 	return cwd;
-}
-
-/*
-================
-Sys_ScanForCD
-
-Search all the drives to see if there is a valid CD to grab
-the cddir from
-================
-*/
-qboolean Sys_ScanForCD( void ) {
-	static char	cddir[MAX_OSPATH];
-	char		drive[4];
-	FILE		*f;
-	char		test[MAX_OSPATH];
-#if 0
-	// don't override a cdpath on the command line
-	if ( strstr( sys_cmdline, "cdpath" ) ) {
-		return;
-	}
-#endif
-
-	drive[0] = 'c';
-	drive[1] = ':';
-	drive[2] = '\\';
-	drive[3] = 0;
-
-	// scan the drives
-	for ( drive[0] = 'c' ; drive[0] <= 'z' ; drive[0]++ ) {
-		if ( GetDriveType (drive) != DRIVE_CDROM ) {
-			continue;
-		}
-
-		sprintf (cddir, "%s%s", drive, CD_BASEDIR);
-		sprintf (test, "%s\\%s", cddir, CD_EXE);
-		f = fopen( test, "r" );
-		if ( f ) {
-			fclose (f);
-			return qtrue;
-    } else {
-      sprintf(cddir, "%s%s", drive, CD_BASEDIR_LINUX);
-      sprintf(test, "%s\\%s", cddir, CD_EXE_LINUX);
-  		f = fopen( test, "r" );
-	  	if ( f ) {
-		  	fclose (f);
-			  return qtrue;
-      }
-    }
-	}
-
-	return qfalse;
 }
 
 /*
@@ -175,24 +198,21 @@ Sys_GetClipboardData
 ================
 */
 char *Sys_GetClipboardData( void ) {
-	char *data = NULL;
-	char *cliptext;
 
-	if ( OpenClipboard( NULL ) != 0 ) {
-		HANDLE hClipboardData;
+    static char clipBuf[4096];
 
-		if ( ( hClipboardData = GetClipboardData( CF_TEXT ) ) != 0 ) {
-			if ( ( cliptext = GlobalLock( hClipboardData ) ) != 0 ) {
-				data = Z_Malloc( GlobalSize( hClipboardData ) + 1 );
-				Q_strncpyz( data, cliptext, GlobalSize( hClipboardData ) );
-				GlobalUnlock( hClipboardData );
-				
-				strtok( data, "\n\r\b" );
-			}
-		}
-		CloseClipboard();
-	}
-	return data;
+    auto data = Windows::ApplicationModel::DataTransfer::Clipboard::GetContent();
+    if ( data->Contains( Windows::ApplicationModel::DataTransfer::StandardDataFormats::Text ) )
+    {
+        auto t = concurrency::create_task( data->GetTextAsync() );
+
+        Win8_CopyString( t.get(), clipBuf, sizeof( clipBuf ) );
+        return clipBuf;
+    }
+    else
+    {
+        return NULL;
+    }
 }
 
 
@@ -215,7 +235,7 @@ void Sys_UnloadDll( void *dllHandle ) {
 	if ( !dllHandle ) {
 		return;
 	}
-	if ( !FreeLibrary( dllHandle ) ) {
+	if ( !FreeLibrary( (HMODULE) dllHandle ) ) {
 		Com_Error (ERR_FATAL, "Sys_UnloadDll FreeLibrary failed");
 	}
 }
@@ -239,84 +259,32 @@ void * QDECL Sys_LoadDll( const char *name, char *fqpath , int (QDECL **entryPoi
 	static int	lastWarning = 0;
 	HINSTANCE	libHandle;
 	void	(QDECL *dllEntry)( int (QDECL *syscallptr)(size_t, ...) );
-	char	*basepath;
-	char	*cdpath;
-	char	*gamedir;
-	char	*fn;
-#ifdef NDEBUG
-	int		timestamp;
-  int   ret;
-#endif
 	char	filename[MAX_QPATH];
+    wchar_t wfilename[MAX_QPATH];
 
 	*fqpath = 0 ;		// added 7/20/02 by T.Ray
 
 #ifdef _M_X64
 	Com_sprintf( filename, sizeof( filename ), "%sx64.dll", name );
+#elif defined(_ARM_)
+	Com_sprintf( filename, sizeof( filename ), "%sarm.dll", name );
 #else
     Com_sprintf(filename, sizeof(filename), "%sx86.dll", name);
 #endif
 
-#ifdef NDEBUG
-	timestamp = Sys_Milliseconds();
-	if( ((timestamp - lastWarning) > (5 * 60000)) && !Cvar_VariableIntegerValue( "dedicated" )
-		&& !Cvar_VariableIntegerValue( "com_blindlyLoadDLLs" ) ) {
-		if (FS_FileExists(filename)) {
-			lastWarning = timestamp;
-			ret = MessageBoxEx( NULL, "You are about to load a .DLL executable that\n"
-				  "has not been verified for use with Quake III Arena.\n"
-				  "This type of file can compromise the security of\n"
-				  "your computer.\n\n"
-				  "Select 'OK' if you choose to load it anyway.",
-				  "Security Warning", MB_OKCANCEL | MB_ICONEXCLAMATION | MB_DEFBUTTON2 | MB_TOPMOST | MB_SETFOREGROUND,
-				  MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ) );
-			if( ret != IDOK ) {
-				return NULL;
-			}
-		}
-	}
-#endif
-
-#ifndef NDEBUG
-	libHandle = LoadLibrary( filename );
-  if (libHandle)
-    Com_Printf("LoadLibrary '%s' ok\n", filename);
-  else
-    Com_Printf("LoadLibrary '%s' failed\n", filename);
-	if ( !libHandle ) {
-#endif
-	basepath = Cvar_VariableString( "fs_basepath" );
-	cdpath = Cvar_VariableString( "fs_cdpath" );
-	gamedir = Cvar_VariableString( "fs_game" );
-
-	fn = FS_BuildOSPath( basepath, gamedir, filename );
-	libHandle = LoadLibrary( fn );
-#ifndef NDEBUG
-  if (libHandle)
-    Com_Printf("LoadLibrary '%s' ok\n", fn);
-  else
-    Com_Printf("LoadLibrary '%s' failed\n", fn);
-#endif
-
-	if ( !libHandle ) {
-		if( cdpath[0] ) {
-			fn = FS_BuildOSPath( cdpath, gamedir, filename );
-			libHandle = LoadLibrary( fn );
-#ifndef NDEBUG
-      if (libHandle)
-        Com_Printf("LoadLibrary '%s' ok\n", fn);
-      else
-        Com_Printf("LoadLibrary '%s' failed\n", fn);
-#endif
-		}
-
-		if ( !libHandle ) {
-			return NULL;
-		}
-	}
-#ifndef NDEBUG
-	}
-#endif
+    Win8_MultiByteToWide( filename, wfilename, _countof( wfilename ) );
+    
+    // There's a lot of logic here in the original game (dealing with overloaded
+    // paths etc), but WinRT simplifies that for us. It can only ever be in the root 
+    // folder.
+	libHandle = LoadPackagedLibrary( wfilename, 0 );
+    if (libHandle) {
+        Com_Printf("LoadPackagedLibrary '%s' ok\n", filename);
+    }
+    else {
+        Com_Printf("LoadPackagedLibrary '%s' failed\n", filename);
+        return NULL;
+    }
 
 	dllEntry = ( void (QDECL *)( int (QDECL *)( size_t, ... ) ) )GetProcAddress( libHandle, "dllEntry" ); 
 	*entryPoint = (int (QDECL *)(size_t,...))GetProcAddress( libHandle, "vmMain" );
