@@ -107,7 +107,7 @@ namespace QD3D
 	CreateDefaultDevice(
 		_In_ D3D_DRIVER_TYPE driver, 
 		_Out_ QD3D11Device** device,
-		_Out_ ID3D11DeviceContext** context,
+		_Out_ ID3D11DeviceContext1** context,
 		_Out_ D3D_FEATURE_LEVEL* featureLevel);
 
 	//----------------------------------------------------------------------------
@@ -139,6 +139,20 @@ namespace QD3D
 		_In_ QD3D11Device* device,
 		_Out_ DXGI_SWAP_CHAIN_DESC1* swapChainDesc);
 	
+    //----------------------------------------------------------------------------
+	// Gets the DXGI device
+	//----------------------------------------------------------------------------
+    HRESULT GetDxgiDevice( 
+        _In_ QD3D11Device* device, 
+        _Out_ QDXGIDevice** dxgiDevice );
+
+    //----------------------------------------------------------------------------
+	// Gets the DXGI adapter
+	//----------------------------------------------------------------------------
+    HRESULT GetDxgiAdapter( 
+        _In_ QD3D11Device* device, 
+        _Out_ IDXGIAdapter** dxgiAdapter );
+
     //----------------------------------------------------------------------------
 	// Gets the DXGI factory
 	//----------------------------------------------------------------------------

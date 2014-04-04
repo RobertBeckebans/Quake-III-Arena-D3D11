@@ -33,7 +33,7 @@ namespace QD3D
 	CreateDefaultDevice(
 		_In_ D3D_DRIVER_TYPE driver, 
 		_Out_ QD3D11Device** device,
-		_Out_ ID3D11DeviceContext** context,
+		_Out_ ID3D11DeviceContext1** context,
 		_Out_ D3D_FEATURE_LEVEL* featureLevel)
 	{
 		*device = NULL;
@@ -48,6 +48,7 @@ namespace QD3D
 #endif
 
         ID3D11Device* device11 = nullptr;
+        ID3D11DeviceContext* context11 = nullptr;
 
 		HRESULT hr = D3D11CreateDevice(
 					NULL, // TODO: individual adapters
@@ -59,10 +60,14 @@ namespace QD3D
 					D3D11_SDK_VERSION,
 					&device11,
 					featureLevel,
-					context);
+					&context11);
         if ( SUCCEEDED( hr ) ) 
         {
-		    return device11->QueryInterface(__uuidof(QD3D11Device), (void **) device);
+            hr = device11->QueryInterface(__uuidof(QD3D11Device), (void **) device);
+            if ( SUCCEEDED( hr ) )
+            {
+                return context11->QueryInterface(__uuidof(ID3D11DeviceContext1), (void **) context);
+            }
         }
 
         return hr;
@@ -144,31 +149,46 @@ namespace QD3D
 	}
 
     //----------------------------------------------------------------------------
+	// Gets the DXGI device
+	//----------------------------------------------------------------------------
+    HRESULT GetDxgiDevice( 
+        _In_ QD3D11Device* device, 
+        _Out_ QDXGIDevice** dxgiDevice )
+    {
+        return device->QueryInterface(__uuidof(QDXGIDevice), (void **)&dxgiDevice);
+    }
+
+    //----------------------------------------------------------------------------
+	// Gets the DXGI adapter
+	//----------------------------------------------------------------------------
+    HRESULT GetDxgiAdapter( 
+        _In_ QD3D11Device* device, 
+        _Out_ IDXGIAdapter** dxgiAdapter )
+    {
+        QDXGIDevice* dxgiDevice = nullptr;
+        HRESULT hr = GetDxgiDevice( device, &dxgiDevice );
+        if ( FAILED( hr ) )
+            return hr;
+
+		hr = dxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void **)&dxgiAdapter);
+        SAFE_RELEASE( dxgiDevice );
+        return hr;
+    }
+
+    //----------------------------------------------------------------------------
 	// Gets the DXGI factory
 	//----------------------------------------------------------------------------
     HRESULT GetDxgiFactory( 
         _In_ QD3D11Device* device, 
         _Out_ IDXGIFactory2** dxgiFactory )
     {
-		// Get the factory associated with the device
-		QDXGIDevice* dxgiDevice;
-		HRESULT hr = device->QueryInterface(__uuidof(QDXGIDevice), (void **)&dxgiDevice);
-        if ( FAILED( hr ) )
-            return hr;
-
 		IDXGIAdapter* dxgiAdapter;
-		hr = dxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void **)&dxgiAdapter);
+		HRESULT hr = GetDxgiAdapter( device, &dxgiAdapter );
         if ( FAILED( hr ) )
-        {
-            SAFE_RELEASE( dxgiDevice );
             return hr;
-        }
 
 		hr = dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), (void **)dxgiFactory);
-
-        SAFE_RELEASE(dxgiDevice);
         SAFE_RELEASE(dxgiAdapter);
-
         return hr;
     }
 
