@@ -449,7 +449,7 @@ vm_t *VM_Create( const char *module, int (*systemCalls)(int *),
 		Com_Error( ERR_FATAL, "VM_Create: bad parms" );
 	}
 
-	remaining = Hunk_MemoryRemaining();
+	remaining = (int) Hunk_MemoryRemaining();
 
 	// see if we already have the VM
 	for ( i = 0 ; i < MAX_VM ; i++ ) {
@@ -620,7 +620,7 @@ void VM_Clear(void) {
 	lastVM = NULL;
 }
 
-void *VM_ArgPtr( int intValue ) {
+void *VM_ArgPtr( size_t intValue ) {
 	if ( !intValue ) {
 		return NULL;
 	}
@@ -636,7 +636,7 @@ void *VM_ArgPtr( int intValue ) {
 	}
 }
 
-void *VM_ExplicitArgPtr( vm_t *vm, int intValue ) {
+void *VM_ExplicitArgPtr( vm_t *vm, size_t intValue ) {
 	if ( !intValue ) {
 		return NULL;
 	}

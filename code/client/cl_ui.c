@@ -757,7 +757,7 @@ static int FloatAsInt( float f ) {
 	return temp;
 }
 
-void *VM_ArgPtr( int intValue );
+void *VM_ArgPtr( size_t intValue );
 #define	VMA(x) VM_ArgPtr(args[x])
 #define	VMF(x)	((float *)args)[x]
 
@@ -1017,7 +1017,7 @@ int CL_UISystemCalls( int *args ) {
 		return LAN_CompareServers( args[1], args[2], args[3], args[4], args[5] );
 
 	case UI_MEMORY_REMAINING:
-		return Hunk_MemoryRemaining();
+		return (int) Hunk_MemoryRemaining();
 
 	case UI_GET_CDKEY:
 		CLUI_GetCDKey( VMA(1), args[2] );

@@ -1351,7 +1351,7 @@ void GLimp_Init( void )
 {
 	char	buf[1024];
 	cvar_t *lastValidRenderer = ri.Cvar_Get( "r_lastValidRenderer", "(uninitialized)", CVAR_ARCHIVE );
-	cvar_t	*cv;
+	//cvar_t	*cv;
 
 	ri.Printf( PRINT_ALL, "Initializing OpenGL subsystem\n" );
 

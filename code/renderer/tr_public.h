@@ -116,9 +116,9 @@ typedef struct {
 	// stack based memory allocation for per-level things that
 	// won't be freed
 #ifdef HUNK_DEBUG
-	void	*(*Hunk_AllocDebug)( int size, ha_pref pref, char *label, char *file, int line );
+	void	*(*Hunk_AllocDebug)( size_t size, ha_pref pref, char *label, char *file, int line );
 #else
-	void	*(*Hunk_Alloc)( int size, ha_pref pref );
+	void	*(*Hunk_Alloc)( size_t size, ha_pref pref );
 #endif
 	void	*(*Hunk_AllocateTempMemory)( int size );
 	void	(*Hunk_FreeTempMemory)( void *block );

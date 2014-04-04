@@ -322,8 +322,8 @@ int		QDECL VM_Call( vm_t *vm, int callNum, ... );
 
 void	VM_Debug( int level );
 
-void	*VM_ArgPtr( int intValue );
-void	*VM_ExplicitArgPtr( vm_t *vm, int intValue );
+void	*VM_ArgPtr( size_t intValue );
+void	*VM_ExplicitArgPtr( vm_t *vm, size_t intValue );
 
 /*
 ==============================================================

@@ -510,6 +510,12 @@ void SV_BotInitCvars(void) {
 	Cvar_Get("bot_interbreedwrite", "", CVAR_CHEAT);	//write interbreeded bots to this file
 }
 
+// @pjb: I think this might be used in a VM so I'm wrapping it
+int Z_AvailableMemory32()
+{
+    return (int) Z_AvailableMemory();
+}
+
 /*
 ==================
 SV_BotInitBotLib
@@ -538,7 +544,7 @@ void SV_BotInitBotLib(void) {
 	//memory management
 	botlib_import.GetMemory = BotImport_GetMemory;
 	botlib_import.FreeMemory = BotImport_FreeMemory;
-	botlib_import.AvailableMemory = Z_AvailableMemory;
+	botlib_import.AvailableMemory = Z_AvailableMemory32;
 	botlib_import.HunkAlloc = BotImport_HunkAlloc;
 
 	// file system access
