@@ -112,8 +112,11 @@ MODEL RENDERING
 ====================================================================
 */
 
-
-
+void GLRB_StageIteratorGeneric( const shaderCommands_t *input );
+void GLRB_StageIteratorVertexLitTexture( const shaderCommands_t *input );
+void GLRB_StageIteratorLightmappedMultitexture( const shaderCommands_t *input );
+void GLRB_DebugDrawTris( const shaderCommands_t *input );
+void GLRB_DebugDrawNormals( const shaderCommands_t *input );
 
 /*
 ====================================================================

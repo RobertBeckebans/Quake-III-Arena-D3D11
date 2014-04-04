@@ -443,6 +443,11 @@ void GLRB_DriverInit( graphicsApiLayer_t* layer )
     layer->ShadowSilhouette = GLRB_ShadowSilhouette;
     layer->ShadowFinish = GLRB_ShadowFinish;
     layer->DrawSkyBox = GLRB_DrawSkyBox;
+    layer->DrawStageGeneric = GLRB_StageIteratorGeneric;
+    layer->DrawStageVertexLitTexture = GLRB_StageIteratorVertexLitTexture;
+    layer->DrawStageLightmappedMultitexture = GLRB_StageIteratorLightmappedMultitexture;
+    layer->DebugDrawTris = GLRB_DebugDrawTris;
+    layer->DebugDrawNormals = GLRB_DebugDrawNormals;
     layer->DebugSetOverdrawMeasureEnabled = GLRB_SetOverdrawMeasureEnabled;
     layer->DebugSetTextureMode = GL_TextureMode;
     layer->DebugDrawPolygon = GLRB_DebugPolygon;

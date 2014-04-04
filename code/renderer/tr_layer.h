@@ -46,6 +46,12 @@ typedef struct graphicsApiLayer_s {
     void            (* ShadowFinish)( void );
     void            (* DrawSkyBox)( const skyboxDrawInfo_t* skybox, const float* eye_origin, const float* colorTint );
 
+    void            (* DrawStageGeneric)( const shaderCommands_t *input );
+    void            (* DrawStageVertexLitTexture)( const shaderCommands_t *input );
+    void            (* DrawStageLightmappedMultitexture)( const shaderCommands_t *input );
+
+    void            (* DebugDrawNormals)( shaderCommands_t *input );
+    void            (* DebugDrawTris)( shaderCommands_t *input );
     void            (* DebugSetOverdrawMeasureEnabled)( qboolean enabled );
     void            (* DebugSetTextureMode)( const char* mode );
     void            (* DebugDrawPolygon)( int color, int numPoints, const float* points );
