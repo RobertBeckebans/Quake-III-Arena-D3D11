@@ -530,8 +530,10 @@ qboolean UI_RegisterClientModelname( playerInfo_t *pi, const char *modelSkinName
 typedef struct {
 	int					frametime;
 	int					realtime;
-	int					cursorx;
-	int					cursory;
+	int					nativecursorx; // @pjb: cursor position at native res
+	int					nativecursory; // @pjb: cursor position at native res
+	int					cursorx; // @pjb: cursor position inside the 640x480 virtual ui space
+	int					cursory; // @pjb: cursor position inside the 640x480 virtual ui space
 	int					menusp;
 	menuframework_s*	activemenu;
 	menuframework_s*	stack[MAX_MENUDEPTH];
