@@ -46,7 +46,7 @@ void R_PerformanceCounters( void ) {
 		ri.Printf (PRINT_ALL, "%i/%i shaders/surfs %i leafs %i verts %i/%i tris %.2f mtex %.2f dc\n",
 			backEnd.pc.c_shaders, backEnd.pc.c_surfaces, tr.pc.c_leafs, backEnd.pc.c_vertexes, 
 			backEnd.pc.c_indexes/3, backEnd.pc.c_totalIndexes/3, 
-			vdLayer.GetFrameImageMemoryUsage()/(1000000.0f), backEnd.pc.c_overDraw / (float)(vdConfig.vidWidth * vdConfig.vidHeight) ); 
+			graphicsDriver.GetFrameImageMemoryUsage()/(1000000.0f), backEnd.pc.c_overDraw / (float)(vdConfig.vidWidth * vdConfig.vidHeight) ); 
 	} else if (r_speeds->integer == 2) {
 		ri.Printf (PRINT_ALL, "(patch) %i sin %i sclip  %i sout %i bin %i bclip %i bout\n",
 			tr.pc.c_sphere_cull_patch_in, tr.pc.c_sphere_cull_patch_clip, tr.pc.c_sphere_cull_patch_out, 

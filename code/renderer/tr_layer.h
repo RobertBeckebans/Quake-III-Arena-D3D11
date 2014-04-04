@@ -18,7 +18,7 @@ typedef struct graphicsApiLayer_s {
     void            (* Flush)( void );
 } graphicsApiLayer_t;
 
-extern graphicsApiLayer_t      vdLayer;
+extern graphicsApiLayer_t      graphicsDriver;
 
 // @pjb: proxy uses this to validate the proxied drivers
 void R_ValidateGraphicsLayer( graphicsApiLayer_t* layer );

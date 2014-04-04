@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 vdconfig_t	vdConfig;
 
-graphicsApiLayer_t vdLayer = { 0 };
+graphicsApiLayer_t graphicsDriver = { 0 };
 
 cvar_t	*r_flareSize;
 cvar_t	*r_flareFade;
@@ -187,13 +187,13 @@ static void AssertCvarRange( cvar_t *cv, float minVal, float maxVal, qboolean sh
 */
 void InitDriver( void )
 {
-    Com_Memset( &vdLayer, 0, sizeof( vdLayer ) );
+    Com_Memset( &graphicsDriver, 0, sizeof( graphicsDriver ) );
 
     // @pjb: based on whichever renderer is requested, return different entry points
 	// the RE_ functions are Renderer Entry points
     if ( strcmp( r_driver->string, "opengl" ) == 0 )
     {
-        GLRB_DriverInit( &vdLayer );
+        GLRB_DriverInit( &graphicsDriver );
     }
     // @pjb: todo
     // else if ( strcmp( r_driver->string, "d3d11" ) == 0 )
@@ -202,7 +202,7 @@ void InitDriver( void )
     //}
     else     if ( strcmp( r_driver->string, "proxy" ) == 0 )
     {
-        PROXY_DriverInit( &vdLayer );
+        PROXY_DriverInit( &graphicsDriver );
     }
     else
     {
@@ -211,7 +211,7 @@ void InitDriver( void )
     }
 
     // Validate the driver pointers
-    R_ValidateGraphicsLayer( &vdLayer );
+    R_ValidateGraphicsLayer( &graphicsDriver );
 }
 
 /*
@@ -562,8 +562,8 @@ void R_ScreenShotJPEG_f (void) {
 // @pjb: print info about the driver
 void R_GfxInfo( void )
 {
-    if (vdLayer.GraphicsInfo)
-        vdLayer.GraphicsInfo();
+    if (graphicsDriver.GraphicsInfo)
+        graphicsDriver.GraphicsInfo();
     else
         ri.Printf( PRINT_ALL, "R_GfxInfo: Driver not yet initialized.\n" );
 }

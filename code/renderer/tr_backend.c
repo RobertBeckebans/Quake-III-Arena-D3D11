@@ -52,7 +52,7 @@ static void RB_Hyperspace( void ) {
 
 	c = ( backEnd.refdef.time & 255 ) / 255.0f;
 	
-    vdLayer.Clear(c, c, c, 1);
+    graphicsDriver.Clear(c, c, c, 1);
 
 	backEnd.isHyperspace = qtrue;
 }
@@ -60,10 +60,10 @@ static void RB_Hyperspace( void ) {
 
 static void SetViewportAndScissor( void ) {
 
-	vdLayer.SetProjection( backEnd.viewParms.projectionMatrix );
+	graphicsDriver.SetProjection( backEnd.viewParms.projectionMatrix );
 
 	// set the window clipping
-	vdLayer.SetViewport( 
+	graphicsDriver.SetViewport( 
         backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, 
 		backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight );
 }
@@ -81,7 +81,7 @@ void RB_BeginDrawingView (void) {
 
 	// sync with gl if needed
 	if ( r_finish->integer == 1 && !glState.finishCalled ) {
-		vdLayer.Flush();
+		graphicsDriver.Flush();
 		glState.finishCalled = qtrue;
 	}
 	if ( r_finish->integer == 0 ) {
@@ -376,7 +376,7 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 	R_SyncRenderThread();
 
 	// we definately want to sync every frame for the cinematics
-	vdLayer.Flush();
+	graphicsDriver.Flush();
 
 	start = end = 0;
 	if ( r_speeds->integer ) {
@@ -619,7 +619,7 @@ void RB_ShowImages( void ) {
 
 	qglClear( GL_COLOR_BUFFER_BIT );
 
-	vdLayer.Flush();
+	graphicsDriver.Flush();
 
 	start = ri.Milliseconds();
 
@@ -651,7 +651,7 @@ void RB_ShowImages( void ) {
 		qglEnd();
 	}
 
-	vdLayer.Flush();
+	graphicsDriver.Flush();
 
 	end = ri.Milliseconds();
 	ri.Printf( PRINT_ALL, "%i msec to draw all images\n", end - start );
@@ -700,7 +700,7 @@ const void	*RB_SwapBuffers( const void *data ) {
 
 
 	if ( !glState.finishCalled ) {
-		vdLayer.Flush();
+		graphicsDriver.Flush();
 	}
 
 	GLimp_LogComment( "***************** RB_SwapBuffers *****************\n\n\n" );
