@@ -674,7 +674,7 @@ void S_ClearSoundBuffer( void ) {
 
     // @pjb: this is redundant on triple-buffered sound buffers
     if ( !dma.manybuffered ) {
-	    SNDDMA_BeginPainting ();
+	    SNDDMA_BeginPainting ( dma.samples );
 	    if (dma.buffer)
         // TTimo: due to a particular bug workaround in linux sound code,
         //   have to optionally use a custom C implementation of Com_Memset
@@ -1286,7 +1286,7 @@ void S_Update_(void) {
 
     starttime = s_paintedtime;
 
-	SNDDMA_BeginPainting ();
+	SNDDMA_BeginPainting ( ma );
 
 	S_PaintChannels (endtime);
 

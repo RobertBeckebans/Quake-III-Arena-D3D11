@@ -14,16 +14,11 @@ static IXAudio2* g_pXAudio2 = NULL;
 static IXAudio2MasteringVoice* g_pMasterVoice = NULL;
 static IXAudio2SourceVoice* g_pSourceVoice = NULL;
 
-#define STAGED_BUFFERS 1
-
-#if STAGED_BUFFERS
-#define STREAMING_BUFFER_COUNT 3
+#define STREAMING_BUFFER_COUNT 16
 static BYTE g_StreamingBuffers[STREAMING_BUFFER_COUNT][STREAMING_BUFFER_SIZE];
 static int g_StreamingBufferIndex = 0;
 static StreamingVoiceContext g_Context;
-#else
-static BYTE g_StreamingBuffer[STREAMING_BUFFER_SIZE];
-#endif
+static HANDLE g_hBufferReleaseSem = NULL;
 
 /*
 ==================
@@ -48,9 +43,15 @@ void XAudio_Shutdown( void )
         g_pXAudio2->Release();
     }
 
+    if ( g_hBufferReleaseSem )
+    {
+        CloseHandle( g_hBufferReleaseSem );
+    }
+
     g_pSourceVoice = NULL;
     g_pMasterVoice = NULL;
     g_pXAudio2 = NULL;
+    g_hBufferReleaseSem = NULL;
 
     Com_Printf( "XAudio2 shut down.\n" );
 }
@@ -125,11 +126,7 @@ qboolean XAudio_Init(void)
     format.nAvgBytesPerSec = format.nSamplesPerSec*format.nBlockAlign; 
 
     // Create the source voice
-#if STAGED_BUFFERS
     hr = g_pXAudio2->CreateSourceVoice( &g_pSourceVoice, &format, 0, 2.0f, &g_Context );
-#else
-    hr = g_pXAudio2->CreateSourceVoice( &g_pSourceVoice, &format );
-#endif
     if ( FAILED( hr ) )
     {
         Com_Printf( "... Warning: XAudio2 failed to initialize source voice.\n" );
@@ -139,6 +136,7 @@ qboolean XAudio_Init(void)
     // Start the voice (but there's no data yet)
     g_pSourceVoice->Start( 0, 0 );
 
+    g_hBufferReleaseSem = CreateSemaphore( nullptr, STREAMING_BUFFER_COUNT, STREAMING_BUFFER_COUNT, nullptr );
     
 	dma.channels = format.nChannels;
 	dma.samplebits = format.wBitsPerSample;
@@ -147,7 +145,6 @@ qboolean XAudio_Init(void)
 	dma.submission_chunk = 1;
 	dma.buffer = NULL;
 
-#if STAGED_BUFFERS
     dma.manybuffered = qtrue;
     g_StreamingBufferIndex = 0;
     
@@ -155,10 +152,6 @@ qboolean XAudio_Init(void)
     {
         Com_Memset( g_StreamingBuffers[i], 0, dma.samples * dma.samplebits/8 );
     }
-#else
-    dma.manybuffered = qfalse;
-    Com_Memset( g_StreamingBuffer, 0, dma.samples * dma.samplebits/8 );
-#endif
 
     Com_Printf( "... OK.\n" );
     return qtrue;
@@ -181,14 +174,17 @@ how many sample are required to fill it up.
 ===============
 */
 static int lastSample = 0;
+static int bufferOffset = 0;
+static bool hasNewBuffer = true;
+
 int XAudio_GetDMAPos( void ) 
 {
-    return lastSample;
     /*
+    return lastSample;
+    */
     XAUDIO2_VOICE_STATE state;
     g_pSourceVoice->GetState( &state );
-    return state.SamplesPlayed % dma.samples;
-    */
+    return (2 * state.SamplesPlayed) % dma.samples;
 }
 
 /*
@@ -199,31 +195,28 @@ Makes sure dma.buffer is valid
 ===============
 */
 
-void XAudio_BeginPainting( void ) 
+void XAudio_BeginPainting( int reserve ) 
 {
-#if STAGED_BUFFERS
-    XAUDIO2_VOICE_STATE state;
-
     // Wait for a buffer to become available
-    while (true)
-    {
-        g_pSourceVoice->GetState( &state );
-        if ( state.BuffersQueued < STREAMING_BUFFER_COUNT )
-            break;
 
-        WaitForSingleObject( g_Context.hBufferEndEvent, INFINITE );
+    // Have we still got space in this buffer?
+    int reserveBytes = reserve * dma.samplebits / 8;
+    if ( bufferOffset + reserveBytes > STREAMING_BUFFER_SIZE )
+    {
+        // This will go off the end of the buffer. We have to wait for a new buffer to become available and swap to it.
+        WaitForSingleObject( g_hBufferReleaseSem, INFINITE );
+
+        g_StreamingBufferIndex = (g_StreamingBufferIndex + 1) % STREAMING_BUFFER_COUNT;
+        hasNewBuffer = true;
+        bufferOffset = 0;
+    }
+    else
+    {
+        hasNewBuffer = false;
     }
 
     // Pass back the pointer to this buffer
-    dma.buffer = g_StreamingBuffers[g_StreamingBufferIndex];
-
-    // Switch to the next buffer
-    g_StreamingBufferIndex = (g_StreamingBufferIndex + 1) % STREAMING_BUFFER_COUNT;
-#else
-    // TODO: where?
-    int offset = (lastSample) & (dma.samples-1);
-    dma.buffer = &g_StreamingBuffer[offset * dma.samplebits / 8];
-#endif
+    dma.buffer = g_StreamingBuffers[g_StreamingBufferIndex] + bufferOffset;
 }
 
 /*
@@ -238,21 +231,22 @@ void XAudio_Submit( int offset, int length )
 {
     //Com_Printf( "Offset %d length %d\n", offset, length );
 
+    // Drop this if we're overloaded...
+    if ( g_Context.BuffersInUse > 2 )
+        return;
+
     XAUDIO2_BUFFER xbuf;
     ZeroMemory( &xbuf, sizeof( xbuf ) );
 
     xbuf.AudioBytes = length * ( dma.samplebits / 8 );
-
-#if STAGED_BUFFERS
     xbuf.pAudioData = dma.buffer;
-#else
-    offset = offset & (dma.samples - 1);
-    UINT32 offsetBytes = 2 * offset * ( dma.samplebits / 8 );
-    xbuf.pAudioData = dma.buffer + offsetBytes;
-#endif
 
     // lastSample = offset + length;
     lastSample += length;
+    bufferOffset += xbuf.AudioBytes;
+
+    if ( hasNewBuffer )
+        xbuf.pContext = g_hBufferReleaseSem;
     
     g_pSourceVoice->SubmitSourceBuffer( &xbuf );
 }

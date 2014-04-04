@@ -29,7 +29,7 @@ typedef struct {
     void        (* Shutdown)( void );
     qboolean    (* Init)( void );
     int         (* GetDMAPos)( void );
-    void        (* BeginPainting)( void );
+    void        (* BeginPainting)( int reserve );
     void        (* Submit)( int offset, int length );
     void        (* Activate)( void );
 } soundApi_t;
@@ -113,9 +113,9 @@ SNDDMA_BeginPainting
 Makes sure dma.buffer is valid
 ===============
 */
-void SNDDMA_BeginPainting( void ) {
+void SNDDMA_BeginPainting( int reserve ) {
 
-    s_soundDriver.BeginPainting();
+    s_soundDriver.BeginPainting( reserve );
 }
 
 /*

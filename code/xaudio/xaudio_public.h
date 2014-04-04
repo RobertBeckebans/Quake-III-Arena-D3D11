@@ -16,7 +16,7 @@ int		XAudio_GetDMAPos(void);
 // shutdown the DMA xfer.
 void	XAudio_Shutdown(void);
 
-void	XAudio_BeginPainting (void);
+void	XAudio_BeginPainting ( int reserve );
 
 void	XAudio_Submit( int offset, int length );
 

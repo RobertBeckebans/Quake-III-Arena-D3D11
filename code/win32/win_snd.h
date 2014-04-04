@@ -33,7 +33,7 @@ int		DirectSound_GetDMAPos(void);
 // shutdown the DMA xfer.
 void	DirectSound_Shutdown(void);
 
-void	DirectSound_BeginPainting (void);
+void	DirectSound_BeginPainting ( int reserve );
 
 void	DirectSound_Submit( int offset, int length );
 

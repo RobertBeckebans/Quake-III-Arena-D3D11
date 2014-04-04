@@ -260,7 +260,7 @@ int DirectSound_InitDS ()
 
 	sample16 = (dma.samplebits/8) - 1;
 
-	SNDDMA_BeginPainting ();
+	SNDDMA_BeginPainting ( dma.samples );
 	if (dma.buffer)
 		memset(dma.buffer, 0, dma.samples * dma.samplebits/8);
 	SNDDMA_Submit(0, dma.samples);
@@ -303,12 +303,14 @@ SNDDMA_BeginPainting
 Makes sure dma.buffer is valid
 ===============
 */
-void DirectSound_BeginPainting( void ) {
+void DirectSound_BeginPainting(  int reserve  ) {
 	int		reps;
 	DWORD	dwSize2;
 	DWORD	*pbuf, *pbuf2;
 	HRESULT	hresult;
 	DWORD	dwStatus;
+
+    (void)( reserve );
 
 	if ( !pDSBuf ) {
 		return;

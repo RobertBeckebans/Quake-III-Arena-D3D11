@@ -14,12 +14,23 @@ struct StreamingVoiceContext : public IXAudio2VoiceCallback
             STDMETHOD_( void, OnStreamEnd )()
             {
             }
-            STDMETHOD_( void, OnBufferStart )( void* )
+            STDMETHOD_( void, OnBufferStart )( void* handle )
             {
+                if ( handle )
+                {
+                    BuffersInUse++;
+                }
             }
-            STDMETHOD_( void, OnBufferEnd )( void* )
+            STDMETHOD_( void, OnBufferEnd )( void* handle )
             {
-                SetEvent( hBufferEndEvent );
+
+                //SetEvent( hBufferEndEvent );
+                HANDLE hSem = (HANDLE) handle;
+                if ( hSem )
+                {
+                    ReleaseSemaphore( hSem, 1, nullptr );
+                    BuffersInUse--;
+                }
             }
             STDMETHOD_( void, OnLoopEnd )( void* )
             {
@@ -28,14 +39,15 @@ struct StreamingVoiceContext : public IXAudio2VoiceCallback
             {
             }
 
-    HANDLE hBufferEndEvent;
+    //HANDLE hBufferEndEvent;
+            int BuffersInUse;
 
-            StreamingVoiceContext() : hBufferEndEvent( CreateEvent( NULL, FALSE, FALSE, NULL ) )
+            StreamingVoiceContext() : BuffersInUse(0) // : hBufferEndEvent( CreateEvent( NULL, FALSE, FALSE, NULL ) )
             {
             }
     virtual ~StreamingVoiceContext()
     {
-        CloseHandle( hBufferEndEvent );
+        //CloseHandle( hBufferEndEvent );
     }
 };
 
