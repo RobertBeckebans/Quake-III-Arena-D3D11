@@ -9,9 +9,6 @@
 // GL headers
 #include "gl_common.h"
 
-// @pjb: this is just here to deliberately fuck the build if driver is used in here
-#define driver #driver_disallowed
-
 typedef struct graphicsApiLayer_s {
     void            (* Shutdown)( void );
     void            (* UnbindResources)( void );

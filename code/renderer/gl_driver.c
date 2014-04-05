@@ -92,9 +92,6 @@ Driver overloads
 
 -----------------------------------------------------------*/
 
-// @pjb: this is just here to deliberately fuck the build if driver is used in here
-#define driver #driver_disallowed
-
 void GLRB_SetGamma( unsigned char red[256], unsigned char green[256], unsigned char blue[256] )
 {
     if ( vdConfig.deviceSupportsGamma )

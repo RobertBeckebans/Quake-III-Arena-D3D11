@@ -6,9 +6,6 @@
 #include "d3d_image.h"
 #include "d3d_shaders.h"
 
-// @pjb: this is just here to deliberately fuck the build if driver is used in here
-#define driver #driver_disallowed
-
 void UpdateDirtyViewVS()
 {
     // Upload the constants
