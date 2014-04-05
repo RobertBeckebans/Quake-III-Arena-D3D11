@@ -1,6 +1,6 @@
 # Quake 3: Arena NT #
 
-This is a version of the Quake 3: Arena source code built for x64 & ARM, Direct3D 11 and, optionally, for Windows 8.
+This is a version of the Quake 3: Arena source code built for x64 & ARM, Windows 8 and Windows Desktop, Direct3D 11, XAudio2 and XInput.
 
 http://twitter.com/PJayB
 
