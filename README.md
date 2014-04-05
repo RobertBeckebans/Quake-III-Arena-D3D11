@@ -1,8 +1,12 @@
 # Quake 3: Arena NT #
 
-This is a version of the Quake 3: Arena source code built for x64, Direct3D 11 and, optionally, for Windows 8.
+This is a version of the Quake 3: Arena source code built for x64 & ARM, Direct3D 11 and, optionally, for Windows 8.
 
 http://twitter.com/PJayB
+
+![Pictured: Windows 8 and Surface RT][1]
+
+
 
 ## About the Port ##
 
@@ -51,7 +55,7 @@ To toggle between Direct3D 11 or OpenGL you can `set r_driver d3d11` or `set r_d
 
 In the desktop version, you can actually do a side-by-side visual comparison of the two renderers. `set r_driver proxy` will do this. 
 
-![Direct3D 11 and OpenGL running side-by-side.][1]
+![Direct3D 11 and OpenGL running side-by-side.][2]
 
 The Windows 8 build is always Direct3D 11, XAudio2, XInput enabled. Networking runs on WinRT sockets.
 
@@ -105,4 +109,5 @@ The Windows 8 build is always Direct3D 11, XAudio2, XInput enabled. Networking r
 
 
 
-  [1]: http://repo.pjblewis.com/q3d3d11/q3a-sbs.png
+  [1]: http://repo.pjblewis.com/q3d3d11/q3withsurfacert.jpg
+  [2]: http://repo.pjblewis.com/q3d3d11/q3a-sbs.png
