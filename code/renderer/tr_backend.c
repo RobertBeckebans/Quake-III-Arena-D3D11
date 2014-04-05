@@ -342,7 +342,7 @@ void ConstructOrtho(float* m, float left, float right, float bottom, float top, 
 {
 	float x = -((right + left) / (right - left));
 	float y = -((top + bottom) / (top - bottom));
-	float z = -((Far + Near) / (Far - Near));
+	float z =  ((Far + Near) / (Far - Near));
 		
 	m[ 0] = 2 / (right - left);
 	m[ 1] = 0;
