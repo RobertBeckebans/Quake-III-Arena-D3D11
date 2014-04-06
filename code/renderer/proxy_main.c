@@ -46,8 +46,6 @@ typedef struct graphicsApiLayer_s {
     void            (* DrawStageGeneric)( const shaderCommands_t *input );
     void            (* DrawStageVertexLitTexture)( const shaderCommands_t *input );
     void            (* DrawStageLightmappedMultitexture)( const shaderCommands_t *input );
-    void            (* BeginTessellate)( const shaderCommands_t* input );
-    void            (* EndTessellate)( const shaderCommands_t* input );
     void            (* DebugDrawAxis)( void );
     void            (* DebugDrawNormals)( const shaderCommands_t *input );
     void            (* DebugDrawTris)( const shaderCommands_t *input );
@@ -343,18 +341,6 @@ void PROXY_DebugDrawPolygon( int color, int numPoints, const float* points )
     glDriver.DebugDrawPolygon( color, numPoints, points );
 }
 
-void PROXY_BeginTessellate( const shaderCommands_t* tess )
-{
-    d3dDriver.BeginTessellate( tess );
-    glDriver.BeginTessellate( tess );
-}
-
-void PROXY_EndTessellate( const shaderCommands_t* tess )
-{
-    d3dDriver.EndTessellate( tess );
-    glDriver.EndTessellate( tess );
-}
-
 static void PositionOpenGLWindowRightOfD3D( void )
 {
     HWND hD3DWnd, hGLWnd;
@@ -467,8 +453,6 @@ void ShadowGfxApiBindings( graphicsApiLayer_t* layer )
     layer->DrawStageGeneric = GFX_DrawStageGeneric;
     layer->DrawStageVertexLitTexture = GFX_DrawStageVertexLitTexture;
     layer->DrawStageLightmappedMultitexture = GFX_DrawStageLightmappedMultitexture;
-    layer->BeginTessellate = GFX_BeginTessellate;
-    layer->EndTessellate = GFX_EndTessellate;
     layer->DebugDrawAxis = GFX_DebugDrawAxis;
     layer->DebugDrawTris = GFX_DebugDrawTris;
     layer->DebugDrawNormals = GFX_DebugDrawNormals;
@@ -515,8 +499,6 @@ void SetProxyBindings( void )
     GFX_DrawStageGeneric = PROXY_DrawStageGeneric;
     GFX_DrawStageVertexLitTexture = PROXY_DrawStageVertexLitTexture;
     GFX_DrawStageLightmappedMultitexture = PROXY_DrawStageLightmappedMultitexture;
-    GFX_BeginTessellate = PROXY_BeginTessellate;
-    GFX_EndTessellate = PROXY_EndTessellate;
     GFX_DebugDrawAxis = PROXY_DebugDrawAxis;
     GFX_DebugDrawTris = PROXY_DebugDrawTris;
     GFX_DebugDrawNormals = PROXY_DebugDrawNormals;

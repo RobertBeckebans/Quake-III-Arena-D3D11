@@ -47,8 +47,6 @@ void D3DDrv_DrawBeam( const image_t* image, const float* color, const vec3_t sta
 void D3DDrv_DrawStageGeneric( const shaderCommands_t *input );
 void D3DDrv_DrawStageVertexLitTexture( const shaderCommands_t *input );
 void D3DDrv_DrawStageLightmappedMultitexture( const shaderCommands_t *input );
-void D3DDrv_BeginTessellate( const shaderCommands_t* input );
-void D3DDrv_EndTessellate( const shaderCommands_t* input );
 void D3DDrv_DebugDrawAxis( void );
 void D3DDrv_DebugDrawTris( const shaderCommands_t *input );
 void D3DDrv_DebugDrawNormals( const shaderCommands_t *input );

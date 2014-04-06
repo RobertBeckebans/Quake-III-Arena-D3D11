@@ -550,16 +550,6 @@ void D3DDrv_DrawStageLightmappedMultitexture( const shaderCommands_t *input )
     D3DDrv_DrawStageGeneric( input );
 }
 
-void D3DDrv_BeginTessellate( const shaderCommands_t* input )
-{
-    // Do nothing.
-}
-
-void D3DDrv_EndTessellate( const shaderCommands_t* input )
-{
-    // Do nothing.
-}
-
 void D3DDrv_DebugDrawAxis( void )
 {
 
