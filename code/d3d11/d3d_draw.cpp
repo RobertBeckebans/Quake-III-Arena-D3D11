@@ -323,7 +323,7 @@ void D3DDrv_DrawSkyBox( const skyboxDrawInfo_t* skybox, const float* eye_origin,
 
 void D3DDrv_DrawBeam( const image_t* image, const float* color, const vec3_t startPoints[], const vec3_t endPoints[], int segs )
 {
-
+    // @pjb: after a grep of the BSP files there is no reference to RT_BEAM anywhere. Skipping.
 }
 
 static void TessDrawTextured( const shaderCommands_t* input, int stage )
