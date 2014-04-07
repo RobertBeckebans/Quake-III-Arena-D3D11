@@ -134,6 +134,7 @@ D3D_PUBLIC void D3DWnd_Init( void )
 
     cvar_t* vid_xpos = ri.Cvar_Get ("vid_xpos", "", 0);
     cvar_t* vid_ypos = ri.Cvar_Get ("vid_ypos", "", 0);
+    cvar_t* r_fullscreen = Cvar_Get( "r_fullscreen", "1", CVAR_ARCHIVE | CVAR_LATCH );
 
     g_hWnd = CreateGameWindow( 
         vid_xpos->integer,
@@ -149,17 +150,17 @@ D3D_PUBLIC void D3DWnd_Init( void )
 
 	QD3D11Device* device = InitDevice();
 
-    // @pjb: todo: do these based on cvars (or if not set, pick the best one)
     DXGI_SWAP_CHAIN_DESC1 scDesc;
 	ZeroMemory( &scDesc, sizeof(scDesc) );
     scDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+    scDesc.Flags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
     
     GetSwapChainDescFromConfig( &scDesc );
-
-    // @pjb: todo: set fullscreen based off config
+    
     DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsd;
     ZeroMemory( &fsd, sizeof(fsd) );
-    fsd.Windowed = TRUE;
+    fsd.Windowed = r_fullscreen->integer > 0;
+    fsd.Scaling = DXGI_MODE_SCALING_STRETCHED;
 
     IDXGISwapChain1* swapChain = nullptr;
     HRESULT hr = QD3D::CreateSwapChain(device, g_hWnd, &scDesc, &fsd, &swapChain);
