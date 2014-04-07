@@ -70,8 +70,15 @@ void DestroySwapChain()
 
 void GetSwapChainDescFromConfig( DXGI_SWAP_CHAIN_DESC1* scDesc )
 {
-    // @pjb: TODO: get based off config
+    // Get best possible swapchain first
     QD3D::GetBestQualitySwapChainDesc( g_pDevice, scDesc );
+
+#ifndef _ARM_
+    // Clamp the max MSAA to user settings
+    cvar_t* d3d_multisamples = Cvar_Get( "d3d_multisamples", "32", CVAR_ARCHIVE | CVAR_LATCH );
+    if ( d3d_multisamples->integer > 0 && scDesc->SampleDesc.Count > d3d_multisamples->integer )
+        scDesc->SampleDesc.Count = d3d_multisamples->integer;
+#endif
 }
 
 

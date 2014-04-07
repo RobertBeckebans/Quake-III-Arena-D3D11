@@ -84,6 +84,7 @@ namespace QD3D
 		scd->Format = DXGI_FORMAT_B8G8R8A8_UNORM;
 		scd->BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		scd->SampleDesc.Count = 1;
+		scd->SampleDesc.Quality = 0;
 	}
 
 	//----------------------------------------------------------------------------
