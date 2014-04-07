@@ -42,7 +42,7 @@ You can find the solution for this in code\win32\Quake3Win32_VS201X.sln. Make su
 
 You can find the solution for this in code\win8\Quake3Win8_VS201X.sln.
 
-- Drop your _baseq3_ directory into the &lt;root&gt; directory. Same goes for Team Arena's _missionpack_ directory if applicable.
+- Drop your _baseq3_ directory into the &lt;root&gt; directory. Team Arena's _missionpack_ is not yet supported.
 - Build & Run.
 
 ## Enabling or Disabling Features ##
