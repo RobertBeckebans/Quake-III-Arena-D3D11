@@ -434,6 +434,8 @@
     <FxCompile>
       <ObjectFileOutput>$(SolutionDir)..\baseq3\hlsl\%(Filename).cso</ObjectFileOutput>
       <ShaderModel>5.0</ShaderModel>
+      <DisableOptimizations>true</DisableOptimizations>
+      <EnableDebuggingInformation>true</EnableDebuggingInformation>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug Win8|Win32'">
@@ -465,6 +467,8 @@
     <FxCompile>
       <ObjectFileOutput>$(OutDir)%(Filename).cso</ObjectFileOutput>
       <ShaderModel>5.0</ShaderModel>
+      <DisableOptimizations>true</DisableOptimizations>
+      <EnableDebuggingInformation>true</EnableDebuggingInformation>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -496,6 +500,8 @@
     <FxCompile>
       <ObjectFileOutput>$(SolutionDir)..\baseq3\hlsl\%(Filename).cso</ObjectFileOutput>
       <ShaderModel>5.0</ShaderModel>
+      <DisableOptimizations>true</DisableOptimizations>
+      <EnableDebuggingInformation>true</EnableDebuggingInformation>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug Win8|x64'">
@@ -527,6 +533,8 @@
     <FxCompile>
       <ObjectFileOutput>$(OutDir)%(Filename).cso</ObjectFileOutput>
       <ShaderModel>5.0</ShaderModel>
+      <DisableOptimizations>true</DisableOptimizations>
+      <EnableDebuggingInformation>true</EnableDebuggingInformation>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
@@ -558,6 +566,8 @@
     <FxCompile>
       <ObjectFileOutput>$(SolutionDir)..\baseq3\hlsl\%(Filename).cso</ObjectFileOutput>
       <ShaderModel>4.0_level_9_1</ShaderModel>
+      <DisableOptimizations>true</DisableOptimizations>
+      <EnableDebuggingInformation>true</EnableDebuggingInformation>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug Win8|ARM'">
@@ -589,6 +599,8 @@
     <FxCompile>
       <ObjectFileOutput>$(OutDir)%(Filename).cso</ObjectFileOutput>
       <ShaderModel>4.0_level_9_1</ShaderModel>
+      <DisableOptimizations>true</DisableOptimizations>
+      <EnableDebuggingInformation>true</EnableDebuggingInformation>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
