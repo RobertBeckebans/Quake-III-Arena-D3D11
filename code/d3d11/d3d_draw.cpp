@@ -116,7 +116,7 @@ static void UpdateTessBuffer( d3dCircularBuffer_t* circBuf, const void* cpuBuf, 
     g_pImmediateContext->Unmap( gpuBuf, 0 );
 }
 
-static void UpdateTessBuffers( const shaderCommands_t* input )
+static void UpdateTessBuffers( const shaderCommands_t* input, bool needDlights, bool needFog )
 {
     // Lock down the buffers
     UpdateTessBuffer( &g_DrawState.tessBufs.indexes, input->indexes, sizeof(glIndex_t) * input->numIndexes );
@@ -124,35 +124,46 @@ static void UpdateTessBuffers( const shaderCommands_t* input )
 
 	for ( int stage = 0; stage < MAX_SHADER_STAGES; stage++ )
 	{
+        const shaderStage_t* xstage = input->xstages[stage];
 		const stageVars_t *cpuStage = &input->svars[stage];
 
-		if ( !cpuStage ) {
+		if ( !xstage || !cpuStage ) {
 			break;
 		}
 
         d3dTessStageBuffers_t* gpuStage = &g_DrawState.tessBufs.stages[stage];
         UpdateTessBuffer( &gpuStage->colors, cpuStage->colors, sizeof(color4ub_t) * input->numVertexes );
+        UpdateTessBuffer( &gpuStage->texCoords[0], cpuStage->texcoords[0], sizeof(vec2_t) * input->numVertexes );
 
-        for ( int tex = 0; tex < NUM_TEXTURE_BUNDLES; ++tex )
-            UpdateTessBuffer( &gpuStage->texCoords[tex], cpuStage->texcoords[tex], sizeof(vec2_t) * input->numVertexes );
+        // Only update if we need these coords
+        if ( xstage->bundle[1].image[0] != 0 )
+		{
+            UpdateTessBuffer( &gpuStage->texCoords[1], cpuStage->texcoords[1], sizeof(vec2_t) * input->numVertexes );
+        }
     }
 
-    for ( int l = 0; l < input->dlightCount; ++l )
+    if ( needDlights )
     {
-        const dlightProjectionInfo_t* cpuLight = &input->dlightInfo[l];
-        d3dTessLightProjBuffers_t* gpuLight = &g_DrawState.tessBufs.dlights[l];
+        for ( int l = 0; l < input->dlightCount; ++l )
+        {
+            const dlightProjectionInfo_t* cpuLight = &input->dlightInfo[l];
+            d3dTessLightProjBuffers_t* gpuLight = &g_DrawState.tessBufs.dlights[l];
 
-		if ( !cpuLight->numIndexes ) {
-			continue;
-		}
+		    if ( !cpuLight->numIndexes ) {
+			    continue;
+		    }
 
-        UpdateTessBuffer( &gpuLight->indexes, cpuLight->hitIndexes, sizeof(glIndex_t) * cpuLight->numIndexes );
-        UpdateTessBuffer( &gpuLight->colors, cpuLight->colorArray, sizeof(byte) * 4 * input->numVertexes );
-        UpdateTessBuffer( &gpuLight->texCoords, cpuLight->texCoordsArray, sizeof(float) * 2 * input->numVertexes );
+            UpdateTessBuffer( &gpuLight->indexes, cpuLight->hitIndexes, sizeof(glIndex_t) * cpuLight->numIndexes );
+            UpdateTessBuffer( &gpuLight->colors, cpuLight->colorArray, sizeof(byte) * 4 * input->numVertexes );
+            UpdateTessBuffer( &gpuLight->texCoords, cpuLight->texCoordsArray, sizeof(float) * 2 * input->numVertexes );
+        }
     }
 
-    UpdateTessBuffer( &g_DrawState.tessBufs.fog.colors, input->fogVars.colors, sizeof(color4ub_t) * input->numVertexes );
-    UpdateTessBuffer( &g_DrawState.tessBufs.fog.texCoords, input->fogVars.texcoords, sizeof(vec2_t) * input->numVertexes );
+    if ( needFog )
+    {
+        UpdateTessBuffer( &g_DrawState.tessBufs.fog.colors, input->fogVars.colors, sizeof(color4ub_t) * input->numVertexes );
+        UpdateTessBuffer( &g_DrawState.tessBufs.fog.texCoords, input->fogVars.texcoords, sizeof(vec2_t) * input->numVertexes );
+    }
 }
 
 static const d3dImage_t* GetAnimatedImage( textureBundle_t *bundle, float shaderTime ) {
@@ -546,7 +557,13 @@ static void IterateStagesGeneric( const shaderCommands_t *input )
 void D3DDrv_DrawStageGeneric( const shaderCommands_t *input )
 {
     UpdateViewState();
-    UpdateTessBuffers( input );
+
+    // Determine what buffers we need to update for this draw call
+    bool needDLights = input->dlightBits && input->shader->sort <= SS_OPAQUE
+		&& !(input->shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY) );
+    bool needFog = input->fogNum && input->shader->fogPass;
+
+    UpdateTessBuffers( input, needDLights, needFog );
 
     // todo: wireframe mode?
     CommitRasterizerState( input->shader->cullType, input->shader->polygonOffset, qfalse );
@@ -561,13 +578,12 @@ void D3DDrv_DrawStageGeneric( const shaderCommands_t *input )
     IterateStagesGeneric( input );
 
     // dynamic lighting
-	if ( input->dlightBits && input->shader->sort <= SS_OPAQUE
-		&& !(input->shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY) ) ) {
+	if ( needDLights ) {
         TessProjectDynamicLights( input );
     }
 
     // fog
-	if ( input->fogNum && input->shader->fogPass ) {
+	if ( needFog ) {
 		TessDrawFog( input );
 	}    
 }
