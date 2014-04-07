@@ -90,6 +90,9 @@ static void SetTessVertexBuffersMT( const d3dTessBuffers_t* tess, const d3dTessS
 
 static void UpdateTessBuffer( d3dCircularBuffer_t* circBuf, const void* cpuBuf, UINT size )
 {
+    if ( size == 0 )
+        return;
+
     ID3D11Buffer* gpuBuf = circBuf->buffer;
 
 	D3D11_MAPPED_SUBRESOURCE map;
