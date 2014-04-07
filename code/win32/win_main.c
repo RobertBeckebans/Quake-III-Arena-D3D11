@@ -330,46 +330,40 @@ void * QDECL Sys_LoadDll( const char *name, char *fqpath , int (QDECL **entryPoi
 	}
 #endif
 
-#ifndef NDEBUG
+    // @pjb: allowing use of DLLs in different paths for this build
+
 	libHandle = LoadLibrary( filename );
   if (libHandle)
     Com_Printf("LoadLibrary '%s' ok\n", filename);
   else
     Com_Printf("LoadLibrary '%s' failed\n", filename);
 	if ( !libHandle ) {
-#endif
 	basepath = Cvar_VariableString( "fs_basepath" );
 	cdpath = Cvar_VariableString( "fs_cdpath" );
 	gamedir = Cvar_VariableString( "fs_game" );
 
 	fn = FS_BuildOSPath( basepath, gamedir, filename );
 	libHandle = LoadLibrary( fn );
-#ifndef NDEBUG
   if (libHandle)
     Com_Printf("LoadLibrary '%s' ok\n", fn);
   else
     Com_Printf("LoadLibrary '%s' failed\n", fn);
-#endif
 
 	if ( !libHandle ) {
 		if( cdpath[0] ) {
 			fn = FS_BuildOSPath( cdpath, gamedir, filename );
 			libHandle = LoadLibrary( fn );
-#ifndef NDEBUG
       if (libHandle)
         Com_Printf("LoadLibrary '%s' ok\n", fn);
       else
         Com_Printf("LoadLibrary '%s' failed\n", fn);
-#endif
 		}
 
 		if ( !libHandle ) {
 			return NULL;
 		}
 	}
-#ifndef NDEBUG
 	}
-#endif
 
 	dllEntry = ( void (QDECL *)( int (QDECL *)( size_t, ... ) ) )GetProcAddress( libHandle, "dllEntry" ); 
 	*entryPoint = (int (QDECL *)(size_t,...))GetProcAddress( libHandle, "vmMain" );
