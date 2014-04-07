@@ -92,11 +92,17 @@ The Windows 8 build is always Direct3D 11, XAudio2, XInput enabled. Networking r
 **Q**: I'm seeing `Cannot find ui/hud.txt`.
 **A**: This means you're running normal Q3A with the Team Arena ui.dll. Swap it out for the proper one.
 
-**Q**: Is this a huge graphical improvement?
+**Q**: Is this a huge graphical improvement? 
 **A**: It's still the same art, so no. Theoretically it can support textures up to 16K square now though!
 
-**Q**: Is this a huge speed improvement?
-**A**: I'm emulating the way things were done in 1999, so the performance is equivalent. Dramatic wins could be achieved but would require substantial rewrites of the rendering code. I have considered starting from the ground up on a daily basis since starting this project, but I've yet to cave in to this temptation.
+**Q**: Have you added loads of cool D3D11 specific shinies?
+**A**: Not yet. I wanted to be as non-invasive as possible, at least to start with. Adding funky new things would require many more alterations to the underlying engine first, so it's not a trivial job. See below.
+
+**Q**: Is D3D11 a huge speed improvement over OpenGL?
+**A**: I'm using D3D11 to emulate the way things were done in 1999, so the performance is equivalent to OpenGL. Dramatic wins could be achieved by storing geometry on the GPU instead of clipping and transforming it on the CPU, but Quake 3 takes extensive advantage of OpenGL 1's immediate nature. Changing that would require substantial rewriting of the rendering code. I have considered starting from the ground up on a daily basis since starting this project, but I've yet to cave in to this temptation.
+
+**Q**: What's the performance like on the Surface RT?
+**A**: 30+ fps, averaging 42. It copes less well with mirrors and portals, dropping to 15.
 
 **Q**: How do I know what code you've changed?
 **A**: Apart from the Git diffs, you can look for `@pjb` in the source code.
