@@ -61,16 +61,15 @@ The Windows 8 build is always Direct3D 11, XAudio2, XInput enabled. Networking r
 
 ## ".plan" ##
 
-- Add more configuration settings to the Direct3D 11 layer. At the moment this will just select the best possible settings based on your video capabilities. I'll hook these up to Cvars eventually.
-- Optimize the Direct3D 11 layer much more.
-- Implement stencil shadows for Direct3D 11.
-- Port the virtual machine to ARM and x64.
-- Texture compression (not that it needs it)
-- Shadowing solution in D3D11
-- New, widescreen menu
-- Better keyboard and gamepad UI navigation
-- Auto-detect `$(SolutionDir)..` on startup
-- Optimize Win8 sockets ('ere be dragons!)
+- Port the virtual machine to ARM and x64 so the game can run with `sv_pure 1` again.
+- New, widescreen menu.
+- Better keyboard and gamepad UI navigation.
+- Auto-detect `$(SolutionDir)..` on startup.
+- Optimize Win8 sockets. ('ere be dragons!)
+- Texture compression (not that it needs it).
+- Implement a shadowing solution in D3D11 to replace the missing one. (`r_shadows 2` will do nothing right now.)
+- Shift work off the CPU onto the GPU. (Search for `tess.` in the code for sad times.)
+- Fun D3D11 effects :)
 
 ## Known Issues ##
 
