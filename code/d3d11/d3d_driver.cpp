@@ -162,12 +162,14 @@ void D3DDrv_ResetState2D( void )
     CommitRasterizerState( CT_TWO_SIDED, qfalse, qfalse );
 
     D3DDrv_SetPortalRendering( qfalse, NULL, NULL );
+    D3DDrv_SetDepthRange( 0, 0 );
 }
 
 void D3DDrv_ResetState3D( void )
 {
     D3DDrv_SetModelView( s_identityMatrix );
     D3DDrv_SetState( GLS_DEFAULT );
+    D3DDrv_SetDepthRange( 0, 1 );
 }
 
 void D3DDrv_SetPortalRendering( qboolean enabled, const float* flipMatrix, const float* plane )
