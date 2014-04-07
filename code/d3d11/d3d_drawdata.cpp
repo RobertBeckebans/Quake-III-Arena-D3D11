@@ -389,7 +389,7 @@ void DestroyBlendStates( d3dBlendStates_t* bs )
     Com_Memset( bs, 0, sizeof( d3dBlendStates_t ) );
 }
 
-#define ESTIMATED_DRAW_CALLS 4096
+#define ESTIMATED_DRAW_CALLS 128
 
 static d3dCircularBuffer_t CreateTessIndexBuffer()
 {
