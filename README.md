@@ -102,9 +102,6 @@ The Windows 8 build is always Direct3D 11, XAudio2, XInput enabled. Networking r
 **Q**: How do I know what code you've changed?
 **A**: Apart from the Git diffs, you can look for `@pjb` in the source code.
 
-**Q**: Why?
-**A**: Because I love Quake and I love code.
-
 
 
   [1]: http://repo.pjblewis.com/q3d3d11/q3withsurfacert.jpg
