@@ -46,7 +46,7 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <AppxManifest Include="Package_VS2012.appxmanifest" />
+    <AppxManifest Include="Package_VS2013.appxmanifest" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="packagelist.txt" />

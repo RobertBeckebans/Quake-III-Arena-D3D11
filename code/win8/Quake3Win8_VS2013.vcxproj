@@ -305,7 +305,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Splicing in resources...</Message>
-      <Command>$(ProjectDir)AppxrecipeBlender /mapfile "$(ProjectDir)packagelist.txt" /recipefile "$(OutDir)Quake3Win8_VS2012.build.appxrecipe" /outfile "$(OutDir)Quake3Win8_VS2012.build.appxrecipe" /D CONFIGURATION "$(Configuration)" /D PLATFORM "$(Platform)" /D OUTDIR "$(OutDir)."</Command>
+      <Command>$(ProjectDir)AppxrecipeBlender /mapfile "$(ProjectDir)packagelist.txt" /recipefile "$(OutDir)Quake3Win8_VS2013.build.appxrecipe" /outfile "$(OutDir)Quake3Win8_VS2013.build.appxrecipe" /D CONFIGURATION "$(Configuration)" /D PLATFORM "$(Platform)" /D OUTDIR "$(OutDir)."</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -348,7 +348,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Splicing in resources...</Message>
-      <Command>$(ProjectDir)AppxrecipeBlender /mapfile "$(ProjectDir)packagelist.txt" /recipefile "$(OutDir)Quake3Win8_VS2012.build.appxrecipe" /outfile "$(OutDir)Quake3Win8_VS2012.build.appxrecipe" /D CONFIGURATION "$(Configuration)" /D PLATFORM "$(Platform)" /D OUTDIR "$(OutDir)."</Command>
+      <Command>$(ProjectDir)AppxrecipeBlender /mapfile "$(ProjectDir)packagelist.txt" /recipefile "$(OutDir)Quake3Win8_VS2013.build.appxrecipe" /outfile "$(OutDir)Quake3Win8_VS2013.build.appxrecipe" /D CONFIGURATION "$(Configuration)" /D PLATFORM "$(Platform)" /D OUTDIR "$(OutDir)."</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -392,7 +392,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Splicing in resources...</Message>
-      <Command>$(ProjectDir)AppxrecipeBlender /mapfile "$(ProjectDir)packagelist.txt" /recipefile "$(OutDir)Quake3Win8_VS2012.build.appxrecipe" /outfile "$(OutDir)Quake3Win8_VS2012.build.appxrecipe" /D CONFIGURATION "$(Configuration)" /D PLATFORM "$(Platform)" /D OUTDIR "$(OutDir)."</Command>
+      <Command>$(ProjectDir)AppxrecipeBlender /mapfile "$(ProjectDir)packagelist.txt" /recipefile "$(OutDir)Quake3Win8_VS2013.build.appxrecipe" /outfile "$(OutDir)Quake3Win8_VS2013.build.appxrecipe" /D CONFIGURATION "$(Configuration)" /D PLATFORM "$(Platform)" /D OUTDIR "$(OutDir)."</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -436,7 +436,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Splicing in resources...</Message>
-      <Command>$(ProjectDir)AppxrecipeBlender /mapfile "$(ProjectDir)packagelist.txt" /recipefile "$(OutDir)Quake3Win8_VS2012.build.appxrecipe" /outfile "$(OutDir)Quake3Win8_VS2012.build.appxrecipe" /D CONFIGURATION "$(Configuration)" /D PLATFORM "$(Platform)" /D OUTDIR "$(OutDir)."</Command>
+      <Command>$(ProjectDir)AppxrecipeBlender /mapfile "$(ProjectDir)packagelist.txt" /recipefile "$(OutDir)Quake3Win8_VS2013.build.appxrecipe" /outfile "$(OutDir)Quake3Win8_VS2013.build.appxrecipe" /D CONFIGURATION "$(Configuration)" /D PLATFORM "$(Platform)" /D OUTDIR "$(OutDir)."</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -480,7 +480,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Splicing in resources...</Message>
-      <Command>$(ProjectDir)AppxrecipeBlender /mapfile "$(ProjectDir)packagelist.txt" /recipefile "$(OutDir)Quake3Win8_VS2012.build.appxrecipe" /outfile "$(OutDir)Quake3Win8_VS2012.build.appxrecipe" /D CONFIGURATION "$(Configuration)" /D PLATFORM "$(Platform)" /D OUTDIR "$(OutDir)."</Command>
+      <Command>$(ProjectDir)AppxrecipeBlender /mapfile "$(ProjectDir)packagelist.txt" /recipefile "$(OutDir)Quake3Win8_VS2013.build.appxrecipe" /outfile "$(OutDir)Quake3Win8_VS2013.build.appxrecipe" /D CONFIGURATION "$(Configuration)" /D PLATFORM "$(Platform)" /D OUTDIR "$(OutDir)."</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -525,7 +525,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Splicing in resources...</Message>
-      <Command>$(ProjectDir)AppxrecipeBlender /mapfile "$(ProjectDir)packagelist.txt" /recipefile "$(OutDir)Quake3Win8_VS2012.build.appxrecipe" /outfile "$(OutDir)Quake3Win8_VS2012.build.appxrecipe" /D CONFIGURATION "$(Configuration)" /D PLATFORM "$(Platform)" /D OUTDIR "$(OutDir)."</Command>
+      <Command>$(ProjectDir)AppxrecipeBlender /mapfile "$(ProjectDir)packagelist.txt" /recipefile "$(OutDir)Quake3Win8_VS2013.build.appxrecipe" /outfile "$(OutDir)Quake3Win8_VS2013.build.appxrecipe" /D CONFIGURATION "$(Configuration)" /D PLATFORM "$(Platform)" /D OUTDIR "$(OutDir)."</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -577,7 +577,7 @@
       <PreserveSbr>true</PreserveSbr>
     </Bscmake>
     <PostBuildEvent>
-      <Command>$(ProjectDir)AppxrecipeBlender /mapfile "$(ProjectDir)packagelist.txt" /recipefile "$(OutDir)Quake3Win8_VS2012.build.appxrecipe" /outfile "$(OutDir)Quake3Win8_VS2012.build.appxrecipe" /D CONFIGURATION "$(Configuration)" /D PLATFORM "$(Platform)" /D OUTDIR "$(OutDir)."</Command>
+      <Command>$(ProjectDir)AppxrecipeBlender /mapfile "$(ProjectDir)packagelist.txt" /recipefile "$(OutDir)Quake3Win8_VS2013.build.appxrecipe" /outfile "$(OutDir)Quake3Win8_VS2013.build.appxrecipe" /D CONFIGURATION "$(Configuration)" /D PLATFORM "$(Platform)" /D OUTDIR "$(OutDir)."</Command>
       <Message>Splicing in resources...</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -620,7 +620,7 @@
       <PreserveSbr>true</PreserveSbr>
     </Bscmake>
     <PostBuildEvent>
-      <Command>$(ProjectDir)AppxrecipeBlender /mapfile "$(ProjectDir)packagelist.txt" /recipefile "$(OutDir)Quake3Win8_VS2012.build.appxrecipe" /outfile "$(OutDir)Quake3Win8_VS2012.build.appxrecipe" /D CONFIGURATION "$(Configuration)" /D PLATFORM "$(Platform)" /D OUTDIR "$(OutDir)."</Command>
+      <Command>$(ProjectDir)AppxrecipeBlender /mapfile "$(ProjectDir)packagelist.txt" /recipefile "$(OutDir)Quake3Win8_VS2013.build.appxrecipe" /outfile "$(OutDir)Quake3Win8_VS2013.build.appxrecipe" /D CONFIGURATION "$(Configuration)" /D PLATFORM "$(Platform)" /D OUTDIR "$(OutDir)."</Command>
       <Message>Splicing in resources...</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -664,7 +664,7 @@
       <PreserveSbr>true</PreserveSbr>
     </Bscmake>
     <PostBuildEvent>
-      <Command>$(ProjectDir)AppxrecipeBlender /mapfile "$(ProjectDir)packagelist.txt" /recipefile "$(OutDir)Quake3Win8_VS2012.build.appxrecipe" /outfile "$(OutDir)Quake3Win8_VS2012.build.appxrecipe" /D CONFIGURATION "$(Configuration)" /D PLATFORM "$(Platform)" /D OUTDIR "$(OutDir)."</Command>
+      <Command>$(ProjectDir)AppxrecipeBlender /mapfile "$(ProjectDir)packagelist.txt" /recipefile "$(OutDir)Quake3Win8_VS2013.build.appxrecipe" /outfile "$(OutDir)Quake3Win8_VS2013.build.appxrecipe" /D CONFIGURATION "$(Configuration)" /D PLATFORM "$(Platform)" /D OUTDIR "$(OutDir)."</Command>
       <Message>Splicing in resources...</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -702,7 +702,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Splicing in resources...</Message>
-      <Command>$(ProjectDir)AppxrecipeBlender /mapfile "$(ProjectDir)packagelist.txt" /recipefile "$(OutDir)Quake3Win8_VS2012.build.appxrecipe" /outfile "$(OutDir)Quake3Win8_VS2012.build.appxrecipe" /D CONFIGURATION "$(Configuration)" /D PLATFORM "$(Platform)" /D OUTDIR "$(OutDir)."</Command>
+      <Command>$(ProjectDir)AppxrecipeBlender /mapfile "$(ProjectDir)packagelist.txt" /recipefile "$(OutDir)Quake3Win8_VS2013.build.appxrecipe" /outfile "$(OutDir)Quake3Win8_VS2013.build.appxrecipe" /D CONFIGURATION "$(Configuration)" /D PLATFORM "$(Platform)" /D OUTDIR "$(OutDir)."</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -746,7 +746,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Splicing in resources...</Message>
-      <Command>$(ProjectDir)AppxrecipeBlender /mapfile "$(ProjectDir)packagelist.txt" /recipefile "$(OutDir)Quake3Win8_VS2012.build.appxrecipe" /outfile "$(OutDir)Quake3Win8_VS2012.build.appxrecipe" /D CONFIGURATION "$(Configuration)" /D PLATFORM "$(Platform)" /D OUTDIR "$(OutDir)."</Command>
+      <Command>$(ProjectDir)AppxrecipeBlender /mapfile "$(ProjectDir)packagelist.txt" /recipefile "$(OutDir)Quake3Win8_VS2013.build.appxrecipe" /outfile "$(OutDir)Quake3Win8_VS2013.build.appxrecipe" /D CONFIGURATION "$(Configuration)" /D PLATFORM "$(Platform)" /D OUTDIR "$(OutDir)."</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -791,7 +791,7 @@
     </Midl>
     <PostBuildEvent>
       <Message>Splicing in resources...</Message>
-      <Command>$(ProjectDir)AppxrecipeBlender /mapfile "$(ProjectDir)packagelist.txt" /recipefile "$(OutDir)Quake3Win8_VS2012.build.appxrecipe" /outfile "$(OutDir)Quake3Win8_VS2012.build.appxrecipe" /D CONFIGURATION "$(Configuration)" /D PLATFORM "$(Platform)" /D OUTDIR "$(OutDir)."</Command>
+      <Command>$(ProjectDir)AppxrecipeBlender /mapfile "$(ProjectDir)packagelist.txt" /recipefile "$(OutDir)Quake3Win8_VS2013.build.appxrecipe" /outfile "$(OutDir)Quake3Win8_VS2013.build.appxrecipe" /D CONFIGURATION "$(Configuration)" /D PLATFORM "$(Platform)" /D OUTDIR "$(OutDir)."</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
