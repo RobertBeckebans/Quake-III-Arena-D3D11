@@ -389,32 +389,39 @@ void DestroyBlendStates( d3dBlendStates_t* bs )
     Com_Memset( bs, 0, sizeof( d3dBlendStates_t ) );
 }
 
-static ID3D11Buffer* CreateTessIndexBuffer()
+#define ESTIMATED_DRAW_CALLS 4096
+
+static d3dCircularBuffer_t CreateTessIndexBuffer()
 {
 	D3D11_BUFFER_DESC bd;
 	ZeroMemory(&bd, sizeof(bd));
 
 	bd.Usage = D3D11_USAGE_DYNAMIC;
-	bd.ByteWidth = (UINT)sizeof(glIndex_t) * SHADER_MAX_INDEXES;
+	bd.ByteWidth = (UINT)sizeof(glIndex_t) * SHADER_MAX_INDEXES * ESTIMATED_DRAW_CALLS;
 	bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	
+
 	ID3D11Buffer* buffer;
 	g_pDevice->CreateBuffer(&bd, NULL, &buffer);
     if ( !buffer ) {
         ri.Error( ERR_FATAL, "Could not create tess index buffer.\n" );
     }
+
+    d3dCircularBuffer_t cb;
+    ZeroMemory( &cb, sizeof(cb) );
+    cb.buffer = buffer;
+    cb.size = bd.ByteWidth;
     
-    return buffer;
+    return cb;
 }
 
-static ID3D11Buffer* CreateTessVertexBuffer( size_t size )
+static d3dCircularBuffer_t CreateTessVertexBuffer( size_t size )
 {
 	D3D11_BUFFER_DESC bd;
 	ZeroMemory(&bd, sizeof(bd));
 
 	bd.Usage = D3D11_USAGE_DYNAMIC;
-	bd.ByteWidth = (UINT)size * SHADER_MAX_VERTEXES;
+	bd.ByteWidth = (UINT)size * SHADER_MAX_VERTEXES * ESTIMATED_DRAW_CALLS;
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	
@@ -423,8 +430,13 @@ static ID3D11Buffer* CreateTessVertexBuffer( size_t size )
     if ( !buffer ) {
         ri.Error( ERR_FATAL, "Could not create tess vertex buffer.\n" );
     }
+
+    d3dCircularBuffer_t cb;
+    ZeroMemory( &cb, sizeof(cb) );
+    cb.buffer = buffer;
+    cb.size = bd.ByteWidth;
     
-    return buffer;
+    return cb;
 }
 
 void InitTessBuffers( d3dTessBuffers_t* tess )
@@ -476,25 +488,25 @@ void InitTessBuffers( d3dTessBuffers_t* tess )
 
 void DestroyTessBuffers( d3dTessBuffers_t* tess )
 {
-    SAFE_RELEASE( tess->indexes );
-    SAFE_RELEASE( tess->xyz );
+    SAFE_RELEASE( tess->indexes.buffer );
+    SAFE_RELEASE( tess->xyz.buffer );
 
     for ( int stage = 0; stage < MAX_SHADER_STAGES; ++stage )
     {
-        SAFE_RELEASE( tess->stages[stage].colors );
+        SAFE_RELEASE( tess->stages[stage].colors.buffer );
         for ( int tex = 0; tex < NUM_TEXTURE_BUNDLES; ++tex )
-            SAFE_RELEASE( tess->stages[stage].texCoords[tex] );
+            SAFE_RELEASE( tess->stages[stage].texCoords[tex].buffer );
     }
 
     for ( int l = 0; l < MAX_DLIGHTS; ++l )
     {
-        SAFE_RELEASE( tess->dlights[l].indexes );
-        SAFE_RELEASE( tess->dlights[l].colors );
-        SAFE_RELEASE( tess->dlights[l].texCoords );
+        SAFE_RELEASE( tess->dlights[l].indexes.buffer );
+        SAFE_RELEASE( tess->dlights[l].colors.buffer );
+        SAFE_RELEASE( tess->dlights[l].texCoords.buffer );
     }
 
-    SAFE_RELEASE( tess->fog.colors );
-    SAFE_RELEASE( tess->fog.texCoords );
+    SAFE_RELEASE( tess->fog.colors.buffer );
+    SAFE_RELEASE( tess->fog.texCoords.buffer );
 
     Com_Memset( tess, 0, sizeof( *tess ) );
 }

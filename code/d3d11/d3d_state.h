@@ -135,29 +135,37 @@ struct d3dGenericStageRenderData_t
     ID3D11InputLayout* inputLayoutMT;
 };
 
+struct d3dCircularBuffer_t
+{
+    ID3D11Buffer* buffer;
+    unsigned currentOffset;
+    unsigned nextOffset;
+    unsigned size;
+};
+
 // @pjb: represents the GPU caches for stageVars_t
 struct d3dTessStageBuffers_t {
-    ID3D11Buffer* texCoords[NUM_TEXTURE_BUNDLES];
-    ID3D11Buffer* colors;
+    d3dCircularBuffer_t texCoords[NUM_TEXTURE_BUNDLES];
+    d3dCircularBuffer_t colors;
 };
 
 // @pjb: represents the GPU caches for stageVars_t
 struct d3dTessFogBuffers_t {
-    ID3D11Buffer* texCoords;
-    ID3D11Buffer* colors;
+    d3dCircularBuffer_t texCoords;
+    d3dCircularBuffer_t colors;
 };
 
 // @pjb: represents the dynamic light rendering information
 struct d3dTessLightProjBuffers_t {
-    ID3D11Buffer* indexes;
-    ID3D11Buffer* texCoords;
-    ID3D11Buffer* colors;
+    d3dCircularBuffer_t indexes;
+    d3dCircularBuffer_t texCoords;
+    d3dCircularBuffer_t colors;
 };
 
 // @pjb: represents the GPU caches for shaderCommands_t
 struct d3dTessBuffers_t {
-    ID3D11Buffer* indexes;
-    ID3D11Buffer* xyz;
+    d3dCircularBuffer_t indexes;
+    d3dCircularBuffer_t xyz;
     d3dTessStageBuffers_t stages[MAX_SHADER_STAGES];
     d3dTessLightProjBuffers_t dlights[MAX_DLIGHTS];
     d3dTessFogBuffers_t fog;
@@ -204,6 +212,8 @@ struct d3dDrawState_t
     d3dRasterStates_t rasterStates;
     d3dDepthStates_t depthStates;
     d3dBlendStates_t blendStates;
+
+    ID3D11Query* frameQuery;
 };
 
 // @pjb: stores the run-time game state. The game is set up like a state machine so we'll be doing the same.
@@ -238,7 +248,6 @@ extern IDXGISwapChain1* g_pSwapChain;
 
 void InitDrawState();
 void DestroyDrawState();
-
 
 void DrawQuad( 
     const d3dQuadRenderData_t* qrd, 

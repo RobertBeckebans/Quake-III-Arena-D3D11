@@ -138,7 +138,18 @@ void D3DDrv_SetViewport( int left, int top, int width, int height )
 
 void D3DDrv_Flush( void )
 {
-    g_pImmediateContext->Flush();
+    g_pImmediateContext->End( g_DrawState.frameQuery );
+
+    BOOL finished = FALSE;
+    HRESULT hr;
+    do
+    {
+        YieldProcessor();
+        hr = g_pImmediateContext->GetData( g_DrawState.frameQuery, &finished, sizeof(finished), 0 );
+    }
+    while ( ( hr == S_OK || hr == S_FALSE ) && finished == FALSE );
+
+    assert( SUCCEEDED( hr ) );
 }
 
 void D3DDrv_ResetState2D( void )
@@ -198,7 +209,6 @@ void D3DDrv_SetDrawBuffer( int buffer )
 void D3DDrv_EndFrame( void )
 {
     int frequency = vdConfig.displayFrequency;
-
 	if ( r_swapInterval->integer > 0 ) 
     {
 		frequency = min( vdConfig.displayFrequency, 60 / r_swapInterval->integer );

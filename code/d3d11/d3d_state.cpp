@@ -401,6 +401,14 @@ void InitDrawState()
     FLOAT clearCol[4] = { 0, 0, 0, 0 };
     g_pImmediateContext->ClearRenderTargetView( g_BufferState.backBufferView, clearCol );
     g_pImmediateContext->ClearDepthStencilView( g_BufferState.depthBufferView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0 );
+    
+    // Create the frame query
+    SAFE_RELEASE( g_DrawState.frameQuery );
+    D3D11_QUERY_DESC qd;
+    ZeroMemory( &qd, sizeof( qd ) );
+    qd.Query = D3D11_QUERY_EVENT;
+    ID3D11Query* query = nullptr;
+    g_pDevice->CreateQuery( &qd, &g_DrawState.frameQuery );    
 }
 
 void DestroyDrawState()
