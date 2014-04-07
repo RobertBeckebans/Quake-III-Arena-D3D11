@@ -159,7 +159,7 @@ D3D_PUBLIC void D3DWnd_Init( void )
     
     DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsd;
     ZeroMemory( &fsd, sizeof(fsd) );
-    fsd.Windowed = r_fullscreen->integer > 0;
+    fsd.Windowed = r_fullscreen->integer <= 0;
     fsd.Scaling = DXGI_MODE_SCALING_STRETCHED;
 
     IDXGISwapChain1* swapChain = nullptr;
