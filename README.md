@@ -64,24 +64,23 @@ The Windows 8 build is always Direct3D 11, XAudio2, XInput enabled. Networking r
 - Add more configuration settings to the Direct3D 11 layer. At the moment this will just select the best possible settings based on your video capabilities. I'll hook these up to Cvars eventually.
 - Optimize the Direct3D 11 layer much more.
 - Implement stencil shadows for Direct3D 11.
-- Port the QVM code.
+- Port the virtual machine to ARM and x64.
 - Texture compression (not that it needs it)
-- Offline shader compilation
-- Shadow solution in D3D11
+- Shadowing solution in D3D11
 - New, widescreen menu
 - Better keyboard and gamepad UI navigation
-- Auto-detect `$(ProjectDir)..` on startup
+- Auto-detect `$(SolutionDir)..` on startup
 - Optimize Win8 sockets ('ere be dragons!)
 
 ## Known Issues ##
 
 - Win8: Broadcast sockets are not implemented. You'll need to `connect <ip>` from the console to join a game hosted by a Win8 build.
 - `r_smp 1` will cause a deadlock on many systems. This is actually a bug in Q3A but I haven't had time to fix it yet.
-- Direct3D currently leaks on exit. Sorry about that.
-- Cutscene sound is choppy/poppy.
+- Cutscene sound can be choppy/poppy.
 - Controller input doesn't skip cutscenes.
 - Cinematics and in-game HUD are stretched in widescreen.
 - Dynamic lights clip weirdly in both OpenGL & Direct3D 11. Not sure if this is my fault or not.
+- HUD models can be stretched/distorted/off center at various aspect ratios.
 
 ## FAQ ##
 
@@ -97,9 +96,8 @@ The Windows 8 build is always Direct3D 11, XAudio2, XInput enabled. Networking r
 **Q**: Is this a huge graphical improvement?
 **A**: It's still the same art, so no. Theoretically it can support textures up to 16K square now though!
 
-
 **Q**: Is this a huge speed improvement?
-**A**: Not yet. 15 years ago games built their graphics command buffers on the CPU and drip-fed them to the GPU. Nowadays we batch up on the GPU as possible up-front to save bandwidth at run-time. In order to be as nonivasive as possible I have emulated the former approach, but this approach doesn't work as well in this day and age. It's a priority for me to fix that, however.
+**A**: Not yet. I'm emulating the way things were done in 1999, so the performance is merely 'comparable'. :) I have considered rewriting the renderer from the ground up on a daily basis since starting this project, but I've yet to cave in to this temptation.
 
 **Q**: How do I know what code you've changed?
 **A**: Apart from the Git diffs, you can look for `@pjb` in the source code.
