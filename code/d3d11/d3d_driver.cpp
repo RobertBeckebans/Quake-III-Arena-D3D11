@@ -208,7 +208,7 @@ void D3DDrv_SetDrawBuffer( int buffer )
 
 void D3DDrv_EndFrame( void )
 {
-    int frequency = vdConfig.displayFrequency;
+    int frequency = 0;
 	if ( r_swapInterval->integer > 0 ) 
     {
 		frequency = min( vdConfig.displayFrequency, 60 / r_swapInterval->integer );
