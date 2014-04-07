@@ -8,9 +8,10 @@ ipch
 *.pk3
 *.log
 *.res
+*.psess
+*.vspx
 botlib.log
 Build
 servercache.dat
 q3key
-
 baseq3/hlsl

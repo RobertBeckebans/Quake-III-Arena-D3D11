@@ -430,14 +430,6 @@ void GLRB_SurfaceAxis( void ) {
 	qglLineWidth( 1 );
 }
 
-void GLRB_BeginTessellate( const shaderCommands_t* input )
-{
-}
-
-void GLRB_EndTessellate( const shaderCommands_t* input )
-{
-}
-
 /*
 @@@@@@@@@@@@@@@@@@@@@
 
@@ -483,8 +475,6 @@ void GLRB_DriverInit( void )
     GFX_DrawStageGeneric = GLRB_StageIteratorGeneric;
     GFX_DrawStageVertexLitTexture = GLRB_StageIteratorVertexLitTexture;
     GFX_DrawStageLightmappedMultitexture = GLRB_StageIteratorLightmappedMultitexture;
-    GFX_BeginTessellate = GLRB_BeginTessellate;
-    GFX_EndTessellate = GLRB_EndTessellate;
     GFX_DebugDrawAxis = GLRB_SurfaceAxis;
     GFX_DebugDrawTris = GLRB_DebugDrawTris;
     GFX_DebugDrawNormals = GLRB_DebugDrawNormals;

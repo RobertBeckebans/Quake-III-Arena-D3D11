@@ -38,8 +38,6 @@ void            (* GFX_DrawBeam)( const image_t* image, const float* color, cons
 void            (* GFX_DrawStageGeneric)( const shaderCommands_t *input ) = NULL;
 void            (* GFX_DrawStageVertexLitTexture)( const shaderCommands_t *input ) = NULL;
 void            (* GFX_DrawStageLightmappedMultitexture)( const shaderCommands_t *input ) = NULL;
-void            (* GFX_BeginTessellate)( const shaderCommands_t* input ) = NULL;
-void            (* GFX_EndTessellate)( const shaderCommands_t* input ) = NULL;
 void            (* GFX_DebugDrawAxis)( void ) = NULL;
 void            (* GFX_DebugDrawNormals)( const shaderCommands_t *input ) = NULL;
 void            (* GFX_DebugDrawTris)( const shaderCommands_t *input ) = NULL;

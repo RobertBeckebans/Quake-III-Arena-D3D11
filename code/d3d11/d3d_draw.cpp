@@ -113,30 +113,28 @@ static void UpdateTessBuffer( d3dCircularBuffer_t* circBuf, const void* cpuBuf, 
     g_pImmediateContext->Unmap( gpuBuf, 0 );
 }
 
-static void UpdateTessBuffers()
+static void UpdateTessBuffers( const shaderCommands_t* input )
 {
-    const shaderCommands_t* input = &tess;
-
     // Lock down the buffers
-    UpdateTessBuffer( &g_DrawState.tessBufs.indexes, input->indexes, sizeof(glIndex_t) * tess.numIndexes );
-    UpdateTessBuffer( &g_DrawState.tessBufs.xyz, input->xyz, sizeof(vec4_t) * tess.numVertexes );
+    UpdateTessBuffer( &g_DrawState.tessBufs.indexes, input->indexes, sizeof(glIndex_t) * input->numIndexes );
+    UpdateTessBuffer( &g_DrawState.tessBufs.xyz, input->xyz, sizeof(vec4_t) * input->numVertexes );
 
 	for ( int stage = 0; stage < MAX_SHADER_STAGES; stage++ )
 	{
-		const stageVars_t *cpuStage = &tess.svars[stage];
+		const stageVars_t *cpuStage = &input->svars[stage];
 
 		if ( !cpuStage ) {
 			break;
 		}
 
         d3dTessStageBuffers_t* gpuStage = &g_DrawState.tessBufs.stages[stage];
-        UpdateTessBuffer( &gpuStage->colors, cpuStage->colors, sizeof(color4ub_t) * tess.numVertexes );
+        UpdateTessBuffer( &gpuStage->colors, cpuStage->colors, sizeof(color4ub_t) * input->numVertexes );
 
         for ( int tex = 0; tex < NUM_TEXTURE_BUNDLES; ++tex )
-            UpdateTessBuffer( &gpuStage->texCoords[tex], cpuStage->texcoords[tex], sizeof(vec2_t) * tess.numVertexes );
+            UpdateTessBuffer( &gpuStage->texCoords[tex], cpuStage->texcoords[tex], sizeof(vec2_t) * input->numVertexes );
     }
 
-    for ( int l = 0; l < tess.dlightCount; ++l )
+    for ( int l = 0; l < input->dlightCount; ++l )
     {
         const dlightProjectionInfo_t* cpuLight = &input->dlightInfo[l];
         d3dTessLightProjBuffers_t* gpuLight = &g_DrawState.tessBufs.dlights[l];
@@ -150,8 +148,8 @@ static void UpdateTessBuffers()
         UpdateTessBuffer( &gpuLight->texCoords, cpuLight->texCoordsArray, sizeof(float) * 2 * input->numVertexes );
     }
 
-    UpdateTessBuffer( &g_DrawState.tessBufs.fog.colors, input->fogVars.colors, sizeof(color4ub_t) * tess.numVertexes );
-    UpdateTessBuffer( &g_DrawState.tessBufs.fog.texCoords, input->fogVars.texcoords, sizeof(vec2_t) * tess.numVertexes );
+    UpdateTessBuffer( &g_DrawState.tessBufs.fog.colors, input->fogVars.colors, sizeof(color4ub_t) * input->numVertexes );
+    UpdateTessBuffer( &g_DrawState.tessBufs.fog.texCoords, input->fogVars.texcoords, sizeof(vec2_t) * input->numVertexes );
 }
 
 static const d3dImage_t* GetAnimatedImage( textureBundle_t *bundle, float shaderTime ) {
@@ -345,7 +343,7 @@ void D3DDrv_DrawSkyBox( const skyboxDrawInfo_t* skybox, const float* eye_origin,
 
 void D3DDrv_DrawBeam( const image_t* image, const float* color, const vec3_t startPoints[], const vec3_t endPoints[], int segs )
 {
-
+    // @pjb: after a grep of the BSP files there is no reference to RT_BEAM anywhere. Skipping.
 }
 
 static void TessDrawTextured( const shaderCommands_t* input, int stage )
@@ -545,7 +543,7 @@ static void IterateStagesGeneric( const shaderCommands_t *input )
 void D3DDrv_DrawStageGeneric( const shaderCommands_t *input )
 {
     UpdateViewState();
-    UpdateTessBuffers();
+    UpdateTessBuffers( input );
 
     // todo: wireframe mode?
     CommitRasterizerState( input->shader->cullType, input->shader->polygonOffset, qfalse );
@@ -581,16 +579,6 @@ void D3DDrv_DrawStageLightmappedMultitexture( const shaderCommands_t *input )
 {
     // Optimizing this is a low priority
     D3DDrv_DrawStageGeneric( input );
-}
-
-void D3DDrv_BeginTessellate( const shaderCommands_t* input )
-{
-    // Do nothing.
-}
-
-void D3DDrv_EndTessellate( const shaderCommands_t* input )
-{
-    // Do nothing.
 }
 
 void D3DDrv_DebugDrawAxis( void )

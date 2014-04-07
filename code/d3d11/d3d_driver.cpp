@@ -365,8 +365,6 @@ D3D_PUBLIC void D3DDrv_DriverInit( void )
     GFX_DrawStageGeneric = D3DDrv_DrawStageGeneric;
     GFX_DrawStageVertexLitTexture = D3DDrv_DrawStageVertexLitTexture;
     GFX_DrawStageLightmappedMultitexture = D3DDrv_DrawStageLightmappedMultitexture;
-    GFX_BeginTessellate = D3DDrv_BeginTessellate;
-    GFX_EndTessellate = D3DDrv_EndTessellate;
     GFX_DebugDrawAxis = D3DDrv_DebugDrawAxis;
     GFX_DebugDrawTris = D3DDrv_DebugDrawTris;
     GFX_DebugDrawNormals = D3DDrv_DebugDrawNormals;
