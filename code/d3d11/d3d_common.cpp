@@ -12,6 +12,9 @@ namespace QD3D
     BOOL
     IsSdkDebugLayerAvailable()
     {
+#ifdef D3D_FORCE_DEBUG_LAYER
+        return TRUE;
+#else
         // Test by trying to create a null device with debug enabled.
 		HRESULT hr = D3D11CreateDevice(
 			nullptr,
@@ -27,6 +30,7 @@ namespace QD3D
 			);
 
 		return SUCCEEDED(hr);
+#endif
     }
 
 	//----------------------------------------------------------------------------
@@ -44,7 +48,7 @@ namespace QD3D
 		*context = NULL;
 
 		UINT flags = D3D_DEFAULT_DEVICE_FLAGS;
-#if defined(_DEBUG) && !defined(D3D_NO_DEBUG_LAYER)
+#ifdef _DEBUG
         if ( IsSdkDebugLayerAvailable() )
         {
 		    flags |= D3D11_CREATE_DEVICE_DEBUG;
