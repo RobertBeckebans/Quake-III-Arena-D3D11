@@ -96,7 +96,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #endif
 
-#if defined(WIN8) || defined(_ARM_)
+#if defined(WIN32) || defined(WIN8) || defined(_ARM_)
 #   define DebugBreak __debugbreak
 #endif
 
