@@ -24,15 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../game/q_shared.h"
 #include "qcommon.h"
 #include <setjmp.h>
-#ifdef __linux__
-#include <netinet/in.h>
-#else
-#if defined(MACOS_X)
-#include <netinet/in.h>
-#else
-#include <winsock.h>
-#endif
-#endif
 
 int demo_protocols[] =
 { 66, 67, 68, 0 };
@@ -240,8 +231,10 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
         // @pjb: fix a crash if the cvar hadn't even been registered yet
 		if (!com_noErrorInterrupt || !com_noErrorInterrupt->integer) {
             // @pjb: release the mouse so we can debug
+#ifndef WIN8
             extern void IN_DeactivateMouse(void);
             IN_DeactivateMouse();
+#endif
             // @pjb: canonical way of breaking
 			DebugBreak();
 		}
