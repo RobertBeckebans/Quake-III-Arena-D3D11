@@ -40,7 +40,7 @@ namespace QD3D
 		*context = NULL;
 
 		UINT flags = 0;
-#ifdef _DEBUG
+#if defined(_DEBUG) && !defined(D3D_NO_DEBUG_LAYER)
         if ( IsSdkDebugLayerAvailable() )
         {
 		    flags |= D3D11_CREATE_DEVICE_DEBUG;

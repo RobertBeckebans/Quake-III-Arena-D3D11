@@ -306,7 +306,7 @@ void SetupVideoConfig()
     vdConfig.textureEnvAddAvailable = qtrue;
     vdConfig.stereoEnabled = qfalse; // @pjb: todo: d3d stereo support
 
-#ifndef _ARM_
+#if !defined(_ARM_) && !defined(D3D_NO_ENUM_DISPLAY)
 	DEVMODE dm;
     memset( &dm, 0, sizeof( dm ) );
 	dm.dmSize = sizeof( dm );
