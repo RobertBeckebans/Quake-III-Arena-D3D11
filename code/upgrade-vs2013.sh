@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for proj in $(find . -name '*VS2012.vcxproj'); do
+for proj in $(find . -name '*VS2012.vcxproj*'); do
 
 # get the new filename
 	newproj=$(echo $proj | sed -e "s/VS2012/VS2013/g")
@@ -9,14 +9,8 @@ for proj in $(find . -name '*VS2012.vcxproj'); do
 # copy the contents
 	cp -f $proj $newproj
 
-# copy the filters file
-	cp -f $proj.filters $newproj.filters
-
-# replace any mention of other projects with the new project
-	sed -i -e "s/VS2012.vcxproj/VS2013.vcxproj/g" $newproj
-
-# replace any mention of other manifests with the new manifests
-	sed -i -e "s/VS2012.appxmanifest/VS2013.appxmanifest/g" $newproj
+# upgrade file references
+	sed -i -e "s/VS2012/VS2013/g" $newproj
 
 # upgrade the toolset version
 	sed -i -e "s/ToolsVersion=\"4.0\"/ToolsVersion=\"12.0\"/g" $newproj

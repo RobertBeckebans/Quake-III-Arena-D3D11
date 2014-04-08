@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for proj in $(find . -name '*VS2013.vcxproj'); do
+for proj in $(find . -name '*VS2013.vcxproj*'); do
 
 # get the new filename
 	newproj=$(echo $proj | sed -e "s/VS2013/VS2012/g")
@@ -9,17 +9,8 @@ for proj in $(find . -name '*VS2013.vcxproj'); do
 # copy the contents
 	cp -f $proj $newproj
 
-# copy the filters file
-	cp -f $proj.filters $newproj.filters
-
-# remove references to the 2013-only FxCompile option
-	sed -i -e "s/FxCompile/None/g" $newproj.filters
-
-# replace any mention of other projects with the new project
-	sed -i -e "s/VS2013.vcxproj/VS2012.vcxproj/g" $newproj
-
-# replace any mention of other manifests with the new manifests
-	sed -i -e "s/VS2013.appxmanifest/VS2012.appxmanifest/g" $newproj
+# upgrade file references
+	sed -i -e "s/VS2013/VS2012/g" $newproj
 
 # upgrade the toolset version
 	sed -i -e "s/ToolsVersion=\"12.0\"/ToolsVersion=\"4.0\"/g" $newproj
@@ -27,7 +18,7 @@ for proj in $(find . -name '*VS2013.vcxproj'); do
 # upgrade the platform toolset version
 	sed -i -e "s/<PlatformToolset>v120<\/PlatformToolset>/<PlatformToolset>v110<\/PlatformToolset>/g" $newproj
 
-# upgrade the minimum vs version
+# upgrade the min vs version
 	sed -i -e "s/<MinimumVisualStudioVersion>12.0<\/MinimumVisualStudioVersion>/<MinimumVisualStudioVersion>11.0<\/MinimumVisualStudioVersion>/g" $newproj
 
 done
@@ -40,7 +31,7 @@ for sln in $(find . -name '*VS2013.sln'); do
 
 	cp -f $sln $newsln
 
-	# replace any mention of 2013 with 2012
+	# replace any mention of 2012 with 2013	
 	sed -i -e "s/2013/2012/g" $newsln
 done
 
