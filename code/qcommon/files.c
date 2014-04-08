@@ -2524,6 +2524,8 @@ static void FS_AddGameDirectory( const char *path, const char *dir ) {
 	
 	Q_strncpyz( fs_gamedir, dir, sizeof( fs_gamedir ) );
 
+// @pjb: if we're prioritizing loose files, we want to add the directory at the end
+#ifndef PRIORITIZE_LOOSE_FILES
 	//
 	// add the directory to the search path
 	//
@@ -2532,8 +2534,10 @@ static void FS_AddGameDirectory( const char *path, const char *dir ) {
 
 	Q_strncpyz( search->dir->path, path, sizeof( search->dir->path ) );
 	Q_strncpyz( search->dir->gamedir, dir, sizeof( search->dir->gamedir ) );
+
 	search->next = fs_searchpaths;
 	fs_searchpaths = search;
+#endif
 
 	// find all pak files in this directory
 	pakfile = FS_BuildOSPath( path, dir, "" );
@@ -2567,6 +2571,21 @@ static void FS_AddGameDirectory( const char *path, const char *dir ) {
 
 	// done
 	Sys_FreeFileList( pakfiles );
+
+// @pjb: if we're prioritizing loose files, we want to add the directory at the end
+#ifdef PRIORITIZE_LOOSE_FILES
+	//
+	// add the directory to the search path
+	//
+	search = Z_Malloc (sizeof(searchpath_t));
+	search->dir = Z_Malloc( sizeof( *search->dir ) );
+
+	Q_strncpyz( search->dir->path, path, sizeof( search->dir->path ) );
+	Q_strncpyz( search->dir->gamedir, dir, sizeof( search->dir->gamedir ) );
+
+	search->next = fs_searchpaths;
+	fs_searchpaths = search;
+#endif
 }
 
 /*
