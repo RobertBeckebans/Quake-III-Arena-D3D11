@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for proj in $(find . -name '*VS2012.vcxproj*'); do
+for proj in $(find . -name '*VS2012.vcxproj'); do
 
 # get the new filename
 	newproj=$(echo $proj | sed -e "s/VS2012/VS2013/g")
@@ -20,6 +20,21 @@ for proj in $(find . -name '*VS2012.vcxproj*'); do
 
 # upgrade the min vs version
 	sed -i -e "s/<MinimumVisualStudioVersion>11.0<\/MinimumVisualStudioVersion>/<MinimumVisualStudioVersion>12.0<\/MinimumVisualStudioVersion>/g" $newproj
+
+done
+
+
+for proj in $(find . -name '*VS2012.vcxproj.filters'); do
+
+# get the new filename
+	newproj=$(echo $proj | sed -e "s/VS2012/VS2013/g")
+	echo Upgrading $proj ... $newproj
+
+# copy the contents
+	cp -f $proj $newproj
+
+# upgrade file references
+	sed -i -e "s/VS2012/VS2013/g" $newproj
 
 done
 
