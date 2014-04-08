@@ -1,5 +1,9 @@
 #include "d3d_common.h"
 
+#ifndef D3D_DEFAULT_DEVICE_FLAGS
+#   define D3D_DEFAULT_DEVICE_FLAGS 0
+#endif
+
 namespace QD3D
 {
 	//----------------------------------------------------------------------------
@@ -39,7 +43,7 @@ namespace QD3D
 		*device = NULL;
 		*context = NULL;
 
-		UINT flags = 0;
+		UINT flags = D3D_DEFAULT_DEVICE_FLAGS;
 #if defined(_DEBUG) && !defined(D3D_NO_DEBUG_LAYER)
         if ( IsSdkDebugLayerAvailable() )
         {
