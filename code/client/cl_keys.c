@@ -1031,6 +1031,24 @@ void CL_AddKeyUpCommands( int key, char *kb ) {
 	}
 }
 
+// @pjb: certain keys will skip demos/cinematics
+static qboolean IsDemoSkipKey( int key )
+{
+    switch (key)
+    {
+    case K_MOUSE1:
+    case K_GAMEPAD_A:
+    case K_GAMEPAD_B:
+    case K_GAMEPAD_X:
+    case K_GAMEPAD_Y:
+    case K_GAMEPAD_START:
+    case K_GAMEPAD_BACK:
+        return qtrue;
+    default:
+        return qfalse;
+    }
+}
+
 /*
 ===================
 CL_KeyEvent
@@ -1094,7 +1112,8 @@ void CL_KeyEvent (int key, qboolean down, unsigned time) {
 
 
 	// keys can still be used for bound actions
-	if ( down && ( key < 128 || key == K_MOUSE1 ) && ( clc.demoplaying || cls.state == CA_CINEMATIC ) && !cls.keyCatchers) {
+    // @pjb: gamepad can skip cutscenes
+	if ( down && ( key < 128 || IsDemoSkipKey( key ) ) && ( clc.demoplaying || cls.state == CA_CINEMATIC ) && !cls.keyCatchers) {
 
 		if (Cvar_VariableValue ("com_cameraMode") == 0) {
 			Cvar_Set ("nextdemo","");
