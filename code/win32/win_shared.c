@@ -23,11 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../game/q_shared.h"
 #include "../qcommon/qcommon.h"
 #include "../client/client.h"
-#include "win_local.h"
 #include "win_shared.h"
-#include <lmerr.h>
-#include <lmcons.h>
-#include <lmwksta.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>

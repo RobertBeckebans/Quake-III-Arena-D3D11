@@ -129,7 +129,7 @@ float	FloatSwap (const float *f);
 
 //======================= WIN32 DEFINES =================================
 
-#ifdef WIN32
+#if defined(WIN32) || defined(WIN8)
 
 #define	MAC_STATIC
 

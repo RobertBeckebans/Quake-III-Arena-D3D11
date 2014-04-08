@@ -64,7 +64,6 @@ void R_AddEdgeDef( int i1, int i2, int facing ) {
 
 // @pjb: instead of rendering directly we're collecting data
 int R_GatherShadowEdgePoints( float* buffer, int maxEdges ) {
-    int     vcount = 0;
 	int		i;
 	int		c, c2;
 	int		j, k;

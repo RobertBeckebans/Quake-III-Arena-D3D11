@@ -1,5 +1,4 @@
 #include "d3d_common.h"
-#include "d3d_wnd.h"
 #include "d3d_state.h"
 #include "d3d_image.h"
 #include "d3d_shaders.h"
@@ -407,7 +406,6 @@ void InitDrawState()
     D3D11_QUERY_DESC qd;
     ZeroMemory( &qd, sizeof( qd ) );
     qd.Query = D3D11_QUERY_EVENT;
-    ID3D11Query* query = nullptr;
     g_pDevice->CreateQuery( &qd, &g_DrawState.frameQuery );    
 }
 

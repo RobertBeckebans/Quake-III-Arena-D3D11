@@ -1,7 +1,6 @@
 // D3D headers
 #include "d3d_common.h"
 #include "d3d_driver.h"
-#include "d3d_wnd.h"
 #include "d3d_state.h"
 #include "d3d_image.h"
 #include "d3d_shaders.h"

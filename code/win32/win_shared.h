@@ -24,9 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __WIN_SHARED_H__
 #define __WIN_SHARED_H__
 
-#ifdef WIN8
-#   define WIN8_EXPORT  extern "C" 
-#endif
+#define C_EXPORT  extern "C" 
 
 /*
 ========================================================================

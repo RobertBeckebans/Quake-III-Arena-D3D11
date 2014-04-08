@@ -213,7 +213,7 @@ bool NET_IsIpv6NetAdr( const void* ip )
 }
 
 
-WIN8_EXPORT qboolean Sys_StringToAdr( const char *s, netadr_t *a ) {
+C_EXPORT qboolean Sys_StringToAdr( const char *s, netadr_t *a ) {
 
     // @pjb: We won't support IPX any more here.
     if ( !NET_StringToIpv6( s, a->ip ) )
@@ -283,7 +283,7 @@ Sys_GetPacket
 Never called by the game logic, just the system event queing
 ==================
 */
-WIN8_EXPORT qboolean Sys_GetPacket( netadr_t *net_from, msg_t *net_message ) {
+C_EXPORT qboolean Sys_GetPacket( netadr_t *net_from, msg_t *net_message ) {
     
     qboolean hasPacket = qfalse;
 
@@ -373,7 +373,7 @@ void Sys_SendPacketToAddress( int length, const void *data, const netadr_t& to )
 Sys_SendPacket
 ==================
 */
-WIN8_EXPORT void Sys_SendPacket( int length, const void *data, netadr_t to )
+C_EXPORT void Sys_SendPacket( int length, const void *data, netadr_t to )
 {
     // Ignore IPX requests
     if ( g_Socket == nullptr || to.type == NA_IPX || to.type == NA_BROADCAST_IPX )
@@ -406,7 +406,7 @@ Sys_IsLANAddress
 LAN clients will have their rate var ignored
 ==================
 */
-WIN8_EXPORT qboolean Sys_IsLANAddress( netadr_t adr ) {
+C_EXPORT qboolean Sys_IsLANAddress( netadr_t adr ) {
     // @pjb: todo
     return qtrue;
 }
@@ -416,7 +416,7 @@ WIN8_EXPORT qboolean Sys_IsLANAddress( netadr_t adr ) {
 Sys_ShowIP
 ==================
 */
-WIN8_EXPORT void Sys_ShowIP(void) {
+C_EXPORT void Sys_ShowIP(void) {
     char hostnameTmp[256];
     char adapterIdTmp[256];
     // @pjb: todo: fatal error C1001: An internal error has occurred in the compiler.
@@ -688,7 +688,7 @@ void NET_Config( qboolean enableNetworking ) {
 NET_Init
 ====================
 */
-WIN8_EXPORT void NET_Init( void ) {
+C_EXPORT void NET_Init( void ) {
 
     // @pjb: todo
 
@@ -709,7 +709,7 @@ WIN8_EXPORT void NET_Init( void ) {
 NET_Shutdown
 ====================
 */
-WIN8_EXPORT void NET_Shutdown( void ) {
+C_EXPORT void NET_Shutdown( void ) {
 	NET_Config( qfalse );
 	Com_Printf( "Shutdown WinRT Sockets\n" );
 }
@@ -721,7 +721,7 @@ NET_Sleep
 sleeps msec or until net socket is ready
 ====================
 */
-WIN8_EXPORT void NET_Sleep( int msec ) {
+C_EXPORT void NET_Sleep( int msec ) {
     // @pjb: nothing to do here.
 }
 
@@ -730,6 +730,6 @@ WIN8_EXPORT void NET_Sleep( int msec ) {
 NET_Restart_f
 ====================
 */
-WIN8_EXPORT void NET_Restart( void ) {
+C_EXPORT void NET_Restart( void ) {
 	NET_Config( networkingEnabled );
 }

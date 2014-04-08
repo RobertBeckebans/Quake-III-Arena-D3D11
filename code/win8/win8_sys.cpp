@@ -14,7 +14,7 @@ extern "C" {
 // Quake APIs
 
 
-WIN8_EXPORT void Sys_CreateThreadWin8( void (* function)( void* ), void* data )
+C_EXPORT void Sys_CreateThreadWin8( void (* function)( void* ), void* data )
 {
     concurrency::create_task( [function, data] () 
     {
@@ -22,7 +22,7 @@ WIN8_EXPORT void Sys_CreateThreadWin8( void (* function)( void* ), void* data )
     } );
 }
 
-WIN8_EXPORT char *Sys_GetCurrentUser( void )
+C_EXPORT char *Sys_GetCurrentUser( void )
 {
 	static char s_userName[1024];
 
@@ -54,7 +54,7 @@ Sys_Milliseconds
 ================
 */
 int			sys_timeBase;
-WIN8_EXPORT void  Sys_InitTimer (void)
+C_EXPORT void  Sys_InitTimer (void)
 {
 	static qboolean	initialized = qfalse;
 
@@ -65,7 +65,7 @@ WIN8_EXPORT void  Sys_InitTimer (void)
 	}
 }
 
-WIN8_EXPORT int Sys_Milliseconds (void)
+C_EXPORT int Sys_Milliseconds (void)
 {
 	return Win8::GetTime() - sys_timeBase;
 }
@@ -76,7 +76,7 @@ void Sys_SetFrameTime( int time )
 {
     g_LastFrameEventTime = time;
 }
-WIN8_EXPORT int Sys_FrameTime (void)
+C_EXPORT int Sys_FrameTime (void)
 {
     return g_LastFrameEventTime;
 }
@@ -87,7 +87,7 @@ Sys_LowPhysicalMemory()
 ==================
 */
 
-WIN8_EXPORT qboolean Sys_LowPhysicalMemory() {
+C_EXPORT qboolean Sys_LowPhysicalMemory() {
 	// @pjb: TODO: I don't know what the equivalent is here
     return qfalse;
 }
@@ -97,7 +97,7 @@ WIN8_EXPORT qboolean Sys_LowPhysicalMemory() {
 Sys_ShowConsole()
 ==================
 */
-WIN8_EXPORT void Sys_ShowConsole( int visLevel, qboolean quitOnClose )
+C_EXPORT void Sys_ShowConsole( int visLevel, qboolean quitOnClose )
 {
     (void)( visLevel );
     (void)( quitOnClose );
@@ -113,7 +113,7 @@ Sys_Error
 Show the early console as an error dialog
 =============
 */
-WIN8_EXPORT void QDECL Sys_Error( const char *error, ... ) {
+C_EXPORT void QDECL Sys_Error( const char *error, ... ) {
 	va_list		argptr;
 	char		text[4096];
 
@@ -132,7 +132,7 @@ WIN8_EXPORT void QDECL Sys_Error( const char *error, ... ) {
 Sys_Quit
 ==============
 */
-WIN8_EXPORT void Sys_Quit( void ) {
+C_EXPORT void Sys_Quit( void ) {
     Win8::PostQuitMessage();
 }
 
@@ -141,7 +141,7 @@ WIN8_EXPORT void Sys_Quit( void ) {
 Sys_Print
 ==============
 */
-WIN8_EXPORT void Sys_Print( const char *msg ) {
+C_EXPORT void Sys_Print( const char *msg ) {
 	OutputDebugStringA( msg );
 }
 
@@ -152,7 +152,7 @@ Sys_Cwd
 Win8: return the installation directory (read-only)
 ==============
 */
-WIN8_EXPORT char *Sys_Cwd( void ) {
+C_EXPORT char *Sys_Cwd( void ) {
 	static char cwd[MAX_OSPATH];
 
 	Windows::ApplicationModel::Package^ pkg = Windows::ApplicationModel::Package::Current;
@@ -170,7 +170,7 @@ Sys_UserDir
 Win8: return the writable directory
 ==============
 */
-WIN8_EXPORT char *Sys_UserDir( void ) {
+C_EXPORT char *Sys_UserDir( void ) {
 	static char cwd[MAX_OSPATH];
 
 	auto localFolder = Windows::Storage::ApplicationData::Current->LocalFolder;
@@ -186,7 +186,7 @@ Sys_GetClipboardData
 
 ================
 */
-WIN8_EXPORT char *Sys_GetClipboardData( void ) {
+C_EXPORT char *Sys_GetClipboardData( void ) {
 
     static char clipBuf[4096];
 
@@ -220,7 +220,7 @@ Sys_UnloadDll
 
 =================
 */
-WIN8_EXPORT void Sys_UnloadDll( void *dllHandle ) {
+C_EXPORT void Sys_UnloadDll( void *dllHandle ) {
 	if ( !dllHandle ) {
 		return;
 	}
@@ -238,12 +238,12 @@ Used to load a development dll instead of a virtual machine
 TTimo: added some verbosity in debug
 =================
 */
-WIN8_EXPORT extern char		*FS_BuildOSPath( const char *base, const char *game, const char *qpath );
+C_EXPORT extern char		*FS_BuildOSPath( const char *base, const char *game, const char *qpath );
 
 // fqpath param added 7/20/02 by T.Ray - Sys_LoadDll is only called in vm.c at this time
 // fqpath will be empty if dll not loaded, otherwise will hold fully qualified path of dll module loaded
 // fqpath buffersize must be at least MAX_QPATH+1 bytes long
-WIN8_EXPORT void * QDECL Sys_LoadDll( const char *name, char *fqpath , int (QDECL **entryPoint)(size_t, ...),
+C_EXPORT void * QDECL Sys_LoadDll( const char *name, char *fqpath , int (QDECL **entryPoint)(size_t, ...),
 				  int (QDECL *systemcalls)(size_t, ...) ) {
 	static int	lastWarning = 0;
 	HINSTANCE	libHandle;
@@ -293,7 +293,7 @@ Sys_GetEvent
 
 ================
 */
-WIN8_EXPORT sysEvent_t Sys_GetEvent( void ) {
+C_EXPORT sysEvent_t Sys_GetEvent( void ) {
 	sysEvent_t	ev;
 	msg_t		netmsg;
 	netadr_t	adr;
@@ -341,7 +341,7 @@ Called after the common systems (cvars, files, etc)
 are initialized
 ================
 */
-WIN8_EXPORT void Sys_Init( void ) {
+C_EXPORT void Sys_Init( void ) {
 
 	Cmd_AddCommand ("in_restart", Sys_In_Restart_f);
 	Cmd_AddCommand ("net_restart", Sys_Net_Restart_f);

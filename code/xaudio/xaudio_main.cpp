@@ -1,8 +1,9 @@
+#include <xaudio2.h>
+
 extern "C" {
 #   include "../client/snd_local.h"
 }
 
-#include <xaudio2.h>
 #include "xaudio_public.h"
 #include "xaudio_local.h"
 

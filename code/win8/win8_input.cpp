@@ -16,7 +16,7 @@ extern "C" {
 IN_DeactivateMouse
 ================
 */
-WIN8_EXPORT void IN_DeactivateMouse( void ) 
+C_EXPORT void IN_DeactivateMouse( void ) 
 {
     // @pjb: handled automatically by Win8 (alt-tab)
 }
@@ -26,7 +26,7 @@ WIN8_EXPORT void IN_DeactivateMouse( void )
 IN_Init
 ===========
 */
-WIN8_EXPORT void IN_Init( void ) {
+C_EXPORT void IN_Init( void ) {
     IN_StartupGamepad();
 }
 
@@ -35,7 +35,7 @@ WIN8_EXPORT void IN_Init( void ) {
 IN_Shutdown
 ===========
 */
-WIN8_EXPORT void IN_Shutdown( void ) {
+C_EXPORT void IN_Shutdown( void ) {
     // Nothing.
 }
 
@@ -46,6 +46,6 @@ IN_Frame
 Called every frame, even if not generating commands
 ==================
 */
-WIN8_EXPORT void IN_Frame (void) {
+C_EXPORT void IN_Frame (void) {
     IN_GamepadMove();
 }
