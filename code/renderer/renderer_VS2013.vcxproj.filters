@@ -643,37 +643,37 @@
     <None Include="ref_trin.def">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="..\d3d11\hlsl\pscommon.h">
+    <None Include="..\hlsl\pscommon.h">
       <Filter>Public Header Files</Filter>
     </None>
-    <None Include="..\d3d11\hlsl\vscommon.h">
+    <None Include="..\hlsl\vscommon.h">
       <Filter>Public Header Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="..\d3d11\hlsl\genericmt_vs.hlsl">
+    <None Include="..\hlsl\genericmt_vs.hlsl">
       <Filter>Direct3D Implementation\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="..\d3d11\hlsl\genericst_ps.hlsl">
+    </None>
+    <None Include="..\hlsl\genericst_ps.hlsl">
       <Filter>Direct3D Implementation\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="..\d3d11\hlsl\genericst_vs.hlsl">
+    </None>
+    <None Include="..\hlsl\genericst_vs.hlsl">
       <Filter>Direct3D Implementation\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="..\d3d11\hlsl\skybox_ps.hlsl">
+    </None>
+    <None Include="..\hlsl\skybox_ps.hlsl">
       <Filter>Direct3D Implementation\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="..\d3d11\hlsl\skybox_vs.hlsl">
+    </None>
+    <None Include="..\hlsl\skybox_vs.hlsl">
       <Filter>Direct3D Implementation\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="..\d3d11\hlsl\fsq_ps.hlsl">
+    </None>
+    <None Include="..\hlsl\fsq_ps.hlsl">
       <Filter>Direct3D Implementation\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="..\d3d11\hlsl\fsq_vs.hlsl">
+    </None>
+    <None Include="..\hlsl\fsq_vs.hlsl">
       <Filter>Direct3D Implementation\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="..\d3d11\hlsl\genericmt_ps.hlsl">
+    </None>
+    <None Include="..\hlsl\genericmt_ps.hlsl">
       <Filter>Direct3D Implementation\Shaders</Filter>
-    </FxCompile>
+    </None>
   </ItemGroup>
 </Project>
