@@ -29,6 +29,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define SCROLL_TIME_ADJUSTOFFSET	40
 #define SCROLL_TIME_FLOOR					20
 
+// @pjb: navigation directions
+typedef enum {
+    NAV_UP,
+    NAV_DOWN,
+    NAV_LEFT,
+    NAV_RIGHT
+} NAV_DIRECTION;
+
 typedef struct scrollInfo_s {
 	int nextScrollTime;
 	int nextAdjustTime;
@@ -1265,7 +1273,10 @@ void Item_RunScript(itemDef_t *item, const char *s) {
   char script[1024], *p;
   int i;
   qboolean bRan;
+  menuDef_t* parent = (menuDef_t*) item->parent;
+
   memset(script, 0, sizeof(script));
+
   if (item && s && s[0]) {
     Q_strcat(script, 1024, s);
     p = script;
@@ -1288,6 +1299,17 @@ void Item_RunScript(itemDef_t *item, const char *s) {
           break;
         }
       }
+
+      // @pjb: is it a menu macro?
+      for (i = 0; parent && i < parent->macroCount; ++i) {
+          if (Q_stricmp(command, parent->macros[i].name) == 0) {
+              // Run the script as if it was our own
+              Item_RunScript( item, parent->macros[i].script );
+              bRan = qtrue;
+              break;
+          }
+      }
+
       // not in our auto list, pass to handler
       if (!bRan) {
         DC->runScript(&p);
@@ -2437,6 +2459,101 @@ void Item_Action(itemDef_t *item) {
   }
 }
 
+// @pjb: find all controls above a certain region
+
+// @pjb: get the center of an item
+static void MenuItem_GetCenter( const itemDef_t* item, float center[] )
+{
+    const rectDef_t* screenRect = &item->window.rectClient;
+    center[0] = screenRect->x + 0.5f * screenRect->w;
+    center[1] = screenRect->y + 0.5f * screenRect->h;
+}
+
+// @pjb: navigate to the nearest item from a given origin item
+itemDef_t* Menu_Navigate( menuDef_t* menu, itemDef_t* originator, NAV_DIRECTION direction )
+{
+    const rectDef_t* screenRect = &originator->window.rectClient;
+
+    float center[2];
+    MenuItem_GetCenter( originator, center );
+
+    float threshold = 0.5f;
+
+    float d[2];
+    switch ( direction )
+    {
+    case NAV_UP:    d[0] =  0; d[1] = -1; threshold = originator->verticalNavThreshold;   break;
+    case NAV_DOWN:  d[0] =  0; d[1] =  1; threshold = originator->verticalNavThreshold;   break;
+    case NAV_LEFT:  d[0] = -1; d[1] =  0; threshold = originator->horizontalNavThreshold; break;
+    case NAV_RIGHT: d[0] =  1; d[1] =  0; threshold = originator->horizontalNavThreshold; break;
+    default: return originator;
+    }
+
+    itemDef_t* nextItem = NULL;    
+    int nextItemIndex = -1;
+    float nextItemDistanceSq = 99999;
+    float nextItemDP = threshold;
+
+    static const int mustHaveFlags = WINDOW_VISIBLE;
+    static const int mustNotHaveFlags = WINDOW_HASFOCUS | WINDOW_GREY | WINDOW_DECORATION | WINDOW_FADINGOUT | WINDOW_INTRANSITION;
+
+    for ( int i = 0; i < menu->itemCount; ++i )
+    {
+        itemDef_t* item = menu->items[i];
+
+        if ( item == originator || 
+            !( item->window.flags & mustHaveFlags ) ||
+            ( item->window.flags & mustNotHaveFlags ) )
+        {
+            continue;
+        }
+
+        // Get the center of this item
+        float p[2];
+        MenuItem_GetCenter( item, p );
+
+        // Subtract it to get the vector between their two centers
+        p[0] -= center[0];
+        p[1] -= center[1];
+
+        // Get the squared distance
+        float distSq = p[0] * p[0] + p[1] * p[1];
+
+        // If the distance is zero, ignore this item
+        if ( distSq == 0 )
+            continue;
+
+        // Dot product
+        float dp = (d[0] * p[0] + d[1] * p[1]) / sqrtf(distSq);
+
+        // If the item is:
+        // 1) in the correct direction
+        // 2) more along the same line we're looking in
+        // 3) and closer
+        // accept it
+        if ( dp > 0 && dp >= nextItemDP && distSq < nextItemDistanceSq )
+        {
+            nextItem = item;
+            nextItemIndex = i;
+            nextItemDistanceSq = distSq;
+            nextItemDP = dp;
+        }
+    }
+
+    // If there was an item, remember it
+    if ( nextItem != NULL ) 
+    {
+        menu->cursorItem = nextItemIndex;
+        if (Item_SetFocus(menu->items[menu->cursorItem], DC->cursorx, DC->cursory)) 
+        {
+            Menu_HandleMouseMove(menu, menu->items[menu->cursorItem]->window.rect.x + 1, menu->items[menu->cursorItem]->window.rect.y + 1);
+            return menu->items[menu->cursorItem];
+        }
+    }
+
+    return NULL;
+}
+
 itemDef_t *Menu_SetPrevCursorItem(menuDef_t *menu) {
   qboolean wrapped = qfalse;
 	int oldCursor = menu->cursorItem;
@@ -2676,7 +2793,10 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 		case K_KP_UPARROW:
 		case K_UPARROW:
         case K_GAMEPAD_DPAD_UP: // @pjb
-			Menu_SetPrevCursorItem(menu);
+            if ( item )
+                Menu_Navigate(menu, item, NAV_UP);
+            else
+			    Menu_SetPrevCursorItem(menu);
 			break;
 
 		case K_ESCAPE:
@@ -2687,11 +2807,30 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 		    Item_RunScript(&it, menu->onESC);
 			}
 			break;
-		case K_TAB:
+		case K_TAB: // @pjb: tab always behaves this way
+		    Menu_SetNextCursorItem(menu);
+			break;
 		case K_KP_DOWNARROW:
 		case K_DOWNARROW:
         case K_GAMEPAD_DPAD_DOWN: // @pjb
-			Menu_SetNextCursorItem(menu);
+            if ( item )
+                Menu_Navigate(menu, item, NAV_DOWN);
+            else
+			    Menu_SetNextCursorItem(menu);
+			break;
+
+		case K_KP_LEFTARROW:
+		case K_LEFTARROW:
+        case K_GAMEPAD_DPAD_LEFT: // @pjb
+            if ( item )
+                Menu_Navigate(menu, item, NAV_LEFT);
+			break;
+
+		case K_KP_RIGHTARROW:
+		case K_RIGHTARROW:
+        case K_GAMEPAD_DPAD_RIGHT: // @pjb
+            if ( item )
+                Menu_Navigate(menu, item, NAV_RIGHT);
 			break;
 
 		case K_MOUSE1:
@@ -4164,6 +4303,10 @@ void Item_Init(itemDef_t *item) {
 	memset(item, 0, sizeof(itemDef_t));
 	item->textscale = 0.55f;
 	Window_Init(&item->window);
+
+    // @pjb: set up the default nav thresholds
+    item->verticalNavThreshold = 0.5f;
+    item->horizontalNavThreshold = 0.5f;
 }
 
 void Menu_HandleMouseMove(menuDef_t *menu, float x, float y) {
@@ -5075,6 +5218,30 @@ qboolean ItemParse_hideCvar( itemDef_t *item, int handle ) {
 	return qfalse;
 }
 
+// @pjb: parse the navigation thresholds
+qboolean ItemParse_verticalNavThreshold( itemDef_t *item, int handle ) {
+	float f;
+	if (!PC_Float_Parse(handle, &f)) {
+		return qfalse;
+	}
+    if ( f < 0 || f > 1 )
+        return qfalse;
+	item->verticalNavThreshold = f;
+	return qtrue;
+}
+
+// @pjb: parse the navigation thresholds
+qboolean ItemParse_horizontalNavThreshold( itemDef_t *item, int handle ) {
+	float f;
+	if (!PC_Float_Parse(handle, &f)) {
+		return qfalse;
+	}
+    if ( f < 0 || f > 1 )
+        return qfalse;
+	item->horizontalNavThreshold = f;
+	return qtrue;
+}
+
 
 keywordHash_t itemParseKeywords[] = {
 	{"name", ItemParse_name, NULL},
@@ -5139,6 +5306,11 @@ keywordHash_t itemParseKeywords[] = {
 	{"hideCvar", ItemParse_hideCvar, NULL},
 	{"cinematic", ItemParse_cinematic, NULL},
 	{"doubleclick", ItemParse_doubleClick, NULL},
+
+    // @pjb
+    {"verticalNavThreshold", ItemParse_verticalNavThreshold, NULL},
+    {"horizontalNavThreshold", ItemParse_horizontalNavThreshold, NULL},
+
 	{NULL, NULL, NULL}
 };
 
@@ -5511,6 +5683,31 @@ qboolean MenuParse_itemDef( itemDef_t *item, int handle ) {
 	return qtrue;
 }
 
+// @pjb: macro support
+qboolean MenuParse_macro( itemDef_t* item, int handle ) {
+	menuDef_t *menu = (menuDef_t*)item;
+
+    if (menu->macroCount < MAX_MENUMACROS) {
+
+        // Get the name of the macro
+        PC_String_Parse( handle, &menu->macros[menu->macroCount].name );
+
+        // If it's a reserved word, baile
+        for ( int i = 0; i < scriptCommandCount; ++i )
+        {
+            if ( Q_stricmp( menu->macros[menu->macroCount].name, commandList[i].name ) == 0 )
+            {
+                PC_SourceError( handle, "use of reserved word as macro definition: '%d'\n", commandList[i].name );
+                return qfalse;
+            }
+        }
+
+        return PC_Script_Parse( handle, &menu->macros[menu->macroCount++].script );
+    }
+
+    return qtrue;
+}
+
 keywordHash_t menuParseKeywords[] = {
 	{"font", MenuParse_font, NULL},
 	{"name", MenuParse_name, NULL},
@@ -5540,6 +5737,10 @@ keywordHash_t menuParseKeywords[] = {
 	{"fadeClamp", MenuParse_fadeClamp, NULL},
 	{"fadeCycle", MenuParse_fadeCycle, NULL},
 	{"fadeAmount", MenuParse_fadeAmount, NULL},
+
+    // @pjb: macro support
+    {"macro", MenuParse_macro, NULL},
+
 	{NULL, NULL, NULL}
 };
 

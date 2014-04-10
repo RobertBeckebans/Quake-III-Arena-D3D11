@@ -39,6 +39,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MAX_COLOR_RANGES 10
 #define MAX_OPEN_MENUS 16
 
+// @pjb: maximum number of macros
+#define MAX_MENUMACROS 64
+
 #define WINDOW_MOUSEOVER			0x00000001	// mouse is over it, non exclusive
 #define WINDOW_HASFOCUS				0x00000002	// has cursor focus, exclusive
 #define WINDOW_VISIBLE				0x00000004	// is visible
@@ -248,7 +251,19 @@ typedef struct itemDef_s {
 	float special;								 // used for feeder id's etc.. diff per type
   int cursorPos;                 // cursor position in characters
 	void *typeData;								 // type specific data ptr's	
+
+    // @pjb:
+    float verticalNavThreshold;   // How small the dot-product needs to be to move to the 
+    float horizontalNavThreshold; // next element in that direction.
+
 } itemDef_t;
+
+
+// @pjb: macros are named functions
+typedef struct {
+    const char* name;
+    const char* script;
+} macroDef_t;
 
 typedef struct {
   Window window;
@@ -268,6 +283,10 @@ typedef struct {
   vec4_t focusColor;								// focus color for items
   vec4_t disableColor;							// focus color for items
   itemDef_t *items[MAX_MENUITEMS];	// items this menu contains   
+
+  // @pjb: macro scripts
+  int macroCount;
+  macroDef_t macros[MAX_MENUMACROS];
 } menuDef_t;
 
 typedef struct {
