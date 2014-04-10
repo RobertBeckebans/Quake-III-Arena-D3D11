@@ -85,6 +85,8 @@ static qboolean Menu_OverActiveItem(menuDef_t *menu, float x, float y);
 // @pjb
 void MenuItem_ClipFocusPoint( itemDef_t* item );
 void MenuItem_FocusOnCenter( itemDef_t* item );
+itemDef_t *Menu_GetFocusedItem(menuDef_t *menu);
+
 
 #ifdef CGAME
 #define MEM_POOL_SIZE  128 * 1024
@@ -2919,6 +2921,8 @@ static void Display_CloseCinematics() {
 }
 
 void  Menus_Activate(menuDef_t *menu) {
+    itemDef_t* selected = NULL;
+    int i;
 
     // @pjb: reset the focus point
     menu->focusPoint[0] = menu->focusPoint[1] = -1;
@@ -2936,6 +2940,22 @@ void  Menus_Activate(menuDef_t *menu) {
 	}
 
 	Display_CloseCinematics();
+
+    // @pjb: always select something
+    selected = Menu_GetFocusedItem( menu );
+    if ( selected == NULL )
+    {
+        for (i = 0; i < menu->itemCount; i++) {
+          if ( Menu_GoodNavCandidate( menu->items[i] ) ) {
+              MenuItem_GetCenter( menu->items[i], menu->focusPoint );
+              Item_SetFocus( 
+                  menu->items[i],
+                  menu->focusPoint[0],
+                  menu->focusPoint[1] );
+              break;
+          }
+        }
+    }
 
 }
 
