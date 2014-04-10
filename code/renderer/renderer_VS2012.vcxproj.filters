@@ -651,29 +651,29 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\hlsl\genericmt_vs.hlsl">
+    <FxCompile Include="..\hlsl\fsq_ps.hlsl">
       <Filter>Direct3D Implementation\Shaders</Filter>
-    </None>
-    <None Include="..\hlsl\genericst_ps.hlsl">
+    </FxCompile>
+    <FxCompile Include="..\hlsl\fsq_vs.hlsl">
       <Filter>Direct3D Implementation\Shaders</Filter>
-    </None>
-    <None Include="..\hlsl\genericst_vs.hlsl">
+    </FxCompile>
+    <FxCompile Include="..\hlsl\genericmt_ps.hlsl">
       <Filter>Direct3D Implementation\Shaders</Filter>
-    </None>
-    <None Include="..\hlsl\skybox_ps.hlsl">
+    </FxCompile>
+    <FxCompile Include="..\hlsl\genericmt_vs.hlsl">
       <Filter>Direct3D Implementation\Shaders</Filter>
-    </None>
-    <None Include="..\hlsl\skybox_vs.hlsl">
+    </FxCompile>
+    <FxCompile Include="..\hlsl\genericst_ps.hlsl">
       <Filter>Direct3D Implementation\Shaders</Filter>
-    </None>
-    <None Include="..\hlsl\fsq_ps.hlsl">
+    </FxCompile>
+    <FxCompile Include="..\hlsl\genericst_vs.hlsl">
       <Filter>Direct3D Implementation\Shaders</Filter>
-    </None>
-    <None Include="..\hlsl\fsq_vs.hlsl">
+    </FxCompile>
+    <FxCompile Include="..\hlsl\skybox_ps.hlsl">
       <Filter>Direct3D Implementation\Shaders</Filter>
-    </None>
-    <None Include="..\hlsl\genericmt_ps.hlsl">
+    </FxCompile>
+    <FxCompile Include="..\hlsl\skybox_vs.hlsl">
       <Filter>Direct3D Implementation\Shaders</Filter>
-    </None>
+    </FxCompile>
   </ItemGroup>
 </Project>
