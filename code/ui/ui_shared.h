@@ -67,7 +67,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define WINDOW_BACKCOLORSET		0x00400000	// backcolor was explicitly set 
 #define WINDOW_TIMEDVISIBLE		0x00800000	// visibility timing ( NOT implemented )
 
-
 // CGAME cursor type bits
 #define CURSOR_NONE					0x00000001
 #define CURSOR_ARROW				0x00000002
@@ -287,6 +286,9 @@ typedef struct {
   // @pjb: macro scripts
   int macroCount;
   macroDef_t macros[MAX_MENUMACROS];
+
+  // @pjb: the focus point for UI navigation
+  float focusPoint[2];
 } menuDef_t;
 
 typedef struct {

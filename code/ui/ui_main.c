@@ -651,7 +651,13 @@ void _UI_Refresh( int realtime )
 	// draw cursor
 	UI_SetColor( NULL );
 	if (Menu_Count() > 0) {
-		UI_DrawHandlePic( uiInfo.uiDC.cursorx-16, uiInfo.uiDC.cursory-16, 32, 32, uiInfo.uiDC.Assets.cursor);
+
+        // @pjb: hack: todo: remove me!
+        menuDef_t* menu = Menu_GetFocused();
+        if ( menu )
+            UI_DrawHandlePic( menu->focusPoint[0]-16, menu->focusPoint[1]-16, 32, 32, uiInfo.uiDC.Assets.cursor);
+        
+        UI_DrawHandlePic( uiInfo.uiDC.cursorx-16, uiInfo.uiDC.cursory-16, 32, 32, uiInfo.uiDC.Assets.cursor);
 	}
 
 #ifndef NDEBUG

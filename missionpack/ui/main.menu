@@ -40,6 +40,7 @@ menuDef {
 		transition quitbar 0 419 640 1 0 404 640 30 20 10 ;
       	play "sound/misc/tim_pump.wav" ; 
 		uiScript stopRefresh ;
+        setfocus play; // @pjb: set focus to multiplayer option by default :)
 		}
 		
 	onESC { open quit_popmenu }
