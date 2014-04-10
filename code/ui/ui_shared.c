@@ -86,7 +86,9 @@ static qboolean Menu_OverActiveItem(menuDef_t *menu, float x, float y);
 void MenuItem_ClipFocusPoint( itemDef_t* item );
 void MenuItem_FocusOnCenter( itemDef_t* item );
 itemDef_t *Menu_GetFocusedItem(menuDef_t *menu);
-
+void MenuItem_GetCenter( itemDef_t* item, float center[] );
+qboolean Item_SetFocus(itemDef_t *item, float x, float y);
+rectDef_t *Item_CorrectedTextRect(itemDef_t *item);
 
 #ifdef CGAME
 #define MEM_POOL_SIZE  128 * 1024
@@ -1184,26 +1186,36 @@ void Script_Orbit(itemDef_t *item, char **args) {
 
 
 void Script_SetFocus(itemDef_t *item, char **args) {
-  const char *name;
-  itemDef_t *focusItem;
+    const char *name;
+    itemDef_t *focusItem;
+    menuDef_t *menu = (menuDef_t*)item->parent;
 
-  if (String_Parse(args, &name)) {
-    focusItem = Menu_FindItemByName(item->parent, name);
-    if (focusItem && !(focusItem->window.flags & WINDOW_DECORATION) && !(focusItem->window.flags & WINDOW_HASFOCUS)) {
-      Menu_ClearFocus(item->parent);
-      focusItem->window.flags |= WINDOW_HASFOCUS;
+    if (String_Parse(args, &name)) {
+        focusItem = Menu_FindItemByName(item->parent, name);
+        if (focusItem && !(focusItem->window.flags & WINDOW_DECORATION) && !(focusItem->window.flags & WINDOW_HASFOCUS)) {
+            Menu_ClearFocus(item->parent);
 
-      // @pjb: clip the focus point
-      MenuItem_FocusOnCenter( focusItem );
+            // @pjb: handle simulated mouse movement and set focus
+            if (menu)
+            {
+                MenuItem_GetCenter( focusItem, menu->focusPoint );
+                if (Item_SetFocus( focusItem, menu->focusPoint[0], menu->focusPoint[1] ) )
+                {
+                    Menu_HandleMouseMove( menu, menu->focusPoint[0], menu->focusPoint[1] );
+                    return;
+                }
+            }
 
-      if (focusItem->onFocus) {
-        Item_RunScript(focusItem, focusItem->onFocus);
-      }
-      if (DC->Assets.itemFocusSound) {
-        DC->startLocalSound( DC->Assets.itemFocusSound, CHAN_LOCAL_SOUND );
-      }
+            focusItem->window.flags |= WINDOW_HASFOCUS;
+
+            if (focusItem->onFocus) {
+                Item_RunScript(focusItem, focusItem->onFocus);
+            }
+            if (DC->Assets.itemFocusSound) {
+                DC->startLocalSound(DC->Assets.itemFocusSound, CHAN_LOCAL_SOUND);
+            }
+        }
     }
-  }
 }
 
 void Script_SetPlayerModel(itemDef_t *item, char **args) {
@@ -1370,9 +1382,19 @@ qboolean Item_EnableShowViaCvar(itemDef_t *item, int flag) {
 // @pjb: tests whether an item CAN be made focused
 qboolean Item_CanFocus(itemDef_t* item) {
 	// sanity check, non-null, not a decoration and does not already have the focus
-	if (item == NULL || item->window.flags & WINDOW_DECORATION || item->window.flags & WINDOW_HASFOCUS || !(item->window.flags & WINDOW_VISIBLE)) {
+	if (item == NULL || item->window.flags & WINDOW_HASFOCUS || !(item->window.flags & WINDOW_VISIBLE)) {
 		return qfalse;
 	}
+
+    // Items with a focused handler should always be considered
+    if ( item->onFocus != NULL ) {
+        return qtrue;
+    }
+
+    // ignore decorations by default
+    if ( item->window.flags & WINDOW_DECORATION ) {
+        return qfalse;
+    }
 
 	// items can be enabled and disabled based on cvars
 	if (item->cvarFlags & (CVAR_ENABLE | CVAR_DISABLE) && !Item_EnableShowViaCvar(item, CVAR_ENABLE)) {
@@ -2481,7 +2503,7 @@ void Item_Action(itemDef_t *item) {
 }
 
 // @pjb: Clip the focus point to the new box
-void MenuItem_ClipFocusPoint( itemDef_t* item )
+static void MenuItem_ClipFocusPoint( itemDef_t* item )
 {
 	menuDef_t *parent = (menuDef_t*)item->parent; 
 
@@ -2501,15 +2523,16 @@ void MenuItem_ClipFocusPoint( itemDef_t* item )
 }
 
 // @pjb: get the center of an item
-static void MenuItem_GetCenter( const itemDef_t* item, float center[] )
+static void MenuItem_GetCenter( itemDef_t* item, float center[] )
 {
+    // Prefer the text rect if possible
     const rectDef_t* screenRect = &item->window.rectClient;
     center[0] = screenRect->x + 0.5f * screenRect->w;
     center[1] = screenRect->y + 0.5f * screenRect->h;
 }
 
 // @pjb: Clip the focus point to the new box
-void MenuItem_FocusOnCenter( itemDef_t* item )
+static void MenuItem_FocusOnCenter( itemDef_t* item )
 {
 	menuDef_t *parent = (menuDef_t*)item->parent; 
 
@@ -2520,9 +2543,8 @@ void MenuItem_FocusOnCenter( itemDef_t* item )
 }
 
 // @pjb: return two points that represent the side of the bounding box
-void MenuItem_GetEdge( const itemDef_t* item, int edge, float p0[2], float p1[2] )
+static void MenuItem_GetEdge( const rectDef_t* screenRect, int edge, float p0[2], float p1[2] )
 {
-    const rectDef_t* screenRect = &item->window.rectClient;
     switch ( edge )
     {
     case NAV_UP:    
@@ -2636,7 +2658,7 @@ static qboolean OnRightOfPlane( const halfSpace_t* plane, const float p0[2], con
 {
     float a = PointToPlaneDistance( plane, p0 );
     float b = PointToPlaneDistance( plane, p1 );
-    return (a >= 0 || b >= 0) ? qtrue : qfalse;
+    return (a > 0 || b > 0) ? qtrue : qfalse;
 }
 
 // @pjb: returns positive results if the edge intersected or is on the right of the plane
@@ -2674,14 +2696,14 @@ itemDef_t* Menu_NavigateImprecise( menuDef_t* menu, itemDef_t* originator, NAV_D
 
     switch ( direction )
     {
-    case NAV_UP:    d[0] =  0; d[1] = -1; cosTheta = originator->verticalNavThreshold;   break;
-    case NAV_DOWN:  d[0] =  0; d[1] =  1; cosTheta = originator->verticalNavThreshold;   break;
-    case NAV_LEFT:  d[0] = -1; d[1] =  0; cosTheta = originator->horizontalNavThreshold; break;
-    case NAV_RIGHT: d[0] =  1; d[1] =  0; cosTheta = originator->horizontalNavThreshold; break;
+    case NAV_UP:    d[0] =  0; d[1] = -1; cosTheta = 1 - originator->verticalNavThreshold;   break;
+    case NAV_DOWN:  d[0] =  0; d[1] =  1; cosTheta = 1 - originator->verticalNavThreshold;   break;
+    case NAV_LEFT:  d[0] = -1; d[1] =  0; cosTheta = 1 - originator->horizontalNavThreshold; break;
+    case NAV_RIGHT: d[0] =  1; d[1] =  0; cosTheta = 1 - originator->horizontalNavThreshold; break;
     default: return NULL;
     }
 
-    MenuItem_GetEdge( originator, direction, p0, p1 );
+    MenuItem_GetEdge( &originator->window.rectClient, direction, p0, p1 );
     MenuItem_GetCenter( originator, center );
 
     // Snap the threshold
@@ -2698,6 +2720,7 @@ itemDef_t* Menu_NavigateImprecise( menuDef_t* menu, itemDef_t* originator, NAV_D
     r[1] = 2 * d[1] * cosTheta - n[1];
 
     static const float pushoff = 0.05f;
+    static const float confusion_zone = 100.0f; // if it's within 100 units we'll give it the benefit of the doubt
 
     p2[0] = p0[0] + pushoff * d[0];
     p2[1] = p0[1] + pushoff * d[1];
@@ -2750,12 +2773,7 @@ itemDef_t* Menu_NavigateImprecise( menuDef_t* menu, itemDef_t* originator, NAV_D
                 float dist;
                 float e0[2], e1[2];
 
-                MenuItem_GetEdge( item, edge, e0, e1 );
-
-                // Find the line segment closest to the primary plane
-                dist = LineSegmentToPlaneDistance( &halfSpaces[0], e0, e1 );
-                if ( dist < 0 || dist > maxDist )
-                    continue;
+                MenuItem_GetEdge( &item->window.rectClient, edge, e0, e1 );
 
                 // Intersect the edges with the secondary planes
                 if ( !OnRightOfPlane( &halfSpaces[1], e0, e1 ) )
@@ -2763,12 +2781,18 @@ itemDef_t* Menu_NavigateImprecise( menuDef_t* menu, itemDef_t* originator, NAV_D
                 if ( !OnRightOfPlane( &halfSpaces[2], e0, e1 ) )
                     continue;
 
+                // Find the line segment closest to the primary plane
+                dist = LineSegmentToPlaneDistance( &halfSpaces[0], e0, e1 );
+                if ( dist < 0 || dist > maxDist + confusion_zone )//  @pjb: still want to consider stuff further away but with better directionality
+                    break;
+
                 myDist = min( dist, myDist );
                 passes = qtrue;
             }
 
             if ( passes == qtrue )
             {
+                // Prefer items with better dot products
                 dot = sqrtf(dot);
 
                 // Normalize
@@ -2777,8 +2801,11 @@ itemDef_t* Menu_NavigateImprecise( menuDef_t* menu, itemDef_t* originator, NAV_D
 
                 dot = c[0] * d[0] + c[1] * d[1];
 
-                // Prefer items with larger dot products in the case of a tie
                 if ( dot < bestDot )
+                    continue;
+                
+                // Use distance as a tiebreaker
+                if ( fabs( dot - bestDot ) < 0.1f && myDist > maxDist )
                     continue;
 
                 nextItem = item;
@@ -2823,12 +2850,13 @@ itemDef_t* Menu_Navigate( menuDef_t* menu, itemDef_t* originator, NAV_DIRECTION 
     // If there was an item, remember set it as the focused object
     if ( nextItem != NULL ) 
     {
-        menu->focusPoint[0] = focusPoint[0];
-        menu->focusPoint[1] = focusPoint[1];
+        //menu->focusPoint[0] = focusPoint[0];
+        //menu->focusPoint[1] = focusPoint[1];
+        MenuItem_GetCenter( nextItem, menu->focusPoint );
 
-        if (Item_SetFocus( nextItem, DC->cursorx, DC->cursory ) ) 
+        if (Item_SetFocus( nextItem, menu->focusPoint[0], menu->focusPoint[1] ) ) 
         {
-            Menu_HandleMouseMove( menu, nextItem->window.rect.x + 1, nextItem->window.rect.y + 1);
+            Menu_HandleMouseMove( menu, menu->focusPoint[0], menu->focusPoint[1] );
         }
     }
 
@@ -2838,59 +2866,64 @@ itemDef_t* Menu_Navigate( menuDef_t* menu, itemDef_t* originator, NAV_DIRECTION 
 
 
 itemDef_t *Menu_SetPrevCursorItem(menuDef_t *menu) {
-  qboolean wrapped = qfalse;
-	int oldCursor = menu->cursorItem;
-  
-  if (menu->cursorItem < 0) {
-    menu->cursorItem = menu->itemCount-1;
-    wrapped = qtrue;
-  } 
+    qboolean wrapped = qfalse;
+    int oldCursor = menu->cursorItem;
 
-  while (menu->cursorItem > -1) {
-    
-    menu->cursorItem--;
-    if (menu->cursorItem < 0 && !wrapped) {
-      wrapped = qtrue;
-      menu->cursorItem = menu->itemCount -1;
+    if (menu->cursorItem < 0) {
+        menu->cursorItem = menu->itemCount - 1;
+        wrapped = qtrue;
     }
 
-		if (Item_SetFocus(menu->items[menu->cursorItem], DC->cursorx, DC->cursory)) {
-			Menu_HandleMouseMove(menu, menu->items[menu->cursorItem]->window.rect.x + 1, menu->items[menu->cursorItem]->window.rect.y + 1);
-      return menu->items[menu->cursorItem];
+    while (menu->cursorItem > -1) {
+
+        menu->cursorItem--;
+        if (menu->cursorItem < 0 && !wrapped) {
+            wrapped = qtrue;
+            menu->cursorItem = menu->itemCount - 1;
+        }
+
+        MenuItem_GetCenter(menu->items[menu->cursorItem], menu->focusPoint);
+
+        if (Item_SetFocus(menu->items[menu->cursorItem], menu->focusPoint[0], menu->focusPoint[1])) {
+            Menu_HandleMouseMove(menu, menu->focusPoint[0], menu->focusPoint[1]);
+            return menu->items[menu->cursorItem];
+        }
     }
-  }
-	menu->cursorItem = oldCursor;
-	return NULL;
+    menu->cursorItem = oldCursor;
+    return NULL;
 
 }
 
 itemDef_t *Menu_SetNextCursorItem(menuDef_t *menu) {
 
-  qboolean wrapped = qfalse;
-	int oldCursor = menu->cursorItem;
+    qboolean wrapped = qfalse;
+    int oldCursor = menu->cursorItem;
 
 
-  if (menu->cursorItem == -1) {
-    menu->cursorItem = 0;
-    wrapped = qtrue;
-  }
-
-  while (menu->cursorItem < menu->itemCount) {
-
-    menu->cursorItem++;
-    if (menu->cursorItem >= menu->itemCount && !wrapped) {
-      wrapped = qtrue;
-      menu->cursorItem = 0;
+    if (menu->cursorItem == -1) {
+        menu->cursorItem = 0;
+        wrapped = qtrue;
     }
-		if (Item_SetFocus(menu->items[menu->cursorItem], DC->cursorx, DC->cursory)) {
-			Menu_HandleMouseMove(menu, menu->items[menu->cursorItem]->window.rect.x + 1, menu->items[menu->cursorItem]->window.rect.y + 1);
-      return menu->items[menu->cursorItem];
-    }
-    
-  }
 
-	menu->cursorItem = oldCursor;
-	return NULL;
+    while (menu->cursorItem < menu->itemCount) {
+
+        menu->cursorItem++;
+        if (menu->cursorItem >= menu->itemCount && !wrapped) {
+            wrapped = qtrue;
+            menu->cursorItem = 0;
+        }
+
+        MenuItem_GetCenter(menu->items[menu->cursorItem], menu->focusPoint);
+
+        if (Item_SetFocus(menu->items[menu->cursorItem], menu->focusPoint[0], menu->focusPoint[1])) {
+            Menu_HandleMouseMove(menu, menu->focusPoint[0], menu->focusPoint[1]);
+            return menu->items[menu->cursorItem];
+        }
+
+    }
+
+    menu->cursorItem = oldCursor;
+    return NULL;
 }
 
 static void Window_CloseCinematic(windowDef_t *window) {
@@ -2930,6 +2963,7 @@ void  Menus_Activate(menuDef_t *menu) {
     menu->window.flags |= (WINDOW_HASFOCUS | WINDOW_VISIBLE);
 	if (menu->onOpen) {
 		itemDef_t item;
+        memset( &item, 0, sizeof( item ) ); // @pjb: fix a crash when running scripts on this item
 		item.parent = menu;
 		Item_RunScript(&item, menu->onOpen);
 	}
@@ -2948,10 +2982,8 @@ void  Menus_Activate(menuDef_t *menu) {
         for (i = 0; i < menu->itemCount; i++) {
           if ( Menu_GoodNavCandidate( menu->items[i] ) ) {
               MenuItem_GetCenter( menu->items[i], menu->focusPoint );
-              Item_SetFocus( 
-                  menu->items[i],
-                  menu->focusPoint[0],
-                  menu->focusPoint[1] );
+              if ( Item_SetFocus( menu->items[i], menu->focusPoint[0], menu->focusPoint[1] ) )
+                Menu_HandleMouseMove( menu, menu->focusPoint[0], menu->focusPoint[1] );
               break;
           }
         }
@@ -4610,7 +4642,7 @@ void Item_Init(itemDef_t *item) {
 	Window_Init(&item->window);
 
     // @pjb: set up the default nav thresholds
-    item->verticalNavThreshold = 1.0f;
+    item->verticalNavThreshold = 0.0f;
     item->horizontalNavThreshold = 1.0f;
 }
 

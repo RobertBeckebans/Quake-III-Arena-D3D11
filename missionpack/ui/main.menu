@@ -191,7 +191,7 @@ itemDef {
 
         hide gametype; 
         show teamarena; 
-        setcolor backcolor .75 0 0 .25; 
+        setitemcolor teamArenaBar backcolor .75 0 0 .25; 
         setfocus teamarena_credits;
     }
 }
@@ -348,7 +348,7 @@ itemDef {
 
         hide play; 
         show playselection; 
-        setcolor backcolor .75 0 0 .25; 
+        setitemcolor singlebar backcolor .75 0 0 .25; 
         setfocus playselection_join;
     }
 }
@@ -456,7 +456,7 @@ itemDef {
 
         hide options; 
         show optionselection; 
-        setcolor backcolor .75 0 0 .25; 
+        setitemcolor optionbar backcolor .75 0 0 .25; 
         setfocus optionselection_setup;
     }
 }
