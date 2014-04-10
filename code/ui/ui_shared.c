@@ -2578,6 +2578,9 @@ itemDef_t* Menu_NavigatePrecise( menuDef_t* menu, itemDef_t* originator, NAV_DIR
 {
     int i;
     float d[2];
+    itemDef_t* nextItem = NULL;
+    float nextItemDist = 9999999;
+    float newFocusPoint[2];
 
     switch ( direction )
     {
@@ -2594,13 +2597,11 @@ itemDef_t* Menu_NavigatePrecise( menuDef_t* menu, itemDef_t* originator, NAV_DIR
         MenuItem_GetCenter( originator, focus );
     }
 
-    itemDef_t* nextItem = NULL;
-    float nextItemDist = 9999999;
-    float newFocusPoint[2];
-
     // Cast a ray out in the direction and see if we hit anything
     for ( i = 0; i < menu->itemCount; ++i )
     {
+        float center2[2];
+        float dist;
         itemDef_t* item = menu->items[i];
 
         if ( item == originator || !Menu_GoodNavCandidate( item ) )
@@ -2608,12 +2609,11 @@ itemDef_t* Menu_NavigatePrecise( menuDef_t* menu, itemDef_t* originator, NAV_DIR
             continue;
         }
 
-        float center2[2];
         MenuItem_GetCenter( item, center2 );
 
         // Get the plane for this object (the plane perpendicular to the direction)
         // What's the distance?
-        float dist = d[0] * (center2[0] - focus[0]) + d[1] * (center2[1] - focus[1]);
+        dist = d[0] * (center2[0] - focus[0]) + d[1] * (center2[1] - focus[1]);
         if ( dist > 0 && dist < nextItemDist )
         {
             // Clip the point against the target's box
@@ -2688,6 +2688,9 @@ static float LineSegmentToPlaneDistance( const halfSpace_t* plane, const float p
 */
 itemDef_t* Menu_NavigateImprecise( menuDef_t* menu, itemDef_t* originator, NAV_DIRECTION direction, float focus[2] )
 {
+    static const float pushoff = 0.05f;
+    static const float confusion_zone = 100.0f; // if it's within 100 units we'll give it the benefit of the doubt
+
     itemDef_t* nextItem = NULL;
 
     float d[2], p0[2], p1[2], p2[2], n[2], r[2], center[2], newFocus[2];
@@ -2718,9 +2721,6 @@ itemDef_t* Menu_NavigateImprecise( menuDef_t* menu, itemDef_t* originator, NAV_D
     // Reflect the plane normal
     r[0] = 2 * d[0] * cosTheta - n[0];
     r[1] = 2 * d[1] * cosTheta - n[1];
-
-    static const float pushoff = 0.05f;
-    static const float confusion_zone = 100.0f; // if it's within 100 units we'll give it the benefit of the doubt
 
     p2[0] = p0[0] + pushoff * d[0];
     p2[1] = p0[1] + pushoff * d[1];
@@ -6023,6 +6023,7 @@ qboolean MenuParse_itemDef( itemDef_t *item, int handle ) {
 // @pjb: macro support
 qboolean MenuParse_macro( itemDef_t* item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
+    int i;
 
     if (menu->macroCount < MAX_MENUMACROS) {
 
@@ -6030,7 +6031,7 @@ qboolean MenuParse_macro( itemDef_t* item, int handle ) {
         PC_String_Parse( handle, &menu->macros[menu->macroCount].name );
 
         // If it's a reserved word, baile
-        for ( int i = 0; i < scriptCommandCount; ++i )
+        for ( i = 0; i < scriptCommandCount; ++i )
         {
             if ( Q_stricmp( menu->macros[menu->macroCount].name, commandList[i].name ) == 0 )
             {
