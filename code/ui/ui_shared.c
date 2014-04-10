@@ -2543,6 +2543,12 @@ void MenuItem_GetEdge( const itemDef_t* item, int edge, float p0[2], float p1[2]
     }
 }
 
+// @pjb: returns true if this is a good navigation candidate
+qboolean Menu_GoodNavCandidate( itemDef_t* item )
+{
+    return Item_CanFocus( item ) && (item->action != NULL || item->onFocus != NULL );
+}
+
 // @pjb: test a ray against all the controls to see if that hits anything
 itemDef_t* Menu_NavigatePrecise( menuDef_t* menu, itemDef_t* originator, NAV_DIRECTION direction, float focus[2] )
 {
@@ -2573,7 +2579,7 @@ itemDef_t* Menu_NavigatePrecise( menuDef_t* menu, itemDef_t* originator, NAV_DIR
     {
         itemDef_t* item = menu->items[i];
 
-        if ( item == originator || !Item_CanFocus( item ) )
+        if ( item == originator || !Menu_GoodNavCandidate( item ) )
         {
             continue;
         }
@@ -2587,10 +2593,15 @@ itemDef_t* Menu_NavigatePrecise( menuDef_t* menu, itemDef_t* originator, NAV_DIR
         if ( dist > 0 && dist < nextItemDist )
         {
             // Clip the point against the target's box
-            newFocusPoint[0] = focus[0] + d[0] * dist;
-            newFocusPoint[1] = focus[1] + d[1] * dist;
-            if ( Rect_ContainsPoint( &item->window.rectClient, newFocusPoint[0], newFocusPoint[1] ) )
+            float fp[] = { 
+                focus[0] + d[0] * dist,
+                focus[1] + d[1] * dist
+            };
+
+            if ( Rect_ContainsPoint( &item->window.rectClient, fp[0], fp[1] ) )
             {
+                newFocusPoint[0] = fp[0];
+                newFocusPoint[1] = fp[1];
                 nextItem = item;
                 nextItemDist = dist;
             }
@@ -2619,15 +2630,28 @@ static float PointToPlaneDistance( const halfSpace_t* plane, const float p[2] )
 }
 
 // @pjb: returns positive results if the edge intersected or is on the right of the plane
+static qboolean OnRightOfPlane( const halfSpace_t* plane, const float p0[2], const float p1[2] )
+{
+    float a = PointToPlaneDistance( plane, p0 );
+    float b = PointToPlaneDistance( plane, p1 );
+    return (a >= 0 || b >= 0) ? qtrue : qfalse;
+}
+
+// @pjb: returns positive results if the edge intersected or is on the right of the plane
 static float LineSegmentToPlaneDistance( const halfSpace_t* plane, const float p0[2], const float p1[2] )
 {
     float a = PointToPlaneDistance( plane, p0 );
     float b = PointToPlaneDistance( plane, p1 );
-    if ( a < 0 ) 
-        return b;
-    if ( b < 0 )
-        return a;
-    return min( a, b );
+    if ( a >= 0 && b >= 0 )
+        return min( a, b ); // Closest point on right of the plane
+    else if ( a < 0 && b < 0 )
+        return max( a, b ); // Closest point on left of the plane
+    else if ( a < 0 || b < 0 )
+        return 0; // Closest point is *on* the plane
+
+    assert(0);
+    // "Warning: Not all control paths return a value". Erm.
+    return -1;
 }
 
 /* 
@@ -2699,8 +2723,10 @@ itemDef_t* Menu_NavigateImprecise( menuDef_t* menu, itemDef_t* originator, NAV_D
             itemDef_t* item = menu->items[i];
             float c[2];
             float dot;
+            float myDist = maxDist;
+            qboolean passes = qfalse;
 
-            if ( item == originator || !Item_CanFocus( item ) )
+            if ( item == originator || !Menu_GoodNavCandidate( item ) )
             {
                 continue;
             }
@@ -2716,14 +2742,6 @@ itemDef_t* Menu_NavigateImprecise( menuDef_t* menu, itemDef_t* originator, NAV_D
             if ( dot == 0 )
                 continue;
 
-            dot = sqrtf(dot);
-
-            // Normalize
-            c[0] /= dot;
-            c[1] /= dot;
-
-            dot = c[0] * d[0] + c[1] * d[1];
-
             // Test each edge
             for ( edge = 0; edge < 4; ++edge )
             {
@@ -2738,17 +2756,31 @@ itemDef_t* Menu_NavigateImprecise( menuDef_t* menu, itemDef_t* originator, NAV_D
                     continue;
 
                 // Intersect the edges with the secondary planes
-                if ( LineSegmentToPlaneDistance( &halfSpaces[1], e0, e1 ) < 0 )
+                if ( !OnRightOfPlane( &halfSpaces[1], e0, e1 ) )
                     continue;
-                if ( LineSegmentToPlaneDistance( &halfSpaces[2], e0, e1 ) < 0 )
+                if ( !OnRightOfPlane( &halfSpaces[2], e0, e1 ) )
                     continue;
+
+                myDist = min( dist, myDist );
+                passes = qtrue;
+            }
+
+            if ( passes == qtrue )
+            {
+                dot = sqrtf(dot);
+
+                // Normalize
+                c[0] /= dot;
+                c[1] /= dot;
+
+                dot = c[0] * d[0] + c[1] * d[1];
 
                 // Prefer items with larger dot products in the case of a tie
                 if ( dot < bestDot )
                     continue;
 
                 nextItem = item;
-                maxDist = dist;
+                maxDist = myDist;
                 bestDot = dot;
 
                 MenuItem_GetCenter( item, newFocus );
