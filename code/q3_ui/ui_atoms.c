@@ -950,7 +950,6 @@ void UI_GamepadEvent( int axis, int value )
 	if (!uis.activemenu)
 		return;
 
-    // @pjb: TODO: only tracking the vertical axis for now
     if ( axis == 1 )
     {
         int threshold = ui_thumbstickThreshold.value;
@@ -967,6 +966,16 @@ void UI_GamepadEvent( int axis, int value )
     }
     else if ( axis == 0 )
     {
+        int threshold = ui_thumbstickThreshold.value;
+
+        if ( value >= threshold && uis.lthumbstickX < threshold )
+            UI_KeyEvent( K_RIGHTARROW, qtrue );
+        if ( value < threshold && uis.lthumbstickX >= threshold )
+            UI_KeyEvent( K_RIGHTARROW, qfalse );
+        if ( value <= -threshold && uis.lthumbstickX > -threshold )
+            UI_KeyEvent( K_LEFTARROW, qtrue );
+        if ( value > -threshold && uis.lthumbstickX <= -threshold )
+            UI_KeyEvent( K_LEFTARROW, qfalse );
         uis.lthumbstickX = value;
     }
 }
