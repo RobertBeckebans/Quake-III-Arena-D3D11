@@ -57,7 +57,6 @@ static itemDef_t *itemCapture = NULL;   // item that has the mouse captured ( if
 displayContextDef_t *DC = NULL;
 
 static qboolean g_waitingForKey = qfalse;
-static qboolean g_editingField = qfalse;
 
 static itemDef_t *g_bindItem = NULL;
 static itemDef_t *g_editItem = NULL;
@@ -2463,6 +2462,7 @@ qboolean Item_Slider_HandleKey(itemDef_t *item, int key, qboolean down) {
 qboolean Item_RequiresExplicitKeyboardCapture( const itemDef_t* item ) {
     return  item->type == ITEM_TYPE_LISTBOX ||
             item->type == ITEM_TYPE_SLIDER ||
+            item->type == ITEM_TYPE_EDITFIELD ||
             item->type == ITEM_TYPE_MULTI ||
             item->type == ITEM_TYPE_BIND;
 }
@@ -2494,6 +2494,11 @@ qboolean Item_HandleKey(itemDef_t *item, int key, qboolean down) {
             if ( key == K_ENTER || key == K_KP_ENTER || key == K_GAMEPAD_A ) {
                 item->window.flags |= WINDOW_CAPTURE_KEYS;
 
+				if (item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD) {
+					item->cursorPos = 0;
+					DC->setOverstrikeMode(qtrue);
+				}
+
                 // Play a sound
 		        DC->startLocalSound( DC->Assets.menuEnterSound, CHAN_LOCAL_SOUND );
                 return qtrue;
@@ -2505,7 +2510,13 @@ qboolean Item_HandleKey(itemDef_t *item, int key, qboolean down) {
         // @pjb: back out if we're capturing keys
         if ( key == K_ESCAPE || key == K_GAMEPAD_B ) {
             item->window.flags &= ~WINDOW_CAPTURE_KEYS;
-		    DC->startLocalSound( DC->Assets.menuExitSound, CHAN_LOCAL_SOUND );
+
+			if (item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD) {
+				item->cursorPos = 0;
+				DC->setOverstrikeMode(qfalse);
+			}
+            
+            DC->startLocalSound( DC->Assets.menuExitSound, CHAN_LOCAL_SOUND );
             return qtrue;
         }
     }    
@@ -2522,8 +2533,7 @@ qboolean Item_HandleKey(itemDef_t *item, int key, qboolean down) {
       break;
     case ITEM_TYPE_EDITFIELD:
     case ITEM_TYPE_NUMERICFIELD:
-      //return Item_TextField_HandleKey(item, key);
-      return qfalse;
+      return Item_TextField_HandleKey(item, key);
       break;
     case ITEM_TYPE_COMBO:
       return qfalse;
@@ -3178,21 +3188,6 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 		return;
 	}
 
-	if (g_editingField && down) {
-		if (!Item_TextField_HandleKey(g_editItem, key)) {
-			g_editingField = qfalse;
-			g_editItem = NULL;
-			inHandler = qfalse;
-			return;
-		} else if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3) {
-			g_editingField = qfalse;
-			g_editItem = NULL;
-			Display_MouseMove(NULL, DC->cursorx, DC->cursory);
-		} else if (key == K_TAB || key == K_UPARROW || key == K_DOWNARROW) {
-			return;
-		}
-	}
-
 	if (menu == NULL) {
 		inHandler = qfalse;
 		return;
@@ -3295,13 +3290,6 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 					if (Rect_ContainsPoint(Item_CorrectedTextRect(item), DC->cursorx, DC->cursory)) {
 						Item_Action(item);
 					}
-				} else if (item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD) {
-					if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory)) {
-						item->cursorPos = 0;
-						g_editingField = qtrue;
-						g_editItem = item;
-						DC->setOverstrikeMode(qtrue);
-					}
 				} else {
 					if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory)) {
 						Item_Action(item);
@@ -3335,14 +3323,7 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
         case K_GAMEPAD_A: // @pjb
 		case K_ENTER:
 			if (item) {
-				if (item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD) {
-					item->cursorPos = 0;
-					g_editingField = qtrue;
-					g_editItem = item;
-					DC->setOverstrikeMode(qtrue);
-				} else {
-						Item_Action(item);
-				}
+				Item_Action(item);
 			}
 			break;
 	}
@@ -3651,7 +3632,7 @@ void Item_TextField_Paint(itemDef_t *item) {
 	}
 
 	offset = (item->text && *item->text) ? 8 : 0;
-	if (item->window.flags & WINDOW_HASFOCUS && g_editingField) {
+	if (item->window.flags & WINDOW_CAPTURE_KEYS) {
 		char cursor = DC->getOverstrikeMode() ? '_' : '|';
 		DC->drawTextWithCursor(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale, newColor, buff + editPtr->paintOffset, item->cursorPos - editPtr->paintOffset , cursor, editPtr->maxPaintChars, item->textStyle);
 	} else {
@@ -4797,7 +4778,7 @@ void Menu_HandleMouseMove(menuDef_t *menu, float x, float y) {
 		return;
 	}
 
-	if (g_waitingForKey || g_editingField) {
+	if (g_waitingForKey) {
 		return;
 	}
 
