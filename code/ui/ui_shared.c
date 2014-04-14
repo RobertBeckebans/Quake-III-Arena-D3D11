@@ -1675,6 +1675,7 @@ void Item_ListBox_MouseEnter(itemDef_t *item, float x, float y)
 				r.y = item->window.rect.y;
 				r.h = item->window.rect.h - SCROLLBAR_SIZE;
 				r.w = item->window.rect.w - listPtr->drawPadding;
+
                 // @pjb: this causes a bug with keyboard nav
 				//if (Rect_ContainsPoint(&r, x, y)) {
 				//	listPtr->cursorPos =  (int)((x - r.x) / listPtr->elementWidth)  + listPtr->startPos;
@@ -1691,6 +1692,7 @@ void Item_ListBox_MouseEnter(itemDef_t *item, float x, float y)
 		r.y = item->window.rect.y;
 		r.w = item->window.rect.w - SCROLLBAR_SIZE;
 		r.h = item->window.rect.h - listPtr->drawPadding;
+
         // @pjb: this causes a bug with keyboard nav
 		//if (Rect_ContainsPoint(&r, x, y)) {
 		//	listPtr->cursorPos =  (int)((y - 2 - r.y) / listPtr->elementHeight)  + listPtr->startPos;
@@ -1753,7 +1755,8 @@ void Item_MouseLeave(itemDef_t *item) {
       item->window.flags &= ~WINDOW_MOUSEOVERTEXT;
     }
     Item_RunScript(item, item->mouseExit);
-    item->window.flags &= ~(WINDOW_LB_RIGHTARROW | WINDOW_LB_LEFTARROW);
+    // @pjb: disable key exclusivity
+    item->window.flags &= ~(WINDOW_LB_RIGHTARROW | WINDOW_LB_LEFTARROW | WINDOW_CAPTURE_KEYS);
   }
 }
 
@@ -1801,6 +1804,9 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 		// mouse hit
 		if ( Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && 
             (key == K_MOUSE1 || key == K_MOUSE2)) {
+
+            // @pjb: set capture mode
+            item->window.flags |= WINDOW_CAPTURE_KEYS;
 
     		if (item->window.flags & WINDOW_HORIZONTAL)
 	    		listPtr->cursorPos = (int)((DC->cursorx - item->window.rect.x) / listPtr->elementWidth) + listPtr->startPos;
@@ -4376,6 +4382,19 @@ void Item_ListBox_Paint(itemDef_t *item) {
 			}
 		}
 	}
+
+    // @pjb: darken it if it's not focused
+    if ( !( item->window.flags & ( WINDOW_CAPTURE_KEYS ) ) &&
+         !Rect_ContainsPoint( &item->window.rectClient, DC->cursorx, DC->cursory ) ) {
+        vec4_t color = { 0, 0, 0, 0.35f };
+
+		DC->fillRect(
+            item->window.rect.x + 2, 
+            item->window.rect.y + 2, 
+            item->window.rect.w - 4, 
+            item->window.rect.h - 4, 
+            color);
+    }
 }
 
 
