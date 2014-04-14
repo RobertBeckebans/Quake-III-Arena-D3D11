@@ -73,6 +73,7 @@ The Windows 8 build is always Direct3D 11, XAudio2, XInput enabled. Networking r
 
 ## Known Issues ##
 
+- Menu navigation using the gamepad is almost impossible. I'm working on custom code to handle this.
 - Win8: Broadcast sockets are not implemented. You'll need to `connect <ip>` from the console to join a game hosted by a Win8 build.
 - `r_smp 1` will cause a deadlock on many systems. This is actually a bug in Q3A but I haven't had time to fix it yet.
 - Cutscene sound can be choppy/poppy.
