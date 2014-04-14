@@ -8,6 +8,10 @@
 	cursor "ui/assets/3_cursor3"			// cursor	
 	gradientBar "ui/assets/gradientbar2.tga"	// gradient bar
 	itemFocusSound "sound/misc/menu2.wav"		// sound for item getting focus (via keyboard or mouse )
+
+    // @pjb: sounds for activating capturing controls
+    menuEnterSound "sound/misc/kcaction.wav"
+    menuExitSound "sound/misc/nomenu.wav"
 	
     	fadeClamp 1.0					// sets the fadeup alpha
 	fadeCycle 1					// how often fade happens in milliseconds

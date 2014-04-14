@@ -1675,12 +1675,13 @@ void Item_ListBox_MouseEnter(itemDef_t *item, float x, float y)
 				r.y = item->window.rect.y;
 				r.h = item->window.rect.h - SCROLLBAR_SIZE;
 				r.w = item->window.rect.w - listPtr->drawPadding;
-				if (Rect_ContainsPoint(&r, x, y)) {
-					listPtr->cursorPos =  (int)((x - r.x) / listPtr->elementWidth)  + listPtr->startPos;
-					if (listPtr->cursorPos >= listPtr->endPos) {
-						listPtr->cursorPos = listPtr->endPos;
-					}
-				}
+                // @pjb: this causes a bug with keyboard nav
+				//if (Rect_ContainsPoint(&r, x, y)) {
+				//	listPtr->cursorPos =  (int)((x - r.x) / listPtr->elementWidth)  + listPtr->startPos;
+				//	if (listPtr->cursorPos >= listPtr->endPos) {
+				//		listPtr->cursorPos = listPtr->endPos;
+				//	}
+				//}
 			} else {
 				// text hit.. 
 			}
@@ -1690,12 +1691,13 @@ void Item_ListBox_MouseEnter(itemDef_t *item, float x, float y)
 		r.y = item->window.rect.y;
 		r.w = item->window.rect.w - SCROLLBAR_SIZE;
 		r.h = item->window.rect.h - listPtr->drawPadding;
-		if (Rect_ContainsPoint(&r, x, y)) {
-			listPtr->cursorPos =  (int)((y - 2 - r.y) / listPtr->elementHeight)  + listPtr->startPos;
-			if (listPtr->cursorPos > listPtr->endPos) {
-				listPtr->cursorPos = listPtr->endPos;
-			}
-		}
+        // @pjb: this causes a bug with keyboard nav
+		//if (Rect_ContainsPoint(&r, x, y)) {
+		//	listPtr->cursorPos =  (int)((y - 2 - r.y) / listPtr->elementHeight)  + listPtr->startPos;
+		//	if (listPtr->cursorPos > listPtr->endPos) {
+		//		listPtr->cursorPos = listPtr->endPos;
+		//	}
+		//}
 	}
 }
 
@@ -1788,10 +1790,88 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 	int count = DC->feederCount(item->special);
 	int max, viewmax;
 
-	if (force || (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && item->window.flags & WINDOW_HASFOCUS)) {
+	if (force || (item->window.flags & WINDOW_HASFOCUS)) {
+
 		max = Item_ListBox_MaxScroll(item);
-		if (item->window.flags & WINDOW_HORIZONTAL) {
+		if (item->window.flags & WINDOW_HORIZONTAL)
 			viewmax = (item->window.rect.w / listPtr->elementWidth);
+        else
+			viewmax = (item->window.rect.h / listPtr->elementHeight);
+
+		// mouse hit
+		if ( Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && 
+            (key == K_MOUSE1 || key == K_MOUSE2)) {
+
+    		if (item->window.flags & WINDOW_HORIZONTAL)
+	    		listPtr->cursorPos = (int)((DC->cursorx - item->window.rect.x) / listPtr->elementWidth) + listPtr->startPos;
+            else
+	    		listPtr->cursorPos = (int)((DC->cursory - 2 - item->window.rect.y) / listPtr->elementHeight) + listPtr->startPos;
+
+			if (listPtr->cursorPos >= listPtr->endPos) {
+				listPtr->cursorPos = listPtr->endPos;
+			}
+            
+            if (item->window.flags & WINDOW_LB_LEFTARROW) {
+				listPtr->startPos--;
+				if (listPtr->startPos < 0) {
+					listPtr->startPos = 0;
+				}
+			} else if (item->window.flags & WINDOW_LB_RIGHTARROW) {
+				// one down
+				listPtr->startPos++;
+				if (listPtr->startPos > max) {
+					listPtr->startPos = max;
+				}
+			} else if (item->window.flags & WINDOW_LB_PGUP) {
+				// page up
+				listPtr->startPos -= viewmax;
+				if (listPtr->startPos < 0) {
+					listPtr->startPos = 0;
+				}
+			} else if (item->window.flags & WINDOW_LB_PGDN) {
+				// page down
+				listPtr->startPos += viewmax;
+				if (listPtr->startPos > max) {
+					listPtr->startPos = max;
+				}
+			} else if (item->window.flags & WINDOW_LB_THUMB) {
+				// Display_SetCaptureItem(item);
+			} else {
+				// select an item
+				if (DC->realTime < lastListBoxClickTime && listPtr->doubleClick) {
+					Item_RunScript(item, listPtr->doubleClick);
+				}
+				lastListBoxClickTime = DC->realTime + DOUBLE_CLICK_DELAY;
+				if (item->cursorPos != listPtr->cursorPos) {
+					item->cursorPos = listPtr->cursorPos;
+					DC->feederSelection(item->special, item->cursorPos);
+				}
+			}
+			return qtrue;
+		}
+
+        // @pjb: only scroll if we're explicitly capturing this kind of input.
+        if ( !( item->window.flags & WINDOW_CAPTURE_KEYS ) ) {
+            // Only accept an ENTER or GAMEPAD_A key
+            if ( key == K_ENTER || key == K_KP_ENTER || key == K_GAMEPAD_A ) {
+                item->window.flags |= WINDOW_CAPTURE_KEYS;
+
+                // Play a sound
+		        DC->startLocalSound( DC->Assets.menuEnterSound, CHAN_LOCAL_SOUND );
+                return qtrue;
+            }
+
+            return qfalse;
+        }
+
+        // @pjb: back out if we're capturing keys
+        if ( key == K_ESCAPE || key == K_GAMEPAD_B ) {
+            item->window.flags &= ~WINDOW_CAPTURE_KEYS;
+		    DC->startLocalSound( DC->Assets.menuExitSound, CHAN_LOCAL_SOUND );
+            return qtrue;
+        }
+
+		if (item->window.flags & WINDOW_HORIZONTAL) {
 			if ( key == K_LEFTARROW || key == K_KP_LEFTARROW ) 
 			{
 				if (!listPtr->notselectable) {
@@ -1840,7 +1920,6 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 			}
 		}
 		else {
-			viewmax = (item->window.rect.h / listPtr->elementHeight);
 			if ( key == K_UPARROW || key == K_KP_UPARROW ) 
 			{
 				if (!listPtr->notselectable) {
@@ -1887,46 +1966,6 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 				}
 				return qtrue;
 			}
-		}
-		// mouse hit
-		if (key == K_MOUSE1 || key == K_MOUSE2) {
-			if (item->window.flags & WINDOW_LB_LEFTARROW) {
-				listPtr->startPos--;
-				if (listPtr->startPos < 0) {
-					listPtr->startPos = 0;
-				}
-			} else if (item->window.flags & WINDOW_LB_RIGHTARROW) {
-				// one down
-				listPtr->startPos++;
-				if (listPtr->startPos > max) {
-					listPtr->startPos = max;
-				}
-			} else if (item->window.flags & WINDOW_LB_PGUP) {
-				// page up
-				listPtr->startPos -= viewmax;
-				if (listPtr->startPos < 0) {
-					listPtr->startPos = 0;
-				}
-			} else if (item->window.flags & WINDOW_LB_PGDN) {
-				// page down
-				listPtr->startPos += viewmax;
-				if (listPtr->startPos > max) {
-					listPtr->startPos = max;
-				}
-			} else if (item->window.flags & WINDOW_LB_THUMB) {
-				// Display_SetCaptureItem(item);
-			} else {
-				// select an item
-				if (DC->realTime < lastListBoxClickTime && listPtr->doubleClick) {
-					Item_RunScript(item, listPtr->doubleClick);
-				}
-				lastListBoxClickTime = DC->realTime + DOUBLE_CLICK_DELAY;
-				if (item->cursorPos != listPtr->cursorPos) {
-					item->cursorPos = listPtr->cursorPos;
-					DC->feederSelection(item->special, item->cursorPos);
-				}
-			}
-			return qtrue;
 		}
 		if ( key == K_HOME || key == K_KP_HOME) {
 			// home
@@ -2570,7 +2609,30 @@ static void MenuItem_GetEdge( const rectDef_t* screenRect, int edge, float p0[2]
 // @pjb: returns true if this is a good navigation candidate
 qboolean Menu_GoodNavCandidate( itemDef_t* item )
 {
-    return Item_CanFocus( item ) && (item->action != NULL || item->onFocus != NULL );
+    if ( item->onFocus == NULL && item->action == NULL )
+    {
+        // Only consider certain types of control if the item hasn't been 
+        // explictly given something to do in the case of focus/activate
+        switch ( item->type )
+        {
+        case ITEM_TYPE_BUTTON:
+        case ITEM_TYPE_RADIOBUTTON:
+        case ITEM_TYPE_CHECKBOX:
+        case ITEM_TYPE_EDITFIELD:
+        case ITEM_TYPE_COMBO:
+        case ITEM_TYPE_LISTBOX:
+        case ITEM_TYPE_NUMERICFIELD:
+        case ITEM_TYPE_SLIDER:
+        case ITEM_TYPE_YESNO:
+        case ITEM_TYPE_MULTI:
+        case ITEM_TYPE_BIND:
+            break;
+        default:
+            return qfalse;
+        };
+    }
+
+    return Item_CanFocus( item );
 }
 
 // @pjb: test a ray against all the controls to see if that hits anything
