@@ -1805,9 +1805,6 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 		if ( Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && 
             (key == K_MOUSE1 || key == K_MOUSE2)) {
 
-            // @pjb: set capture mode
-            item->window.flags |= WINDOW_CAPTURE_KEYS;
-
     		if (item->window.flags & WINDOW_HORIZONTAL)
 	    		listPtr->cursorPos = (int)((DC->cursorx - item->window.rect.x) / listPtr->elementWidth) + listPtr->startPos;
             else
@@ -1855,27 +1852,6 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 			}
 			return qtrue;
 		}
-
-        // @pjb: only scroll if we're explicitly capturing this kind of input.
-        if ( !( item->window.flags & WINDOW_CAPTURE_KEYS ) ) {
-            // Only accept an ENTER or GAMEPAD_A key
-            if ( key == K_ENTER || key == K_KP_ENTER || key == K_GAMEPAD_A ) {
-                item->window.flags |= WINDOW_CAPTURE_KEYS;
-
-                // Play a sound
-		        DC->startLocalSound( DC->Assets.menuEnterSound, CHAN_LOCAL_SOUND );
-                return qtrue;
-            }
-
-            return qfalse;
-        }
-
-        // @pjb: back out if we're capturing keys
-        if ( key == K_ESCAPE || key == K_GAMEPAD_B ) {
-            item->window.flags &= ~WINDOW_CAPTURE_KEYS;
-		    DC->startLocalSound( DC->Assets.menuExitSound, CHAN_LOCAL_SOUND );
-            return qtrue;
-        }
 
 		if (item->window.flags & WINDOW_HORIZONTAL) {
 			if ( key == K_LEFTARROW || key == K_KP_LEFTARROW ) 
@@ -2386,6 +2362,10 @@ static void Scroll_Slider_ThumbFunc(void *p) {
 
 void Item_StartCapture(itemDef_t *item, int key) {
 	int flags;
+
+    // @pjb: set the keyboard exclusivity state
+    item->window.flags |= WINDOW_CAPTURE_KEYS;
+
 	switch (item->type) {
     case ITEM_TYPE_EDITFIELD:
     case ITEM_TYPE_NUMERICFIELD:
@@ -2433,6 +2413,7 @@ void Item_StartCapture(itemDef_t *item, int key) {
 
 void Item_StopCapture(itemDef_t *item) {
 
+    item->window.flags &= ~WINDOW_CAPTURE_KEYS;
 }
 
 qboolean Item_Slider_HandleKey(itemDef_t *item, int key, qboolean down) {
@@ -2475,6 +2456,14 @@ qboolean Item_Slider_HandleKey(itemDef_t *item, int key, qboolean down) {
 	return qfalse;
 }
 
+// @pjb: returns true if the item requires explicit keyboard capture
+qboolean Item_RequiresExplicitKeyboardCapture( const itemDef_t* item ) {
+    return  item->type == ITEM_TYPE_LISTBOX ||
+            item->type == ITEM_TYPE_SLIDER ||
+            item->type == ITEM_TYPE_YESNO ||
+            item->type == ITEM_TYPE_MULTI ||
+            item->type == ITEM_TYPE_BIND;
+}
 
 qboolean Item_HandleKey(itemDef_t *item, int key, qboolean down) {
 
@@ -2493,6 +2482,31 @@ qboolean Item_HandleKey(itemDef_t *item, int key, qboolean down) {
 	if (!down) {
 		return qfalse;
 	}
+
+    if ( !( key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3 || key == K_MOUSE4 || key == K_MOUSE5 ) && 
+         Item_RequiresExplicitKeyboardCapture( item ) )
+    {
+        // @pjb: only scroll if we're explicitly capturing this kind of input.
+        if ( !( item->window.flags & WINDOW_CAPTURE_KEYS ) ) {
+            // Only accept an ENTER or GAMEPAD_A key
+            if ( key == K_ENTER || key == K_KP_ENTER || key == K_GAMEPAD_A ) {
+                item->window.flags |= WINDOW_CAPTURE_KEYS;
+
+                // Play a sound
+		        DC->startLocalSound( DC->Assets.menuEnterSound, CHAN_LOCAL_SOUND );
+                return qtrue;
+            }
+
+            return qfalse;
+        }
+
+        // @pjb: back out if we're capturing keys
+        if ( key == K_ESCAPE || key == K_GAMEPAD_B ) {
+            item->window.flags &= ~WINDOW_CAPTURE_KEYS;
+		    DC->startLocalSound( DC->Assets.menuExitSound, CHAN_LOCAL_SOUND );
+            return qtrue;
+        }
+    }    
 
   switch (item->type) {
     case ITEM_TYPE_BUTTON:
@@ -4382,19 +4396,6 @@ void Item_ListBox_Paint(itemDef_t *item) {
 			}
 		}
 	}
-
-    // @pjb: darken it if it's not focused
-    if ( !( item->window.flags & ( WINDOW_CAPTURE_KEYS ) ) &&
-         !Rect_ContainsPoint( &item->window.rectClient, DC->cursorx, DC->cursory ) ) {
-        vec4_t color = { 0, 0, 0, 0.35f };
-
-		DC->fillRect(
-            item->window.rect.x + 2, 
-            item->window.rect.y + 2, 
-            item->window.rect.w - 4, 
-            item->window.rect.h - 4, 
-            color);
-    }
 }
 
 
@@ -4648,6 +4649,21 @@ void Item_Paint(itemDef_t *item) {
       break;
   }
 
+  if ( Item_RequiresExplicitKeyboardCapture( item ) )
+  {
+    // @pjb: draw darkening overlay if the control requires explicit keyboard focus
+    if ( !( item->window.flags & ( WINDOW_CAPTURE_KEYS ) ) &&
+         !Rect_ContainsPoint( &item->window.rectClient, DC->cursorx, DC->cursory ) ) {
+        vec4_t color = { 0, 0, 0, 0.35f };
+
+		DC->fillRect(
+            item->window.rect.x + 2, 
+            item->window.rect.y + 2, 
+            item->window.rect.w - 4, 
+            item->window.rect.h - 4, 
+            color);
+    }
+  }
 }
 
 void Menu_Init(menuDef_t *menu) {
