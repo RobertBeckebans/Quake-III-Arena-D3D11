@@ -216,6 +216,7 @@ itemDef {
       	forecolor 1 1 1 1
 	visible 0 
     verticalNavThreshold 0
+    navUp quit
 	action { play "sound/misc/kcaction.wav" ; 
 	open quake3_popmenu  }
 }
@@ -236,6 +237,7 @@ itemDef {
       	forecolor 1 1 1 1 
 	visible 0
     verticalNavThreshold 0
+    navUp quit
 	action { play "sound/misc/kcaction.wav" ; 
 	close main ; 
 	open help_menu } 
@@ -257,6 +259,7 @@ itemDef {
       	forecolor 1 1 1 1
 	visible 0
     verticalNavThreshold 0
+    navUp quit
 	action { play "sound/misc/kcaction.wav" ; 
 	close main ; 
 	open credit } 
@@ -279,6 +282,7 @@ itemDef {
       	forecolor 1 1 1 1
 	visible 0 
     verticalNavThreshold 0
+    navUp quit
 	action { play "sound/misc/kcaction.wav" ; 
 	close main ; 
 	open mod }
@@ -299,6 +303,7 @@ itemDef {
       	forecolor 1 1 1 1
 	visible 0 
     verticalNavThreshold 0
+    navUp quit
 	action { play "sound/misc/kcaction.wav" ; 
 	close main ; 
 	open cinematicMenu }
@@ -559,6 +564,9 @@ itemDef {
 	open quit_popmenu }
 	mouseEnter { setitemcolor quitbar backcolor .75 0 0 .25 }
     mouseExit { setitemcolor quitbar backcolor 0 0 .75 .25 }
+
+    // @pjb: loop around navigation
+    navDown gametype
 
     // @pjb: if the keyboard focuses on this, hide all the other menu
     // bars and open our one.

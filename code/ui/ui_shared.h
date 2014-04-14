@@ -255,6 +255,12 @@ typedef struct itemDef_s {
     float verticalNavThreshold;   // How small the dot-product needs to be to move to the 
     float horizontalNavThreshold; // next element in that direction.
 
+    // @pjb: override navigation links
+    const char* navUp;
+    const char* navDown;
+    const char* navLeft;
+    const char* navRight;
+
 } itemDef_t;
 
 

@@ -2827,7 +2827,7 @@ itemDef_t* Menu_NavigateImprecise( menuDef_t* menu, itemDef_t* originator, NAV_D
 }
 
 // @pjb: navigate to the nearest item from a given origin item
-itemDef_t* Menu_Navigate( menuDef_t* menu, itemDef_t* originator, NAV_DIRECTION direction )
+itemDef_t* Menu_AutoNavigate( menuDef_t* menu, itemDef_t* originator, NAV_DIRECTION direction )
 {
     float focusPoint[] = { menu->focusPoint[0], menu->focusPoint[1] };
 
@@ -2852,18 +2852,52 @@ itemDef_t* Menu_Navigate( menuDef_t* menu, itemDef_t* originator, NAV_DIRECTION 
     {
         //menu->focusPoint[0] = focusPoint[0];
         //menu->focusPoint[1] = focusPoint[1];
-        MenuItem_GetCenter( nextItem, menu->focusPoint );
-
-        if (Item_SetFocus( nextItem, menu->focusPoint[0], menu->focusPoint[1] ) ) 
-        {
-            Menu_HandleMouseMove( menu, menu->focusPoint[0], menu->focusPoint[1] );
-        }
     }
 
     return nextItem;
 }
 
+itemDef_t* Menu_Navigate( menuDef_t* menu, itemDef_t* originator, NAV_DIRECTION direction )
+{
+    const char* navOverride = NULL;
+    itemDef_t* navItem = NULL;
 
+    // @pjb: if there's an override for the direction, do that. Else, auto-nav.
+    switch ( direction )
+    {
+    case NAV_UP:    navOverride = originator->navUp; break;
+    case NAV_DOWN:  navOverride = originator->navDown; break;
+    case NAV_LEFT:  navOverride = originator->navLeft; break;
+    case NAV_RIGHT: navOverride = originator->navRight; break;
+    }
+
+    // If we need to look something up...
+    if ( navOverride )
+    {
+        navItem = Menu_FindItemByName( menu, navOverride );
+    }
+
+    // If we failed to find it, auto-navigate instead
+    if ( navItem == NULL )
+    {
+        navItem = Menu_AutoNavigate( menu, originator, direction );
+    }
+
+    // If there was an item, remember set it as the focused object
+    if ( navItem != NULL ) 
+    {
+        //menu->focusPoint[0] = focusPoint[0];
+        //menu->focusPoint[1] = focusPoint[1];
+        MenuItem_GetCenter( navItem, menu->focusPoint );
+
+        if (Item_SetFocus( navItem, menu->focusPoint[0], menu->focusPoint[1] ) ) 
+        {
+            Menu_HandleMouseMove( menu, menu->focusPoint[0], menu->focusPoint[1] );
+        }
+    }
+
+    return navItem;
+}
 
 itemDef_t *Menu_SetPrevCursorItem(menuDef_t *menu) {
     qboolean wrapped = qfalse;
@@ -5579,6 +5613,19 @@ qboolean ItemParse_horizontalNavThreshold( itemDef_t *item, int handle ) {
 	return qtrue;
 }
 
+// @pjb: navigation overrides
+qboolean ItemParse_navUp( itemDef_t* item, int handle ) {
+    return PC_String_Parse( handle, &item->navUp );
+}
+qboolean ItemParse_navDown( itemDef_t* item, int handle ) {
+    return PC_String_Parse( handle, &item->navDown );
+}
+qboolean ItemParse_navLeft( itemDef_t* item, int handle ) {
+    return PC_String_Parse( handle, &item->navLeft );
+}
+qboolean ItemParse_navRight( itemDef_t* item, int handle ) {
+    return PC_String_Parse( handle, &item->navRight );
+}
 
 keywordHash_t itemParseKeywords[] = {
 	{"name", ItemParse_name, NULL},
@@ -5647,6 +5694,10 @@ keywordHash_t itemParseKeywords[] = {
     // @pjb
     {"verticalNavThreshold", ItemParse_verticalNavThreshold, NULL},
     {"horizontalNavThreshold", ItemParse_horizontalNavThreshold, NULL},
+    {"navUp", ItemParse_navUp, NULL},
+    {"navDown", ItemParse_navDown, NULL},
+    {"navLeft", ItemParse_navLeft, NULL},
+    {"navRight", ItemParse_navRight, NULL},
 
 	{NULL, NULL, NULL}
 };
