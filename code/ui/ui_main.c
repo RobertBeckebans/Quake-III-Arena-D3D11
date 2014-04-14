@@ -653,10 +653,13 @@ void _UI_Refresh( int realtime )
 	if (Menu_Count() > 0) {
 
         // @pjb: hack: todo: remove me!
-        menuDef_t* menu = Menu_GetFocused();
-        if ( menu )
-            UI_DrawHandlePic( menu->focusPoint[0]-16, menu->focusPoint[1]-16, 32, 32, uiInfo.uiDC.Assets.cursor);
-        
+        if ( ui_debugMenuNav.integer != 0 )
+        {
+            menuDef_t* menu = Menu_GetFocused();
+            if ( menu )
+                UI_DrawHandlePic( menu->focusPoint[0]-16, menu->focusPoint[1]-16, 32, 32, uiInfo.uiDC.Assets.cursor);
+        }
+
         UI_DrawHandlePic( uiInfo.uiDC.cursorx-16, uiInfo.uiDC.cursory-16, 32, 32, uiInfo.uiDC.Assets.cursor);
 	}
 
@@ -5756,6 +5759,9 @@ vmCvar_t	ui_realCaptureLimit;
 vmCvar_t	ui_realWarmUp;
 vmCvar_t	ui_serverStatusTimeOut;
 
+// @pjb: for debugging ui menu keyboard nav
+vmCvar_t    ui_debugMenuNav;
+
 
 // bk001129 - made static to avoid aliasing
 static cvarTable_t		cvarTable[] = {
@@ -5880,6 +5886,9 @@ static cvarTable_t		cvarTable[] = {
 	{ &ui_realWarmUp, "g_warmup", "20", CVAR_ARCHIVE},
 	{ &ui_realCaptureLimit, "capturelimit", "8", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART},
 	{ &ui_serverStatusTimeOut, "ui_serverStatusTimeOut", "7000", CVAR_ARCHIVE},
+
+    // @pjb: for debugging menu keyboard navigation
+    { &ui_debugMenuNav, "ui_debugMenuNav", "0", CVAR_ARCHIVE },
 
 };
 

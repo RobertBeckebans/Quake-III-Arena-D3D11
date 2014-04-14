@@ -135,6 +135,10 @@ extern vmCvar_t	ui_bigFont;
 extern vmCvar_t ui_serverStatusTimeOut;
 
 
+// @pjb: for debugging the nav code
+extern vmCvar_t ui_debugMenuNav;
+
+
 
 //
 // ui_qmenu.c
