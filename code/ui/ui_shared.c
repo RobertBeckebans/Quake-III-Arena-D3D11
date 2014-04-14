@@ -2013,10 +2013,13 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 
 qboolean Item_YesNo_HandleKey(itemDef_t *item, int key) {
 
-  if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && item->window.flags & WINDOW_HASFOCUS && item->cvar) {
-		if (key == K_MOUSE1 || key == K_ENTER || key == K_MOUSE2 || key == K_MOUSE3) {
-	    DC->setCVar(item->cvar, va("%i", !DC->getCVarValue(item->cvar)));
-		  return qtrue;
+  if (item->window.flags & WINDOW_HASFOCUS && item->cvar) {
+      if ( ( Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && (key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3) ) 
+          || key == K_ENTER 
+          || key == K_KP_ENTER 
+          || key == K_GAMEPAD_A ) {
+	        DC->setCVar(item->cvar, va("%i", !DC->getCVarValue(item->cvar)));
+		    return qtrue;
 		}
   }
 
@@ -2460,7 +2463,6 @@ qboolean Item_Slider_HandleKey(itemDef_t *item, int key, qboolean down) {
 qboolean Item_RequiresExplicitKeyboardCapture( const itemDef_t* item ) {
     return  item->type == ITEM_TYPE_LISTBOX ||
             item->type == ITEM_TYPE_SLIDER ||
-            item->type == ITEM_TYPE_YESNO ||
             item->type == ITEM_TYPE_MULTI ||
             item->type == ITEM_TYPE_BIND;
 }
