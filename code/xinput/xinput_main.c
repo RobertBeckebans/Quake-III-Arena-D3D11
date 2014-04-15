@@ -29,8 +29,8 @@ void IN_RegisterGamepadCvars( void )
     in_gamepadCheckDelay    = Cvar_Get ("in_gamepadCheckDelay",     "200",      CVAR_ARCHIVE);
     in_gamepadLDeadZone     = Cvar_Get ("in_gamepadLDeadZone",      "7849",     CVAR_ARCHIVE);
     in_gamepadRDeadZone     = Cvar_Get ("in_gamepadRDeadZone",      "8689",     CVAR_ARCHIVE);
-    in_gamepadXLookSensitivity = Cvar_Get ("in_gamepadXLookSensitivity",      "0.02",     CVAR_ARCHIVE);
-    in_gamepadYLookSensitivity = Cvar_Get ("in_gamepadYLookSensitivity",      "0.02",     CVAR_ARCHIVE);
+    in_gamepadXLookSensitivity = Cvar_Get ("in_gamepadXLookSensitivity",      "10",     CVAR_ARCHIVE);
+    in_gamepadYLookSensitivity = Cvar_Get ("in_gamepadYLookSensitivity",      "10",     CVAR_ARCHIVE);
     in_gamepadInvertX       = Cvar_Get ("in_gamepadInvertX",        "0",     CVAR_ARCHIVE);
     in_gamepadInvertY       = Cvar_Get ("in_gamepadInvertY",        "0",     CVAR_ARCHIVE);
 }
@@ -205,7 +205,6 @@ static const gamepadButtonMapping_t gamepadButtonMappings[] = {
 
 void IN_ApplyGamepad( const gamepadInfo_t* gamepad )
 {
-    int rdeadzone;
     int i;
 
     //
@@ -251,19 +250,17 @@ void IN_ApplyGamepad( const gamepadInfo_t* gamepad )
     //
     // Handle right stick as a mouse
     //
-    rdeadzone = in_gamepadRDeadZone->integer;
-
-    if ( abs( gamepad->state.sThumbRX ) > rdeadzone || 
-         abs( gamepad->state.sThumbRY ) > rdeadzone ) 
+    if ( gamepad->rightThumb.nx != 0 || 
+         gamepad->rightThumb.ny != 0 ) 
     {
-        int invertlookx = in_gamepadInvertX->integer ? -1 : 1;
-        int invertlooky = in_gamepadInvertY->integer ? 1 : -1;
+        float invertlookx = in_gamepadInvertX->integer ? -1.f :  1.f;
+        float invertlooky = in_gamepadInvertY->integer ?  1.f : -1.f;
 
         float sensitivityX = in_gamepadXLookSensitivity->value;
         float sensitivityY = in_gamepadYLookSensitivity->value;
 
-        int x = (gamepad->state.sThumbRX - rdeadzone) * invertlookx * sensitivityX;
-        int y = (gamepad->state.sThumbRY - rdeadzone) * invertlooky * sensitivityY;
+        float x = gamepad->rightThumb.nx * invertlookx * sensitivityX;
+        float y = gamepad->rightThumb.ny * invertlooky * sensitivityY;
 
         Sys_QueEvent( SYS_EVENT_FRAME_TIME, SE_MOUSE, x, y, 0, NULL );
     }
