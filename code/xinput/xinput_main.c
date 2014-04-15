@@ -20,6 +20,8 @@ cvar_t  *in_gamepadYLookSensitivity;
 cvar_t  *in_gamepadInvertX;
 cvar_t  *in_gamepadInvertY;
 
+void IN_GetGamepadReading( gamepadInfo_t* gamepad, int userIndex );
+
 // Register gamepad Cvars
 void IN_RegisterGamepadCvars( void )
 {
@@ -50,7 +52,10 @@ void IN_StartupGamepad(void) {
     checkTime = in_gamepadCheckDelay->integer;
     for ( i = 0; i < XUSER_MAX_COUNT; ++i )
     {
-        gamepads[i].checkTimer = i * checkTime / XUSER_MAX_COUNT;
+        gamepads[i].checkTimer = i * checkTime / XUSER_MAX_COUNT + 1;
+
+        // Get the base readings (fixes a bug where dupe events are fired on input restart)
+        IN_GetGamepadReading( &gamepads[i], i );
     }
 
     in_gamepad->modified = qfalse;
@@ -90,12 +95,6 @@ void IN_GetGamepadReading( gamepadInfo_t* gamepad, int userIndex )
     int ldeadzone;
     int rdeadzone;
     qboolean triggerPressed;
-
-    // If this isn't connected, we only want to poll it periodically
-    if ( !gamepad->connected && gamepad->checkTimer > 0 ) {
-        --gamepad->checkTimer;
-        return;
-    }
 
     // Query the gamepad state, and if that succeeds the gamepad is connected
     wasConnected = gamepad->connected;
@@ -276,9 +275,17 @@ void IN_GamepadMove(void)
     int firstConnected = -1;
     for ( i = 0; i < XUSER_MAX_COUNT; ++i )
     {
-        IN_GetGamepadReading( &gamepads[i], i );
+        gamepadInfo_t* gamepad = &gamepads[i];
 
-        if (firstConnected == -1 && gamepads[i].connected)
+        // If this isn't connected, we only want to poll it periodically
+        if ( !gamepad->connected && gamepad->checkTimer > 0 ) {
+            --gamepad->checkTimer;
+            continue;
+        }
+
+        IN_GetGamepadReading( gamepad, i );
+
+        if (firstConnected == -1 && gamepad->connected)
             firstConnected = i;
     }
 
