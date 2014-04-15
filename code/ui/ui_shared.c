@@ -4766,8 +4766,17 @@ void Item_Paint(itemDef_t *item) {
          !Rect_ContainsPoint( &item->window.rect, DC->cursorx, DC->cursory ) ) {
         vec4_t color = { 0, 0, 0, 0.35f };
 
-		const rectDef_t *r = &item->window.rect;
-        DC->fillRect( r->x + 1, r->y + 1, r->w - 2, r->h - 2, color );
+		rectDef_t r = item->window.rect;
+
+        if (item->window.border != 0)
+        {
+            r.x += item->window.borderSize;
+            r.y += item->window.borderSize;
+            r.w -= item->window.borderSize + 1;
+            r.h -= item->window.borderSize + 1;
+        }
+
+        DC->fillRect( r.x, r.y, r.w, r.h, color );
     }
   }
 }
