@@ -660,7 +660,11 @@ void _UI_Refresh( int realtime )
             extern int menuCount;
             for (i = 0; i < menuCount; i++) {
                 if (Menus[i].window.flags & WINDOW_HASFOCUS && Menus[i].window.flags & WINDOW_VISIBLE) {
-                    UI_DrawHandlePic( Menus[i].focusPoint[0]-16, Menus[i].focusPoint[1]-16, 32, 32, uiInfo.uiDC.Assets.cursor);
+                    UI_DrawHandlePic( 
+                        Menus[i].window.rect.x + Menus[i].focusPoint[0] - 16, 
+                        Menus[i].window.rect.y + Menus[i].focusPoint[1] - 16, 
+                        32, 32, 
+                        uiInfo.uiDC.Assets.cursor);
                 }
             }
         }

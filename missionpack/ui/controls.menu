@@ -123,6 +123,7 @@ itemDef {
 		textscale .333            
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -140,6 +141,7 @@ itemDef {
       		textscale .333           
 		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -157,6 +159,7 @@ itemDef {
 		textscale .333           
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -174,6 +177,7 @@ itemDef {
 		textscale .333           
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -191,6 +195,7 @@ itemDef {
 		textscale .333           
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -208,6 +213,7 @@ itemDef {
 		textscale .333           
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show yesno_message }
 		mouseexit { hide yesno_message }
     		}
@@ -277,6 +283,7 @@ itemDef {
 		textscale .333            
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show yesno_message }
 		mouseexit { hide yesno_message }
     		}
@@ -293,6 +300,7 @@ itemDef {
 		textscale .333            
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
     		}
 
 	itemDef {
@@ -308,6 +316,7 @@ itemDef {
 		textscale .333            
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -325,6 +334,7 @@ itemDef {
 		textscale .333                   
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -342,6 +352,7 @@ itemDef {
 		textscale .333            
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -359,6 +370,7 @@ itemDef {
 		textscale .333           
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -376,6 +388,7 @@ itemDef {
 		textscale .333            
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -393,6 +406,7 @@ itemDef {
 		textscale .333            
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -410,6 +424,7 @@ itemDef {
 		textscale .333            
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -427,6 +442,7 @@ itemDef {
 		textscale .333            
       		forecolor 1 1 1 1
       		visible 0
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus } 
     		}
@@ -444,6 +460,7 @@ itemDef {
 		textscale .333            
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -516,6 +533,7 @@ itemDef {
 		textscale .3        
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -533,6 +551,7 @@ itemDef {
 		textscale .3        
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -550,6 +569,7 @@ itemDef {
 		textscale .3        
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -567,6 +587,7 @@ itemDef {
 		textscale .3        
       		forecolor 1 1 1 1
       		visible 0
+    verticalNavThreshold 1
 		mouseenter { show yesno_message }
 		mouseexit { hide yesno_message } 
     		}
@@ -584,6 +605,7 @@ itemDef {
 		textscale .3        
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -601,6 +623,7 @@ itemDef {
 		textscale .3        
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -618,6 +641,7 @@ itemDef {
 		textscale .3        
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -635,6 +659,7 @@ itemDef {
 		textscale .3        
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -652,6 +677,7 @@ itemDef {
 		textscale .3        
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -669,6 +695,7 @@ itemDef {
 		textscale .3        
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -686,6 +713,7 @@ itemDef {
 		textscale .3        
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -702,6 +730,7 @@ itemDef {
 		textscale .3        
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -718,6 +747,7 @@ itemDef {
 		textscale .3                
       		forecolor 1 1 1 1
       		visible 0
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus } 
     		}
@@ -734,6 +764,7 @@ itemDef {
 		textscale .3        
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -750,6 +781,7 @@ itemDef {
 		textscale .3        
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -766,6 +798,7 @@ itemDef {
 		textscale .3        
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -834,6 +867,7 @@ itemDef {
 		textscale .333                    
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -850,6 +884,7 @@ itemDef {
 		textscale .333                    
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -866,6 +901,7 @@ itemDef {
 		textscale .333                    
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -883,6 +919,7 @@ itemDef {
 		textscale .333            
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -901,6 +938,7 @@ itemDef {
 		textscale .333            
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show slider_message }
 		mouseexit { hide slider_message }
     		}
@@ -919,6 +957,7 @@ itemDef {
       		forecolor 1 1 1 1
       		visible 0 
 			action { uiScript update ui_mousePitch }
+    verticalNavThreshold 1
 		mouseenter { show yesno_message }
 		mouseexit { hide yesno_message }
     		}
@@ -936,6 +975,7 @@ itemDef {
 		textscale .333            
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show yesno_message }
 		mouseexit { hide yesno_message }
     		}
@@ -1006,6 +1046,7 @@ itemDef {
 		textscale .333           
       		forecolor 1 1 1 1
       		visible 0
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus } 
     		}
@@ -1022,6 +1063,7 @@ itemDef {
 		textscale .333            
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -1038,6 +1080,7 @@ itemDef {
 		textscale .333            
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -1055,6 +1098,7 @@ itemDef {
 		textscale .333            
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -1073,6 +1117,7 @@ itemDef {
 		textscale .333            
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -1090,6 +1135,7 @@ itemDef {
 		textscale .333            
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
     		}
 
 	itemDef {
@@ -1105,6 +1151,7 @@ itemDef {
 		textscale .333            
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -1121,6 +1168,7 @@ itemDef {
 		textscale .333            
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -1137,6 +1185,7 @@ itemDef {
 		textscale .333            
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -1153,6 +1202,7 @@ itemDef {
 		textscale .333            
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -1169,6 +1219,7 @@ itemDef {
 		textscale .333            
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -1186,6 +1237,7 @@ itemDef {
 		textscale .333            
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -1202,6 +1254,7 @@ itemDef {
 		textscale .333         
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -1270,6 +1323,7 @@ itemDef {
 		textscale .333            
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -1287,6 +1341,7 @@ itemDef {
 		textscale .333            
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -1304,6 +1359,7 @@ itemDef {
 		textscale .333            
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -1321,6 +1377,7 @@ itemDef {
 		textscale .333            
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
     		}
 
 
@@ -1337,6 +1394,7 @@ itemDef {
 		textscale .333            
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}
@@ -1354,6 +1412,7 @@ itemDef {
 		textscale .333            
       		forecolor 1 1 1 1
       		visible 0 
+    verticalNavThreshold 1
 		mouseenter { show keyBindStatus }
 		mouseexit { hide keyBindStatus }
     		}

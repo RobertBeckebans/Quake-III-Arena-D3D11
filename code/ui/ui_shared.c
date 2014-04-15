@@ -2904,6 +2904,12 @@ itemDef_t* Menu_NavigateImprecise( itemDef_t* originator, NAV_DIRECTION directio
 
                     MenuItem_GetEdge( &item->window.rectClient, edge, e0, e1 );
 
+                    // Get the edge into our menu space
+                    e0[0] += menu->window.rect.x - originatorMenu->window.rect.x;
+                    e0[1] += menu->window.rect.y - originatorMenu->window.rect.y;
+                    e1[0] += menu->window.rect.x - originatorMenu->window.rect.x;
+                    e1[1] += menu->window.rect.y - originatorMenu->window.rect.y;
+
                     // Intersect the edges with the secondary planes
                     if ( !OnRightOfPlane( &halfSpaces[1], e0, e1 ) )
                         continue;
@@ -3024,7 +3030,6 @@ itemDef_t* Menu_Navigate( menuDef_t* menu, itemDef_t* originator, NAV_DIRECTION 
 			    oldMenu->window.flags &= ~(WINDOW_HASFOCUS | WINDOW_VISIBLE);
 		    }
 
-		    Menu_CloseCinematics(oldMenu);
 			Menus_Activate(menu);
         }
 
