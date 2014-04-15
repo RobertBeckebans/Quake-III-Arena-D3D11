@@ -2111,8 +2111,9 @@ const char *Item_Multi_Setting(itemDef_t *item) {
 qboolean Item_Multi_HandleKey(itemDef_t *item, int key) {
 	multiDef_t *multiPtr = (multiDef_t*)item->typeData;
 	if (multiPtr) {
-	  if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && item->window.flags & WINDOW_HASFOCUS && item->cvar) {
-			if (key == K_MOUSE1 || key == K_ENTER || key == K_MOUSE2 || key == K_MOUSE3) {
+	  if (item->window.flags & WINDOW_HASFOCUS && item->cvar) {
+          qboolean mouseKey = Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && (key == K_MOUSE1 || key == K_ENTER || key == K_MOUSE2 || key == K_MOUSE3);
+			if (mouseKey || key == K_ENTER || key == K_KP_ENTER || key == K_GAMEPAD_A ) {
 				int current = Item_Multi_FindCvarByValue(item) + 1;
 				int max = Item_Multi_CountSettings(item);
 				if ( current < 0 || current >= max ) {
@@ -4205,7 +4206,7 @@ qboolean Item_Bind_HandleKey(itemDef_t *item, int key, qboolean down) {
 		switch (key)
 		{
 			case K_ESCAPE:
-            case K_GAMEPAD_BACK: // @pjb
+            case K_GAMEPAD_START: // @pjb
 				g_waitingForKey = qfalse;
                 g_bindItem = NULL;
 				return qtrue;
