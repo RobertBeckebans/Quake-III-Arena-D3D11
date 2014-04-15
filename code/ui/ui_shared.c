@@ -2631,6 +2631,13 @@ static void MenuItem_FocusOnCenter( itemDef_t* item )
     }
 }
 
+// @pjb: return the screen space coordinates of a client point
+static void Menu_GetScreenPosition( const menuDef_t* menu, const float* clientPoint, float* screenPoint )
+{
+    screenPoint[0] = clientPoint[0] + menu->window.rect.x;
+    screenPoint[1] = clientPoint[1] + menu->window.rect.y;
+}
+
 // @pjb: return two points that represent the side of the bounding box
 static void MenuItem_GetEdge( const rectDef_t* screenRect, int edge, float p0[2], float p1[2] )
 {
@@ -3061,11 +3068,11 @@ itemDef_t* Menu_Navigate( menuDef_t* menu, itemDef_t* originator, NAV_DIRECTION 
             menuDef_t* oldMenu = menu;
             menu = (menuDef_t*) navItem->parent;
          
-		    if (oldMenu->window.flags & WINDOW_OOB_CLICK) {
-			    Menu_RunCloseScript(oldMenu);
-			    oldMenu->window.flags &= ~(WINDOW_HASFOCUS | WINDOW_VISIBLE);
-		    }
+            if ( oldMenu->window.flags & WINDOW_OOB_CLICK )
+			    oldMenu->window.flags &= ~WINDOW_VISIBLE;
 
+			Menu_RunCloseScript(oldMenu);
+			oldMenu->window.flags &= ~WINDOW_HASFOCUS;
 			Menus_Activate(menu);
         }
 
@@ -3073,9 +3080,14 @@ itemDef_t* Menu_Navigate( menuDef_t* menu, itemDef_t* originator, NAV_DIRECTION 
         //menu->focusPoint[1] = focusPoint[1];
         MenuItem_GetCenter( navItem, menu->focusPoint );
 
-        if (Item_SetFocus( navItem, menu->focusPoint[0], menu->focusPoint[1] ) ) 
         {
-            Menu_HandleMouseMove( menu, menu->focusPoint[0], menu->focusPoint[1] );
+            float virtualCursor[2];
+            Menu_GetScreenPosition( menu, menu->focusPoint, virtualCursor );
+
+            if (Item_SetFocus( navItem, virtualCursor[0], virtualCursor[1] ) ) 
+            {
+                Menu_HandleMouseMove( menu, virtualCursor[0], virtualCursor[1] );
+            }
         }
     }
 
@@ -3085,6 +3097,7 @@ itemDef_t* Menu_Navigate( menuDef_t* menu, itemDef_t* originator, NAV_DIRECTION 
 itemDef_t *Menu_SetPrevCursorItem(menuDef_t *menu) {
     qboolean wrapped = qfalse;
     int oldCursor = menu->cursorItem;
+    float virtualCursor[2];
 
     if (menu->cursorItem < 0) {
         menu->cursorItem = menu->itemCount - 1;
@@ -3100,9 +3113,10 @@ itemDef_t *Menu_SetPrevCursorItem(menuDef_t *menu) {
         }
 
         MenuItem_GetCenter(menu->items[menu->cursorItem], menu->focusPoint);
+        Menu_GetScreenPosition( menu, menu->focusPoint, virtualCursor );
 
-        if (Item_SetFocus(menu->items[menu->cursorItem], menu->focusPoint[0], menu->focusPoint[1])) {
-            Menu_HandleMouseMove(menu, menu->focusPoint[0], menu->focusPoint[1]);
+        if (Item_SetFocus(menu->items[menu->cursorItem], virtualCursor[0], virtualCursor[1])) {
+            Menu_HandleMouseMove(menu, virtualCursor[0], virtualCursor[1]);
             return menu->items[menu->cursorItem];
         }
     }
@@ -3115,6 +3129,7 @@ itemDef_t *Menu_SetNextCursorItem(menuDef_t *menu) {
 
     qboolean wrapped = qfalse;
     int oldCursor = menu->cursorItem;
+    float virtualCursor[2];
 
 
     if (menu->cursorItem == -1) {
@@ -3131,9 +3146,10 @@ itemDef_t *Menu_SetNextCursorItem(menuDef_t *menu) {
         }
 
         MenuItem_GetCenter(menu->items[menu->cursorItem], menu->focusPoint);
+        Menu_GetScreenPosition( menu, menu->focusPoint, virtualCursor );
 
-        if (Item_SetFocus(menu->items[menu->cursorItem], menu->focusPoint[0], menu->focusPoint[1])) {
-            Menu_HandleMouseMove(menu, menu->focusPoint[0], menu->focusPoint[1]);
+        if (Item_SetFocus(menu->items[menu->cursorItem], virtualCursor[0], virtualCursor[1])) {
+            Menu_HandleMouseMove(menu, virtualCursor[0], virtualCursor[1]);
             return menu->items[menu->cursorItem];
         }
 
@@ -3170,9 +3186,30 @@ static void Display_CloseCinematics() {
 	}
 }
 
+// @pjb: force a mouse-leave event on other menus
+void  Menus_Deactivate(menuDef_t *newMenu) {
+    int i, m;
+    for (m = 0; m < menuCount; ++m)
+    {
+        const menuDef_t* menu = &Menus[m];
+        if ( menu == newMenu || !(menu->window.flags & WINDOW_VISIBLE) )
+            continue;
+
+        for (i = 0; i < menu->itemCount; ++i ) {
+            if (menu->items[i]->window.flags & WINDOW_MOUSEOVER) {
+                Item_MouseLeave(menu->items[i]);
+                Item_SetMouseOver(menu->items[i], qfalse);
+            }
+        }
+    }
+}
+
 void  Menus_Activate(menuDef_t *menu) {
     itemDef_t* selected = NULL;
     int i;
+    float virtualCursor[2];
+
+    Menus_Deactivate(menu);
 
     // @pjb: reset the focus point
     menu->focusPoint[0] = menu->focusPoint[1] = -1;
@@ -3199,8 +3236,9 @@ void  Menus_Activate(menuDef_t *menu) {
         for (i = 0; i < menu->itemCount; i++) {
           if ( Menu_GoodNavCandidate( menu->items[i] ) ) {
               MenuItem_GetCenter( menu->items[i], menu->focusPoint );
-              if ( Item_SetFocus( menu->items[i], menu->focusPoint[0], menu->focusPoint[1] ) )
-                Menu_HandleMouseMove( menu, menu->focusPoint[0], menu->focusPoint[1] );
+              Menu_GetScreenPosition( menu, menu->focusPoint, virtualCursor );
+              if ( Item_SetFocus( menu->items[i], virtualCursor[0], virtualCursor[1] ) )
+                Menu_HandleMouseMove( menu, virtualCursor[0], virtualCursor[1] );
               break;
           }
         }
@@ -4725,15 +4763,11 @@ void Item_Paint(itemDef_t *item) {
   {
     // @pjb: draw darkening overlay if the control requires explicit keyboard focus
     if ( !( item->window.flags & ( WINDOW_CAPTURE_KEYS ) ) &&
-         !Rect_ContainsPoint( &item->window.rectClient, DC->cursorx, DC->cursory ) ) {
+         !Rect_ContainsPoint( &item->window.rect, DC->cursorx, DC->cursory ) ) {
         vec4_t color = { 0, 0, 0, 0.35f };
 
-		DC->fillRect(
-            item->window.rect.x + 2, 
-            item->window.rect.y + 2, 
-            item->window.rect.w - 4, 
-            item->window.rect.h - 4, 
-            color);
+		const rectDef_t *r = &item->window.rect;
+        DC->fillRect( r->x + 1, r->y + 1, r->w - 2, r->h - 2, color );
     }
   }
 }

@@ -20,7 +20,7 @@ menuDef {
 		hide grpfinish ;
 		uiScript getCDKey
 	}
-	onEsc { close cdkey_menu ; close setup_menu ; open main }
+	onEsc { close cdkey_menu ; open setup_menu ;  }
 
 
 itemDef {

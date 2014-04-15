@@ -19,7 +19,7 @@ menuDef {
 		hide grpControls ; 
 		show look ; 
 		uiScript loadControls }
-	onEsc { close control_menu ; close setup_menu ; open main }
+	onEsc { close control_menu; open setup_menu }
 
 
 itemDef {

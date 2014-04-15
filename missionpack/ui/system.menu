@@ -12,7 +12,7 @@ menuDef {
     	style 1
     	border 1
 	onOpen { setitemcolor fadebox backcolor 0 0 0 1 ; fadeout fadebox ; hide grpSystem ; show graphics }
-	onEsc { close system_menu ; close setup_menu ; open main }
+	onEsc { close system_menu ; open setup_menu ;  }
 
 
 itemDef {

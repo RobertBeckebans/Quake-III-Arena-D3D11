@@ -13,7 +13,7 @@ menuDef {
     	border 1
 	onOpen { setitemcolor fadebox backcolor 0 0 0 1 ; 
 		fadeout fadebox }
-	onEsc { close options_menu ; close setup_menu ; open main }
+	onEsc { close options_menu ; open setup_menu ;  }
 	
 
 

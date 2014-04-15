@@ -15,7 +15,7 @@ menuDef {
 		fadeout fadebox ; 
 		show grpdefault ; 
 		hide grpfinish }
-	onEsc { close default_menu ; close setup_menu ; open main }
+	onEsc { close default_menu ; open setup_menu ; }
 
 
 

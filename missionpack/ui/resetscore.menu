@@ -15,7 +15,7 @@ menuDef {
 		fadeout fadebox ;
 		show grpdefault ; 
 		hide grpfinish }
-	onEsc { close resetscore_menu ; close setup_menu ; open main }
+	onEsc { close resetscore_menu ; open setup_menu }
 
 
 
