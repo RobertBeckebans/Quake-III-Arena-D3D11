@@ -29,6 +29,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define SCROLL_TIME_ADJUSTOFFSET	40
 #define SCROLL_TIME_FLOOR					20
 
+// @pjb: zero this to disable cross-menu auto-nav
+#define AUTONAV_ACROSS_MENUS 0
+
 // @pjb: navigation directions
 typedef enum {
     NAV_UP,
@@ -2685,12 +2688,18 @@ qboolean Menu_GoodNavCandidate( itemDef_t* item )
 // @pjb: test a ray against all the controls to see if that hits anything
 itemDef_t* Menu_NavigatePrecise( itemDef_t* originator, NAV_DIRECTION direction, float focus[2] )
 {
-    int i, m;
+    int i;
     float d[2];
     itemDef_t* nextItem = NULL;
     float nextItemDist = 9999999;
     float newFocusPoint[2];
+
+#if AUTONAV_ACROSS_MENUS
+    int m;
     menuDef_t* originatorMenu = (menuDef_t*) originator->parent;
+#else 
+    menuDef_t* menu = (menuDef_t*) originator->parent;
+#endif
 
     switch ( direction )
     {
@@ -2707,13 +2716,14 @@ itemDef_t* Menu_NavigatePrecise( itemDef_t* originator, NAV_DIRECTION direction,
         MenuItem_GetCenter( originator, focus );
     }
 
+#if AUTONAV_ACROSS_MENUS
     // Cast a ray out in the direction and see if we hit anything
     for ( m = 0; m < menuCount; ++m )
     { 
         menuDef_t* menu = &Menus[m];
         if ( !( menu->window.flags & WINDOW_VISIBLE ) )
             continue;
-
+#endif
         for ( i = 0; i < menu->itemCount; ++i )
         {
             float center2[2];
@@ -2727,8 +2737,10 @@ itemDef_t* Menu_NavigatePrecise( itemDef_t* originator, NAV_DIRECTION direction,
 
             // Get the center in our menu space
             MenuItem_GetCenter( item, center2 );
+#if AUTONAV_ACROSS_MENUS
             center2[0] += menu->window.rect.x - originatorMenu->window.rect.x;
             center2[1] += menu->window.rect.y - originatorMenu->window.rect.y;
+#endif
 
             // What's the distance?
             dist = d[0] * (center2[0] - focus[0]) + d[1] * (center2[1] - focus[1]);
@@ -2741,9 +2753,14 @@ itemDef_t* Menu_NavigatePrecise( itemDef_t* originator, NAV_DIRECTION direction,
                 };
 
                 if ( Rect_ContainsPoint( 
+#if AUTONAV_ACROSS_MENUS
                     &item->window.rect, 
                     fp[0] + originatorMenu->window.rect.x, 
-                    fp[1] + originatorMenu->window.rect.y ) )
+                    fp[1] + originatorMenu->window.rect.y
+#else
+                     &item->window.rectClient, fp[0], fp[1]
+#endif
+                ))
                 {
                     newFocusPoint[0] = fp[0];
                     newFocusPoint[1] = fp[1];
@@ -2751,7 +2768,9 @@ itemDef_t* Menu_NavigatePrecise( itemDef_t* originator, NAV_DIRECTION direction,
                     nextItemDist = dist;
                 }
             }
+#if AUTONAV_ACROSS_MENUS
         }
+#endif
     }
 
     if ( nextItem != NULL )
@@ -2814,7 +2833,13 @@ itemDef_t* Menu_NavigateImprecise( itemDef_t* originator, NAV_DIRECTION directio
     static const float confusion_zone = 100.0f; // if it's within 100 units we'll give it the benefit of the doubt
 
     itemDef_t* nextItem = NULL;
+
+#if AUTONAV_ACROSS_MENUS
+    int m;
     menuDef_t* originatorMenu = (menuDef_t*) originator->parent;
+#else 
+    menuDef_t* menu = (menuDef_t*) originator->parent;
+#endif
 
     float d[2], p0[2], p1[2], p2[2], n[2], r[2], center[2], newFocus[2];
     float sinTheta;
@@ -2861,16 +2886,18 @@ itemDef_t* Menu_NavigateImprecise( itemDef_t* originator, NAV_DIRECTION directio
             { p1[0], p1[1], r[0], r[1] }
         };
      
-        int i, m;
+        int i;
         int edge;
         float maxDist = 9999999;
         float bestDot = 0;
 
+#if AUTONAV_ACROSS_MENUS
         for ( m = 0; m < menuCount; ++m )
         { 
             menuDef_t* menu = &Menus[m];
             if ( !( menu->window.flags & WINDOW_VISIBLE ) )
                 continue;
+#endif
 
             for ( i = 0; i < menu->itemCount; ++i )
             {
@@ -2887,8 +2914,13 @@ itemDef_t* Menu_NavigateImprecise( itemDef_t* originator, NAV_DIRECTION directio
 
                 // Get the vector between their centers
                 MenuItem_GetCenter( item, c );
+#if AUTONAV_ACROSS_MENUS
                 c[0] += menu->window.rect.x - originatorMenu->window.rect.x - center[0];
                 c[1] += menu->window.rect.y - originatorMenu->window.rect.y - center[1];
+#else
+                c[0] -= center[0];
+                c[1] -= center[1];
+#endif
 
                 dot = c[0] * c[0] + c[1] * c[1];
                 
@@ -2904,11 +2936,13 @@ itemDef_t* Menu_NavigateImprecise( itemDef_t* originator, NAV_DIRECTION directio
 
                     MenuItem_GetEdge( &item->window.rectClient, edge, e0, e1 );
 
+#if AUTONAV_ACROSS_MENUS
                     // Get the edge into our menu space
                     e0[0] += menu->window.rect.x - originatorMenu->window.rect.x;
                     e0[1] += menu->window.rect.y - originatorMenu->window.rect.y;
                     e1[0] += menu->window.rect.x - originatorMenu->window.rect.x;
                     e1[1] += menu->window.rect.y - originatorMenu->window.rect.y;
+#endif
 
                     // Intersect the edges with the secondary planes
                     if ( !OnRightOfPlane( &halfSpaces[1], e0, e1 ) )
@@ -2950,7 +2984,9 @@ itemDef_t* Menu_NavigateImprecise( itemDef_t* originator, NAV_DIRECTION directio
                     MenuItem_GetCenter( item, newFocus );
                 }
             }
+#if AUTONAV_ACROSS_MENUS
         }
+#endif
     }
 
     if ( nextItem )
