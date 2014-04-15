@@ -655,9 +655,14 @@ void _UI_Refresh( int realtime )
         // @pjb: hack: todo: remove me!
         if ( ui_debugMenuNav.integer != 0 )
         {
-            menuDef_t* menu = Menu_GetFocused();
-            if ( menu )
-                UI_DrawHandlePic( menu->focusPoint[0]-16, menu->focusPoint[1]-16, 32, 32, uiInfo.uiDC.Assets.cursor);
+            int i;
+            extern menuDef_t Menus[];
+            extern int menuCount;
+            for (i = 0; i < menuCount; i++) {
+                if (Menus[i].window.flags & WINDOW_HASFOCUS && Menus[i].window.flags & WINDOW_VISIBLE) {
+                    UI_DrawHandlePic( Menus[i].focusPoint[0]-16, Menus[i].focusPoint[1]-16, 32, 32, uiInfo.uiDC.Assets.cursor);
+                }
+            }
         }
 
         UI_DrawHandlePic( uiInfo.uiDC.cursorx-16, uiInfo.uiDC.cursory-16, 32, 32, uiInfo.uiDC.Assets.cursor);

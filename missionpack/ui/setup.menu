@@ -60,6 +60,7 @@ itemDef {
 	backcolor 0 0 0 0
 	forecolor 1 1 1 1
 	visible 1 
+    verticalNavThreshold 1
 	action { play "sound/misc/kcaction.wav" ; 
 	close control_menu ; 
 	close system_menu ;
@@ -95,6 +96,7 @@ itemDef {
       	backcolor 0 0 0 0
       	forecolor 1 1 1 1
 	visible 1
+    verticalNavThreshold 1
 	action { play "sound/misc/kcaction.wav" ; 
 	close control_menu ; 
 	close system_menu ;
@@ -127,6 +129,7 @@ itemDef {
       	backcolor 0 0 0 0
       	forecolor 1 1 1 1
 	visible 1 
+    verticalNavThreshold 1
 	action { play "sound/misc/kcaction.wav" ; 
 	close control_menu ; 
 	close system_menu ;
@@ -161,6 +164,7 @@ itemDef {
 	visible 1 
 	mouseenter { show message_cdkey }
 	mouseexit { hide message_cdkey }
+    verticalNavThreshold 1
 	action { play "sound/misc/kcaction.wav" ; 
 	close control_menu ; 
 	close system_menu ;
@@ -192,6 +196,7 @@ itemDef {
 	visible 1 
 	mouseenter { show message_default }
 	mouseexit { hide message_default }
+    verticalNavThreshold 1
 	action { play "sound/misc/kcaction.wav" ; 
 	close control_menu ; 
 	close system_menu ;

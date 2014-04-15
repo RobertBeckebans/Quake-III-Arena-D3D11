@@ -82,12 +82,13 @@ itemDef_t *Menu_SetNextCursorItem(menuDef_t *menu);
 static qboolean Menu_OverActiveItem(menuDef_t *menu, float x, float y);
 
 // @pjb
-void MenuItem_ClipFocusPoint( itemDef_t* item );
-void MenuItem_FocusOnCenter( itemDef_t* item );
-itemDef_t *Menu_GetFocusedItem(menuDef_t *menu);
-void MenuItem_GetCenter( itemDef_t* item, float center[] );
-qboolean Item_SetFocus(itemDef_t *item, float x, float y);
-rectDef_t *Item_CorrectedTextRect(itemDef_t *item);
+static void MenuItem_ClipFocusPoint( itemDef_t* item );
+static void MenuItem_FocusOnCenter( itemDef_t* item );
+static itemDef_t *Menu_GetFocusedItem(menuDef_t *menu);
+static void MenuItem_GetCenter( itemDef_t* item, float center[] );
+static qboolean Item_SetFocus(itemDef_t *item, float x, float y);
+static rectDef_t *Item_CorrectedTextRect(itemDef_t *item);
+static void Menu_CloseCinematics(menuDef_t *menu);
 
 #ifdef CGAME
 #define MEM_POOL_SIZE  128 * 1024
@@ -903,8 +904,6 @@ void Script_SetBackground(itemDef_t *item, char **args) {
 }
 
 
-
-
 itemDef_t *Menu_FindItemByName(menuDef_t *menu, const char *p) {
   int i;
   if (menu == NULL || p == NULL) {
@@ -918,6 +917,22 @@ itemDef_t *Menu_FindItemByName(menuDef_t *menu, const char *p) {
   }
 
   return NULL;
+}
+
+// @pjb: searches the current menu, but if the item isn't found, it tries all 
+// other visible menus.
+itemDef_t *Menu_FindItemByNameGlobal(menuDef_t* startingPoint, const char* p) {
+    int m;
+    itemDef_t* item = Menu_FindItemByName( startingPoint, p );
+    
+    // Try all other menus if item == NULL.
+    for (m = 0; item == NULL && m < menuCount; m++) {
+        if (&Menus[m] != startingPoint && Menus[m].window.flags & WINDOW_VISIBLE) {
+          item = Menu_FindItemByName( &Menus[m], p );
+        }
+    }
+
+    return item;
 }
 
 void Script_SetTeamColor(itemDef_t *item, char **args) {
@@ -2668,13 +2683,14 @@ qboolean Menu_GoodNavCandidate( itemDef_t* item )
 }
 
 // @pjb: test a ray against all the controls to see if that hits anything
-itemDef_t* Menu_NavigatePrecise( menuDef_t* menu, itemDef_t* originator, NAV_DIRECTION direction, float focus[2] )
+itemDef_t* Menu_NavigatePrecise( itemDef_t* originator, NAV_DIRECTION direction, float focus[2] )
 {
-    int i;
+    int i, m;
     float d[2];
     itemDef_t* nextItem = NULL;
     float nextItemDist = 9999999;
     float newFocusPoint[2];
+    menuDef_t* originatorMenu = (menuDef_t*) originator->parent;
 
     switch ( direction )
     {
@@ -2692,36 +2708,48 @@ itemDef_t* Menu_NavigatePrecise( menuDef_t* menu, itemDef_t* originator, NAV_DIR
     }
 
     // Cast a ray out in the direction and see if we hit anything
-    for ( i = 0; i < menu->itemCount; ++i )
-    {
-        float center2[2];
-        float dist;
-        itemDef_t* item = menu->items[i];
-
-        if ( item == originator || !Menu_GoodNavCandidate( item ) )
-        {
+    for ( m = 0; m < menuCount; ++m )
+    { 
+        menuDef_t* menu = &Menus[m];
+        if ( !( menu->window.flags & WINDOW_VISIBLE ) )
             continue;
-        }
 
-        MenuItem_GetCenter( item, center2 );
-
-        // Get the plane for this object (the plane perpendicular to the direction)
-        // What's the distance?
-        dist = d[0] * (center2[0] - focus[0]) + d[1] * (center2[1] - focus[1]);
-        if ( dist > 0 && dist < nextItemDist )
+        for ( i = 0; i < menu->itemCount; ++i )
         {
-            // Clip the point against the target's box
-            float fp[] = { 
-                focus[0] + d[0] * dist,
-                focus[1] + d[1] * dist
-            };
+            float center2[2];
+            float dist;
+            itemDef_t* item = menu->items[i];
 
-            if ( Rect_ContainsPoint( &item->window.rectClient, fp[0], fp[1] ) )
+            if ( item == originator || !Menu_GoodNavCandidate( item ) )
             {
-                newFocusPoint[0] = fp[0];
-                newFocusPoint[1] = fp[1];
-                nextItem = item;
-                nextItemDist = dist;
+                continue;
+            }
+
+            // Get the center in our menu space
+            MenuItem_GetCenter( item, center2 );
+            center2[0] += menu->window.rect.x - originatorMenu->window.rect.x;
+            center2[1] += menu->window.rect.y - originatorMenu->window.rect.y;
+
+            // What's the distance?
+            dist = d[0] * (center2[0] - focus[0]) + d[1] * (center2[1] - focus[1]);
+            if ( dist > 0 && dist < nextItemDist )
+            {
+                // Clip the point against the target's box
+                float fp[] = { 
+                    focus[0] + d[0] * dist,
+                    focus[1] + d[1] * dist
+                };
+
+                if ( Rect_ContainsPoint( 
+                    &item->window.rect, 
+                    fp[0] + originatorMenu->window.rect.x, 
+                    fp[1] + originatorMenu->window.rect.y ) )
+                {
+                    newFocusPoint[0] = fp[0];
+                    newFocusPoint[1] = fp[1];
+                    nextItem = item;
+                    nextItemDist = dist;
+                }
             }
         }
     }
@@ -2780,12 +2808,13 @@ static float LineSegmentToPlaneDistance( const halfSpace_t* plane, const float p
     If the threshold is < 0.1, there is only one plane, which defines a
     halfspace on that side of the object.
 */
-itemDef_t* Menu_NavigateImprecise( menuDef_t* menu, itemDef_t* originator, NAV_DIRECTION direction, float focus[2] )
+itemDef_t* Menu_NavigateImprecise( itemDef_t* originator, NAV_DIRECTION direction, float focus[2] )
 {
     static const float pushoff = 0.05f;
     static const float confusion_zone = 100.0f; // if it's within 100 units we'll give it the benefit of the doubt
 
     itemDef_t* nextItem = NULL;
+    menuDef_t* originatorMenu = (menuDef_t*) originator->parent;
 
     float d[2], p0[2], p1[2], p2[2], n[2], r[2], center[2], newFocus[2];
     float sinTheta;
@@ -2832,81 +2861,88 @@ itemDef_t* Menu_NavigateImprecise( menuDef_t* menu, itemDef_t* originator, NAV_D
             { p1[0], p1[1], r[0], r[1] }
         };
      
-        int i;
+        int i, m;
         int edge;
         float maxDist = 9999999;
         float bestDot = 0;
 
-        for ( i = 0; i < menu->itemCount; ++i )
-        {
-            itemDef_t* item = menu->items[i];
-            float c[2];
-            float dot;
-            float myDist = maxDist;
-            qboolean passes = qfalse;
-
-            if ( item == originator || !Menu_GoodNavCandidate( item ) )
-            {
-                continue;
-            }
-
-            // Get the vector between their centers
-            MenuItem_GetCenter( item, c );
-            c[0] -= center[0];
-            c[1] -= center[1];
-
-            dot = c[0] * c[0] + c[1] * c[1];
-                
-            // If the centers are the same, reject
-            if ( dot == 0 )
+        for ( m = 0; m < menuCount; ++m )
+        { 
+            menuDef_t* menu = &Menus[m];
+            if ( !( menu->window.flags & WINDOW_VISIBLE ) )
                 continue;
 
-            // Test each edge
-            for ( edge = 0; edge < 4; ++edge )
+            for ( i = 0; i < menu->itemCount; ++i )
             {
-                float dist;
-                float e0[2], e1[2];
+                itemDef_t* item = menu->items[i];
+                float c[2];
+                float dot;
+                float myDist = maxDist;
+                qboolean passes = qfalse;
 
-                MenuItem_GetEdge( &item->window.rectClient, edge, e0, e1 );
-
-                // Intersect the edges with the secondary planes
-                if ( !OnRightOfPlane( &halfSpaces[1], e0, e1 ) )
+                if ( item == originator || !Menu_GoodNavCandidate( item ) )
+                {
                     continue;
-                if ( !OnRightOfPlane( &halfSpaces[2], e0, e1 ) )
-                    continue;
+                }
 
-                // Find the line segment closest to the primary plane
-                dist = LineSegmentToPlaneDistance( &halfSpaces[0], e0, e1 );
-                if ( dist < 0 || dist > maxDist + confusion_zone )//  @pjb: still want to consider stuff further away but with better directionality
-                    break;
+                // Get the vector between their centers
+                MenuItem_GetCenter( item, c );
+                c[0] += menu->window.rect.x - originatorMenu->window.rect.x - center[0];
+                c[1] += menu->window.rect.y - originatorMenu->window.rect.y - center[1];
 
-                myDist = min( dist, myDist );
-                passes = qtrue;
-            }
-
-            if ( passes == qtrue )
-            {
-                // Prefer items with better dot products
-                dot = sqrtf(dot);
-
-                // Normalize
-                c[0] /= dot;
-                c[1] /= dot;
-
-                dot = c[0] * d[0] + c[1] * d[1];
-
-                if ( dot < bestDot )
-                    continue;
+                dot = c[0] * c[0] + c[1] * c[1];
                 
-                // Use distance as a tiebreaker
-                if ( fabs( dot - bestDot ) < 0.1f && myDist > maxDist )
+                // If the centers are the same, reject
+                if ( dot == 0 )
                     continue;
 
-                nextItem = item;
-                maxDist = myDist;
-                bestDot = dot;
+                // Test each edge
+                for ( edge = 0; edge < 4; ++edge )
+                {
+                    float dist;
+                    float e0[2], e1[2];
 
-                MenuItem_GetCenter( item, newFocus );
+                    MenuItem_GetEdge( &item->window.rectClient, edge, e0, e1 );
+
+                    // Intersect the edges with the secondary planes
+                    if ( !OnRightOfPlane( &halfSpaces[1], e0, e1 ) )
+                        continue;
+                    if ( !OnRightOfPlane( &halfSpaces[2], e0, e1 ) )
+                        continue;
+
+                    // Find the line segment closest to the primary plane
+                    dist = LineSegmentToPlaneDistance( &halfSpaces[0], e0, e1 );
+                    if ( dist < 0 || dist > maxDist + confusion_zone )//  @pjb: still want to consider stuff further away but with better directionality
+                        break;
+
+                    myDist = min( dist, myDist );
+                    passes = qtrue;
+                }
+
+                if ( passes == qtrue )
+                {
+                    // Prefer items with better dot products
+                    dot = sqrtf(dot);
+
+                    // Normalize
+                    c[0] /= dot;
+                    c[1] /= dot;
+
+                    dot = c[0] * d[0] + c[1] * d[1];
+
+                    if ( dot < bestDot )
+                        continue;
+                
+                    // Use distance as a tiebreaker
+                    if ( fabs( dot - bestDot ) < 0.1f && myDist > maxDist )
+                        continue;
+
+                    nextItem = item;
+                    maxDist = myDist;
+                    bestDot = dot;
+
+                    MenuItem_GetCenter( item, newFocus );
+                }
             }
         }
     }
@@ -2926,7 +2962,6 @@ itemDef_t* Menu_AutoNavigate( menuDef_t* menu, itemDef_t* originator, NAV_DIRECT
     float focusPoint[] = { menu->focusPoint[0], menu->focusPoint[1] };
 
     itemDef_t* nextItem = Menu_NavigatePrecise( 
-        menu, 
         originator,
         direction,
         focusPoint );
@@ -2935,7 +2970,6 @@ itemDef_t* Menu_AutoNavigate( menuDef_t* menu, itemDef_t* originator, NAV_DIRECT
     if ( nextItem == NULL )
     {
         nextItem = Menu_NavigateImprecise( 
-            menu, 
             originator,
             direction,
             focusPoint );
@@ -2968,7 +3002,7 @@ itemDef_t* Menu_Navigate( menuDef_t* menu, itemDef_t* originator, NAV_DIRECTION 
     // If we need to look something up...
     if ( navOverride )
     {
-        navItem = Menu_FindItemByName( menu, navOverride );
+        navItem = Menu_FindItemByNameGlobal( menu, navOverride );
     }
 
     // If we failed to find it, auto-navigate instead
@@ -2980,6 +3014,20 @@ itemDef_t* Menu_Navigate( menuDef_t* menu, itemDef_t* originator, NAV_DIRECTION 
     // If there was an item, remember set it as the focused object
     if ( navItem != NULL ) 
     {
+        if ( navItem->parent != menu )
+        {
+            menuDef_t* oldMenu = menu;
+            menu = (menuDef_t*) navItem->parent;
+         
+		    if (oldMenu->window.flags & WINDOW_OOB_CLICK) {
+			    Menu_RunCloseScript(oldMenu);
+			    oldMenu->window.flags &= ~(WINDOW_HASFOCUS | WINDOW_VISIBLE);
+		    }
+
+		    Menu_CloseCinematics(oldMenu);
+			Menus_Activate(menu);
+        }
+
         //menu->focusPoint[0] = focusPoint[0];
         //menu->focusPoint[1] = focusPoint[1];
         MenuItem_GetCenter( navItem, menu->focusPoint );
