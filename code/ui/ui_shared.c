@@ -1399,7 +1399,7 @@ qboolean Item_EnableShowViaCvar(itemDef_t *item, int flag) {
 // @pjb: tests whether an item CAN be made focused
 qboolean Item_CanFocus(itemDef_t* item) {
 	// sanity check, non-null, not a decoration and does not already have the focus
-	if (item == NULL || item->window.flags & WINDOW_HASFOCUS || !(item->window.flags & WINDOW_VISIBLE)) {
+	if (item == NULL || !(item->window.flags & WINDOW_VISIBLE)) {
 		return qfalse;
 	}
 
@@ -1440,40 +1440,44 @@ qboolean Item_SetFocus(itemDef_t *item, float x, float y) {
 	// bk001206 - this can be NULL.
 	parent = (menuDef_t*)item->parent; 
       
-	oldFocus = Menu_ClearFocus(item->parent);
+    // @pjb: don't do this if it's already GOT the focus
+    if ( !( item->window.flags & WINDOW_HASFOCUS ) ) {
 
-	if (item->type == ITEM_TYPE_TEXT) {
-		rectDef_t r;
-		r = item->textRect;
-		r.y -= r.h;
-		if (Rect_ContainsPoint(&r, x, y)) {
-			item->window.flags |= WINDOW_HASFOCUS;
-			if (item->focusSound) {
-				sfx = &item->focusSound;
-			}
-			playSound = qtrue;
-		} else {
-			if (oldFocus) {
-				oldFocus->window.flags |= WINDOW_HASFOCUS;
-				if (oldFocus->onFocus) {
-					Item_RunScript(oldFocus, oldFocus->onFocus);
-				}
-			}
-		}
-	} else {
-	    item->window.flags |= WINDOW_HASFOCUS;
-		if (item->onFocus) {
-			Item_RunScript(item, item->onFocus);
-		}
-		if (item->focusSound) {
-			sfx = &item->focusSound;
-		}
-		playSound = qtrue;
-	}
+	    oldFocus = Menu_ClearFocus(item->parent);
 
-	if (playSound && sfx) {
-		DC->startLocalSound( *sfx, CHAN_LOCAL_SOUND );
-	}
+	    if (item->type == ITEM_TYPE_TEXT) {
+		    rectDef_t r;
+		    r = item->textRect;
+		    r.y -= r.h;
+		    if (Rect_ContainsPoint(&r, x, y)) {
+			    item->window.flags |= WINDOW_HASFOCUS;
+			    if (item->focusSound) {
+				    sfx = &item->focusSound;
+			    }
+			    playSound = qtrue;
+		    } else {
+			    if (oldFocus) {
+				    oldFocus->window.flags |= WINDOW_HASFOCUS;
+				    if (oldFocus->onFocus) {
+					    Item_RunScript(oldFocus, oldFocus->onFocus);
+				    }
+			    }
+		    }
+	    } else {
+	        item->window.flags |= WINDOW_HASFOCUS;
+		    if (item->onFocus) {
+			    Item_RunScript(item, item->onFocus);
+		    }
+		    if (item->focusSound) {
+			    sfx = &item->focusSound;
+		    }
+		    playSound = qtrue;
+	    }
+
+	    if (playSound && sfx) {
+		    DC->startLocalSound( *sfx, CHAN_LOCAL_SOUND );
+	    }
+    }
 
 	for (i = 0; i < parent->itemCount; i++) {
 		if (parent->items[i] == item) {
@@ -2266,7 +2270,8 @@ qboolean Item_TextField_HandleKey(itemDef_t *item, int key) {
 			}
 		}
 
-		if ( key == K_ENTER || key == K_KP_ENTER || key == K_ESCAPE)  {
+        // @pjb
+		if ( key == K_ENTER || key == K_KP_ENTER || key == K_ESCAPE || key == K_GAMEPAD_B )  {
 			return qfalse;
 		}
 
@@ -2480,9 +2485,7 @@ qboolean Item_Slider_HandleKey(itemDef_t *item, int key, qboolean down) {
 qboolean Item_RequiresExplicitKeyboardCapture( const itemDef_t* item ) {
     return  item->type == ITEM_TYPE_LISTBOX ||
             item->type == ITEM_TYPE_SLIDER ||
-            item->type == ITEM_TYPE_EDITFIELD ||
-            item->type == ITEM_TYPE_MULTI ||
-            item->type == ITEM_TYPE_BIND;
+            item->type == ITEM_TYPE_EDITFIELD;
 }
 
 qboolean Item_HandleKey(itemDef_t *item, int key, qboolean down) {
@@ -2737,7 +2740,7 @@ itemDef_t* Menu_NavigatePrecise( itemDef_t* originator, NAV_DIRECTION direction,
             float dist;
             itemDef_t* item = menu->items[i];
 
-            if ( item == originator || !Menu_GoodNavCandidate( item ) )
+            if ( item == originator || !Menu_GoodNavCandidate( item ) || (item->window.flags & WINDOW_HASFOCUS ) )
             {
                 continue;
             }
@@ -2914,7 +2917,7 @@ itemDef_t* Menu_NavigateImprecise( itemDef_t* originator, NAV_DIRECTION directio
                 float myDist = maxDist;
                 qboolean passes = qfalse;
 
-                if ( item == originator || !Menu_GoodNavCandidate( item ) )
+                if ( item == originator || !Menu_GoodNavCandidate( item ) || (item->window.flags & WINDOW_HASFOCUS ) )
                 {
                     continue;
                 }
@@ -3207,7 +3210,6 @@ void  Menus_Deactivate(menuDef_t *newMenu) {
 void  Menus_Activate(menuDef_t *menu) {
     itemDef_t* selected = NULL;
     int i;
-    float virtualCursor[2];
 
     Menus_Deactivate(menu);
 
@@ -3233,17 +3235,23 @@ void  Menus_Activate(menuDef_t *menu) {
     selected = Menu_GetFocusedItem( menu );
     if ( selected == NULL )
     {
+        float y = 999999;
         for (i = 0; i < menu->itemCount; i++) {
-          if ( Menu_GoodNavCandidate( menu->items[i] ) ) {
-              MenuItem_GetCenter( menu->items[i], menu->focusPoint );
-              Menu_GetScreenPosition( menu, menu->focusPoint, virtualCursor );
-              if ( Item_SetFocus( menu->items[i], virtualCursor[0], virtualCursor[1] ) )
-                Menu_HandleMouseMove( menu, virtualCursor[0], virtualCursor[1] );
-              break;
+          if ( Menu_GoodNavCandidate( menu->items[i] ) && menu->items[i]->window.rect.y < y ) {
+              selected = menu->items[i];
+              y = menu->items[i]->window.rect.y;
           }
         }
     }
 
+    if ( selected != NULL ) {
+        float virtualCursor[2];
+        MenuItem_GetCenter( selected, menu->focusPoint );
+        Menu_GetScreenPosition( menu, menu->focusPoint, virtualCursor );
+
+        if ( Item_SetFocus( selected, virtualCursor[0], virtualCursor[1] ) )
+            Menu_HandleMouseMove( menu, virtualCursor[0], virtualCursor[1] );
+    }
 }
 
 int Display_VisibleMenuCount() {
@@ -3380,8 +3388,8 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
         case K_GAMEPAD_B: // @pjb
 			if (!g_waitingForKey && menu->onESC) {
 				itemDef_t it;
-		    it.parent = menu;
-		    Item_RunScript(&it, menu->onESC);
+		        it.parent = menu;
+		        Item_RunScript(&it, menu->onESC);
 			}
 			break;
 		case K_TAB: // @pjb: tab always behaves this way
@@ -4163,20 +4171,33 @@ qboolean Item_Bind_HandleKey(itemDef_t *item, int key, qboolean down) {
 	int			id;
 	int			i;
 
-	if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && !g_waitingForKey)
+    // @pjb: better handling of this for keyboard
+	if (!g_waitingForKey)
 	{
-		if (down && (key == K_MOUSE1 || key == K_ENTER)) {
+		if (down && ((Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && key == K_MOUSE1) || key == K_ENTER || key == K_GAMEPAD_A)) {
 			g_waitingForKey = qtrue;
 			g_bindItem = item;
+	    	return qtrue;
 		}
-		return qtrue;
-	}
-	else
-	{
-		if (!g_waitingForKey || g_bindItem == NULL) {
+
+        // @pjb
+		if (key == K_BACKSPACE || key == K_GAMEPAD_BACK )
+        {
+			id = BindingIDFromName(item->cvar);
+			if (id != -1) {
+				g_bindings[id].bind1 = -1;
+				g_bindings[id].bind2 = -1;
+			}
+			Controls_SetConfig(qtrue);
+			g_waitingForKey = qfalse;
+			g_bindItem = NULL;
 			return qtrue;
 		}
 
+        return qfalse;
+	}
+	else
+	{
 		if (key & K_CHAR_FLAG) {
 			return qtrue;
 		}
@@ -4184,19 +4205,9 @@ qboolean Item_Bind_HandleKey(itemDef_t *item, int key, qboolean down) {
 		switch (key)
 		{
 			case K_ESCAPE:
-            case K_GAMEPAD_B: // @pjb
+            case K_GAMEPAD_BACK: // @pjb
 				g_waitingForKey = qfalse;
-				return qtrue;
-	
-			case K_BACKSPACE:
-				id = BindingIDFromName(item->cvar);
-				if (id != -1) {
-					g_bindings[id].bind1 = -1;
-					g_bindings[id].bind2 = -1;
-				}
-				Controls_SetConfig(qtrue);
-				g_waitingForKey = qfalse;
-				g_bindItem = NULL;
+                g_bindItem = NULL;
 				return qtrue;
 
 			case '`':
@@ -4252,6 +4263,7 @@ qboolean Item_Bind_HandleKey(itemDef_t *item, int key, qboolean down) {
 
 	Controls_SetConfig(qtrue);	
 	g_waitingForKey = qfalse;
+    g_bindItem = NULL;
 
 	return qtrue;
 }
