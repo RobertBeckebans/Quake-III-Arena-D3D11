@@ -1406,13 +1406,13 @@ void Menu_SetCursorToItem( menuframework_s *m, void* ptr )
 }
 
 /*
-** Menu_AdjustCursor
+** Menu_AdjustCursorDefault
 **
 ** This function takes the given menu, the direction, and attempts
 ** to adjust the menu's cursor so that it's at the next available
 ** slot.
 */
-void Menu_AdjustCursor( menuframework_s *m, int dir ) {
+void Menu_AdjustCursorDefault( menuframework_s *m, int dir ) {
 	menucommon_s	*item = NULL;
 	qboolean		wrapped = qfalse;
 
@@ -1455,6 +1455,132 @@ wrap:
 			m->cursor = m->cursor_prev;
 		}
 	}
+}
+
+/*
+** @pjb: updates the cursor based on the item
+*/
+qboolean Menu_UpdateCursor( menuframework_s* m, const menucommon_s *item ) {
+    int i;
+
+    for ( i = 0; i < m->nitems; ++i ) {
+        if ( m->items[i] == item ) {
+            m->cursor = i;
+            return qtrue;
+        }
+    }
+
+    return qfalse;
+}
+
+qboolean Menu_SelectItem( menuframework_s* m, menucommon_s *item, QNAV dir );
+
+/*
+** @pjb: tries to set the focus to a particular item. If it fails, it navigates in a specific
+** direction until it can't any longer.
+*/
+qboolean Menu_MoveCursor( menuframework_s* m, menucommon_s *item, QNAV dir ) {
+
+    menucommon_s *callback = NULL;
+
+    // Now check for callbacks
+    switch ( dir )
+    {
+    case QNAV_LEFT : callback = (menucommon_s*) item->navLeft ; break;
+    case QNAV_RIGHT: callback = (menucommon_s*) item->navRight; break;
+    case QNAV_UP   : callback = (menucommon_s*) item->navUp   ; break;
+    case QNAV_DOWN : callback = (menucommon_s*) item->navDown ; break;
+    default: callback = NULL;
+    }
+
+    // If there wasn't one, we can't go anywhere
+    if ( callback == NULL )
+    {
+        return qfalse;
+    }
+
+    // What kind of callback is it?
+    switch ( callback->type )
+    {
+    case MTYPE_NULL			:
+    case MTYPE_SLIDER		:
+    case MTYPE_ACTION		:
+    case MTYPE_SPINCONTROL	:
+    case MTYPE_FIELD		:
+    case MTYPE_RADIOBUTTON	:
+    case MTYPE_BITMAP		:
+    case MTYPE_TEXT			:
+    case MTYPE_SCROLLLIST	:
+    case MTYPE_PTEXT		:
+    case MTYPE_BTEXT	    :
+        // Set focus to this item
+        return Menu_SelectItem( m, callback, dir );
+    default:
+        {
+            // It's a callback function
+            menucommon_s* newItem = ( (QNav_Callback) callback )( m, item, dir );
+            if ( newItem != NULL )
+                return Menu_SelectItem( m, newItem, dir );
+            else
+                return qfalse;
+        }
+    }
+}
+
+/*
+** @pjb: tries to set the focus to a particular item. If it fails, it navigates in a specific
+** direction until it can't any longer.
+*/
+qboolean Menu_SelectItem( menuframework_s* m, menucommon_s *item, QNAV dir ) {
+
+    menucommon_s *callback = NULL;
+
+    // Can we set focus to this item?
+    if ( !( item->flags & (QMF_GRAYED|QMF_MOUSEONLY) ) ) {
+        return Menu_UpdateCursor( m, item );
+    } else {
+        // We can't land here, so move on
+        return Menu_MoveCursor( m, item, dir );
+    }
+}
+
+/*
+** Menu_AdjustCursor
+**
+** @pjb: detects if there are nav callbacks. If not, fall back to normal nav.
+*/
+void Menu_AdjustCursor( menuframework_s *m, QNAV dir ) {
+
+	menucommon_s	*item = NULL;
+
+    // Cache the previous cursor state
+	m->cursor_prev = m->cursor;
+
+    // Skip menus that don't use the new nav system
+    if ( m->customNav == qfalse ) {
+        if ( dir == QNAV_UP ) {
+			m->cursor--;
+            Menu_AdjustCursorDefault( m, -1 );
+        }
+        else if ( dir == QNAV_DOWN ) {
+            m->cursor++;
+            Menu_AdjustCursorDefault( m, 1 );
+        }
+        return;
+    }
+
+    // First, make sure the cursor is on a valid item
+	if ( Menu_SelectItem( m, m->items[m->cursor], dir ) )
+    {
+        // Now move the cursor
+        if ( Menu_MoveCursor( m, m->items[m->cursor], dir ) )
+        {
+            return;
+        }
+    }
+
+    // If we get here, we can't find a square to land on
+    m->cursor = m->cursor_prev;
 }
 
 /*
@@ -1664,9 +1790,29 @@ sfxHandle_t Menu_DefaultKey( menuframework_s *m, int key )
 		case K_UPARROW:
         case K_GAMEPAD_DPAD_UP: // @pjb
 			cursor_prev    = m->cursor;
-			m->cursor_prev = m->cursor;
-			m->cursor--;
-			Menu_AdjustCursor( m, -1 );
+			Menu_AdjustCursor( m, QNAV_UP );
+			if ( cursor_prev != m->cursor ) {
+				Menu_CursorMoved( m );
+				sound = menu_move_sound;
+			}
+			break;
+
+		case K_KP_DOWNARROW:
+		case K_DOWNARROW:
+        case K_GAMEPAD_DPAD_DOWN: // @pjb
+			cursor_prev    = m->cursor;
+			Menu_AdjustCursor( m, QNAV_DOWN );
+			if ( cursor_prev != m->cursor ) {
+				Menu_CursorMoved( m );
+				sound = menu_move_sound;
+			}
+			break;
+
+		case K_KP_LEFTARROW:
+		case K_LEFTARROW:
+        case K_GAMEPAD_DPAD_LEFT: // @pjb
+			cursor_prev    = m->cursor;
+			Menu_AdjustCursor( m, QNAV_LEFT );
 			if ( cursor_prev != m->cursor ) {
 				Menu_CursorMoved( m );
 				sound = menu_move_sound;
@@ -1674,13 +1820,11 @@ sfxHandle_t Menu_DefaultKey( menuframework_s *m, int key )
 			break;
 
 		case K_TAB:
-		case K_KP_DOWNARROW:
-		case K_DOWNARROW:
-        case K_GAMEPAD_DPAD_DOWN: // @pjb
+		case K_KP_RIGHTARROW:
+		case K_RIGHTARROW:
+        case K_GAMEPAD_DPAD_RIGHT: // @pjb
 			cursor_prev    = m->cursor;
-			m->cursor_prev = m->cursor;
-			m->cursor++;
-			Menu_AdjustCursor( m, 1 );
+			Menu_AdjustCursor( m, QNAV_RIGHT );
 			if ( cursor_prev != m->cursor ) {
 				Menu_CursorMoved( m );
 				sound = menu_move_sound;

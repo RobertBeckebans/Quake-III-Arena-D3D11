@@ -149,6 +149,15 @@ extern vmCvar_t	ui_cdkeychecked;
 #define QM_LOSTFOCUS			2
 #define QM_ACTIVATED			3
 
+// @pjb: navigation direction
+typedef enum 
+{
+    QNAV_LEFT,
+    QNAV_RIGHT,
+    QNAV_UP,
+    QNAV_DOWN
+} QNAV;
+
 typedef struct _tag_menuframework
 {
 	int	cursor;
@@ -163,6 +172,7 @@ typedef struct _tag_menuframework
 	qboolean	wrapAround;
 	qboolean	fullscreen;
 	qboolean	showlogo;
+    qboolean    customNav; // @pjb: uses normal nav if this is qfalse
 } menuframework_s;
 
 typedef struct
@@ -182,6 +192,11 @@ typedef struct
 	void (*callback)( void *self, int event );
 	void (*statusbar)( void *self );
 	void (*ownerdraw)( void *self );
+
+    void* navLeft;
+    void* navRight;
+    void* navUp;
+    void* navDown;
 } menucommon_s;
 
 typedef struct {
@@ -257,10 +272,13 @@ typedef struct
 	float*			color;
 } menutext_s;
 
+// @pjb: navigation callback
+typedef menucommon_s* (* QNav_Callback)( menuframework_s *, menucommon_s*, QNAV );
+
 extern void			Menu_Cache( void );
 extern void			Menu_Focus( menucommon_s *m );
 extern void			Menu_AddItem( menuframework_s *menu, void *item );
-extern void			Menu_AdjustCursor( menuframework_s *menu, int dir );
+extern void			Menu_AdjustCursor( menuframework_s *menu, QNAV dir );
 extern void			Menu_Draw( menuframework_s *menu );
 extern void			*Menu_ItemAtCursor( menuframework_s *m );
 extern sfxHandle_t	Menu_ActivateItem( menuframework_s *s, menucommon_s* item );
