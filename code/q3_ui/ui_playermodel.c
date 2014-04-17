@@ -464,6 +464,7 @@ static void* PlayerModel_PlayerIconNav( menuframework_s* menu, menubitmap_s* ite
     int index = item->generic.id - ID_PLAYERPIC0;
     int col = index % PLAYERGRID_COLS;
     int row = index / PLAYERGRID_COLS;
+    int page = s_playermodel.modelpage;
 
     // What would be the new index?
     switch ( direction )
@@ -506,6 +507,9 @@ static void* PlayerModel_PlayerIconNav( menuframework_s* menu, menubitmap_s* ite
             col = PLAYERGRID_COLS - 1;
         }
     }
+
+    if ( page != s_playermodel.modelpage )
+        PlayerModel_UpdateGrid();
 
     // Now return what we've selected
     return &s_playermodel.picbuttons[row * PLAYERGRID_COLS + col];
@@ -653,6 +657,7 @@ static void PlayerModel_MenuInit( void )
 	s_playermodel.left.generic.id			= ID_PREVPAGE;
 	s_playermodel.left.generic.x			= 125;
 	s_playermodel.left.generic.y			= 340;
+    s_playermodel.left.generic.navUp        = &s_playermodel.picbuttons[3 * PLAYERGRID_ROWS + 1];
     s_playermodel.left.generic.navDown      = &s_playermodel.back;
     s_playermodel.left.generic.navRight     = &s_playermodel.right;
 	s_playermodel.left.width  				= 64;
@@ -665,6 +670,7 @@ static void PlayerModel_MenuInit( void )
 	s_playermodel.right.generic.id			= ID_NEXTPAGE;
 	s_playermodel.right.generic.x			= 125+61;
 	s_playermodel.right.generic.y			= 340;
+    s_playermodel.right.generic.navUp        = &s_playermodel.picbuttons[3 * PLAYERGRID_ROWS + 2];
     s_playermodel.right.generic.navDown     = &s_playermodel.back;
     s_playermodel.right.generic.navLeft     = &s_playermodel.left;
 	s_playermodel.right.width  				= 64;
