@@ -172,7 +172,7 @@ typedef struct _tag_menuframework
 	qboolean	wrapAround;
 	qboolean	fullscreen;
 	qboolean	showlogo;
-    qboolean    customNav; // @pjb: uses normal nav if this is qfalse
+    qboolean    custom_nav; // @pjb: uses normal nav if this is qfalse
 } menuframework_s;
 
 typedef struct

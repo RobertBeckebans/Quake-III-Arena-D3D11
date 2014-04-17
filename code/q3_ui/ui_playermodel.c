@@ -539,7 +539,7 @@ static void PlayerModel_MenuInit( void )
 	s_playermodel.menu.key        = PlayerModel_MenuKey;
 	s_playermodel.menu.wrapAround = qtrue;
 	s_playermodel.menu.fullscreen = qtrue;
-    s_playermodel.menu.customNav  = qtrue;
+    s_playermodel.menu.custom_nav  = qtrue;
 
 	s_playermodel.banner.generic.type  = MTYPE_BTEXT;
 	s_playermodel.banner.generic.x     = 320;

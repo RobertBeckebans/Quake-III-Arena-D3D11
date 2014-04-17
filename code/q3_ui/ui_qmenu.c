@@ -1557,7 +1557,7 @@ void Menu_AdjustCursor( menuframework_s *m, QNAV dir ) {
 	m->cursor_prev = m->cursor;
 
     // Skip menus that don't use the new nav system
-    if ( m->customNav == qfalse ) {
+    if ( m->custom_nav == qfalse ) {
         if ( dir == QNAV_UP ) {
 			m->cursor--;
             Menu_AdjustCursorDefault( m, -1 );

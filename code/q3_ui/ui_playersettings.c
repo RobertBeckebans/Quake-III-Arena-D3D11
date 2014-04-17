@@ -360,7 +360,7 @@ static void PlayerSettings_MenuInit( void ) {
 	s_playersettings.menu.key        = PlayerSettings_MenuKey;
 	s_playersettings.menu.wrapAround = qtrue;
 	s_playersettings.menu.fullscreen = qtrue;
-    s_playersettings.menu.customNav  = qtrue;
+    s_playersettings.menu.custom_nav  = qtrue;
 
 	s_playersettings.banner.generic.type  = MTYPE_BTEXT;
 	s_playersettings.banner.generic.x     = 320;
