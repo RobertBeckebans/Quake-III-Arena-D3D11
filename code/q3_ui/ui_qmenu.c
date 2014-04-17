@@ -55,6 +55,7 @@ vec4_t text_color_disabled  = {0.50f, 0.50f, 0.50f, 1.00f};	// light gray
 vec4_t text_color_normal    = {1.00f, 0.43f, 0.00f, 1.00f};	// light orange
 vec4_t text_color_highlight = {1.00f, 1.00f, 0.00f, 1.00f};	// bright yellow
 vec4_t listbar_color        = {1.00f, 0.43f, 0.00f, 0.30f};	// transluscent orange
+vec4_t listbar_color_cur    = {1.00f, 0.43f, 0.00f, 0.60f};	// transluscent orange
 vec4_t text_color_status    = {1.00f, 1.00f, 1.00f, 1.00f};	// bright white	
 
 // action widget
@@ -898,6 +899,8 @@ static void ScrollList_Init( menulist_s *l )
 	l->oldvalue = 0;
 	l->curvalue = 0;
 	l->top      = 0;
+    l->highlight = 0;
+    l->oldHighlight = 0;
 
 	if( !l->columns ) {
 		l->columns = 1;
@@ -918,6 +921,47 @@ static void ScrollList_Init( menulist_s *l )
 		l->generic.left -= w / 2;
 		l->generic.right -= w / 2;
 	}
+}
+
+/*
+=================
+ScrollList_Update
+@pjb: The scroll list was updated
+=================
+*/
+qboolean ScrollList_Update( menulist_s* l )
+{
+    l->oldvalue = l->curvalue;
+    l->curvalue = l->highlight;
+
+	if (l->oldvalue != l->curvalue && l->generic.callback) {
+        l->generic.callback( l, QM_GOTFOCUS );
+        return qtrue;
+    }
+
+    return qfalse;
+}
+
+/*
+=================
+ScrollList_Set
+@pjb: The scroll list highlight moved
+=================
+*/
+qboolean ScrollList_Set( menulist_s* l, int newhl )
+{
+    l->oldHighlight = l->highlight;
+    l->highlight = newhl;
+
+    // If navigable is set to false, update the item immediately
+	if (l->oldHighlight != l->highlight && !l->navigable) {
+        l->oldvalue = l->oldHighlight;
+        l->curvalue = l->highlight;
+        l->generic.callback( l, QM_GOTFOCUS );
+        return qtrue;
+    }
+
+    return qfalse;
 }
 
 /*
@@ -958,12 +1002,8 @@ sfxHandle_t ScrollList_Key( menulist_s *l, int key )
 					index = column * l->height + cursory;
 					if (l->top + index < l->numitems)
 					{
-						l->oldvalue = l->curvalue;
-						l->curvalue = l->top + index;
-
-						if (l->oldvalue != l->curvalue && l->generic.callback)
+						if (ScrollList_Set(l, l->top + index))
 						{
-							l->generic.callback( l, QM_GOTFOCUS );
 							return (menu_move_sound);
 						}
 					}
@@ -974,97 +1014,109 @@ sfxHandle_t ScrollList_Key( menulist_s *l, int key )
 			}
 			break;
 
-		case K_KP_HOME:
-		case K_HOME:
-			l->oldvalue = l->curvalue;
-			l->curvalue = 0;
-			l->top      = 0;
+        // @pjb: enter forces a selection
+        case K_ENTER:
+        case K_KP_ENTER:
+        case K_GAMEPAD_A:
+            if ( l->navigable ) {
+                ScrollList_Update( l ); 
+                return (menu_move_sound);
+            }
+            return (0);
 
-			if (l->oldvalue != l->curvalue && l->generic.callback)
+        case K_KP_HOME:
+		case K_HOME:
+			l->top = 0;
+
+			if (ScrollList_Set(l, 0))
 			{
-				l->generic.callback( l, QM_GOTFOCUS );
 				return (menu_move_sound);
 			}
 			return (menu_buzz_sound);
 
 		case K_KP_END:
 		case K_END:
-			l->oldvalue = l->curvalue;
-			l->curvalue = l->numitems-1;
+        {
+			int value = l->numitems-1;
 			if( l->columns > 1 ) {
-				c = (l->curvalue / l->height + 1) * l->height;
+				c = (value / l->height + 1) * l->height;
 				l->top = c - (l->columns * l->height);
 			}
 			else {
-				l->top = l->curvalue - (l->height - 1);
+				l->top = value - (l->height - 1);
 			}
 			if (l->top < 0)
 				l->top = 0;			
 
-			if (l->oldvalue != l->curvalue && l->generic.callback)
+			if (ScrollList_Set(l, value))
 			{
-				l->generic.callback( l, QM_GOTFOCUS );
 				return (menu_move_sound);
 			}
 			return (menu_buzz_sound);
-
+        }
 		case K_PGUP:
 		case K_KP_PGUP:
+        {
+            int value = l->highlight;
+
 			if( l->columns > 1 ) {
 				return menu_null_sound;
 			}
 
-			if (l->curvalue > 0)
+			if (value > 0)
 			{
-				l->oldvalue = l->curvalue;
-				l->curvalue -= l->height-1;
-				if (l->curvalue < 0)
-					l->curvalue = 0;
-				l->top = l->curvalue;
+				value -= l->height-1;
+				if (value < 0)
+					value = 0;
+				l->top = value;
 				if (l->top < 0)
 					l->top = 0;
 
-				if (l->generic.callback)
-					l->generic.callback( l, QM_GOTFOCUS );
+				ScrollList_Set(l, value);
 
 				return (menu_move_sound);
 			}
 			return (menu_buzz_sound);
-
+        }
 		case K_PGDN:
 		case K_KP_PGDN:
+        {
+            int value = l->highlight;
+
 			if( l->columns > 1 ) {
 				return menu_null_sound;
 			}
 
-			if (l->curvalue < l->numitems-1)
+			if (value < l->numitems-1)
 			{
-				l->oldvalue = l->curvalue;
-				l->curvalue += l->height-1;
-				if (l->curvalue > l->numitems-1)
-					l->curvalue = l->numitems-1;
-				l->top = l->curvalue - (l->height-1);
+				l->oldvalue = value;
+				value += l->height-1;
+				if (value > l->numitems-1)
+					value = l->numitems-1;
+				l->top = value - (l->height-1);
 				if (l->top < 0)
 					l->top = 0;
 
-				if (l->generic.callback)
-					l->generic.callback( l, QM_GOTFOCUS );
+				ScrollList_Set(l, value);
 
 				return (menu_move_sound);
 			}
 			return (menu_buzz_sound);
-
+        }
 		case K_KP_UPARROW:
 		case K_UPARROW:
         case K_GAMEPAD_DPAD_UP:  // @pjb
-			if( l->curvalue == 0 ) {
-				return menu_buzz_sound;
+        {
+            int value = l->highlight;
+
+			if( value == 0 ) {
+				return 0;
 			}
 
-			l->oldvalue = l->curvalue;
-			l->curvalue--;
+			l->oldvalue = value;
+			value--;
 
-			if( l->curvalue < l->top ) {
+			if( value < l->top ) {
 				if( l->columns == 1 ) {
 					l->top--;
 				}
@@ -1073,23 +1125,24 @@ sfxHandle_t ScrollList_Key( menulist_s *l, int key )
 				}
 			}
 
-			if( l->generic.callback ) {
-				l->generic.callback( l, QM_GOTFOCUS );
-			}
+			ScrollList_Set(l, value);
 
 			return (menu_move_sound);
-
+        }
 		case K_KP_DOWNARROW:
 		case K_DOWNARROW:
         case K_GAMEPAD_DPAD_DOWN:  // @pjb
-			if( l->curvalue == l->numitems - 1 ) {
-				return menu_buzz_sound;
+        {
+            int value = l->highlight;
+
+			if( value == l->numitems - 1 ) {
+				return 0;
 			}
 
-			l->oldvalue = l->curvalue;
-			l->curvalue++;
+			l->oldvalue = value;
+			value++;
 
-			if( l->curvalue >= l->top + l->columns * l->height ) {
+			if( value >= l->top + l->columns * l->height ) {
 				if( l->columns == 1 ) {
 					l->top++;
 				}
@@ -1098,61 +1151,62 @@ sfxHandle_t ScrollList_Key( menulist_s *l, int key )
 				}
 			}
 
-			if( l->generic.callback ) {
-				l->generic.callback( l, QM_GOTFOCUS );
-			}
+			ScrollList_Set(l, value);
 
 			return menu_move_sound;
-
+        }
 		case K_KP_LEFTARROW:
 		case K_LEFTARROW:
         case K_GAMEPAD_DPAD_LEFT:  // @pjb
+        {
+            int value = l->highlight;
+
 			if( l->columns == 1 ) {
-				return menu_null_sound;
+				return 0;
 			}
 
-			if( l->curvalue < l->height ) {
-				return menu_buzz_sound;
+			if( value < l->height ) {
+				return 0;
 			}
 
-			l->oldvalue = l->curvalue;
-			l->curvalue -= l->height;
+			l->oldvalue = value;
+			value -= l->height;
 
-			if( l->curvalue < l->top ) {
+			if( value < l->top ) {
 				l->top -= l->height;
 			}
 
-			if( l->generic.callback ) {
-				l->generic.callback( l, QM_GOTFOCUS );
-			}
+			ScrollList_Set(l, value);
 
 			return menu_move_sound;
-
+        }
 		case K_KP_RIGHTARROW:
 		case K_RIGHTARROW:
         case K_GAMEPAD_DPAD_RIGHT:  // @pjb
+        {
+            int value = l->highlight;
+
 			if( l->columns == 1 ) {
-				return menu_null_sound;
+				return 0;
 			}
 
-			c = l->curvalue + l->height;
+			c = value + l->height;
 
 			if( c >= l->numitems ) {
-				return menu_buzz_sound;
+				return 0;
 			}
 
-			l->oldvalue = l->curvalue;
-			l->curvalue = c;
+			l->oldvalue = value;
+			value = c;
 
-			if( l->curvalue > l->top + l->columns * l->height - 1 ) {
+			if( value > l->top + l->columns * l->height - 1 ) {
 				l->top += l->height;
 			}
 
-			if( l->generic.callback ) {
-				l->generic.callback( l, QM_GOTFOCUS );
-			}
+			ScrollList_Set(l, value);
 
 			return menu_move_sound;
+        }
 	}
 
 	// cycle look for ascii key inside list items
@@ -1168,7 +1222,8 @@ sfxHandle_t ScrollList_Key( menulist_s *l, int key )
 	// iterate list items
 	for (i=1; i<=l->numitems; i++)
 	{
-		j = (l->curvalue + i) % l->numitems;
+        int value = l->highlight;
+		j = (value + i) % l->numitems;
 		c = l->itemnames[j][0];
 		if ( Q_isupper( c ) )
 		{
@@ -1189,12 +1244,9 @@ sfxHandle_t ScrollList_Key( menulist_s *l, int key )
 				l->top = (j+1) - l->height;
 			}
 			
-			if (l->curvalue != j)
+			if (value != j)
 			{
-				l->oldvalue = l->curvalue;
-				l->curvalue = j;
-				if (l->generic.callback)
-					l->generic.callback( l, QM_GOTFOCUS );
+				ScrollList_Set(l, value);
 				return ( menu_move_sound );			
 			}
 
@@ -1239,14 +1291,33 @@ void ScrollList_Draw( menulist_s *l )
 					u -= (l->width * SMALLCHAR_WIDTH) / 2 + 1;
 				}
 
-				UI_FillRect(u,y,l->width*SMALLCHAR_WIDTH,SMALLCHAR_HEIGHT+2,listbar_color);
 				color = text_color_highlight;
+				style = UI_LEFT|UI_SMALLFONT;
 
-				if (hasfocus)
-					style = UI_PULSE|UI_LEFT|UI_SMALLFONT;
-				else
-					style = UI_LEFT|UI_SMALLFONT;
+                if (l->navigable)
+                {
+    				UI_FillRect(u,y,l->width*SMALLCHAR_WIDTH,SMALLCHAR_HEIGHT+2,listbar_color_cur);
+                }
+                else
+                {
+    				UI_FillRect(u,y,l->width*SMALLCHAR_WIDTH,SMALLCHAR_HEIGHT+2,listbar_color);
+
+                    if ( hasfocus )
+				    	style |= UI_PULSE;
+                }
 			}
+            else if ( l->navigable && hasfocus && i == l->highlight )
+            {
+				u = x - 2;
+				if( l->generic.flags & QMF_CENTER_JUSTIFY ) {
+					u -= (l->width * SMALLCHAR_WIDTH) / 2 + 1;
+				}
+
+				color = text_color_highlight;
+				style = UI_PULSE|UI_LEFT|UI_SMALLFONT;
+
+                UI_FillRect(u,y,l->width*SMALLCHAR_WIDTH,SMALLCHAR_HEIGHT+2,listbar_color);
+            }
 			else
 			{
 				color = text_color_normal;

@@ -228,8 +228,14 @@ typedef struct
 {
 	menucommon_s generic;
 
+    // @pjb: this indicates the current cursor
+    int highlight;
+    int oldHighlight;
+
+    // @pjb: this now means the selected item
 	int	oldvalue;
 	int curvalue;
+
 	int	numitems;
 	int	top;
 		
@@ -239,6 +245,9 @@ typedef struct
 	int height;
 	int	columns;
 	int	seperation;
+
+    // @pjb: this means that the list differentiates between a cursor highlight and a selection
+    qboolean navigable;
 } menulist_s;
 
 typedef struct
