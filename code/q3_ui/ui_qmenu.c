@@ -468,13 +468,7 @@ static sfxHandle_t RadioButton_Key( menuradiobutton_s *rb, int key )
 		case K_JOY4:
 		case K_ENTER:
 		case K_KP_ENTER:
-		case K_KP_LEFTARROW:
-		case K_LEFTARROW:
-		case K_KP_RIGHTARROW:
-		case K_RIGHTARROW:
         case K_GAMEPAD_A:  // @pjb
-        case K_GAMEPAD_DPAD_LEFT:  // @pjb
-        case K_GAMEPAD_DPAD_RIGHT:  // @pjb
 			rb->curvalue = !rb->curvalue;
 			if ( rb->generic.callback )
 				rb->generic.callback( rb, QM_ACTIVATED );
