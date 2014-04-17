@@ -812,28 +812,11 @@ static sfxHandle_t SpinControl_Key( menulist_s *s, int key )
 			sound = menu_move_sound;
 			break;
 		
-		case K_KP_LEFTARROW:
-		case K_LEFTARROW:
-        case K_GAMEPAD_DPAD_LEFT: // @pjb
-			if (s->curvalue > 0)
-			{
-				s->curvalue--;
-				sound = menu_move_sound;
-			}
-			else
-				sound = menu_buzz_sound;
-			break;
-
-		case K_KP_RIGHTARROW:
-		case K_RIGHTARROW:
-        case K_GAMEPAD_DPAD_RIGHT: // @pjb
-			if (s->curvalue < s->numitems-1)
-			{
-				s->curvalue++;
-				sound = menu_move_sound;
-			}
-			else
-				sound = menu_buzz_sound;
+		case K_KP_ENTER:
+        case K_ENTER:
+        case K_GAMEPAD_A: // @pjb
+			s->curvalue = (s->curvalue+1) % s->numitems;
+			sound = menu_move_sound;
 			break;
 	}
 
