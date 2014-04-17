@@ -1294,6 +1294,9 @@ void ScrollList_Draw( menulist_s *l )
 				color = text_color_highlight;
 				style = UI_LEFT|UI_SMALLFONT;
 
+                if ( hasfocus )
+				    style |= UI_PULSE;
+
                 if (l->navigable)
                 {
     				UI_FillRect(u,y,l->width*SMALLCHAR_WIDTH,SMALLCHAR_HEIGHT+2,listbar_color_cur);
@@ -1301,9 +1304,6 @@ void ScrollList_Draw( menulist_s *l )
                 else
                 {
     				UI_FillRect(u,y,l->width*SMALLCHAR_WIDTH,SMALLCHAR_HEIGHT+2,listbar_color);
-
-                    if ( hasfocus )
-				    	style |= UI_PULSE;
                 }
 			}
             else if ( l->navigable && hasfocus && i == l->highlight )
