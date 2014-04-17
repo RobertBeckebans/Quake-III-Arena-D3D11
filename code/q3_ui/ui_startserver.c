@@ -374,6 +374,64 @@ static void StartServer_LevelshotDraw( void *self ) {
 	}
 }
 
+// @pjb: nav override for player model
+static void* StartServer_MapIconNav( menuframework_s* menu, menubitmap_s* item, QNAV direction ) 
+{
+    // Get the index and work out where I am in space.
+    int index = item->generic.id - ID_PICTURES;
+    int col = index % MAX_MAPCOLS;
+    int row = index / MAX_MAPCOLS;
+    int page = s_startserver.page;
+
+    // What would be the new index?
+    switch ( direction )
+    {
+    case QNAV_LEFT : col--; break;
+    case QNAV_RIGHT: col++; break;
+    case QNAV_UP   : row--; break;
+    case QNAV_DOWN : row++; break;
+    }
+
+    // Navigate to the left/right page buttons on row overflow
+    if ( row >= MAX_MAPROWS )
+    {
+        return &s_startserver.gametype;
+    }
+
+    // Just clamp negative rows
+    if ( row < 0 ) {
+        row = 0;
+    }
+
+    // Do we need to switch page to the left?
+    if ( col < 0 )
+    {
+        if ( s_startserver.page > 0 ) {
+            s_startserver.page--;
+            col = MAX_MAPCOLS - 1;
+        } else {
+            col = 0;
+        }
+    }
+
+    // Do we need to switch page to the right?
+    if ( col >= MAX_MAPCOLS )
+    {
+        if ( s_startserver.page < (s_startserver.nummaps / MAX_MAPSPERPAGE) - 1 ) {
+            s_startserver.page++;
+            col = 0;
+        } else {
+            col = MAX_MAPCOLS - 1;
+        }
+    }
+
+    if ( page != s_startserver.page )
+        StartServer_Update();
+
+    // Now return what we've selected
+    return &s_startserver.mapbuttons[row * MAX_MAPCOLS + col];
+}
+
 
 /*
 =================
@@ -393,6 +451,7 @@ static void StartServer_MenuInit( void ) {
 
 	s_startserver.menu.wrapAround = qtrue;
 	s_startserver.menu.fullscreen = qtrue;
+    s_startserver.menu.custom_nav = qtrue;
 
 	s_startserver.banner.generic.type  = MTYPE_BTEXT;
 	s_startserver.banner.generic.x	   = 320;
@@ -425,6 +484,8 @@ static void StartServer_MenuInit( void ) {
 	s_startserver.gametype.generic.x		= 320 - 24;
 	s_startserver.gametype.generic.y		= 368;
 	s_startserver.gametype.itemnames		= gametype_items;
+    s_startserver.gametype.generic.navUp    = &s_startserver.mapbuttons[2];
+    s_startserver.gametype.generic.navDown  = &s_startserver.nextpage;
 
 	for (i=0; i<MAX_MAPSPERPAGE; i++)
 	{
@@ -455,6 +516,10 @@ static void StartServer_MenuInit( void ) {
 		s_startserver.mapbuttons[i].generic.right    = x + 128;
 		s_startserver.mapbuttons[i].generic.bottom   = y + 128;
 		s_startserver.mapbuttons[i].focuspic         = GAMESERVER_SELECT;
+		s_startserver.mapbuttons[i].generic.navLeft  = StartServer_MapIconNav;
+		s_startserver.mapbuttons[i].generic.navRight = StartServer_MapIconNav;
+		s_startserver.mapbuttons[i].generic.navUp    = StartServer_MapIconNav;
+		s_startserver.mapbuttons[i].generic.navDown  = StartServer_MapIconNav;
 	}
 
 	s_startserver.arrows.generic.type  = MTYPE_BITMAP;
@@ -474,6 +539,10 @@ static void StartServer_MenuInit( void ) {
 	s_startserver.prevpage.width  		    = 64;
 	s_startserver.prevpage.height  		    = 32;
 	s_startserver.prevpage.focuspic         = GAMESERVER_ARROWSL;
+    s_startserver.prevpage.generic.navUp    = &s_startserver.gametype;
+    s_startserver.prevpage.generic.navRight = &s_startserver.nextpage;
+    s_startserver.prevpage.generic.navDown  = &s_startserver.back;
+    s_startserver.prevpage.generic.navLeft  = &s_startserver.back;
 
 	s_startserver.nextpage.generic.type	    = MTYPE_BITMAP;
 	s_startserver.nextpage.generic.flags    = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
@@ -484,6 +553,10 @@ static void StartServer_MenuInit( void ) {
 	s_startserver.nextpage.width  		    = 64;
 	s_startserver.nextpage.height  		    = 32;
 	s_startserver.nextpage.focuspic         = GAMESERVER_ARROWSR;
+    s_startserver.nextpage.generic.navUp    = &s_startserver.gametype;
+    s_startserver.nextpage.generic.navLeft  = &s_startserver.prevpage;
+    s_startserver.nextpage.generic.navDown  = &s_startserver.next;
+    s_startserver.nextpage.generic.navRight = &s_startserver.next;
 
 	s_startserver.mapname.generic.type  = MTYPE_PTEXT;
 	s_startserver.mapname.generic.flags = QMF_CENTER_JUSTIFY|QMF_INACTIVE;
@@ -503,6 +576,8 @@ static void StartServer_MenuInit( void ) {
 	s_startserver.back.width  		    = 128;
 	s_startserver.back.height  		    = 64;
 	s_startserver.back.focuspic         = GAMESERVER_BACK1;
+    s_startserver.back.generic.navUp    = &s_startserver.prevpage;
+    s_startserver.back.generic.navRight = &s_startserver.next;
 
 	s_startserver.next.generic.type	    = MTYPE_BITMAP;
 	s_startserver.next.generic.name     = GAMESERVER_NEXT0;
@@ -514,6 +589,8 @@ static void StartServer_MenuInit( void ) {
 	s_startserver.next.width  		    = 128;
 	s_startserver.next.height  		    = 64;
 	s_startserver.next.focuspic         = GAMESERVER_NEXT1;
+    s_startserver.next.generic.navUp    = &s_startserver.nextpage;
+    s_startserver.next.generic.navLeft    = &s_startserver.back;
 
 	s_startserver.item_null.generic.type	= MTYPE_BITMAP;
 	s_startserver.item_null.generic.flags	= QMF_LEFT_JUSTIFY|QMF_MOUSEONLY|QMF_SILENT;
