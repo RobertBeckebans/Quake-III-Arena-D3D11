@@ -1363,6 +1363,9 @@ static void ServerOptions_MenuInit( qboolean multiplayer ) {
 		s_serveroptions.flaglimit.field.maxchars     = 3;
 	}
 
+    s_serveroptions.fraglimit.generic.navDown    = &s_serveroptions.timelimit;
+    s_serveroptions.fraglimit.generic.navLeft    = &s_serveroptions.playerTeam[8];
+
 	y += BIGCHAR_HEIGHT+2;
 	s_serveroptions.timelimit.generic.type       = MTYPE_FIELD;
 	s_serveroptions.timelimit.generic.name       = "Time Limit:";
@@ -1372,6 +1375,9 @@ static void ServerOptions_MenuInit( qboolean multiplayer ) {
 	s_serveroptions.timelimit.generic.statusbar  = ServerOptions_StatusBar;
 	s_serveroptions.timelimit.field.widthInChars = 3;
 	s_serveroptions.timelimit.field.maxchars     = 3;
+    s_serveroptions.timelimit.generic.navUp      = &s_serveroptions.fraglimit;
+    s_serveroptions.timelimit.generic.navDown    = &s_serveroptions.friendlyfire;
+    s_serveroptions.timelimit.generic.navLeft    = &s_serveroptions.playerTeam[8];
 
 	if( s_serveroptions.gametype >= GT_TEAM ) {
 		y += BIGCHAR_HEIGHT+2;
@@ -1382,12 +1388,19 @@ static void ServerOptions_MenuInit( qboolean multiplayer ) {
 		s_serveroptions.friendlyfire.generic.name	  = "Friendly Fire:";
 	}
 
+    s_serveroptions.friendlyfire.generic.navUp    = &s_serveroptions.timelimit;
+    s_serveroptions.friendlyfire.generic.navDown  = &s_serveroptions.pure;
+    s_serveroptions.friendlyfire.generic.navLeft  = &s_serveroptions.playerTeam[8];
+
 	y += BIGCHAR_HEIGHT+2;
 	s_serveroptions.pure.generic.type			= MTYPE_RADIOBUTTON;
 	s_serveroptions.pure.generic.flags			= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
 	s_serveroptions.pure.generic.x				= OPTIONS_X;
 	s_serveroptions.pure.generic.y				= y;
 	s_serveroptions.pure.generic.name			= "Pure Server:";
+    s_serveroptions.pure.generic.navUp          = &s_serveroptions.friendlyfire;
+    s_serveroptions.pure.generic.navDown        = &s_serveroptions.dedicated;
+    s_serveroptions.pure.generic.navLeft        = &s_serveroptions.playerTeam[8];
 
 	if( s_serveroptions.multiplayer ) {
 		y += BIGCHAR_HEIGHT+2;
@@ -1401,6 +1414,10 @@ static void ServerOptions_MenuInit( qboolean multiplayer ) {
 		s_serveroptions.dedicated.itemnames			= dedicated_list;
 	}
 
+    s_serveroptions.dedicated.generic.navUp         = &s_serveroptions.pure;
+    s_serveroptions.dedicated.generic.navDown       = &s_serveroptions.hostname;
+    s_serveroptions.dedicated.generic.navLeft       = &s_serveroptions.playerTeam[8];
+
 	if( s_serveroptions.multiplayer ) {
 		y += BIGCHAR_HEIGHT+2;
 		s_serveroptions.hostname.generic.type       = MTYPE_FIELD;
@@ -1412,6 +1429,10 @@ static void ServerOptions_MenuInit( qboolean multiplayer ) {
 		s_serveroptions.hostname.field.maxchars     = 64;
 	}
 
+    s_serveroptions.hostname.generic.navUp          = &s_serveroptions.dedicated;
+    s_serveroptions.hostname.generic.navDown        = &s_serveroptions.punkbuster;
+    s_serveroptions.hostname.generic.navLeft        = &s_serveroptions.playerTeam[8];
+
 	y += BIGCHAR_HEIGHT+2;
 	s_serveroptions.punkbuster.generic.type			= MTYPE_SPINCONTROL;
 	s_serveroptions.punkbuster.generic.name			= "Punkbuster:";
@@ -1420,6 +1441,9 @@ static void ServerOptions_MenuInit( qboolean multiplayer ) {
 	s_serveroptions.punkbuster.generic.x				= OPTIONS_X;
 	s_serveroptions.punkbuster.generic.y				= y;
 	s_serveroptions.punkbuster.itemnames				= punkbuster_items;
+    s_serveroptions.punkbuster.generic.navUp        = &s_serveroptions.hostname;
+    s_serveroptions.punkbuster.generic.navDown      = &s_serveroptions.go;
+    s_serveroptions.punkbuster.generic.navLeft      = &s_serveroptions.playerTeam[8];
 	
 	y = 80;
 	s_serveroptions.botSkill.generic.type			= MTYPE_SPINCONTROL;
@@ -1429,6 +1453,7 @@ static void ServerOptions_MenuInit( qboolean multiplayer ) {
 	s_serveroptions.botSkill.generic.y				= y;
 	s_serveroptions.botSkill.itemnames				= botSkill_list;
 	s_serveroptions.botSkill.curvalue				= 1;
+    s_serveroptions.botSkill.generic.navDown        = &s_serveroptions.playerType[0];
 
 	y += ( 2 * SMALLCHAR_HEIGHT );
 	s_serveroptions.player0.generic.type			= MTYPE_TEXT;
@@ -1446,6 +1471,7 @@ static void ServerOptions_MenuInit( qboolean multiplayer ) {
 		s_serveroptions.playerType[n].generic.x			= 32;
 		s_serveroptions.playerType[n].generic.y			= y;
 		s_serveroptions.playerType[n].itemnames			= playerType_list;
+        s_serveroptions.playerType[n].generic.navRight  = &s_serveroptions.playerName[n];
 
 		s_serveroptions.playerName[n].generic.type		= MTYPE_TEXT;
 		s_serveroptions.playerName[n].generic.flags		= QMF_SMALLFONT;
@@ -1461,21 +1487,35 @@ static void ServerOptions_MenuInit( qboolean multiplayer ) {
 		s_serveroptions.playerName[n].generic.bottom	= s_serveroptions.playerName[n].generic.y + SMALLCHAR_HEIGHT;
 		s_serveroptions.playerName[n].generic.left		= s_serveroptions.playerName[n].generic.x - SMALLCHAR_HEIGHT/ 2;
 		s_serveroptions.playerName[n].generic.right		= s_serveroptions.playerName[n].generic.x + 16 * SMALLCHAR_WIDTH;
+        s_serveroptions.playerName[n].generic.navLeft   = &s_serveroptions.playerType[n];
+        s_serveroptions.playerName[n].generic.navRight  = &s_serveroptions.playerTeam[n];
 
 		s_serveroptions.playerTeam[n].generic.type		= MTYPE_SPINCONTROL;
 		s_serveroptions.playerTeam[n].generic.flags		= QMF_SMALLFONT;
 		s_serveroptions.playerTeam[n].generic.x			= 240;
 		s_serveroptions.playerTeam[n].generic.y			= y;
 		s_serveroptions.playerTeam[n].itemnames			= playerTeam_list;
+        s_serveroptions.playerTeam[n].generic.navLeft   = &s_serveroptions.playerName[n];
+        s_serveroptions.playerTeam[n].generic.navRight  = &s_serveroptions.fraglimit;
 
         if ( n > 0 ) {
+            s_serveroptions.playerType[n].generic.navUp = &s_serveroptions.playerType[n-1];
+            s_serveroptions.playerName[n].generic.navUp = &s_serveroptions.playerName[n-1];
             s_serveroptions.playerTeam[n].generic.navUp = &s_serveroptions.playerTeam[n-1];
+        } else {
+            s_serveroptions.playerType[n].generic.navUp = &s_serveroptions.botSkill;
+            s_serveroptions.playerName[n].generic.navUp = &s_serveroptions.botSkill;
+            s_serveroptions.playerTeam[n].generic.navUp = &s_serveroptions.botSkill;
         }
 
         if ( n == PLAYER_SLOTS - 1 ) {
             s_serveroptions.playerType[n].generic.navDown = &s_serveroptions.back;
+            s_serveroptions.playerName[n].generic.navDown = &s_serveroptions.back;
+            s_serveroptions.playerTeam[n].generic.navDown = &s_serveroptions.back;
         } else {
-            s_serveroptions.playerType[n].generic.navDown = &s_serveroptions.playerTeam[n+1];
+            s_serveroptions.playerType[n].generic.navDown = &s_serveroptions.playerType[n+1];
+            s_serveroptions.playerName[n].generic.navDown = &s_serveroptions.playerName[n+1];
+            s_serveroptions.playerTeam[n].generic.navDown = &s_serveroptions.playerTeam[n+1];
         }
 
 		y += ( SMALLCHAR_HEIGHT + 4 );
@@ -1507,6 +1547,7 @@ static void ServerOptions_MenuInit( qboolean multiplayer ) {
 	s_serveroptions.next.focuspic         = GAMESERVER_NEXT1;
     s_serveroptions.next.generic.navLeft  = &s_serveroptions.back;
     s_serveroptions.next.generic.navRight = &s_serveroptions.go;
+    s_serveroptions.next.generic.navUp    = &s_serveroptions.punkbuster;
 
 	s_serveroptions.go.generic.type	    = MTYPE_BITMAP;
 	s_serveroptions.go.generic.name     = GAMESERVER_FIGHT0;
@@ -1519,6 +1560,7 @@ static void ServerOptions_MenuInit( qboolean multiplayer ) {
 	s_serveroptions.go.height  		    = 64;
 	s_serveroptions.go.focuspic         = GAMESERVER_FIGHT1;
 	s_serveroptions.go.generic.navLeft  = &s_serveroptions.next;
+    s_serveroptions.go.generic.navUp    = &s_serveroptions.punkbuster;
 
 	Menu_AddItem( &s_serveroptions.menu, &s_serveroptions.banner );
 
