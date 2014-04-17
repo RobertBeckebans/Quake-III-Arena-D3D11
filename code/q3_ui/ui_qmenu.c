@@ -1294,7 +1294,7 @@ void ScrollList_Draw( menulist_s *l )
 				color = text_color_highlight;
 				style = UI_LEFT|UI_SMALLFONT;
 
-                if ( hasfocus )
+                if ( hasfocus && i == l->highlight )
 				    style |= UI_PULSE;
 
                 if (l->navigable)
