@@ -194,6 +194,7 @@ static void UI_CDKeyMenu_Init( void ) {
 	memset( &cdkeyMenuInfo, 0, sizeof(cdkeyMenuInfo) );
 	cdkeyMenuInfo.menu.wrapAround = qtrue;
 	cdkeyMenuInfo.menu.fullscreen = qtrue;
+    cdkeyMenuInfo.menu.customNav = qtrue;
 
 	cdkeyMenuInfo.banner.generic.type				= MTYPE_BTEXT;
 	cdkeyMenuInfo.banner.generic.x					= 320;
@@ -218,6 +219,7 @@ static void UI_CDKeyMenu_Init( void ) {
 	cdkeyMenuInfo.cdkey.field.widthInChars			= 16;
 	cdkeyMenuInfo.cdkey.field.maxchars				= 16;
 	cdkeyMenuInfo.cdkey.generic.ownerdraw			= UI_CDKeyMenu_DrawKey;
+    cdkeyMenuInfo.cdkey.generic.navDown             = &cdkeyMenuInfo.accept;
 
 	cdkeyMenuInfo.accept.generic.type				= MTYPE_BITMAP;
 	cdkeyMenuInfo.accept.generic.name				= ART_ACCEPT0;
@@ -229,6 +231,8 @@ static void UI_CDKeyMenu_Init( void ) {
 	cdkeyMenuInfo.accept.width						= 128;
 	cdkeyMenuInfo.accept.height						= 64;
 	cdkeyMenuInfo.accept.focuspic					= ART_ACCEPT1;
+    cdkeyMenuInfo.accept.generic.navUp              = &cdkeyMenuInfo.cdkey;
+    cdkeyMenuInfo.accept.generic.navLeft            = &cdkeyMenuInfo.back;
 
 	cdkeyMenuInfo.back.generic.type					= MTYPE_BITMAP;
 	cdkeyMenuInfo.back.generic.name					= ART_BACK0;
@@ -240,6 +244,8 @@ static void UI_CDKeyMenu_Init( void ) {
 	cdkeyMenuInfo.back.width						= 128;
 	cdkeyMenuInfo.back.height						= 64;
 	cdkeyMenuInfo.back.focuspic						= ART_BACK1;
+    cdkeyMenuInfo.back.generic.navUp                = &cdkeyMenuInfo.cdkey;
+    cdkeyMenuInfo.back.generic.navRight             = &cdkeyMenuInfo.accept;
 
 	Menu_AddItem( &cdkeyMenuInfo.menu, &cdkeyMenuInfo.banner );
 	Menu_AddItem( &cdkeyMenuInfo.menu, &cdkeyMenuInfo.frame );
