@@ -1315,6 +1315,7 @@ static void ServerOptions_MenuInit( qboolean multiplayer ) {
 
 	s_serveroptions.menu.wrapAround = qtrue;
 	s_serveroptions.menu.fullscreen = qtrue;
+    s_serveroptions.menu.custom_nav = qtrue;
 
 	s_serveroptions.banner.generic.type			= MTYPE_BTEXT;
 	s_serveroptions.banner.generic.x			= 320;
@@ -1467,6 +1468,16 @@ static void ServerOptions_MenuInit( qboolean multiplayer ) {
 		s_serveroptions.playerTeam[n].generic.y			= y;
 		s_serveroptions.playerTeam[n].itemnames			= playerTeam_list;
 
+        if ( n > 0 ) {
+            s_serveroptions.playerTeam[n].generic.navUp = &s_serveroptions.playerTeam[n-1];
+        }
+
+        if ( n == PLAYER_SLOTS - 1 ) {
+            s_serveroptions.playerType[n].generic.navDown = &s_serveroptions.back;
+        } else {
+            s_serveroptions.playerType[n].generic.navDown = &s_serveroptions.playerTeam[n+1];
+        }
+
 		y += ( SMALLCHAR_HEIGHT + 4 );
 	}
 
@@ -1480,6 +1491,8 @@ static void ServerOptions_MenuInit( qboolean multiplayer ) {
 	s_serveroptions.back.width  		  = 128;
 	s_serveroptions.back.height  		  = 64;
 	s_serveroptions.back.focuspic         = GAMESERVER_BACK1;
+    s_serveroptions.back.generic.navUp    = &s_serveroptions.playerType[PLAYER_SLOTS-1];
+    s_serveroptions.back.generic.navRight = &s_serveroptions.next;
 
 	s_serveroptions.next.generic.type	  = MTYPE_BITMAP;
 	s_serveroptions.next.generic.name     = GAMESERVER_NEXT0;
@@ -1492,6 +1505,8 @@ static void ServerOptions_MenuInit( qboolean multiplayer ) {
 	s_serveroptions.next.width  		  = 128;
 	s_serveroptions.next.height  		  = 64;
 	s_serveroptions.next.focuspic         = GAMESERVER_NEXT1;
+    s_serveroptions.next.generic.navLeft  = &s_serveroptions.back;
+    s_serveroptions.next.generic.navRight = &s_serveroptions.go;
 
 	s_serveroptions.go.generic.type	    = MTYPE_BITMAP;
 	s_serveroptions.go.generic.name     = GAMESERVER_FIGHT0;
@@ -1503,6 +1518,7 @@ static void ServerOptions_MenuInit( qboolean multiplayer ) {
 	s_serveroptions.go.width  		    = 128;
 	s_serveroptions.go.height  		    = 64;
 	s_serveroptions.go.focuspic         = GAMESERVER_FIGHT1;
+	s_serveroptions.go.generic.navLeft  = &s_serveroptions.next;
 
 	Menu_AddItem( &s_serveroptions.menu, &s_serveroptions.banner );
 
