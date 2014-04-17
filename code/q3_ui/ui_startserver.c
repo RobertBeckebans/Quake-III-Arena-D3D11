@@ -1968,6 +1968,64 @@ void UI_BotSelectMenu_Cache( void ) {
 }
 
 
+// @pjb: nav override for player model
+static void* UI_BotSelectNav( menuframework_s* menu, menubitmap_s* item, QNAV direction ) 
+{
+    // Get the index and work out where I am in space.
+    int index = item->generic.id;
+    int col = index % PLAYERGRID_COLS;
+    int row = index / PLAYERGRID_COLS;
+    int page = botSelectInfo.modelpage;
+
+    // What would be the new index?
+    switch ( direction )
+    {
+    case QNAV_LEFT : col--; break;
+    case QNAV_RIGHT: col++; break;
+    case QNAV_UP   : row--; break;
+    case QNAV_DOWN : row++; break;
+    }
+
+    // Navigate to the left/right page buttons on row overflow
+    if ( row >= PLAYERGRID_ROWS )
+    {
+        return &botSelectInfo.go;
+    }
+
+    // Just clamp negative rows
+    if ( row < 0 ) {
+        row = 0;
+    }
+
+    // Do we need to switch page to the left?
+    if ( col < 0 )
+    {
+        if ( botSelectInfo.modelpage > 0 ) {
+            botSelectInfo.modelpage--;
+            col = PLAYERGRID_COLS - 1;
+        } else {
+            col = 0;
+        }
+    }
+
+    // Do we need to switch page to the right?
+    if ( col >= PLAYERGRID_COLS )
+    {
+        if ( botSelectInfo.modelpage < botSelectInfo.numpages - 1 ) {
+            botSelectInfo.modelpage++;
+            col = 0;
+        } else {
+            col = PLAYERGRID_COLS - 1;
+        }
+    }
+
+    if ( page != botSelectInfo.modelpage )
+        UI_BotSelectMenu_UpdateGrid();
+
+    // Now return what we've selected
+    return &botSelectInfo.picbuttons[row * PLAYERGRID_COLS + col];
+}
+
 static void UI_BotSelectMenu_Init( char *bot ) {
 	int		i, j, k;
 	int		x, y;
@@ -1975,6 +2033,7 @@ static void UI_BotSelectMenu_Init( char *bot ) {
 	memset( &botSelectInfo, 0 ,sizeof(botSelectInfo) );
 	botSelectInfo.menu.wrapAround = qtrue;
 	botSelectInfo.menu.fullscreen = qtrue;
+    botSelectInfo.menu.custom_nav = qtrue;
 
 	UI_BotSelectMenu_Cache();
 
@@ -2013,6 +2072,10 @@ static void UI_BotSelectMenu_Init( char *bot ) {
 			botSelectInfo.picbuttons[k].height				= 128;
 			botSelectInfo.picbuttons[k].focuspic			= BOTSELECT_SELECT;
 			botSelectInfo.picbuttons[k].focuscolor			= colorRed;
+            botSelectInfo.picbuttons[k].generic.navUp       = UI_BotSelectNav;
+            botSelectInfo.picbuttons[k].generic.navDown     = UI_BotSelectNav;
+            botSelectInfo.picbuttons[k].generic.navLeft     = UI_BotSelectNav;
+            botSelectInfo.picbuttons[k].generic.navRight    = UI_BotSelectNav;
 
 			botSelectInfo.picnames[k].generic.type			= MTYPE_TEXT;
 			botSelectInfo.picnames[k].generic.flags			= QMF_SMALLFONT;
@@ -2043,6 +2106,9 @@ static void UI_BotSelectMenu_Init( char *bot ) {
 	botSelectInfo.left.width  				= 64;
 	botSelectInfo.left.height  				= 32;
 	botSelectInfo.left.focuspic				= BOTSELECT_ARROWSL;
+    botSelectInfo.left.generic.navUp        = &botSelectInfo.picbuttons[PLAYERGRID_COLS * (PLAYERGRID_ROWS-1) + 1];
+    botSelectInfo.left.generic.navRight     = &botSelectInfo.right;
+    botSelectInfo.left.generic.navLeft      = &botSelectInfo.back;
 
 	botSelectInfo.right.generic.type	    = MTYPE_BITMAP;
 	botSelectInfo.right.generic.flags		= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
@@ -2052,6 +2118,9 @@ static void UI_BotSelectMenu_Init( char *bot ) {
 	botSelectInfo.right.width  				= 64;
 	botSelectInfo.right.height  		    = 32;
 	botSelectInfo.right.focuspic			= BOTSELECT_ARROWSR;
+    botSelectInfo.right.generic.navUp       = &botSelectInfo.picbuttons[PLAYERGRID_COLS * (PLAYERGRID_ROWS-1) + 2];
+    botSelectInfo.right.generic.navLeft     = &botSelectInfo.left;
+    botSelectInfo.right.generic.navRight    = &botSelectInfo.go;
 
 	botSelectInfo.back.generic.type		= MTYPE_BITMAP;
 	botSelectInfo.back.generic.name		= BOTSELECT_BACK0;
@@ -2062,6 +2131,8 @@ static void UI_BotSelectMenu_Init( char *bot ) {
 	botSelectInfo.back.width			= 128;
 	botSelectInfo.back.height			= 64;
 	botSelectInfo.back.focuspic			= BOTSELECT_BACK1;
+    botSelectInfo.back.generic.navUp      = &botSelectInfo.picbuttons[PLAYERGRID_COLS * (PLAYERGRID_ROWS-1)];
+    botSelectInfo.back.generic.navRight = &botSelectInfo.left;
 
 	botSelectInfo.go.generic.type		= MTYPE_BITMAP;
 	botSelectInfo.go.generic.name		= BOTSELECT_ACCEPT0;
@@ -2072,6 +2143,8 @@ static void UI_BotSelectMenu_Init( char *bot ) {
 	botSelectInfo.go.width				= 128;
 	botSelectInfo.go.height				= 64;
 	botSelectInfo.go.focuspic			= BOTSELECT_ACCEPT1;
+    botSelectInfo.go.generic.navLeft    = &botSelectInfo.right;
+    botSelectInfo.go.generic.navUp      = &botSelectInfo.picbuttons[PLAYERGRID_COLS * (PLAYERGRID_ROWS-1) + 3];
 
 	Menu_AddItem( &botSelectInfo.menu, &botSelectInfo.banner );
 	for( i = 0; i < MAX_MODELSPERPAGE; i++ ) {
