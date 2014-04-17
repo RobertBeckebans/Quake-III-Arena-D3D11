@@ -1607,7 +1607,7 @@ qboolean Menu_SelectItem( menuframework_s* m, menucommon_s *item, QNAV dir ) {
     menucommon_s *callback = NULL;
 
     // Can we set focus to this item?
-    if ( !( item->flags & (QMF_GRAYED|QMF_MOUSEONLY) ) ) {
+    if ( !( item->flags & (QMF_INACTIVE|QMF_HIDDEN|QMF_GRAYED|QMF_MOUSEONLY) ) ) {
         return Menu_UpdateCursor( m, item );
     } else {
         // We can't land here, so move on
