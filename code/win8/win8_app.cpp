@@ -7,7 +7,7 @@
 #include "win8_msgq.h"
 #include "win8_msgs.h"
 #include "win8_utils.h"
-#include "../d3d11/d3d_win8.h"
+#include "win8_d3d.h"
 
 extern "C" {
 #   include "../client/client.h"

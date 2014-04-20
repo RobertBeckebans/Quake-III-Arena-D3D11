@@ -6,9 +6,9 @@
 #include "d3d_shaders.h"
 
 #ifdef WIN8
-#   include "d3d_win8.h"
+#   include "../win8/win8_d3d.h"
 #else
-#   include "d3d_wnd.h"
+#   include "../win32/win_d3d.h"
 #endif
 
 //----------------------------------------------------------------------------

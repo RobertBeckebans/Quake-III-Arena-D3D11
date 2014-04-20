@@ -4,7 +4,7 @@
 
 // D3D headers
 #include "../d3d11/d3d_driver.h"
-#include "../d3d11/d3d_wnd.h"
+#include "../win32/win_d3d.h"
 
 // GL headers
 #include "gl_common.h"

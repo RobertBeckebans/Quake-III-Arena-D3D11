@@ -236,7 +236,7 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
             IN_DeactivateMouse();
 #endif
             // @pjb: canonical way of breaking
-			DebugBreak();
+			__debugbreak();
 		}
 	}
 #endif
