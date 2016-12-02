@@ -15,4 +15,12 @@ Build
 servercache.dat
 q3key
 baseq3/hlsl
-
+*.aps
+build
+*.bak
+*.bsp
+*.prt
+*.srf
+baseq3/maps/autosave.map
+*.db
+*.opendb
