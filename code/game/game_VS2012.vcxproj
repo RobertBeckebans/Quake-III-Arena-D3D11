@@ -169,76 +169,76 @@
     <LinkIncremental>false</LinkIncremental>
     <TargetName>qagamex86</TargetName>
     <OutDir>$(SolutionDir)Build\$(SolutionName)\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Build\Intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)Build\Intermediate\$(SolutionName)\$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug TA|x64'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>qagamex64</TargetName>
     <OutDir>$(SolutionDir)Build\$(SolutionName)\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Build\Intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)Build\Intermediate\$(SolutionName)\$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug TA|ARM'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>qagamearm</TargetName>
     <OutDir>$(SolutionDir)Build\$(SolutionName)\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Build\Intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)Build\Intermediate\$(SolutionName)\$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
     <LibraryPath>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\lib\arm;$(VC_LibraryPath_ARM);$(WindowsSDK_LibraryPath_ARM);</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>qagamex86</TargetName>
     <OutDir>$(SolutionDir)Build\$(SolutionName)\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Build\Intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)Build\Intermediate\$(SolutionName)\$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>qagamex64</TargetName>
     <OutDir>$(SolutionDir)Build\$(SolutionName)\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Build\Intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)Build\Intermediate\$(SolutionName)\$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>qagamearm</TargetName>
     <OutDir>$(SolutionDir)Build\$(SolutionName)\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Build\Intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)Build\Intermediate\$(SolutionName)\$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
     <LibraryPath>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\lib\arm;$(VC_LibraryPath_ARM);$(WindowsSDK_LibraryPath_ARM);</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>qagamex86</TargetName>
     <OutDir>$(SolutionDir)Build\$(SolutionName)\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Build\Intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)Build\Intermediate\$(SolutionName)\$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>qagamex64</TargetName>
     <OutDir>$(SolutionDir)Build\$(SolutionName)\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Build\Intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)Build\Intermediate\$(SolutionName)\$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>qagamearm</TargetName>
     <OutDir>$(SolutionDir)Build\$(SolutionName)\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Build\Intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)Build\Intermediate\$(SolutionName)\$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
     <LibraryPath>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\lib\arm;C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\lib\arm;$(VC_LibraryPath_ARM);$(WindowsSDK_LibraryPath_ARM);</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release TA|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>qagamex86</TargetName>
     <OutDir>$(SolutionDir)Build\$(SolutionName)\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Build\Intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)Build\Intermediate\$(SolutionName)\$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release TA|x64'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>qagamex64</TargetName>
     <OutDir>$(SolutionDir)Build\$(SolutionName)\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Build\Intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)Build\Intermediate\$(SolutionName)\$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release TA|ARM'">
     <LinkIncremental>false</LinkIncremental>
     <TargetName>qagamearm</TargetName>
     <OutDir>$(SolutionDir)Build\$(SolutionName)\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Build\Intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)Build\Intermediate\$(SolutionName)\$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
     <LibraryPath>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\lib\arm;$(VC_LibraryPath_ARM);$(WindowsSDK_LibraryPath_ARM);</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug TA|Win32'">

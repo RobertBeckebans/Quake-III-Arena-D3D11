@@ -1,9 +1,9 @@
-#include "d3d_common.h"
-#include "d3d_device.h"
+#include "../d3d11/d3d_common.h"
+#include "../d3d11/d3d_device.h"
 
 extern "C" {
-#   include "../win32/resource.h"
-#   include "../win32/win_local.h"
+#   include "resource.h"
+#   include "win_local.h"
 }
 
 #define	WINDOW_CLASS_NAME	"Quake 3: Arena (Direct3D)"

@@ -651,7 +651,25 @@ void _UI_Refresh( int realtime )
 	// draw cursor
 	UI_SetColor( NULL );
 	if (Menu_Count() > 0) {
-		UI_DrawHandlePic( uiInfo.uiDC.cursorx-16, uiInfo.uiDC.cursory-16, 32, 32, uiInfo.uiDC.Assets.cursor);
+
+        // @pjb: hack: todo: remove me!
+        if ( ui_debugMenuNav.integer != 0 )
+        {
+            int i;
+            extern menuDef_t Menus[];
+            extern int menuCount;
+            for (i = 0; i < menuCount; i++) {
+                if (Menus[i].window.flags & WINDOW_HASFOCUS && Menus[i].window.flags & WINDOW_VISIBLE) {
+                    UI_DrawHandlePic( 
+                        Menus[i].window.rect.x + Menus[i].focusPoint[0] - 16, 
+                        Menus[i].window.rect.y + Menus[i].focusPoint[1] - 16, 
+                        32, 32, 
+                        uiInfo.uiDC.Assets.cursor);
+                }
+            }
+        }
+
+        UI_DrawHandlePic( uiInfo.uiDC.cursorx-16, uiInfo.uiDC.cursory-16, 32, 32, uiInfo.uiDC.Assets.cursor);
 	}
 
 #ifndef NDEBUG
@@ -5241,7 +5259,6 @@ void _UI_MouseEvent( int dx, int dy )
 */
 void _UI_GamepadEvent( int axis, int value )
 {
-    // @pjb: TODO: only tracking the vertical axis for now
     if ( axis == 1 )
     {
         int threshold = ui_thumbstickThreshold.value;
@@ -5258,6 +5275,16 @@ void _UI_GamepadEvent( int axis, int value )
     }
     else if ( axis == 0 )
     {
+        int threshold = ui_thumbstickThreshold.value;
+
+        if ( value >= threshold && uiInfo.lthumbstickX < threshold )
+            _UI_KeyEvent( K_RIGHTARROW, qtrue );
+        if ( value < threshold && uiInfo.lthumbstickX >= threshold )
+            _UI_KeyEvent( K_RIGHTARROW, qfalse );
+        if ( value <= -threshold && uiInfo.lthumbstickX > -threshold )
+            _UI_KeyEvent( K_LEFTARROW, qtrue );
+        if ( value > -threshold && uiInfo.lthumbstickX <= -threshold )
+            _UI_KeyEvent( K_LEFTARROW, qfalse );
         uiInfo.lthumbstickX = value;
     }
 }
@@ -5741,6 +5768,9 @@ vmCvar_t	ui_realCaptureLimit;
 vmCvar_t	ui_realWarmUp;
 vmCvar_t	ui_serverStatusTimeOut;
 
+// @pjb: for debugging ui menu keyboard nav
+vmCvar_t    ui_debugMenuNav;
+
 
 // bk001129 - made static to avoid aliasing
 static cvarTable_t		cvarTable[] = {
@@ -5865,6 +5895,9 @@ static cvarTable_t		cvarTable[] = {
 	{ &ui_realWarmUp, "g_warmup", "20", CVAR_ARCHIVE},
 	{ &ui_realCaptureLimit, "capturelimit", "8", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART},
 	{ &ui_serverStatusTimeOut, "ui_serverStatusTimeOut", "7000", CVAR_ARCHIVE},
+
+    // @pjb: for debugging menu keyboard navigation
+    { &ui_debugMenuNav, "ui_debugMenuNav", "0", CVAR_ARCHIVE },
 
 };
 

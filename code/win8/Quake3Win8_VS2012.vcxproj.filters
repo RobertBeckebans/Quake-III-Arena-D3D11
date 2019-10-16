@@ -13,6 +13,7 @@
     <ClCompile Include="win8_net.cpp" />
     <ClCompile Include="win8_sys.cpp" />
     <ClCompile Include="win8_utils.cpp" />
+    <ClCompile Include="win8_d3d.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\win32\win_shared.h" />
@@ -21,6 +22,7 @@
     <ClInclude Include="win8_msgs.h" />
     <ClInclude Include="win8_net.h" />
     <ClInclude Include="win8_utils.h" />
+    <ClInclude Include="win8_d3d.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\logo150.png">

@@ -325,7 +325,11 @@ qboolean IN_InitDIMouse( void ) {
 
 	// set the buffer size to DINPUT_BUFFERSIZE elements.
 	// the buffer size is a DWORD property associated with the device
-	hr = IDirectInputDevice_SetProperty(g_pMouse, DIPROP_BUFFERSIZE, &dipdw.diph);
+    {
+        // @pjb: DIPROP_BUFFERSIZE is whack in 64-bit
+        const GUID* guid = ((const GUID *)(size_t)(1U));
+	    hr = IDirectInputDevice_SetProperty(g_pMouse, guid, &dipdw.diph);
+    }
 
 	if (FAILED(hr)) {
 		Com_Printf ("Couldn't set DI buffersize\n");

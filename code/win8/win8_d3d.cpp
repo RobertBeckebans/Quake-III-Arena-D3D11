@@ -1,5 +1,5 @@
-#include "d3d_common.h"
-#include "d3d_device.h"
+#include "../d3d11/d3d_common.h"
+#include "../d3d11/d3d_device.h"
 
 HANDLE g_WaitingForVideoEvent = nullptr;
 HANDLE g_WaitingForVideoFinishedEvent = nullptr;

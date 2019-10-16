@@ -240,61 +240,8 @@ PlayerModel_MenuKey
 */
 static sfxHandle_t PlayerModel_MenuKey( int key )
 {
-	menucommon_s*	m;
-	int				picnum;
-
 	switch (key)
 	{
-		case K_KP_LEFTARROW:
-		case K_LEFTARROW:
-        case K_GAMEPAD_DPAD_LEFT:  // @pjb
-			m = Menu_ItemAtCursor(&s_playermodel.menu);
-			picnum = m->id - ID_PLAYERPIC0;
-			if (picnum >= 0 && picnum <= 15)
-			{
-				if (picnum > 0)
-				{
-					Menu_SetCursor(&s_playermodel.menu,s_playermodel.menu.cursor-1);
-					return (menu_move_sound);
-					
-				}
-				else if (s_playermodel.modelpage > 0)
-				{
-					s_playermodel.modelpage--;
-					Menu_SetCursor(&s_playermodel.menu,s_playermodel.menu.cursor+15);
-					PlayerModel_UpdateGrid();
-					return (menu_move_sound);
-				}
-				else
-					return (menu_buzz_sound);
-			}
-			break;
-
-		case K_KP_RIGHTARROW:
-		case K_RIGHTARROW:
-        case K_GAMEPAD_DPAD_RIGHT:  // @pjb
-			m = Menu_ItemAtCursor(&s_playermodel.menu);
-			picnum = m->id - ID_PLAYERPIC0;
-			if (picnum >= 0 && picnum <= 15)
-			{
-				if ((picnum < 15) && (s_playermodel.modelpage*MAX_MODELSPERPAGE + picnum+1 < s_playermodel.nummodels))
-				{
-					Menu_SetCursor(&s_playermodel.menu,s_playermodel.menu.cursor+1);
-					return (menu_move_sound);
-				}					
-				else if ((picnum == 15) && (s_playermodel.modelpage < s_playermodel.numpages-1))
-				{
-					s_playermodel.modelpage++;
-					Menu_SetCursor(&s_playermodel.menu,s_playermodel.menu.cursor-15);
-					PlayerModel_UpdateGrid();
-					return (menu_move_sound);
-				}
-				else
-					return (menu_buzz_sound);
-			}
-			break;
-			
-		case K_MOUSE2:
 		case K_ESCAPE:
         case K_GAMEPAD_B:  // @pjb
 			PlayerModel_SaveChanges();
@@ -510,6 +457,64 @@ static void PlayerModel_SetMenuItems( void )
 	}
 }
 
+// @pjb: nav override for player model
+static void* PlayerModel_PlayerIconNav( menuframework_s* menu, menubitmap_s* item, QNAV direction ) 
+{
+    // Get the index and work out where I am in space.
+    int index = item->generic.id - ID_PLAYERPIC0;
+    int col = index % PLAYERGRID_COLS;
+    int row = index / PLAYERGRID_COLS;
+    int page = s_playermodel.modelpage;
+
+    // What would be the new index?
+    switch ( direction )
+    {
+    case QNAV_LEFT : col--; break;
+    case QNAV_RIGHT: col++; break;
+    case QNAV_UP   : row--; break;
+    case QNAV_DOWN : row++; break;
+    }
+
+    // Navigate to the left/right page buttons on row overflow
+    if ( row >= PLAYERGRID_ROWS )
+    {
+        return &s_playermodel.left;
+    }
+
+    // Just clamp negative rows
+    if ( row < 0 ) {
+        row = 0;
+    }
+
+    // Do we need to switch page to the left?
+    if ( col < 0 )
+    {
+        if ( s_playermodel.modelpage > 0 ) {
+            s_playermodel.modelpage--;
+            col = PLAYERGRID_COLS - 1;
+        } else {
+            col = 0;
+        }
+    }
+
+    // Do we need to switch page to the right?
+    if ( col >= PLAYERGRID_COLS )
+    {
+        if ( s_playermodel.modelpage < s_playermodel.numpages - 1 ) {
+            s_playermodel.modelpage++;
+            col = 0;
+        } else {
+            col = PLAYERGRID_COLS - 1;
+        }
+    }
+
+    if ( page != s_playermodel.modelpage )
+        PlayerModel_UpdateGrid();
+
+    // Now return what we've selected
+    return &s_playermodel.picbuttons[row * PLAYERGRID_COLS + col];
+}
+
 /*
 =================
 PlayerModel_MenuInit
@@ -534,6 +539,7 @@ static void PlayerModel_MenuInit( void )
 	s_playermodel.menu.key        = PlayerModel_MenuKey;
 	s_playermodel.menu.wrapAround = qtrue;
 	s_playermodel.menu.fullscreen = qtrue;
+    s_playermodel.menu.custom_nav  = qtrue;
 
 	s_playermodel.banner.generic.type  = MTYPE_BTEXT;
 	s_playermodel.banner.generic.x     = 320;
@@ -591,6 +597,10 @@ static void PlayerModel_MenuInit( void )
 			s_playermodel.picbuttons[k].generic.top		 = y;
 			s_playermodel.picbuttons[k].generic.right	 = x + 64;
 			s_playermodel.picbuttons[k].generic.bottom   = y + 64;
+			s_playermodel.picbuttons[k].generic.navLeft  = PlayerModel_PlayerIconNav;
+			s_playermodel.picbuttons[k].generic.navRight = PlayerModel_PlayerIconNav;
+			s_playermodel.picbuttons[k].generic.navUp    = PlayerModel_PlayerIconNav;
+			s_playermodel.picbuttons[k].generic.navDown  = PlayerModel_PlayerIconNav;
 			s_playermodel.picbuttons[k].width  		     = 128;
 			s_playermodel.picbuttons[k].height  		 = 128;
 			s_playermodel.picbuttons[k].focuspic  		 = MODEL_SELECT;
@@ -647,6 +657,9 @@ static void PlayerModel_MenuInit( void )
 	s_playermodel.left.generic.id			= ID_PREVPAGE;
 	s_playermodel.left.generic.x			= 125;
 	s_playermodel.left.generic.y			= 340;
+    s_playermodel.left.generic.navUp        = &s_playermodel.picbuttons[3 * PLAYERGRID_ROWS + 1];
+    s_playermodel.left.generic.navDown      = &s_playermodel.back;
+    s_playermodel.left.generic.navRight     = &s_playermodel.right;
 	s_playermodel.left.width  				= 64;
 	s_playermodel.left.height  				= 32;
 	s_playermodel.left.focuspic				= MODEL_ARROWSL;
@@ -657,6 +670,9 @@ static void PlayerModel_MenuInit( void )
 	s_playermodel.right.generic.id			= ID_NEXTPAGE;
 	s_playermodel.right.generic.x			= 125+61;
 	s_playermodel.right.generic.y			= 340;
+    s_playermodel.right.generic.navUp        = &s_playermodel.picbuttons[3 * PLAYERGRID_ROWS + 2];
+    s_playermodel.right.generic.navDown     = &s_playermodel.back;
+    s_playermodel.right.generic.navLeft     = &s_playermodel.left;
 	s_playermodel.right.width  				= 64;
 	s_playermodel.right.height  		    = 32;
 	s_playermodel.right.focuspic			= MODEL_ARROWSR;
@@ -668,6 +684,7 @@ static void PlayerModel_MenuInit( void )
 	s_playermodel.back.generic.id	    = ID_BACK;
 	s_playermodel.back.generic.x		= 0;
 	s_playermodel.back.generic.y		= 480-64;
+    s_playermodel.back.generic.navUp    = &s_playermodel.left;
 	s_playermodel.back.width  		    = 128;
 	s_playermodel.back.height  		    = 64;
 	s_playermodel.back.focuspic         = MODEL_BACK1;
